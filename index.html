@@ -764,11 +764,25 @@ let cart=[],activeFilter='all',searchQuery='',adminLoggedIn=false,editingId=null
 //  PIXEL META
 // ══════════════════════════════════
 function fbq(...args){if(window.fbq)window.fbq(...args)}
+let _pixelInitialized = false;
 function initPixel(){
-  if(!CONFIG.pixelId)return;
-  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-  window.fbq('init',CONFIG.pixelId);
-  window.fbq('track','PageView');
+  if(!CONFIG.pixelId) return;
+  if(_pixelInitialized) {
+    // Already loaded, just re-init with new ID if changed
+    if(window.fbq) { window.fbq('init', CONFIG.pixelId); }
+    return;
+  }
+  _pixelInitialized = true;
+  !function(f,b,e,v,n,t,s){
+    if(f.fbq)return;
+    n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;
+    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];
+    t=b.createElement(e);t.async=!0;t.src=v;
+    s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s);
+  }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  window.fbq('init', CONFIG.pixelId);
+  window.fbq('track', 'PageView');
 }
 
 // ══════════════════════════════════
