@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lamine Diabaté — Bibliothèque</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ── TOKENS ── */
+  :root {
+    --black:    #0A0A0A;
+    --charcoal: #1C1C1C;
+    --gold:     #C9A84C;
+    --gold-dim: #8B6F2E;
+    --ivory:    #F5F0E8;
+    --ivory-dim:#E8E1D3;
+    --white:    #FFFFFF;
+    --muted:    #6B6660;
+    --radius:   4px;
+    --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--ivory);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .display {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background: rgba(10, 10, 10, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201, 168, 76, 0.15);
+  }
+
+  .nav-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .cart-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    color: var(--ivory);
+    padding: 9px 20px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: var(--transition);
+  }
+
+  .cart-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .cart-count {
+    background: var(--gold);
+    color: var(--black);
+    font-size: 0.68rem;
+    font-weight: 600;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+  }
+
+  .cart-count.bump { transform: scale(1.4); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 120px 40px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    width: 32px; height: 1px;
+    background: var(--gold);
+  }
+
+  .hero-title {
+    font-size: clamp(3rem, 7vw, 6.5rem);
+    max-width: 820px;
+    margin-bottom: 28px;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 480px;
+    margin-bottom: 52px;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--gold);
+    color: var(--black);
+    padding: 16px 36px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: var(--radius);
+    transition: var(--transition);
+    border: none;
+    cursor: pointer;
+  }
+
+  .hero-cta:hover {
+    background: var(--ivory);
+    transform: translateY(-2px);
+  }
+
+  .hero-cta svg { transition: transform 0.3s; }
+  .hero-cta:hover svg { transform: translateY(4px); }
+
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .stat-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.4rem;
+    font-weight: 300;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* ── SECTION TITLES ── */
+  .section {
+    padding: 100px 40px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 64px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .section-eyebrow {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 4vw, 3.2rem);
+  }
+
+  .filter-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    padding: 7px 18px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 999px;
+    cursor: pointer;
+    background: none;
+    color: var(--muted);
+    transition: var(--transition);
+  }
+
+  .pill.active, .pill:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(201,168,76,0.06);
+  }
+
+  /* ── BOOK GRID ── */
+  .books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 28px;
+  }
+
+  /* ── BOOK CARD ── */
+  .book-card {
+    background: var(--charcoal);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    transition: var(--transition);
+    cursor: default;
+  }
+
+  .book-card:hover {
+    border-color: rgba(201,168,76,0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  /* Signature element: gold bookmark line */
+  .book-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 2px;
+    height: 0;
+    background: var(--gold);
+    transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 2;
+  }
+
+  .book-card:hover::before {
+    height: 100%;
+  }
+
+  .book-cover {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: #111;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .book-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .book-card:hover .book-cover img {
+    transform: scale(1.04);
+  }
+
+  /* Placeholder cover */
+  .cover-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 24px;
+    text-align: center;
+    background: linear-gradient(160deg, #1a1a1a 0%, #111 100%);
+  }
+
+  .cover-placeholder .ph-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 300;
+    color: rgba(201,168,76,0.6);
+    line-height: 1.3;
+  }
+
+  .cover-placeholder .ph-line {
+    width: 32px; height: 1px;
+    background: rgba(201,168,76,0.3);
+  }
+
+  .cover-placeholder .ph-author {
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.2);
+  }
+
+  .badge-cat {
+    position: absolute;
+    top: 12px; right: 12px;
+    padding: 4px 10px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    background: rgba(10,10,10,0.85);
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--gold);
+    backdrop-filter: blur(4px);
+  }
+
+  .book-body {
+    padding: 22px 22px 20px;
+  }
+
+  .book-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    line-height: 1.3;
+    margin-bottom: 8px;
+    color: var(--ivory);
+  }
+
+  .book-author {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .book-desc {
+    font-size: 0.82rem;
+    color: rgba(245,240,232,0.5);
+    line-height: 1.65;
+    margin-bottom: 20px;
+    min-height: 52px;
+  }
+
+  .book-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .book-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--gold);
+    letter-spacing: -0.01em;
+  }
+
+  .book-price span {
+    font-size: 0.72rem;
+    font-weight: 400;
+    font-family: 'Inter', sans-serif;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .add-btn {
+    background: none;
+    border: 1px solid rgba(201,168,76,0.5);
+    color: var(--gold);
+    padding: 9px 18px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .add-btn:hover {
+    background: var(--gold);
+    color: var(--black);
+  }
+
+  .add-btn.added {
+    background: rgba(201,168,76,0.12);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* ── CART PANEL ── */
+  .cart-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(3px);
+  }
+
+  .cart-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .cart-panel {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: min(480px, 100vw);
+    background: var(--charcoal);
+    border-left: 1px solid rgba(201,168,76,0.15);
+    z-index: 201;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cart-panel.open {
+    transform: translateX(0);
+  }
+
+  .cart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .cart-header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 300;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.2s;
+    display: flex;
+  }
+
+  .close-btn:hover { color: var(--ivory); }
+
+  .cart-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(201,168,76,0.2) transparent;
+  }
+
+  .cart-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    gap: 12px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  .cart-empty-icon {
+    font-size: 2.5rem;
+    opacity: 0.3;
+  }
+
+  .cart-empty p {
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+
+  .cart-item {
+    display: flex;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    animation: fadeSlide 0.3s ease;
+  }
+
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateX(12px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .ci-thumb {
+    width: 52px; height: 70px;
+    background: #111;
+    border-radius: 3px;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ci-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+
+  .ci-thumb-ph {
+    width: 100%; height: 100%;
+    background: linear-gradient(160deg, #222, #111);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ci-thumb-ph span {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.6rem;
+    color: rgba(201,168,76,0.4);
+    text-align: center;
+    padding: 4px;
+  }
+
+  .ci-info { flex: 1; min-width: 0; }
+
+  .ci-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--ivory);
+    line-height: 1.3;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ci-price {
+    font-size: 0.78rem;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  .ci-qty-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .qty-btn {
+    width: 26px; height: 26px;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--ivory);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+  }
+
+  .qty-btn:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .qty-val {
+    font-size: 0.85rem;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  .ci-remove {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.2);
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 0;
+    transition: color 0.2s;
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+
+  .ci-remove:hover { color: #e05252; }
+
+  /* ── ORDER FORM ── */
+  .cart-form {
+    padding: 24px 32px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .cart-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 24px;
+  }
+
+  .cart-total-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .cart-total-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--gold);
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .form-input {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--ivory);
+    padding: 11px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.88rem;
+    border-radius: var(--radius);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.04);
+  }
+
+  .form-input::placeholder { color: var(--muted); }
+
+  .whatsapp-btn {
+    width: 100%;
+    background: #25D366;
+    color: #fff;
+    border: none;
+    padding: 15px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .whatsapp-btn:hover {
+    background: #1ebe5a;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(37,211,102,0.25);
+  }
+
+  .whatsapp-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* ── MOBILE STICKY BAR ── */
+  .mobile-cart-bar {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 99;
+    padding: 12px 20px;
+    background: var(--charcoal);
+    border-top: 1px solid rgba(201,168,76,0.2);
+  }
+
+  .mobile-cart-bar button {
+    width: 100%;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    padding: 15px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 80px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--charcoal);
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--ivory);
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    font-size: 0.82rem;
+    z-index: 300;
+    opacity: 0;
+    transition: all 0.3s;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 48px 40px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .footer-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .footer-copy {
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .hero { padding: 100px 20px 60px; }
+    .hero-stats { gap: 28px; flex-wrap: wrap; }
+    .section { padding: 72px 20px; }
+    .section-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+    footer { padding: 32px 20px; }
+    .nav-right .cart-btn span:not(.cart-count) { display: none; }
+    .mobile-cart-bar { display: block; }
+  }
+
+  @media (max-width: 480px) {
+    .books-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+    .hero-title { font-size: 2.6rem; }
+  }
+
+  /* ── SCROLL ANIMATION ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">Lamine Diabaté</div>
+  <div class="nav-right">
+    <button class="cart-btn" onclick="openCart()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+      </svg>
+      <span>Panier</span>
+      <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Bibliothèque · Abidjan, Côte d'Ivoire</div>
+  <h1 class="hero-title display">
+    Des livres qui<br><em>transforment</em><br>les esprits.
+  </h1>
+  <p class="hero-sub">Développement personnel, connaissance de soi et héritage africain. Sélectionnés pour ceux qui refusent la médiocrité.</p>
+  <a href="#catalogue" class="hero-cta">
+    Découvrir la bibliothèque
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>
+    </svg>
+  </a>
+  <div class="hero-stats">
+    <div>
+      <div class="stat-val display">10+</div>
+      <div class="stat-label">Titres disponibles</div>
+    </div>
+    <div>
+      <div class="stat-val display">500+</div>
+      <div class="stat-label">Lecteurs satisfaits</div>
+    </div>
+    <div>
+      <div class="stat-val display">48h</div>
+      <div class="stat-label">Livraison Abidjan</div>
+    </div>
+  </div>
+</section>
+
+<!-- CATALOGUE -->
+<section class="section" id="catalogue">
+  <div class="section-header reveal">
+    <div>
+      <div class="section-eyebrow">Collection complète</div>
+      <h2 class="section-title display">La bibliothèque</h2>
+    </div>
+    <div class="filter-pills">
+      <button class="pill active" onclick="filterBooks('all', this)">Tous</button>
+      <button class="pill" onclick="filterBooks('devperso', this)">Développement personnel</button>
+      <button class="pill" onclick="filterBooks('cheikh', this)">Cheikh Anta Diop</button>
+    </div>
+  </div>
+
+  <div class="books-grid" id="booksGrid"></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">Lamine Diabaté</div>
+  <div class="footer-copy">© 2026 · Commandes via WhatsApp · Livraison Côte d'Ivoire</div>
+</footer>
+
+<!-- MOBILE STICKY BAR -->
+<div class="mobile-cart-bar" id="mobileBar" style="display:none">
+  <button onclick="openCart()">
+    <span>Voir mon panier</span>
+    <span id="mobileTotalBar">0 FCFA</span>
+  </button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- CART OVERLAY -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+
+<!-- CART PANEL -->
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+    <h2 class="cart-header-title display">Mon panier</h2>
+    <button class="close-btn" onclick="closeCart()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">📚</div>
+      <p>Votre panier est vide.<br>Choisissez un titre pour commencer.</p>
+    </div>
+  </div>
+
+  <div class="cart-form" id="cartForm" style="display:none">
+    <div class="cart-total-row">
+      <span class="cart-total-label">Total commande</span>
+      <span class="cart-total-val display" id="cartTotal">0 FCFA</span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="orderName">Votre nom complet</label>
+      <input class="form-input" type="text" id="orderName" placeholder="Ex : Kouamé Jean-Paul">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="orderCity">Votre ville</label>
+      <input class="form-input" type="text" id="orderCity" placeholder="Ex : Cocody, Abidjan">
+    </div>
+
+    <button class="whatsapp-btn" onclick="sendWhatsApp()" id="waBtn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+      Confirmer sur WhatsApp
+    </button>
+  </div>
+</div>
+
+<script>
+// ── CATALOGUE DATA ──
+// 📝 POUR MODIFIER : éditez ce tableau.
+// image: mettez l'URL ou le chemin vers votre image. null = placeholder automatique
+const BOOKS = [
+  {
+    id: 1,
+    title: "Le Pouvoir d'un Esprit Aligné",
+    author: "Lamine Diabaté",
+    price: 5000,
+    category: "devperso",
+    image: null,
+    desc: "Découvrez la méthode pour aligner vos pensées, vos émotions et vos actions vers vos objectifs les plus ambitieux."
+  },
+  {
+    id: 2,
+    title: "90 Jours pour Renaître et Atteindre ses Objectifs",
+    author: "Lamine Diabaté",
+    price: 5000,
+    category: "devperso",
+    image: null,
+    desc: "Un programme structuré sur 90 jours pour transformer votre vie et atteindre vos objectifs avec discipline et méthode."
+  },
+  {
+    id: 3,
+    title: "Nations Nègres et Culture",
+    author: "Cheikh Anta Diop",
+    price: 6000,
+    category: "cheikh",
+    image: null,
+    desc: "L'œuvre majeure qui redéfinit l'histoire de l'Afrique et de l'humanité. Un incontournable de la pensée africaine."
+  },
+  {
+    id: 4,
+    title: "Antériorité des Civilisations Nègres",
+    author: "Cheikh Anta Diop",
+    price: 6000,
+    category: "cheikh",
+    image: null,
+    desc: "Diop démontre avec rigueur scientifique l'antériorité de la civilisation africaine sur les civilisations occidentales."
+  },
+  {
+    id: 5,
+    title: "L'Afrique Noire Précoloniale",
+    author: "Cheikh Anta Diop",
+    price: 5500,
+    category: "cheikh",
+    image: null,
+    desc: "Une étude approfondie des structures politiques, économiques et sociales de l'Afrique noire avant la colonisation."
+  },
+  {
+    id: 6,
+    title: "Civilisation ou Barbarie",
+    author: "Cheikh Anta Diop",
+    price: 6500,
+    category: "cheikh",
+    image: null,
+    desc: "Le testament intellectuel de Diop. Une synthèse encyclopédique de son œuvre scientifique et philosophique."
+  }
+];
+
+// ── WHATSAPP CONFIG ──
+const WA_NUMBER = "2250714313052"; // numéro avec indicatif CI
+
+// ── STATE ──
+let cart = [];
+let activeFilter = 'all';
+
+// ── RENDER CATALOGUE ──
+function renderBooks() {
+  const grid = document.getElementById('booksGrid');
+  const filtered = activeFilter === 'all' ? BOOKS : BOOKS.filter(b => b.category === activeFilter);
+
+  grid.innerHTML = filtered.map(book => {
+    const inCart = cart.find(i => i.id === book.id);
+    const coverHTML = book.image
+      ? `<img src="${book.image}" alt="${book.title}" loading="lazy">`
+      : `<div class="cover-placeholder">
+           <div class="ph-line"></div>
+           <div class="ph-title">${book.title}</div>
+           <div class="ph-line"></div>
+           <div class="ph-author">${book.author}</div>
+         </div>`;
+
+    const catLabel = book.category === 'cheikh' ? 'C. A. Diop' : 'Dev. Personnel';
+
+    return `
+      <div class="book-card reveal" data-category="${book.category}">
+        <div class="book-cover">
+          ${coverHTML}
+          <div class="badge-cat">${catLabel}</div>
+        </div>
+        <div class="book-body">
+          <div class="book-title">${book.title}</div>
+          <div class="book-author">${book.author}</div>
+          <div class="book-desc">${book.desc}</div>
+          <div class="book-footer">
+            <div class="book-price display">${book.price.toLocaleString('fr-FR')} <span>FCFA</span></div>
+            <button class="add-btn ${inCart ? 'added' : ''}" onclick="addToCart(${book.id})" id="btn-${book.id}">
+              ${inCart ? '✓ Ajouté' : 'Ajouter'}
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  observeReveal();
+}
+
+// ── FILTER ──
+function filterBooks(cat, el) {
+  activeFilter = cat;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderBooks();
+}
+
+// ── CART LOGIC ──
+function addToCart(id) {
+  const book = BOOKS.find(b => b.id === id);
+  const existing = cart.find(i => i.id === id);
+
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({ ...book, qty: 1 });
+  }
+
+  updateCartUI();
+  showToast(`"${book.title}" ajouté au panier`);
+
+  const btn = document.getElementById(`btn-${id}`);
+  if (btn) { btn.textContent = '✓ Ajouté'; btn.classList.add('added'); }
+
+  const count = document.getElementById('cartCount');
+  count.classList.add('bump');
+  setTimeout(() => count.classList.remove('bump'), 300);
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(i => i.id !== id);
+  const btn = document.getElementById(`btn-${id}`);
+  if (btn) { btn.textContent = 'Ajouter'; btn.classList.remove('added'); }
+  updateCartUI();
+  renderCartItems();
+}
+
+function changeQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) removeFromCart(id);
+  else { updateCartUI(); renderCartItems(); }
+}
+
+function getTotal() {
+  return cart.reduce((s, i) => s + i.price * i.qty, 0);
+}
+
+function getTotalQty() {
+  return cart.reduce((s, i) => s + i.qty, 0);
+}
+
+function updateCartUI() {
+  const qty = getTotalQty();
+  const total = getTotal();
+
+  document.getElementById('cartCount').textContent = qty;
+  document.getElementById('cartTotal').textContent = total.toLocaleString('fr-FR') + ' FCFA';
+
+  const mobileBar = document.getElementById('mobileBar');
+  const mobileTotalBar = document.getElementById('mobileTotalBar');
+
+  if (qty > 0) {
+    mobileBar.style.display = 'block';
+    mobileTotalBar.textContent = total.toLocaleString('fr-FR') + ' FCFA';
+  } else {
+    mobileBar.style.display = 'none';
+  }
+
+  renderCartItems();
+}
+
+function renderCartItems() {
+  const container = document.getElementById('cartItems');
+  const form = document.getElementById('cartForm');
+
+  if (cart.length === 0) {
+    container.innerHTML = `
+      <div class="cart-empty">
+        <div class="cart-empty-icon">📚</div>
+        <p>Votre panier est vide.<br>Choisissez un titre pour commencer.</p>
+      </div>`;
+    form.style.display = 'none';
+    return;
+  }
+
+  form.style.display = 'block';
+
+  container.innerHTML = cart.map(item => {
+    const thumbHTML = item.image
+      ? `<img src="${item.image}" alt="${item.title}">`
+      : `<div class="ci-thumb-ph"><span>${item.title.substring(0, 12)}…</span></div>`;
+
+    return `
+      <div class="cart-item">
+        <div class="ci-thumb">${thumbHTML}</div>
+        <div class="ci-info">
+          <div class="ci-title">${item.title}</div>
+          <div class="ci-price">${(item.price * item.qty).toLocaleString('fr-FR')} FCFA</div>
+          <div class="ci-qty-row">
+            <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
+            <span class="qty-val">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+          </div>
+        </div>
+        <button class="ci-remove" onclick="removeFromCart(${item.id})" title="Supprimer">✕</button>
+      </div>`;
+  }).join('');
+}
+
+// ── WHATSAPP ──
+function sendWhatsApp() {
+  const name = document.getElementById('orderName').value.trim();
+  const city = document.getElementById('orderCity').value.trim();
+
+  if (!name) { document.getElementById('orderName').focus(); showToast('Veuillez entrer votre nom'); return; }
+  if (!city) { document.getElementById('orderCity').focus(); showToast('Veuillez entrer votre ville'); return; }
+  if (cart.length === 0) { showToast('Votre panier est vide'); return; }
+
+  const lines = cart.map(i =>
+    `• ${i.title} × ${i.qty} — ${(i.price * i.qty).toLocaleString('fr-FR')} FCFA`
+  ).join('\n');
+
+  const total = getTotal().toLocaleString('fr-FR');
+
+  const msg = `🛒 *Nouvelle commande*\n\n*Nom :* ${name}\n*Ville :* ${city}\n\n${lines}\n\n*Total : ${total} FCFA*\n\n---\nBonjour, je souhaite confirmer ma commande et connaître les modalités de livraison. Merci !`;
+
+  const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+// ── CART OPEN/CLOSE ──
+function openCart() {
+  document.getElementById('cartOverlay').classList.add('open');
+  document.getElementById('cartPanel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCart() {
+  document.getElementById('cartOverlay').classList.remove('open');
+  document.getElementById('cartPanel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── SCROLL REVEAL ──
+function observeReveal() {
+  const els = document.querySelectorAll('.reveal:not(.visible)');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  els.forEach(el => obs.observe(el));
+}
+
+// ── INIT ──
+renderBooks();
+observeReveal();
+</script>
+</body>
+</html>
