@@ -858,21 +858,27 @@ function saveShopSettings(){
 }
 
 function saveConfig(){
-  try{
-    var waNum=document.getElementById('cWaNumber');
-    var waMsg=document.getElementById('cWaMessage');
-    var waMsgD=document.getElementById('cWaMessageDirect');
-    var pxId=document.getElementById('cPixelId');
-    CONFIG={
-      waNumber:(waNum?waNum.value:'').trim()||DEFAULT_CONFIG.waNumber,
-      waMessage:(waMsg?waMsg.value:'').trim()||DEFAULT_CONFIG.waMessage,
-      waMessageDirect:(waMsgD?waMsgD.value:'').trim()||DEFAULT_CONFIG.waMessageDirect,
-      pixelId:(pxId?pxId.value:'').trim()
-    };
-    lsSet('sell_config',CONFIG);
-    if(CONFIG.pixelId)initPixel();
-    showToast('Configuration enregistrée ✓');
-  }catch(e){showToast('Erreur: '+e.message);console.error(e);}
+  var waNum = document.getElementById('cWaNumber');
+  var waMsg = document.getElementById('cWaMessage');
+  var waMsgD = document.getElementById('cWaMessageDirect');
+  var pxId = document.getElementById('cPixelId');
+  var newConfig = {
+    waNumber: waNum ? waNum.value.trim() : DEFAULT_CONFIG.waNumber,
+    waMessage: waMsg ? waMsg.value.trim() : DEFAULT_CONFIG.waMessage,
+    waMessageDirect: waMsgD ? waMsgD.value.trim() : DEFAULT_CONFIG.waMessageDirect,
+    pixelId: pxId ? pxId.value.trim() : ''
+  };
+  if(!newConfig.waNumber) newConfig.waNumber = DEFAULT_CONFIG.waNumber;
+  if(!newConfig.waMessage) newConfig.waMessage = DEFAULT_CONFIG.waMessage;
+  if(!newConfig.waMessageDirect) newConfig.waMessageDirect = DEFAULT_CONFIG.waMessageDirect;
+  CONFIG = newConfig;
+  localStorage.setItem('sell_config', JSON.stringify(CONFIG));
+  // Load pixel asynchronously to avoid stack overflow
+  if(CONFIG.pixelId && !_pixelInitialized) {
+    setTimeout(initPixel, 100);
+  }
+  var t = document.getElementById('toast');
+  if(t){ t.textContent = 'Configuration enregistrée ✓'; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); }, 2400); }
 }
 
 // ══════════════════════════════════
