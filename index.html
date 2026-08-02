@@ -798,33 +798,57 @@ let SHOP=ls('sell_shop',DS);
 let BOOKS=[];
 let cart=[],activeFilter='all',searchQuery='',adminLoggedIn=false,editingId=null;
 
-// ══════════ LOAD FROM SUPABASE ══════════
+// ══════════ LOAD DATA ══════════
+const DB_DEFAULT=[
+  {id:1,title:"Le Pouvoir d'un Esprit Aligné",author:"Lamine Diabaté",price:5000,oldPrice:null,category:"devperso",badge:"bestseller",outOfStock:false,image:null,desc:"Découvrez la méthode pour aligner vos pensées, émotions et actions vers vos objectifs."},
+  {id:2,title:"90 Jours pour Renaître et Atteindre ses Objectifs",author:"Lamine Diabaté",price:5000,oldPrice:null,category:"devperso",badge:"none",outOfStock:false,image:null,desc:"Un programme structuré sur 90 jours pour transformer votre vie avec méthode."},
+  {id:3,title:"Nations Nègres et Culture",author:"Cheikh Anta Diop",price:6000,oldPrice:null,category:"cheikh",badge:"recommended",outOfStock:false,image:null,desc:"L'œuvre majeure qui redéfinit l'histoire de l'Afrique et de l'humanité."},
+  {id:4,title:"Antériorité des Civilisations Nègres",author:"Cheikh Anta Diop",price:6000,oldPrice:null,category:"cheikh",badge:"none",outOfStock:false,image:null,desc:"Diop démontre avec rigueur l'antériorité de la civilisation africaine."},
+  {id:5,title:"L'Afrique Noire Précoloniale",author:"Cheikh Anta Diop",price:5500,oldPrice:null,category:"cheikh",badge:"none",outOfStock:false,image:null,desc:"Structures politiques et sociales de l'Afrique noire avant la colonisation."},
+  {id:6,title:"Civilisation ou Barbarie",author:"Cheikh Anta Diop",price:6500,oldPrice:null,category:"cheikh",badge:"none",outOfStock:false,image:null,desc:"Le testament intellectuel de Diop. Synthèse encyclopédique de son œuvre."}
+];
+
 async function loadBooksFromDB(){
+  showLoader(true);
   try{
-    showLoader(true);
-    const rows=await sbGet('books','?order=created_at.asc');
-    BOOKS=rows.map(rowToBook);
-    // Also load config
-    const cfgRows=await sbGet('shop_config');
-    cfgRows.forEach(row=>{
-      if(row.key==='sell_config')CONFIG={...DC,...row.value};
-      if(row.key==='sell_shop')SHOP={...DS,...row.value};
+    // Try Supabase first (5 second timeout)
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),5000);
+    const r=await fetch(`${SB_URL}/rest/v1/books?order=created_at.asc`,{
+      signal:controller.signal,
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}
     });
+    clearTimeout(timeout);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const rows=await r.json();
+    if(rows&&rows.length>0){
+      BOOKS=rows.map(rowToBook);
+      // Load config from Supabase
+      try{
+        const cfgR=await fetch(`${SB_URL}/rest/v1/shop_config`,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+        if(cfgR.ok){
+          const cfgRows=await cfgR.json();
+          cfgRows.forEach(row=>{
+            if(row.key==='sell_config')CONFIG={...DC,...row.value};
+            if(row.key==='sell_shop')SHOP={...DS,...row.value};
+          });
+        }
+      }catch(e){}
+    }else{
+      // Supabase empty — use localStorage
+      BOOKS=ls('lamine_books',DB_DEFAULT);
+    }
+  }catch(e){
+    console.warn('Supabase unavailable, using localStorage:',e.message);
+    BOOKS=ls('lamine_books',DB_DEFAULT);
+    CONFIG=ls('sell_config',DC);
+    SHOP=ls('sell_shop',DS);
+  }finally{
+    showLoader(false);
     applyShop();
     renderBooks();
     initPixel();
-  }catch(e){
-    console.error('DB load error:',e);
-    // Fallback to localStorage
-    BOOKS=ls('lamine_books',[]);
-    if(!BOOKS.length){
-      BOOKS=[
-        {id:1,title:"Le Pouvoir d'un Esprit Aligné",author:"Lamine Diabaté",price:5000,oldPrice:null,category:"devperso",badge:"bestseller",outOfStock:false,image:null,desc:"Découvrez la méthode pour aligner vos pensées, émotions et actions vers vos objectifs."},
-        {id:2,title:"90 Jours pour Renaître et Atteindre ses Objectifs",author:"Lamine Diabaté",price:5000,oldPrice:null,category:"devperso",badge:"none",outOfStock:false,image:null,desc:"Un programme structuré sur 90 jours pour transformer votre vie avec méthode."}
-      ];
-    }
-    renderBooks();
-  }finally{showLoader(false);}
+  }
 }
 
 function showLoader(show){
