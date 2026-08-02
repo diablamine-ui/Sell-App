@@ -921,8 +921,7 @@ function orderNow(id){
   const tpl=CONFIG.waMessageDirect||DEFAULT_CONFIG.waMessageDirect;
   const msg=tpl.replace('{titre}',book.title).replace('{auteur}',book.author).replace('{prix}',book.price.toLocaleString('fr-FR'));
   const url='https://wa.me/'+waNum+'?text='+encodeURIComponent(msg);
-  // Mobile-compatible open
-  var a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();document.body.removeChild(a);
+  window.open(url,'_blank','noopener,noreferrer');
   recordOrder('Un client',book.title);
 }
 
@@ -982,7 +981,7 @@ function sendWhatsApp(){
   const waNum2=(CONFIG.waNumber||'2250714313052').trim().replace(/[^0-9]/g,'');
   if(!waNum2){showToast('Numéro WhatsApp non configuré');return;}
   const url2='https://wa.me/'+waNum2+'?text='+encodeURIComponent(msg);
-  var a2=document.createElement('a');a2.href=url2;a2.target='_blank';a2.rel='noopener';document.body.appendChild(a2);a2.click();document.body.removeChild(a2);
+  window.open(url2,'_blank','noopener,noreferrer');
 }
 function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');}
 function openCart(){document.getElementById('cartOverlay').classList.add('open');document.getElementById('cartPanel').classList.add('open');document.body.style.overflow='hidden';}
@@ -991,10 +990,12 @@ function closeCart(){document.getElementById('cartOverlay').classList.remove('op
 // ══════════════ FLOATING NOTIF ══════════════
 let realOrders=[];
 function recordOrder(name,bookTitle){
-  realOrders.unshift({name,bookTitle,ts:new Date().toISOString()});
-  if(realOrders.length>20)realOrders.pop();
-  lsSet('sell_orders',realOrders);
-  triggerFloatNotif(name,bookTitle,'À l\'instant');
+  try{
+    realOrders.unshift({name,bookTitle,ts:new Date().toISOString()});
+    if(realOrders.length>10)realOrders.pop();
+    localStorage.setItem('sell_orders',JSON.stringify(realOrders));
+    triggerFloatNotif(name,bookTitle,"À l'instant");
+  }catch(e){console.warn('recordOrder error:',e);}
 }
 function loadRealOrders(){realOrders=ls('sell_orders',[]);}
 function triggerFloatNotif(name,bookTitle,label){
