@@ -208,9 +208,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .btn-cart.added{background:var(--gold-pale);color:var(--gold);border-color:rgba(169,119,28,.35)}
 
 /* ── BOOK DETAIL MODAL ── */
-.book-modal-overlay{position:fixed;inset:0;background:rgba(13,10,6,.65);z-index:250;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center}
+.book-modal-overlay{position:fixed;inset:0;background:rgba(13,10,6,.65);z-index:250;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;padding:0}
 .book-modal-overlay.open{opacity:1;pointer-events:all}
-.book-modal{background:var(--white);border-radius:var(--r) var(--r) 0 0;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .38s var(--ease);padding-bottom:20px;scrollbar-width:none}
+.book-modal{background:var(--white);border-radius:16px 16px 0 0;width:100%;max-width:520px;height:88vh;overflow-y:scroll;-webkit-overflow-scrolling:touch;transform:translateY(100%);transition:transform .38s var(--ease);padding-bottom:32px}
 .book-modal::-webkit-scrollbar{display:none}
 .book-modal-overlay.open .book-modal{transform:translateY(0)}
 .bm-handle{width:36px;height:4px;background:var(--border);border-radius:999px;margin:12px auto 0}
@@ -659,6 +659,17 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
       <!-- CATALOGUE -->
       <div class="admin-tab-content" id="tab-catalogue">
         <button class="adm-add-btn" onclick="showAddForm()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Ajouter un livre ou un pack</button>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <button onclick="exportCatalogue()" style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:9px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink3)'">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Exporter catalogue
+          </button>
+          <label style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:9px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink3)'">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Importer catalogue
+            <input type="file" accept=".json" style="display:none" onchange="importCatalogue(event)">
+          </label>
+        </div>
         <div class="adm-section-title">Catalogue — <span id="adminCount">0</span> titres</div>
         <div class="admin-book-list" id="adminBookList"></div>
       </div>
@@ -1193,6 +1204,39 @@ async function saveBook(){
 }
 function selectBadge(val){document.getElementById('fBadge').value=val;document.querySelectorAll('.badge-opt').forEach(btn=>{btn.className='badge-opt';if(btn.dataset.badge===val)btn.classList.add('sel-'+val);});}
 function previewImg(url){const p=document.getElementById('imgPreview');if(url&&url.startsWith('http'))p.innerHTML=`<img src="${url}" onerror="this.parentElement.innerHTML='<span>URL invalide</span>'">`;else p.innerHTML='<span>Aperçu de la couverture</span>';}
+
+// ══════════ EXPORT / IMPORT ══════════
+function exportCatalogue(){
+  const data=JSON.stringify({books:BOOKS,config:CONFIG,shop:SHOP},null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='dilam-catalogue-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Catalogue exporté ✓');
+}
+
+function importCatalogue(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.books||!Array.isArray(data.books)){showToast('Fichier invalide');return;}
+      if(!confirm(`Importer ${data.books.length} livres ? Cela remplacera le catalogue actuel.`))return;
+      BOOKS=data.books;
+      lsSet('lamine_books',BOOKS);
+      if(data.config){CONFIG={...DC,...data.config};lsSet('sell_config',CONFIG);}
+      if(data.shop){SHOP={...DS,...data.shop};lsSet('sell_shop',SHOP);applyShop();}
+      renderBooks();renderAdminList();
+      showToast(`${BOOKS.length} livres importés ✓`);
+    }catch(err){showToast('Erreur de lecture du fichier');}
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
 
 // ══════════ UTILS ══════════
 // ══════════ BOOK MODAL ══════════
