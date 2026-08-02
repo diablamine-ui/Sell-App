@@ -1144,6 +1144,17 @@ observeReveal();
 initPixel();
 startFloatNotifs();
 handleDeepLink();
+
+// Admin access: Ctrl+Shift+A ou URL avec #admin
+document.addEventListener('keydown', function(e){
+  if(e.ctrlKey && e.shiftKey && e.key === 'A'){
+    e.preventDefault();
+    openAdminLogin();
+  }
+});
+if(location.hash === '#admin'){
+  setTimeout(openAdminLogin, 500);
+}
 </script>
 </body>
 </html>
