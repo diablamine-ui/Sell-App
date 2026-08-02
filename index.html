@@ -210,9 +210,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 /* ── BOOK DETAIL MODAL ── */
 .book-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(13,10,6,.65);z-index:250;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center}
 .book-modal-overlay.open{opacity:1;pointer-events:all}
-.book-modal{background:var(--white);border-radius:16px 16px 0 0;width:100%;max-width:520px;max-height:88vh;height:88vh;overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;transform:translateY(100%);transition:transform .38s var(--ease);padding-bottom:48px;touch-action:pan-y}
-.book-modal::-webkit-scrollbar{display:none}
+.book-modal{background:var(--white);border-radius:16px 16px 0 0;width:100%;max-width:520px;height:88vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .38s var(--ease)}
 .book-modal-overlay.open .book-modal{transform:translateY(0)}
+.book-modal-scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:48px}
+.book-modal-scroll::-webkit-scrollbar{width:3px}
+.book-modal-scroll::-webkit-scrollbar-track{background:transparent}
+.book-modal-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
+@media(min-width:481px){
+  .book-modal-overlay{align-items:center}
+  .book-modal{border-radius:16px;height:auto;max-height:85vh}
+}
 .bm-handle{width:36px;height:4px;background:var(--border);border-radius:999px;margin:12px auto 0}
 .bm-cover{width:100%;aspect-ratio:3/4;max-height:280px;object-fit:cover;background:linear-gradient(160deg,#EDE8DF,#E2D9C8);display:flex;align-items:center;justify-content:center}
 .bm-cover img{width:100%;height:100%;object-fit:cover}
@@ -563,10 +570,11 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 <!-- BOOK DETAIL MODAL -->
 <div class="book-modal-overlay" id="bookModalOverlay" onclick="closeBookModal(event)" ontouchstart="handleOverlayTouch(event)">
   <div class="book-modal" id="bookModal" onclick="event.stopPropagation()" ontouchstart="event.stopPropagation()">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 4px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px 4px;flex-shrink:0">
       <div class="bm-handle" style="margin:0;flex:1;max-width:36px"></div>
       <button onclick="closeBookModalDirect()" style="background:none;border:none;color:var(--ink3);cursor:pointer;font-size:1.2rem;padding:4px;line-height:1;-webkit-tap-highlight-color:transparent">✕</button>
     </div>
+    <div class="book-modal-scroll" id="bookModalScroll">
     <div class="bm-cover" id="bmCover"></div>
     <div class="bm-body">
       <div class="bm-category" id="bmCategory"></div>
@@ -582,6 +590,7 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
       </button>
       <button class="bm-btn-cart" id="bmBtnCart">+ Panier</button>
     </div>
+    </div><!-- end book-modal-scroll -->
   </div>
 </div>
 
@@ -1260,10 +1269,8 @@ let currentModalBookId = null;
 function openBookModal(id){
   const book=BOOKS.find(b=>b.id===id);if(!book)return;
   currentModalBookId=id;
-  // Prevent page scroll, capture wheel on modal
+  // Prevent page scroll
   document.body.style.overflow='hidden';
-  document.body.style.position='fixed';
-  document.body.style.width='100%';
   const CAT=CAT_LABELS[book.category]||'Livre';
   // Cover
   const cover=document.getElementById('bmCover');
@@ -1297,15 +1304,11 @@ function closeBookModal(e){
   if(e&&e.target!==document.getElementById('bookModalOverlay'))return;
   document.getElementById('bookModalOverlay').classList.remove('open');
   document.body.style.overflow='';
-  document.body.style.position='';
-  document.body.style.width='';
   currentModalBookId=null;
 }
 function closeBookModalDirect(){
   document.getElementById('bookModalOverlay').classList.remove('open');
   document.body.style.overflow='';
-  document.body.style.position='';
-  document.body.style.width='';
   currentModalBookId=null;
 }
 function handleOverlayTouch(e){
@@ -1320,12 +1323,12 @@ function handleDeepLink(){const id=parseInt(new URLSearchParams(location.search)
 
 // ══════════ WHEEL FIX FOR DESKTOP ══════════
 document.addEventListener('DOMContentLoaded', function(){
-  var modal = document.getElementById('bookModal');
-  if(modal){
-    modal.addEventListener('wheel', function(e){
+  var scroll = document.getElementById('bookModalScroll');
+  if(scroll){
+    scroll.addEventListener('wheel', function(e){
       e.stopPropagation();
-      var atTop = modal.scrollTop === 0;
-      var atBottom = modal.scrollTop + modal.clientHeight >= modal.scrollHeight - 1;
+      var atTop = scroll.scrollTop === 0;
+      var atBottom = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 1;
       if((atTop && e.deltaY < 0)||(atBottom && e.deltaY > 0)){
         e.preventDefault();
       }
