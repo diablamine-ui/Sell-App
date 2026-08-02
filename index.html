@@ -672,24 +672,25 @@ footer{padding:36px 20px;background:var(--ink);display:flex;align-items:center;j
 </div>
 
 <script>
-// ══════════════ SUPABASE ══════════════
-const SUPABASE_URL = 'https://zsxwwvlugsokrymqmztq.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzeHd3dmx1Z3Nva3J5bXFtenRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2ODQwODgsImV4cCI6MjA5NjI2MDA4OH0.WK71bzwNpsKCUllr7V3a-DQ-shZ-UjpPAeQ_474Sneo';
-const SUPABASE_BUCKET = 'Lamine-Livres';
+// ══════════════ CLOUDINARY ══════════════
+const CLOUDINARY_CLOUD = 'p8dqblws';
+const CLOUDINARY_PRESET = 'sell_app';
 
 async function uploadToSupabase(file) {
-  const ext = file.name.split('.').pop().toLowerCase();
+  const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
   if(!['jpg','jpeg','png','webp','gif'].includes(ext)){showToast('Format non supporté (JPG/PNG/WebP)');return null;}
-  if(file.size > 5*1024*1024){showToast('Image trop lourde (max 5 Mo)');return null;}
-  const fname = 'img_'+Date.now()+'_'+Math.random().toString(36).substring(2,7)+'.'+ext;
-  const url = SUPABASE_URL+'/storage/v1/object/'+SUPABASE_BUCKET+'/'+fname;
+  if(file.size > 10*1024*1024){showToast('Image trop lourde (max 10 Mo)');return null;}
   showToast('Upload en cours…');
   try {
-    const r = await fetch(url,{method:'POST',headers:{'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':file.type,'x-upsert':'true'},body:file});
-    if(!r.ok){const e=await r.text();console.error('Upload error:',e);showToast('Erreur upload — réessaie');return null;}
-    const pub = SUPABASE_URL+'/storage/v1/object/public/'+SUPABASE_BUCKET+'/'+fname;
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', CLOUDINARY_PRESET);
+    fd.append('folder', 'sell_app');
+    const r = await fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD+'/image/upload', {method:'POST', body:fd});
+    if(!r.ok){const e=await r.text();console.error('Cloudinary error:',e);showToast('Erreur upload — réessaie');return null;}
+    const data = await r.json();
     showToast('Image uploadée ✓');
-    return pub;
+    return data.secure_url;
   } catch(e){console.error(e);showToast('Erreur réseau — réessaie');return null;}
 }
 
