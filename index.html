@@ -195,7 +195,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .book-price{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--ink);letter-spacing:-.01em;line-height:1;margin-bottom:4px}
 .book-price sup{font-size:.55rem;font-family:'Inter',sans-serif;font-weight:700;color:var(--ink3);vertical-align:super;margin-left:2px;letter-spacing:.05em}
 .price-old-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
-.price-old{font-size:.8rem;font-weight:500;color:var(--ink3);text-decoration:line-through;line-height:1}
+.price-old{font-size:.8rem;font-weight:600;color:var(--green);text-decoration:line-through;line-height:1}
 .price-old sup{font-size:.48rem;font-family:'Inter',sans-serif;vertical-align:super}
 .price-badge{font-size:.54rem;font-weight:700;background:var(--red);color:#fff;padding:2px 6px;border-radius:999px}
 
@@ -251,13 +251,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .mobile-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:99;padding:8px 16px 14px;background:var(--white);border-top:1px solid var(--border);box-shadow:0 -6px 24px rgba(13,10,6,.1)}
 .mobile-bar-btn{width:100%;background:var(--ink);color:var(--bg);border:none;padding:13px 18px;font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;display:flex;align-items:center;justify-content:space-between;-webkit-tap-highlight-color:transparent}
 
-/* ── FLOAT NOTIF ── */
-.float-notif{position:fixed;bottom:76px;left:12px;z-index:500;background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-lg);transform:translateX(-120%);transition:transform .38s var(--ease);max-width:260px;pointer-events:none}
-.float-notif.show{transform:translateX(0)}
-.fn-icon{width:30px;height:30px;border-radius:50%;background:var(--gold-pale);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem}
-.fn-text{font-size:.65rem;color:var(--ink);line-height:1.35}
-.fn-text strong{font-weight:700;display:block}
-.fn-time{font-size:.57rem;color:var(--ink3);margin-top:2px}
+
 
 /* ── CONFIRMATION ── */
 .confirm-overlay{position:fixed;inset:0;background:rgba(13,10,6,.6);z-index:600;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}
@@ -522,11 +516,7 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
   </button>
 </div>
 
-<!-- FLOATING NOTIF -->
-<div class="float-notif" id="floatNotif">
-  <div class="fn-icon">📦</div>
-  <div class="fn-text"><strong id="fnName">Un client</strong><span id="fnBook"></span><div class="fn-time" id="fnTime">À l'instant</div></div>
-</div>
+
 
 <!-- CONFIRMATION -->
 <div class="confirm-overlay" id="confirmOverlay">
@@ -966,30 +956,9 @@ function recordOrder(name,bookTitle){
     realOrders.unshift({name,bookTitle,ts:new Date().toISOString()});
     if(realOrders.length>10)realOrders.pop();
     lsSet('sell_orders',realOrders);
-    triggerFN(name,bookTitle,"À l'instant");
   }catch(e){}
 }
 function loadRealOrders(){realOrders=ls('sell_orders',[]);}
-function triggerFN(name,bookTitle,label){
-  document.getElementById('fnName').textContent=name+' ';
-  document.getElementById('fnBook').textContent=bookTitle.length>26?bookTitle.substring(0,26)+'…':bookTitle;
-  document.getElementById('fnTime').textContent=label;
-  const n=document.getElementById('floatNotif');
-  n.classList.add('show');setTimeout(()=>n.classList.remove('show'),5000);
-}
-function startFloatNotifs(){
-  loadRealOrders();
-  const recent=realOrders.filter(o=>(Date.now()-new Date(o.ts).getTime())/60000<1440);
-  if(!recent.length)return;
-  let idx=0;
-  function next(){
-    const o=recent[idx%recent.length];
-    const mins=Math.round((Date.now()-new Date(o.ts).getTime())/60000);
-    const label=mins<1?"À l'instant":mins<60?`Il y a ${mins} min`:`Il y a ${Math.floor(mins/60)}h`;
-    triggerFN(o.name,o.bookTitle,label);idx++;
-  }
-  setTimeout(()=>{next();setInterval(next,30000);},15000);
-}
 
 // ══════════ ADMIN ══════════
 let pressTimer=null;
@@ -1078,7 +1047,6 @@ renderBooks();
 observeReveal();
 initPixel();
 startLiveVisitors();
-startFloatNotifs();
 handleDeepLink();
 </script>
 </body>
