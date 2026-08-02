@@ -207,6 +207,39 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .btn-cart:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-pale)}
 .btn-cart.added{background:var(--gold-pale);color:var(--gold);border-color:rgba(169,119,28,.35)}
 
+/* ── BOOK PAGE ── */
+.book-page{display:none;position:fixed;inset:0;z-index:400;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.book-page.open{display:block}
+.bp-nav{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:12px;padding:12px 20px;background:rgba(250,247,242,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.bp-back{display:flex;align-items:center;gap:7px;background:none;border:none;color:var(--ink3);cursor:pointer;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;padding:0;-webkit-tap-highlight-color:transparent;transition:color .2s}
+.bp-back:hover{color:var(--ink)}
+.bp-back svg{flex-shrink:0}
+.bp-shop-name{font-family:'Cormorant Garamond',serif;font-size:.9rem;color:var(--ink3);flex:1;text-align:center;letter-spacing:.08em;text-transform:uppercase}
+.bp-cover{width:100%;max-height:55vmax;object-fit:cover;display:block;background:linear-gradient(160deg,#EDE8DF,#E2D9C8)}
+.bp-cover img{width:100%;max-height:55vmax;object-fit:cover;display:block}
+.bp-cover-ph{width:100%;height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:32px;text-align:center;background:linear-gradient(160deg,#EDE8DF,#E2D9C8)}
+.bp-body{padding:24px 20px 0;max-width:640px;margin:0 auto}
+.bp-badge-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.bp-category{font-size:.6rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.bp-badge{padding:3px 9px;font-size:.56rem;font-weight:700;border-radius:999px}
+.bp-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.6rem,5vw,2.4rem);font-weight:600;color:var(--ink);line-height:1.15;margin-bottom:6px}
+.bp-author{font-size:.7rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink2);margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.bp-desc{font-size:.96rem;color:var(--ink3);line-height:1.9;white-space:pre-wrap;margin-bottom:28px}
+.bp-price-section{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:20px;box-shadow:var(--shadow-sm)}
+.bp-price-label{font-size:.58rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.bp-price{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:var(--ink);line-height:1}
+.bp-price sup{font-size:.65rem;font-family:'Inter',sans-serif;font-weight:700;color:var(--ink3);vertical-align:super}
+.bp-price-old-row{display:flex;align-items:center;gap:8px;margin-top:5px}
+.bp-price-old{font-size:.95rem;font-weight:500;color:var(--green);text-decoration:line-through}
+.bp-price-old sup{font-size:.55rem;font-family:'Inter',sans-serif;vertical-align:super}
+.bp-discount{font-size:.62rem;font-weight:700;background:var(--red);color:#fff;padding:3px 8px;border-radius:999px}
+.bp-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:32px;max-width:640px;margin-left:auto;margin-right:auto;padding:0 20px 32px}
+.bp-btn-now{background:var(--green);color:#fff;border:none;padding:15px;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .22s;box-shadow:0 4px 14px rgba(15,122,61,.25);-webkit-tap-highlight-color:transparent}
+.bp-btn-now:hover{background:var(--green-dk);transform:translateY(-1px)}
+.bp-btn-cart{background:none;border:2px solid rgba(13,10,6,.14);color:var(--ink);padding:15px;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;transition:all .22s;-webkit-tap-highlight-color:transparent}
+.bp-btn-cart:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-pale)}
+.bp-btn-cart.added{background:var(--gold-pale);color:var(--gold);border-color:rgba(169,119,28,.35)}
+
 /* ── BOOK DETAIL MODAL ── */
 .book-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(13,10,6,.65);z-index:250;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center}
 .book-modal-overlay.open{opacity:1;pointer-events:all}
@@ -566,6 +599,43 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- BOOK PAGE -->
+<div class="book-page" id="bookPage">
+  <nav class="bp-nav">
+    <button class="bp-back" onclick="closeBookPage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Retour
+    </button>
+    <div class="bp-shop-name" id="bpShopName">Dilam B'</div>
+    <div style="width:60px"></div>
+  </nav>
+  <div class="bp-cover" id="bpCover"></div>
+  <div class="bp-body">
+    <div class="bp-badge-row">
+      <div class="bp-category" id="bpCategory"></div>
+      <div id="bpBadge"></div>
+    </div>
+    <h1 class="bp-title display" id="bpTitle"></h1>
+    <div class="bp-author" id="bpAuthor"></div>
+    <div class="bp-desc" id="bpDesc"></div>
+    <div class="bp-price-section">
+      <div class="bp-price-label">Prix</div>
+      <div class="bp-price display" id="bpPrice"></div>
+      <div class="bp-price-old-row" id="bpPriceOldRow" style="display:none">
+        <div class="bp-price-old display" id="bpPriceOld"></div>
+        <div class="bp-discount" id="bpDiscount"></div>
+      </div>
+    </div>
+  </div>
+  <div class="bp-actions">
+    <button class="bp-btn-now" id="bpBtnNow">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Commander
+    </button>
+    <button class="bp-btn-cart" id="bpBtnCart">+ Panier</button>
+  </div>
+</div>
 
 <!-- BOOK DETAIL MODAL -->
 <div class="book-modal-overlay" id="bookModalOverlay" onclick="closeBookModal(event)" ontouchstart="handleOverlayTouch(event)">
@@ -1021,10 +1091,10 @@ function renderBooks(){
     const coverHTML=book.image?`<img src="${book.image}" alt="${book.title}" loading="lazy">`:`<div class="cover-ph"><div class="ph-icon">✦</div><div class="ph-title">${book.title}</div><div class="ph-sep"></div><div class="ph-author">${book.author}</div></div>`;
     const oos=book.outOfStock?'out-of-stock':'';
     return`<div class="book-card ${oos}">
-      <div class="book-cover" onclick="openBookModal(${book.id})" style="cursor:pointer">${badgeHTML}${coverHTML}<div class="badge-cat">${catLabel}</div>
+      <div class="book-cover" onclick="openBookPage(${book.id})" style="cursor:pointer">${badgeHTML}${coverHTML}<div class="badge-cat">${catLabel}</div>
         <button class="share-btn" onclick="shareBook(${book.id},event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
       </div>
-      <div class="book-body" onclick="openBookModal(${book.id})" style="cursor:pointer">
+      <div class="book-body" onclick="openBookPage(${book.id})" style="cursor:pointer">
         <div class="book-title">${book.title}</div>
         <div class="book-author">${book.author}</div>
         <div class="book-desc">${book.desc||''}</div>
@@ -1263,6 +1333,64 @@ function importCatalogue(e){
 }
 
 // ══════════ UTILS ══════════
+// ══════════ BOOK PAGE ══════════
+function openBookPage(id){
+  const book=BOOKS.find(b=>b.id===id);if(!book)return;
+  // Update URL
+  history.pushState({bookId:id},'',location.pathname+'?livre='+id);
+  // Shop name
+  document.getElementById('bpShopName').textContent=SHOP.name1+(SHOP.name2?' '+SHOP.name2:'');
+  // Cover
+  const cov=document.getElementById('bpCover');
+  if(book.image){cov.innerHTML=`<img src="${book.image}" alt="${book.title}">`;}
+  else{cov.innerHTML=`<div class="bp-cover-ph"><div style="font-size:2rem;color:var(--gold);opacity:.5">✦</div><div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:var(--ink)">${book.title}</div><div style="font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3)">${book.author}</div></div>`;}
+  // Meta
+  document.getElementById('bpCategory').textContent=CAT_LABELS[book.category]||'Livre';
+  const badgeEl=document.getElementById('bpBadge');
+  if(book.badge&&book.badge!=='none'){badgeEl.innerHTML=`<div class="bp-badge badge-${book.badge}">${BADGE_LABELS[book.badge]}</div>`;}
+  else badgeEl.innerHTML='';
+  document.getElementById('bpTitle').textContent=book.title;
+  document.getElementById('bpAuthor').textContent=book.author;
+  // Description
+  const descEl=document.getElementById('bpDesc');
+  descEl.textContent=book.desc||'';
+  if(!book.desc||!book.desc.trim()) descEl.innerHTML='<em style="color:var(--ink3)">Aucune description renseignée.</em>';
+  // Price
+  document.getElementById('bpPrice').innerHTML=book.price.toLocaleString('fr-FR')+'<sup>FCFA</sup>';
+  const oldRow=document.getElementById('bpPriceOldRow');
+  if(book.oldPrice&&book.oldPrice>book.price){
+    const disc=Math.round((1-book.price/book.oldPrice)*100);
+    document.getElementById('bpPriceOld').innerHTML=book.oldPrice.toLocaleString('fr-FR')+'<sup>FCFA</sup>';
+    document.getElementById('bpDiscount').textContent='-'+disc+'%';
+    oldRow.style.display='flex';
+  } else oldRow.style.display='none';
+  // Buttons
+  const inCart=cart.find(i=>i.id===id);
+  const cartBtn=document.getElementById('bpBtnCart');
+  cartBtn.textContent=inCart?'✓ Ajouté':'+ Panier';
+  cartBtn.className='bp-btn-cart'+(inCart?' added':'');
+  cartBtn.onclick=()=>{addToCart(id);cartBtn.textContent='✓ Ajouté';cartBtn.classList.add('added');};
+  document.getElementById('bpBtnNow').onclick=()=>{closeBookPage();orderNow(id);};
+  // Open page
+  document.getElementById('bookPage').classList.add('open');
+  document.getElementById('bookPage').scrollTop=0;
+  document.body.style.overflow='hidden';
+}
+
+function closeBookPage(){
+  document.getElementById('bookPage').classList.remove('open');
+  document.body.style.overflow='';
+  history.pushState({},'',location.pathname);
+}
+
+// Handle browser back button
+window.addEventListener('popstate',function(e){
+  if(document.getElementById('bookPage').classList.contains('open')){
+    document.getElementById('bookPage').classList.remove('open');
+    document.body.style.overflow='';
+  }
+});
+
 // ══════════ BOOK MODAL ══════════
 let currentModalBookId = null;
 
@@ -1324,7 +1452,17 @@ function handleOverlayTouch(e){
 
 function showToast(msg){const t=document.getElementById('toast');if(t){t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}}
 function observeReveal(){const els=document.querySelectorAll('.reveal:not(.visible)');const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*50);obs.unobserve(e.target);}});},{threshold:.06});els.forEach(el=>obs.observe(el));}
-function handleDeepLink(){const id=parseInt(new URLSearchParams(location.search).get('livre'));if(!id)return;setTimeout(()=>document.getElementById('catalogue').scrollIntoView({behavior:'smooth'}),600);}
+function handleDeepLink(){
+  const id=parseInt(new URLSearchParams(location.search).get('livre'));
+  if(!id)return;
+  // Wait for books to load then open page
+  function tryOpen(){
+    const book=BOOKS.find(b=>b.id===id);
+    if(book){openBookPage(id);}
+    else{setTimeout(tryOpen,300);}
+  }
+  setTimeout(tryOpen,500);
+}
 
 // ══════════ WHEEL FIX FOR DESKTOP ══════════
 document.addEventListener('DOMContentLoaded', function(){
