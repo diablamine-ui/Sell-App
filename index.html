@@ -730,7 +730,7 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
           <input type="hidden" id="fBadge" value="none">
         </div>
         <div class="adm-checkbox"><input type="checkbox" id="fOutOfStock"><label for="fOutOfStock">Rupture de stock</label></div>
-        <div class="adm-field"><label class="adm-label">Description</label><textarea class="adm-textarea" id="fDesc" placeholder="1-2 phrases…"></textarea></div>
+        <div class="adm-field"><label class="adm-label">Description</label><textarea class="adm-textarea" id="fDesc" placeholder="Description complète du livre…" style="min-height:140px"></textarea></div>
         <div class="adm-field">
           <label class="adm-label">Couverture</label>
           <div style="display:flex;gap:7px;margin-bottom:5px">
@@ -1279,7 +1279,12 @@ function openBookModal(id){
   document.getElementById('bmCategory').textContent=CAT;
   document.getElementById('bmTitle').textContent=book.title;
   document.getElementById('bmAuthor').textContent=book.author;
-  document.getElementById('bmDesc').textContent=book.desc||'Aucune description disponible.';
+  var descEl=document.getElementById('bmDesc');
+  if(book.desc&&book.desc.trim()){
+    descEl.innerHTML=book.desc.replace(/\n/g,'<br>');
+  } else {
+    descEl.innerHTML='<em style="color:var(--ink3);font-size:.82rem">Aucune description renseignée.</em>';
+  }
   // Price
   const pr=document.getElementById('bmPriceRow');
   let ph=`<div class="bm-price display">${book.price.toLocaleString('fr-FR')}<sup>FCFA</sup></div>`;
