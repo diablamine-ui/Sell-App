@@ -1260,6 +1260,10 @@ let currentModalBookId = null;
 function openBookModal(id){
   const book=BOOKS.find(b=>b.id===id);if(!book)return;
   currentModalBookId=id;
+  // Prevent page scroll, capture wheel on modal
+  document.body.style.overflow='hidden';
+  document.body.style.position='fixed';
+  document.body.style.width='100%';
   const CAT=CAT_LABELS[book.category]||'Livre';
   // Cover
   const cover=document.getElementById('bmCover');
@@ -1293,11 +1297,15 @@ function closeBookModal(e){
   if(e&&e.target!==document.getElementById('bookModalOverlay'))return;
   document.getElementById('bookModalOverlay').classList.remove('open');
   document.body.style.overflow='';
+  document.body.style.position='';
+  document.body.style.width='';
   currentModalBookId=null;
 }
 function closeBookModalDirect(){
   document.getElementById('bookModalOverlay').classList.remove('open');
   document.body.style.overflow='';
+  document.body.style.position='';
+  document.body.style.width='';
   currentModalBookId=null;
 }
 function handleOverlayTouch(e){
@@ -1309,6 +1317,21 @@ function handleOverlayTouch(e){
 function showToast(msg){const t=document.getElementById('toast');if(t){t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}}
 function observeReveal(){const els=document.querySelectorAll('.reveal:not(.visible)');const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*50);obs.unobserve(e.target);}});},{threshold:.06});els.forEach(el=>obs.observe(el));}
 function handleDeepLink(){const id=parseInt(new URLSearchParams(location.search).get('livre'));if(!id)return;setTimeout(()=>document.getElementById('catalogue').scrollIntoView({behavior:'smooth'}),600);}
+
+// ══════════ WHEEL FIX FOR DESKTOP ══════════
+document.addEventListener('DOMContentLoaded', function(){
+  var modal = document.getElementById('bookModal');
+  if(modal){
+    modal.addEventListener('wheel', function(e){
+      e.stopPropagation();
+      var atTop = modal.scrollTop === 0;
+      var atBottom = modal.scrollTop + modal.clientHeight >= modal.scrollHeight - 1;
+      if((atTop && e.deltaY < 0)||(atBottom && e.deltaY > 0)){
+        e.preventDefault();
+      }
+    }, {passive:false});
+  }
+});
 
 // ══════════ INIT ══════════
 applyShop();
