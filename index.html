@@ -207,6 +207,35 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .btn-cart:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-pale)}
 .btn-cart.added{background:var(--gold-pale);color:var(--gold);border-color:rgba(169,119,28,.35)}
 
+/* ── BOOK DETAIL MODAL ── */
+.book-modal-overlay{position:fixed;inset:0;background:rgba(13,10,6,.65);z-index:250;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center}
+.book-modal-overlay.open{opacity:1;pointer-events:all}
+.book-modal{background:var(--white);border-radius:var(--r) var(--r) 0 0;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .38s var(--ease);padding-bottom:20px;scrollbar-width:none}
+.book-modal::-webkit-scrollbar{display:none}
+.book-modal-overlay.open .book-modal{transform:translateY(0)}
+.bm-handle{width:36px;height:4px;background:var(--border);border-radius:999px;margin:12px auto 0}
+.bm-cover{width:100%;aspect-ratio:3/4;max-height:280px;object-fit:cover;background:linear-gradient(160deg,#EDE8DF,#E2D9C8);display:flex;align-items:center;justify-content:center}
+.bm-cover img{width:100%;height:100%;object-fit:cover}
+.bm-cover-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:32px;text-align:center}
+.bm-cover-ph .ph-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--ink)}
+.bm-body{padding:20px 20px 0}
+.bm-category{font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.bm-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;color:var(--ink);line-height:1.2;margin-bottom:4px}
+.bm-author{font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-bottom:14px}
+.bm-desc{font-size:.88rem;color:var(--ink3);line-height:1.8;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.bm-price-row{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.bm-price{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--ink);line-height:1}
+.bm-price sup{font-size:.65rem;font-family:'Inter',sans-serif;font-weight:700;color:var(--ink3);vertical-align:super;margin-left:2px}
+.bm-price-old{font-size:1rem;font-weight:500;color:var(--green);text-decoration:line-through;line-height:1}
+.bm-price-old sup{font-size:.55rem;font-family:'Inter',sans-serif;vertical-align:super}
+.bm-discount{font-size:.62rem;font-weight:700;background:var(--red);color:#fff;padding:3px 8px;border-radius:999px}
+.bm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px 20px}
+.bm-btn-now{background:var(--green);color:#fff;border:none;padding:13px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .22s var(--ease);box-shadow:0 3px 12px rgba(15,122,61,.25);-webkit-tap-highlight-color:transparent}
+.bm-btn-now:hover{background:var(--green-dk)}
+.bm-btn-cart{background:none;border:2px solid rgba(13,10,6,.14);color:var(--ink);padding:13px;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;transition:all .22s;-webkit-tap-highlight-color:transparent}
+.bm-btn-cart:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-pale)}
+.bm-btn-cart.added{background:var(--gold-pale);color:var(--gold);border-color:rgba(169,119,28,.35)}
+
 /* ── CART PANEL ── */
 .cart-overlay{position:fixed;inset:0;background:rgba(13,10,6,.55);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(6px)}
 .cart-overlay.open{opacity:1;pointer-events:all}
@@ -530,6 +559,29 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- BOOK DETAIL MODAL -->
+<div class="book-modal-overlay" id="bookModalOverlay" onclick="closeBookModal(event)">
+  <div class="book-modal" id="bookModal">
+    <div class="bm-handle"></div>
+    <div class="bm-cover" id="bmCover"></div>
+    <div class="bm-body">
+      <div class="bm-category" id="bmCategory"></div>
+      <div class="bm-title" id="bmTitle"></div>
+      <div class="bm-author" id="bmAuthor"></div>
+      <div class="bm-desc" id="bmDesc"></div>
+      <div class="bm-price-row" id="bmPriceRow"></div>
+    </div>
+    <div class="bm-actions">
+      <button class="bm-btn-now" id="bmBtnNow">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Commander
+      </button>
+      <button class="bm-btn-cart" id="bmBtnCart">+ Panier</button>
+    </div>
+  </div>
+</div>
+
 <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
 
 <!-- CART -->
@@ -692,30 +744,94 @@ async function uploadImg(file){
   }catch(e){console.error(e);showToast('Erreur réseau');return null;}
 }
 
-// ══════════ CONFIG ══════════
+// ══════════ SUPABASE CONFIG ══════════
+const SB_URL='https://wrtabhosppwzxpzdawqt.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydGFiaG9zcHB3enhwemRhd3F0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU2MTIzMjUsImV4cCI6MjEwMTE4ODMyNX0.fWyt_fbTNcSPmAo4TcxfKxEZjySc1p7eqPEwsxT1P6o';
+
+async function sbGet(table,query=''){
+  const r=await fetch(`${SB_URL}/rest/v1/${table}${query}`,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function sbPost(table,data){
+  const r=await fetch(`${SB_URL}/rest/v1/${table}`,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(data)});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function sbPatch(table,id,data){
+  const r=await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`,{method:'PATCH',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(data)});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function sbDelete(table,id){
+  const r=await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`,{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}});
+  if(!r.ok)throw new Error(await r.text());
+}
+async function sbUpsertConfig(key,value){
+  const r=await fetch(`${SB_URL}/rest/v1/shop_config`,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({key,value})});
+  if(!r.ok)throw new Error(await r.text());
+}
+
+// Map Supabase row → app book object
+function rowToBook(row){
+  return{id:row.id,title:row.title,author:row.author,price:row.price,oldPrice:row.old_price||null,category:row.category||'autre',badge:row.badge||'none',outOfStock:row.out_of_stock||false,image:row.image||null,desc:row.description||''};
+}
+// Map app book object → Supabase row
+function bookToRow(book){
+  return{title:book.title,author:book.author,price:book.price,old_price:book.oldPrice||null,category:book.category,badge:book.badge||'none',out_of_stock:book.outOfStock||false,image:book.image||null,description:book.desc||''};
+}
+
+// ══════════ DEFAULTS ══════════
 const DC={
   waNumber:'2250714313052',
   waMessage:"🛒 *Nouvelle commande*\n\n*Nom :* {nom}\n*Ville :* {ville}\n*Téléphone :* {telephone}\n\n{articles}\n\n*Total : {total} FCFA*\n\n---\nBonjour, je souhaite confirmer ma commande. Merci !",
   waMessageDirect:"🛒 *Commande directe*\n\n*Livre :* {titre}\n*Auteur :* {auteur}\n*Prix :* {prix} FCFA\n\n---\nBonjour, je souhaite commander ce livre. Pouvez-vous confirmer la disponibilité ? Merci !",
-  pixelId:''
+  pixelId:'1671688320192246'
 };
 const DS={logoUrl:'',name1:"Dilam B'",name2:'',navSub:"Les livres à p'tits prix",tagline:"Bibliothèque · Abidjan, Côte d'Ivoire",heroTitle:"Les livres qui forgent votre mental, votre argent et votre leadership.",heroSub:"Des titres soigneusement sélectionnés sur le développement personnel, l'entrepreneuriat, la finance et l'histoire africaine.",footerCopy:"© 2026 · Livraison Côte d'Ivoire"};
-const DB_DEFAULT=[
-  {id:1,title:"Le Pouvoir d'un Esprit Aligné",author:"Lamine Diabaté",price:5000,oldPrice:null,category:"devperso",badge:"bestseller",outOfStock:false,image:null,desc:"Découvrez la méthode pour aligner vos pensées, émotions et actions vers vos objectifs."},
-  {id:2,title:"90 Jours pour Renaître et Atteindre ses Objectifs",author:"Lamine Diabaté",price:5000,oldPrice:null,category:"devperso",badge:"none",outOfStock:false,image:null,desc:"Un programme structuré sur 90 jours pour transformer votre vie avec méthode."},
-  {id:3,title:"Nations Nègres et Culture",author:"Cheikh Anta Diop",price:6000,oldPrice:null,category:"cheikh",badge:"recommended",outOfStock:false,image:null,desc:"L'œuvre majeure qui redéfinit l'histoire de l'Afrique et de l'humanité."},
-  {id:4,title:"Antériorité des Civilisations Nègres",author:"Cheikh Anta Diop",price:6000,oldPrice:null,category:"cheikh",badge:"none",outOfStock:false,image:null,desc:"Diop démontre avec rigueur l'antériorité de la civilisation africaine."},
-  {id:5,title:"L'Afrique Noire Précoloniale",author:"Cheikh Anta Diop",price:5500,oldPrice:null,category:"cheikh",badge:"none",outOfStock:false,image:null,desc:"Structures politiques et sociales de l'Afrique noire avant la colonisation."},
-  {id:6,title:"Civilisation ou Barbarie",author:"Cheikh Anta Diop",price:6500,oldPrice:null,category:"cheikh",badge:"none",outOfStock:false,image:null,desc:"Le testament intellectuel de Diop. Synthèse encyclopédique de son œuvre."}
-];
 
 function ls(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 
 let CONFIG=ls('sell_config',DC);
 let SHOP=ls('sell_shop',DS);
-let BOOKS=ls('lamine_books',DB_DEFAULT);
+let BOOKS=[];
 let cart=[],activeFilter='all',searchQuery='',adminLoggedIn=false,editingId=null;
+
+// ══════════ LOAD FROM SUPABASE ══════════
+async function loadBooksFromDB(){
+  try{
+    showLoader(true);
+    const rows=await sbGet('books','?order=created_at.asc');
+    BOOKS=rows.map(rowToBook);
+    // Also load config
+    const cfgRows=await sbGet('shop_config');
+    cfgRows.forEach(row=>{
+      if(row.key==='sell_config')CONFIG={...DC,...row.value};
+      if(row.key==='sell_shop')SHOP={...DS,...row.value};
+    });
+    applyShop();
+    renderBooks();
+    initPixel();
+  }catch(e){
+    console.error('DB load error:',e);
+    // Fallback to localStorage
+    BOOKS=ls('lamine_books',[]);
+    if(!BOOKS.length){
+      BOOKS=[
+        {id:1,title:"Le Pouvoir d'un Esprit Aligné",author:"Lamine Diabaté",price:5000,oldPrice:null,category:"devperso",badge:"bestseller",outOfStock:false,image:null,desc:"Découvrez la méthode pour aligner vos pensées, émotions et actions vers vos objectifs."},
+        {id:2,title:"90 Jours pour Renaître et Atteindre ses Objectifs",author:"Lamine Diabaté",price:5000,oldPrice:null,category:"devperso",badge:"none",outOfStock:false,image:null,desc:"Un programme structuré sur 90 jours pour transformer votre vie avec méthode."}
+      ];
+    }
+    renderBooks();
+  }finally{showLoader(false);}
+}
+
+function showLoader(show){
+  let el=document.getElementById('pageLoader');
+  if(!el){el=document.createElement('div');el.id='pageLoader';el.style.cssText='position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--green));z-index:9999;transition:opacity .3s';document.body.prepend(el);}
+  el.style.opacity=show?'1':'0';
+}
 
 // ══════════ PIXEL ══════════
 let _pxOk=false;
@@ -766,14 +882,17 @@ function fillConfigForm(){
   document.getElementById('cWaMessageDirect').value=CONFIG.waMessageDirect||'';
   document.getElementById('cPixelId').value=CONFIG.pixelId||'';
 }
-function saveShopSettings(){
+async function saveShopSettings(){
   SHOP={logoUrl:document.getElementById('sLogoUrl').value.trim(),name1:document.getElementById('sName1').value.trim()||DS.name1,name2:document.getElementById('sName2').value.trim(),navSub:document.getElementById('sNavSub').value.trim()||DS.navSub,tagline:document.getElementById('sTagline').value.trim()||DS.tagline,heroTitle:document.getElementById('sHeroTitle').value.trim()||DS.heroTitle,heroSub:document.getElementById('sHeroSub').value.trim()||DS.heroSub,footerCopy:document.getElementById('sFooterCopy').value.trim()||DS.footerCopy};
-  lsSet('sell_shop',SHOP);applyShop();showToast('Paramètres enregistrés ✓');
+  lsSet('sell_shop',SHOP);
+  try{await sbUpsertConfig('sell_shop',SHOP);}catch(e){console.error('Shop config save error:',e);}
+  applyShop();showToast('Paramètres enregistrés ✓');
 }
-function saveConfig(){
+async function saveConfig(){
   var n=document.getElementById('cWaNumber'),m=document.getElementById('cWaMessage'),d=document.getElementById('cWaMessageDirect'),p=document.getElementById('cPixelId');
   CONFIG={waNumber:(n?n.value.trim():'')||DC.waNumber,waMessage:(m?m.value.trim():'')||DC.waMessage,waMessageDirect:(d?d.value.trim():'')||DC.waMessageDirect,pixelId:p?p.value.trim():''};
   lsSet('sell_config',CONFIG);
+  try{await sbUpsertConfig('sell_config',CONFIG);}catch(e){console.error('Config save error:',e);}
   if(CONFIG.pixelId&&!_pxOk)setTimeout(initPixel,100);
   showToast('Configuration enregistrée ✓');
 }
@@ -843,10 +962,10 @@ function renderBooks(){
     const coverHTML=book.image?`<img src="${book.image}" alt="${book.title}" loading="lazy">`:`<div class="cover-ph"><div class="ph-icon">✦</div><div class="ph-title">${book.title}</div><div class="ph-sep"></div><div class="ph-author">${book.author}</div></div>`;
     const oos=book.outOfStock?'out-of-stock':'';
     return`<div class="book-card ${oos}">
-      <div class="book-cover">${badgeHTML}${coverHTML}<div class="badge-cat">${catLabel}</div>
+      <div class="book-cover" onclick="openBookModal(${book.id})" style="cursor:pointer">${badgeHTML}${coverHTML}<div class="badge-cat">${catLabel}</div>
         <button class="share-btn" onclick="shareBook(${book.id},event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
       </div>
-      <div class="book-body">
+      <div class="book-body" onclick="openBookModal(${book.id})" style="cursor:pointer">
         <div class="book-title">${book.title}</div>
         <div class="book-author">${book.author}</div>
         <div class="book-desc">${book.desc||''}</div>
@@ -1015,11 +1134,15 @@ function editBook(id){
   previewImg(book.image||'');selectBadge(book.badge||'none');
   document.getElementById('adminMainScreen').style.display='none';document.getElementById('adminFormScreen').style.display='block';
 }
-function deleteBook(id){
+async function deleteBook(id){
   const book=BOOKS.find(b=>b.id===id);if(!book||!confirm(`Supprimer "${book.title}" ?`))return;
-  BOOKS=BOOKS.filter(b=>b.id!==id);lsSet('lamine_books',BOOKS);renderBooks();renderAdminList();showToast('Titre supprimé');
+  try{
+    await sbDelete('books',id);
+    BOOKS=BOOKS.filter(b=>b.id!==id);
+    renderBooks();renderAdminList();showToast('Titre supprimé');
+  }catch(e){console.error(e);showToast('Erreur — réessaie');}
 }
-function saveBook(){
+async function saveBook(){
   const title=document.getElementById('fTitle').value.trim(),author=document.getElementById('fAuthor').value.trim();
   const price=parseInt(document.getElementById('fPrice').value);
   const opRaw=parseInt(document.getElementById('fOldPrice').value);const oldPrice=isNaN(opRaw)||opRaw<=0?null:opRaw;
@@ -1029,25 +1152,77 @@ function saveBook(){
   if(!title){showToast('Titre obligatoire');return;}
   if(!author){showToast('Auteur obligatoire');return;}
   if(!price||price<=0){showToast('Prix invalide');return;}
-  if(editingId!==null){const idx=BOOKS.findIndex(b=>b.id===editingId);if(idx!==-1)BOOKS[idx]={...BOOKS[idx],title,author,price,oldPrice,category,desc,image,badge,outOfStock};showToast('Titre mis à jour ✓');}
-  else{const newId=BOOKS.length?Math.max(...BOOKS.map(b=>b.id))+1:1;BOOKS.push({id:newId,title,author,price,oldPrice,category,desc,image,badge,outOfStock});showToast('Titre ajouté ✓');}
-  lsSet('lamine_books',BOOKS);renderBooks();showMainScreen();
+  const row=bookToRow({title,author,price,oldPrice,category,desc,image,badge,outOfStock});
+  try{
+    if(editingId!==null){
+      await sbPatch('books',editingId,row);
+      const idx=BOOKS.findIndex(b=>b.id===editingId);
+      if(idx!==-1)BOOKS[idx]={...BOOKS[idx],title,author,price,oldPrice,category,desc,image,badge,outOfStock};
+      showToast('Titre mis à jour ✓');
+    }else{
+      const res=await sbPost('books',row);
+      if(res&&res[0])BOOKS.push(rowToBook(res[0]));
+      showToast('Titre ajouté ✓');
+    }
+    renderBooks();showMainScreen();
+  }catch(e){console.error(e);showToast('Erreur — réessaie');}
 }
 function selectBadge(val){document.getElementById('fBadge').value=val;document.querySelectorAll('.badge-opt').forEach(btn=>{btn.className='badge-opt';if(btn.dataset.badge===val)btn.classList.add('sel-'+val);});}
 function previewImg(url){const p=document.getElementById('imgPreview');if(url&&url.startsWith('http'))p.innerHTML=`<img src="${url}" onerror="this.parentElement.innerHTML='<span>URL invalide</span>'">`;else p.innerHTML='<span>Aperçu de la couverture</span>';}
 
 // ══════════ UTILS ══════════
+// ══════════ BOOK MODAL ══════════
+let currentModalBookId = null;
+
+function openBookModal(id){
+  const book=BOOKS.find(b=>b.id===id);if(!book)return;
+  currentModalBookId=id;
+  const CAT=CAT_LABELS[book.category]||'Livre';
+  // Cover
+  const cover=document.getElementById('bmCover');
+  if(book.image){cover.innerHTML=`<img src="${book.image}" alt="${book.title}">`;}
+  else{cover.innerHTML=`<div class="bm-cover-ph"><div class="ph-icon" style="font-size:1.5rem;color:var(--gold);opacity:.6">✦</div><div class="ph-title">${book.title}</div><div class="ph-sep" style="width:28px;height:1px;background:rgba(169,119,28,.4)"></div><div class="ph-author">${book.author}</div></div>`;}
+  document.getElementById('bmCategory').textContent=CAT;
+  document.getElementById('bmTitle').textContent=book.title;
+  document.getElementById('bmAuthor').textContent=book.author;
+  document.getElementById('bmDesc').textContent=book.desc||'Aucune description disponible.';
+  // Price
+  const pr=document.getElementById('bmPriceRow');
+  let ph=`<div class="bm-price display">${book.price.toLocaleString('fr-FR')}<sup>FCFA</sup></div>`;
+  if(book.oldPrice&&book.oldPrice>book.price){
+    const disc=Math.round((1-book.price/book.oldPrice)*100);
+    ph+=`<div class="bm-price-old display">${book.oldPrice.toLocaleString('fr-FR')}<sup>FCFA</sup></div><div class="bm-discount">-${disc}%</div>`;
+  }
+  pr.innerHTML=ph;
+  // Buttons
+  const inCart=cart.find(i=>i.id===id);
+  const btnCart=document.getElementById('bmBtnCart');
+  btnCart.textContent=inCart?'✓ Ajouté':'+ Panier';
+  btnCart.className='bm-btn-cart'+(inCart?' added':'');
+  btnCart.onclick=()=>{addToCart(id);btnCart.textContent='✓ Ajouté';btnCart.classList.add('added');};
+  document.getElementById('bmBtnNow').onclick=()=>{closeBookModal();orderNow(id);};
+  // Open
+  document.getElementById('bookModalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeBookModal(e){
+  if(e&&e.target!==document.getElementById('bookModalOverlay'))return;
+  document.getElementById('bookModalOverlay').classList.remove('open');
+  document.body.style.overflow='';
+  currentModalBookId=null;
+}
+
 function showToast(msg){const t=document.getElementById('toast');if(t){t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}}
 function observeReveal(){const els=document.querySelectorAll('.reveal:not(.visible)');const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*50);obs.unobserve(e.target);}});},{threshold:.06});els.forEach(el=>obs.observe(el));}
 function handleDeepLink(){const id=parseInt(new URLSearchParams(location.search).get('livre'));if(!id)return;setTimeout(()=>document.getElementById('catalogue').scrollIntoView({behavior:'smooth'}),600);}
 
 // ══════════ INIT ══════════
 applyShop();
-renderBooks();
 observeReveal();
-initPixel();
 startLiveVisitors();
 handleDeepLink();
+loadBooksFromDB();
 </script>
 </body>
 </html>
