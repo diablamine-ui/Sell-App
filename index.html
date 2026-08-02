@@ -172,13 +172,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content
 
 /* Price */
 .book-price-wrap{margin-bottom:9px}
-.book-price{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:var(--ink);letter-spacing:-.01em;line-height:1}
-.book-price sup{font-size:.56rem;font-family:'Inter',sans-serif;font-weight:700;color:var(--ink-soft);vertical-align:super;margin-left:2px}
-.price-old-row{display:flex;align-items:center;gap:7px;margin-top:3px}
-.book-price-old{font-size:.82rem;font-weight:500;color:var(--ink-muted);text-decoration:line-through;line-height:1}
-.book-price-old sup{font-size:.5rem;font-family:'Inter',sans-serif;vertical-align:super}
-.book-discount{font-size:.56rem;font-weight:700;background:var(--red);color:#fff;padding:2px 6px;border-radius:999px;letter-spacing:.05em}
-.book-economy{font-size:.62rem;font-weight:600;color:var(--green);margin-bottom:6px}
+.book-price{font-family:'Cormorant Garamond',serif;font-size:1.65rem;font-weight:700;color:#0A0A0A;letter-spacing:-.01em;line-height:1}
+.book-price sup{font-size:.58rem;font-family:'Inter',sans-serif;font-weight:700;color:var(--ink-soft);vertical-align:super;margin-left:2px}
+.price-old-row{display:flex;align-items:center;gap:7px;margin-top:4px}
+.book-price-old{font-size:.88rem;font-weight:600;color:var(--green);text-decoration:line-through;line-height:1}
+.book-price-old sup{font-size:.52rem;font-family:'Inter',sans-serif;vertical-align:super}
+.book-discount{font-size:.58rem;font-weight:700;background:var(--red);color:#fff;padding:2px 7px;border-radius:999px;letter-spacing:.05em}
+.book-economy{display:none}
 
 /* Buttons — equal height */
 .book-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
@@ -851,9 +851,7 @@ function priceHTML(book){
   const main=`<div class="book-price display">${book.price.toLocaleString('fr-FR')}<sup>FCFA</sup></div>`;
   if(!book.oldPrice||book.oldPrice<=book.price)return`<div class="book-price-wrap">${main}</div>`;
   const disc=Math.round((1-book.price/book.oldPrice)*100);
-  const eco=((book.oldPrice-book.price)).toLocaleString('fr-FR');
   return`<div class="book-price-wrap">
-    <div class="book-economy">Économie : ${eco} FCFA</div>
     ${main}
     <div class="price-old-row">
       <div class="book-price-old display">${book.oldPrice.toLocaleString('fr-FR')}<sup>FCFA</sup></div>
@@ -923,7 +921,8 @@ function orderNow(id){
   const tpl=CONFIG.waMessageDirect||DEFAULT_CONFIG.waMessageDirect;
   const msg=tpl.replace('{titre}',book.title).replace('{auteur}',book.author).replace('{prix}',book.price.toLocaleString('fr-FR'));
   const url='https://wa.me/'+waNum+'?text='+encodeURIComponent(msg);
-  window.open(url,'_blank');
+  // Mobile-compatible open
+  var a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();document.body.removeChild(a);
   recordOrder('Un client',book.title);
 }
 
@@ -983,7 +982,7 @@ function sendWhatsApp(){
   const waNum2=(CONFIG.waNumber||'2250714313052').trim().replace(/[^0-9]/g,'');
   if(!waNum2){showToast('Numéro WhatsApp non configuré');return;}
   const url2='https://wa.me/'+waNum2+'?text='+encodeURIComponent(msg);
-  window.open(url2,'_blank');
+  var a2=document.createElement('a');a2.href=url2;a2.target='_blank';a2.rel='noopener';document.body.appendChild(a2);a2.click();document.body.removeChild(a2);
 }
 function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');}
 function openCart(){document.getElementById('cartOverlay').classList.add('open');document.getElementById('cartPanel').classList.add('open');document.body.style.overflow='hidden';}
