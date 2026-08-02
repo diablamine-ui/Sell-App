@@ -10,11 +10,11 @@
 <style>
 :root{
   --hero-bg:#FAF7F2;--cat-bg:#F2ECE3;--card-bg:#FFFFFF;
-  --ink:#0D0A06;--ink-mid:#2C2418;--ink-soft:#5F584E;
+  --ink:#0D0A06;--ink-mid:#2C2418;--ink-soft:#5F584E;--ink-muted:#8B8175;
   --gold:#B8892A;--gold-lt:#D4A843;--gold-pale:#F5E9CC;
   --border:rgba(184,137,42,0.18);--bcard:rgba(13,10,6,0.07);
-  --green:#128C3A;--green-dk:#0E6E2D;--red:#C0392B;
-  --r:6px;--ease:cubic-bezier(0.4,0,0.2,1);
+  --green:#0F7A3D;--green-dk:#0B6030;
+  --red:#B3261E;--r:6px;--ease:cubic-bezier(0.4,0,0.2,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -22,350 +22,351 @@ body{background:var(--hero-bg);color:var(--ink);font-family:'Inter',sans-serif;f
 .display{font-family:'Cormorant Garamond',serif;font-weight:300;letter-spacing:-.02em;line-height:1.05}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:13px 36px;background:rgba(250,247,242,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.nav-logo{display:flex;align-items:center;gap:11px;text-decoration:none;cursor:pointer}
-.nav-logo-img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--gold-pale)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:rgba(250,247,242,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;cursor:pointer;user-select:none}
+.nav-logo-img{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--gold-pale)}
 .nav-logo-img img{width:100%;height:100%;object-fit:cover}
-.nav-logo-initials{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--gold);line-height:1}
+.nav-logo-initials{font-family:'Cormorant Garamond',serif;font-size:.95rem;font-weight:600;color:var(--gold)}
 .nav-logo-text{display:flex;flex-direction:column;gap:1px}
-.nav-logo-name{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);line-height:1}
+.nav-logo-name{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);line-height:1}
 .nav-logo-name span{color:var(--gold)}
-.nav-logo-sub{font-size:.56rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft)}
-.nav-right{display:flex;align-items:center;gap:9px}
-.cart-btn{display:flex;align-items:center;gap:8px;background:var(--ink);color:var(--hero-bg);border:none;padding:10px 20px;border-radius:var(--r);cursor:pointer;font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;transition:all .25s var(--ease)}
-.cart-btn:hover{background:var(--gold);transform:translateY(-1px);box-shadow:0 6px 20px rgba(184,137,42,.3)}
-.cart-count{background:var(--gold);color:var(--ink);font-size:.63rem;font-weight:700;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.nav-logo-sub{font-size:.52rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.cart-btn{display:flex;align-items:center;gap:7px;background:var(--ink);color:var(--hero-bg);border:none;padding:9px 18px;border-radius:var(--r);cursor:pointer;font-family:'Inter',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;transition:all .25s var(--ease)}
+.cart-btn:hover{background:var(--gold);transform:translateY(-1px)}
+.cart-count{background:var(--gold);color:var(--ink);font-size:.6rem;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .2s}
 .cart-count.bump{transform:scale(1.5)}
-.admin-trigger{background:none;border:1px solid var(--border);color:var(--ink-soft);padding:9px 13px;border-radius:var(--r);cursor:pointer;font-size:.7rem;font-family:'Inter',sans-serif;transition:all .2s;display:flex;align-items:center;gap:6px;font-weight:500}
-.admin-trigger:hover{border-color:var(--gold);color:var(--gold)}
 
-/* HERO */
-.hero{background:var(--hero-bg);min-height:100vh;display:grid;grid-template-rows:1fr auto;padding:0 36px;position:relative;overflow:hidden}
-.hero-deco{position:absolute;right:-80px;top:50%;transform:translateY(-52%);font-family:'Cormorant Garamond',serif;font-size:clamp(300px,36vw,560px);font-weight:300;color:rgba(184,137,42,.05);line-height:1;pointer-events:none;user-select:none;letter-spacing:-.04em}
-.hero-line{position:absolute;left:36px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent 0%,var(--gold) 30%,var(--gold) 70%,transparent 100%);opacity:.18}
-.hero-inner{display:flex;flex-direction:column;justify-content:center;padding:110px 0 48px 24px;position:relative;z-index:1}
-.hero-eyebrow{display:flex;align-items:center;gap:16px;font-size:.66rem;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:28px}
-.hero-eyebrow::before{content:'';width:36px;height:1px;background:var(--gold);flex-shrink:0}
-.hero-title{font-size:clamp(3rem,7.5vw,7rem);color:var(--ink);margin-bottom:24px;max-width:820px}
+/* HERO — réduit 15% */
+.hero{background:var(--hero-bg);padding:80px 20px 0;position:relative;overflow:hidden}
+.hero-deco{position:absolute;right:-60px;top:30%;font-family:'Cormorant Garamond',serif;font-size:clamp(200px,28vw,400px);font-weight:300;color:rgba(184,137,42,.04);line-height:1;pointer-events:none;user-select:none}
+.hero-line{position:absolute;left:20px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--gold) 30%,var(--gold) 70%,transparent);opacity:.15}
+
+.hero-eyebrow{display:flex;align-items:center;gap:12px;font-size:.63rem;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.hero-eyebrow::before{content:'';width:28px;height:1px;background:var(--gold);flex-shrink:0}
+
+.hero-title{font-size:clamp(2rem,5.5vw,4.5rem);color:var(--ink);margin-bottom:12px;max-width:720px;line-height:1.08}
 .hero-title em{font-style:italic;color:var(--gold)}
-.hero-sub{font-size:.98rem;color:var(--ink-soft);max-width:400px;margin-bottom:36px;line-height:1.95}
 
-/* Live visitors */
-.live-bar{display:flex;align-items:center;gap:10px;margin-bottom:28px}
-.live-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}}
-.live-text{font-size:.72rem;color:var(--ink-soft);font-weight:500}
-.live-text strong{color:var(--ink);font-weight:700}
+/* Social proof inline */
+.hero-stars{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.stars-row{color:var(--gold-lt);font-size:.9rem;letter-spacing:2px}
+.stars-label{font-size:.75rem;color:var(--ink-soft);font-weight:500}
+.stars-label strong{color:var(--ink);font-weight:700}
+
+.hero-sub{font-size:.93rem;color:var(--ink-soft);max-width:400px;margin-bottom:24px;line-height:1.85;font-weight:400}
+
+/* Live bar */
+.live-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{box-shadow:0 0 0 5px rgba(34,197,94,0)}}
+.live-text{font-size:.69rem;color:var(--ink-soft);font-weight:500}
 
 /* Trust badges */
-.hero-trust{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:36px}
-.trust-badge{display:flex;align-items:center;gap:7px;background:var(--card-bg);border:1px solid var(--border);padding:7px 13px;border-radius:999px;font-size:.66rem;font-weight:600;color:var(--ink-soft);letter-spacing:.05em}
-.trust-badge svg{color:var(--gold);flex-shrink:0}
+.hero-trust{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:28px}
+.trust-badge{display:flex;align-items:center;gap:6px;background:var(--card-bg);border:1px solid var(--border);padding:6px 12px;border-radius:999px;font-size:.63rem;font-weight:600;color:var(--ink-soft)}
+.trust-badge svg{color:var(--green);flex-shrink:0}
 
-.hero-actions{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.hero-cta-primary{display:inline-flex;align-items:center;gap:12px;background:var(--ink);color:var(--hero-bg);padding:16px 36px;font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;text-decoration:none;border-radius:var(--r);border:none;cursor:pointer;transition:all .3s var(--ease);box-shadow:0 4px 20px rgba(13,10,6,.15)}
-.hero-cta-primary:hover{background:var(--gold);transform:translateY(-2px);box-shadow:0 8px 28px rgba(184,137,42,.35)}
-.hero-cta-primary:hover svg{transform:translateY(3px)}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:0}
+.hero-cta-primary{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--hero-bg);padding:14px 32px;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-radius:var(--r);border:none;cursor:pointer;transition:all .3s var(--ease);box-shadow:0 4px 16px rgba(13,10,6,.15)}
+.hero-cta-primary:hover{background:var(--green);transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,122,61,.3)}
 .hero-cta-primary svg{transition:transform .3s}
-.hero-cta-secondary{font-size:.71rem;font-weight:600;color:var(--ink-soft);letter-spacing:.1em;text-transform:uppercase;text-decoration:none;display:flex;align-items:center;gap:8px;transition:color .2s;border:none;background:none;cursor:pointer;padding:0}
+.hero-cta-primary:hover svg{transform:translateY(3px)}
+.hero-cta-secondary{font-size:.69rem;font-weight:600;color:var(--ink-soft);letter-spacing:.1em;text-transform:uppercase;text-decoration:none;display:flex;align-items:center;gap:7px;transition:color .2s;border:none;background:none;cursor:pointer;padding:0}
 .hero-cta-secondary:hover{color:var(--gold)}
-.hero-cta-secondary::after{content:'→';font-size:1rem;transition:transform .2s}
-.hero-cta-secondary:hover::after{transform:translateX(4px)}
+.hero-cta-secondary::after{content:'→';font-size:.95rem;transition:transform .2s}
+.hero-cta-secondary:hover::after{transform:translateX(3px)}
 
-.hero-stats{display:flex;border-top:1px solid var(--border);position:relative;z-index:1}
-.stat{flex:1;padding:24px 0;border-right:1px solid var(--border)}
+/* Stats row */
+.hero-stats{display:flex;border-top:1px solid var(--border);margin-top:28px}
+.stat{flex:1;padding:18px 0;border-right:1px solid var(--border)}
 .stat:last-child{border-right:none}
-.stat-val{font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;color:var(--ink);line-height:1;margin-bottom:4px}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--ink);line-height:1;margin-bottom:3px}
 .stat-val em{font-style:normal;color:var(--gold)}
-.stat-label{font-size:.6rem;color:var(--ink-soft);letter-spacing:.15em;text-transform:uppercase;font-weight:600}
+.stat-label{font-size:.57rem;color:var(--ink-soft);letter-spacing:.13em;text-transform:uppercase;font-weight:600}
 
 /* PROOF STRIP */
-.proof-strip{background:var(--ink);padding:16px 36px;display:flex;align-items:center;gap:28px;overflow:hidden;position:relative}
-.proof-strip::before,.proof-strip::after{content:'';position:absolute;top:0;bottom:0;width:60px;z-index:2}
-.proof-strip::before{left:0;background:linear-gradient(to right,var(--ink),transparent)}
-.proof-strip::after{right:0;background:linear-gradient(to left,var(--ink),transparent)}
-.proof-item{display:flex;align-items:center;gap:10px;white-space:nowrap;flex-shrink:0}
-.proof-avatar{width:28px;height:28px;border-radius:50%;background:var(--gold-pale);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:.72rem;font-weight:600;color:var(--gold)}
-.proof-text{font-size:.7rem;color:rgba(250,247,242,.65);font-style:italic}
+.proof-strip{background:var(--ink);padding:14px 20px;display:flex;align-items:center;gap:24px;overflow-x:auto;scrollbar-width:none}
+.proof-strip::-webkit-scrollbar{display:none}
+.proof-item{display:flex;align-items:center;gap:9px;white-space:nowrap;flex-shrink:0}
+.proof-avatar{width:26px;height:26px;border-radius:50%;background:var(--gold-pale);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:.68rem;font-weight:600;color:var(--gold)}
+.proof-text{font-size:.67rem;color:rgba(250,247,242,.65);font-style:italic}
 .proof-text strong{color:var(--gold-lt);font-style:normal;font-weight:600}
-.proof-sep{width:1px;height:18px;background:rgba(184,137,42,.25);flex-shrink:0}
-.stars{color:var(--gold-lt);font-size:.72rem;letter-spacing:1px}
+.proof-sep{width:1px;height:16px;background:rgba(184,137,42,.25);flex-shrink:0}
+.proof-stars{color:var(--gold-lt);font-size:.68rem}
 
 /* BAND */
-.band{height:56px;background:linear-gradient(to bottom,var(--hero-bg),var(--cat-bg))}
+.band{height:40px;background:linear-gradient(to bottom,var(--hero-bg),var(--cat-bg))}
+
+/* REASSURANCE */
+.reassurance{background:var(--cat-bg);padding:28px 20px}
+.reassurance-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;color:var(--ink);margin-bottom:16px;text-align:center}
+.reassurance-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.reassurance-item{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 4px rgba(13,10,6,.04)}
+.reassurance-item svg{color:var(--green);flex-shrink:0}
+.reassurance-item span{font-size:.74rem;font-weight:600;color:var(--ink-soft);line-height:1.3}
 
 /* SECTION */
-.section{background:var(--cat-bg);padding:64px 36px 96px}
-.section-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--border)}
-.section-eyebrow{font-size:.64rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
-.section-title{font-size:clamp(1.8rem,3.5vw,3rem);color:var(--ink)}
+.section{background:var(--cat-bg);padding:32px 20px 80px}
+.section-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.section-eyebrow{font-size:.62rem;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.section-title{font-size:clamp(1.6rem,3vw,2.4rem);color:var(--ink)}
 
-.search-filter-bar{display:flex;gap:11px;align-items:center;margin-bottom:24px;flex-wrap:wrap}
-.search-wrap{position:relative;flex:1;min-width:200px}
-.search-wrap svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--ink-soft);pointer-events:none}
-.search-input{width:100%;background:var(--card-bg);border:1.5px solid rgba(13,10,6,.09);color:var(--ink);padding:11px 13px 11px 40px;font-family:'Inter',sans-serif;font-size:.87rem;border-radius:var(--r);outline:none;transition:all .2s;box-shadow:0 2px 8px rgba(13,10,6,.04)}
+/* Search */
+.search-filter-bar{display:flex;gap:9px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:180px}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink-soft);pointer-events:none}
+.search-input{width:100%;background:var(--card-bg);border:1.5px solid rgba(13,10,6,.09);color:var(--ink);padding:10px 12px 10px 36px;font-family:'Inter',sans-serif;font-size:.85rem;border-radius:var(--r);outline:none;transition:all .2s;box-shadow:0 1px 6px rgba(13,10,6,.04)}
 .search-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,137,42,.1)}
-.search-input::placeholder{color:rgba(95,88,78,.45)}
-.filter-pills{display:flex;gap:7px;flex-wrap:wrap}
-.pill{padding:8px 16px;font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1.5px solid rgba(13,10,6,.09);border-radius:999px;cursor:pointer;background:var(--card-bg);color:var(--ink-soft);transition:all .22s var(--ease);font-family:'Inter',sans-serif;box-shadow:0 1px 4px rgba(13,10,6,.04)}
-.pill.active,.pill:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-pale);box-shadow:0 2px 10px rgba(184,137,42,.15)}
-.results-count{font-size:.73rem;color:var(--ink-soft);font-style:italic;margin-bottom:20px;min-height:18px}
+.search-input::placeholder{color:rgba(95,88,78,.4)}
+.filter-pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{padding:7px 14px;font-size:.63rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;border:1.5px solid rgba(13,10,6,.09);border-radius:999px;cursor:pointer;background:var(--card-bg);color:var(--ink-soft);transition:all .2s;font-family:'Inter',sans-serif}
+.pill.active,.pill:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-pale)}
+.results-count{font-size:.7rem;color:var(--ink-soft);font-style:italic;margin-bottom:16px;min-height:16px}
 
 /* GRID */
-.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:22px}
+.books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
 
 /* CARD */
-.book-card{background:var(--card-bg);border:1px solid var(--bcard);border-radius:10px;overflow:hidden;position:relative;transition:transform .32s var(--ease),box-shadow .32s var(--ease),border-color .32s var(--ease);box-shadow:0 2px 12px rgba(13,10,6,.06)}
-.book-card:hover{transform:translateY(-7px);box-shadow:0 24px 60px rgba(13,10,6,.13);border-color:rgba(184,137,42,.32)}
-.book-card::after{content:'';position:absolute;top:0;right:18px;width:3px;height:0;background:linear-gradient(to bottom,var(--gold),var(--gold-lt));transition:height .4s cubic-bezier(.4,0,.2,1);border-radius:0 0 4px 4px}
-.book-card:hover::after{height:52px}
-.book-card.out-of-stock{opacity:.6;pointer-events:none}
-.book-card.out-of-stock::before{content:'Rupture de stock';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(13,10,6,.85);color:#fff;padding:8px 20px;border-radius:999px;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;z-index:10;white-space:nowrap}
+.book-card{background:var(--card-bg);border:1px solid var(--bcard);border-radius:8px;overflow:hidden;position:relative;transition:transform .3s var(--ease),box-shadow .3s var(--ease),border-color .3s var(--ease);box-shadow:0 2px 8px rgba(13,10,6,.05)}
+.book-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(13,10,6,.12);border-color:rgba(184,137,42,.28)}
+.book-card::after{content:'';position:absolute;top:0;right:14px;width:2px;height:0;background:linear-gradient(to bottom,var(--gold),var(--gold-lt));transition:height .4s;border-radius:0 0 3px 3px}
+.book-card:hover::after{height:40px}
+.book-card.out-of-stock{opacity:.55;pointer-events:none}
+.book-card.out-of-stock::before{content:'Rupture';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(13,10,6,.82);color:#fff;padding:6px 14px;border-radius:999px;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;z-index:10;white-space:nowrap}
 
-.book-badge{position:absolute;top:10px;left:10px;z-index:2;padding:4px 11px;font-size:.56rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:999px}
+/* Badge top-left */
+.book-badge{position:absolute;top:7px;left:7px;z-index:2;padding:3px 8px;font-size:.53rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;border-radius:999px}
 .badge-bestseller{background:#0D0A06;color:#D4A843}
 .badge-new{background:#1A6B3A;color:#fff}
-.badge-promo{background:#B02A2A;color:#fff}
+.badge-promo{background:var(--red);color:#fff}
 .badge-limited{background:#7A4A00;color:#F5E9CC}
+.badge-coup{background:#6B2D6B;color:#fff}
+.badge-recommended{background:#1A4A6B;color:#fff}
 
-.book-cover{width:100%;aspect-ratio:3/4;background:linear-gradient(160deg,#EDE8DF 0%,#E2D9C8 100%);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
-.book-cover img{width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
-.book-card:hover .book-cover img{transform:scale(1.05)}
-.cover-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;padding:24px 20px;text-align:center;position:relative}
-.cover-placeholder::before{content:'';position:absolute;inset:12px;border:1px solid rgba(184,137,42,.22);border-radius:4px}
-.ph-ornament{color:var(--gold);font-size:1.2rem;opacity:.65}
-.ph-title{font-family:'Cormorant Garamond',serif;font-size:.9rem;font-weight:600;color:var(--ink);line-height:1.3}
-.ph-line{width:22px;height:1px;background:rgba(184,137,42,.45)}
-.ph-author{font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
-.badge-cat{position:absolute;bottom:9px;left:9px;padding:3px 9px;font-size:.55rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:999px;background:rgba(250,247,242,.96);border:1px solid var(--border);color:var(--gold)}
-
-/* Share button on card */
-.share-btn{position:absolute;top:10px;right:10px;z-index:2;width:28px;height:28px;border-radius:50%;background:rgba(250,247,242,.9);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;opacity:0}
+/* Share btn */
+.share-btn{position:absolute;top:7px;right:7px;z-index:2;width:24px;height:24px;border-radius:50%;background:rgba(250,247,242,.88);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;opacity:0}
 .book-card:hover .share-btn{opacity:1}
-.share-btn:hover{background:var(--gold);border-color:var(--gold);color:#fff}
-.share-btn svg{color:var(--ink-soft)}
+.share-btn:hover{background:var(--gold)}
 .share-btn:hover svg{color:#fff}
+.share-btn svg{color:var(--ink-soft);width:10px;height:10px}
 
-.book-body{padding:16px 15px 14px;border-top:1px solid rgba(13,10,6,.05)}
-.book-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;line-height:1.28;margin-bottom:4px;color:var(--ink)}
-.book-author{font-size:.61rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-mid);margin-bottom:9px;font-weight:700}
-.book-desc{font-size:.78rem;color:var(--ink-soft);line-height:1.72;margin-bottom:13px}
-.book-footer{padding-top:11px;border-top:1px solid rgba(13,10,6,.05)}
+/* Cover — réduit 12% */
+.book-cover{width:100%;aspect-ratio:3/4.5;background:linear-gradient(160deg,#EDE8DF,#E2D9C8);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center}
+.book-cover img{width:100%;height:100%;object-fit:cover;transition:transform .45s var(--ease)}
+.book-card:hover .book-cover img{transform:scale(1.04)}
+.cover-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px 14px;text-align:center;position:relative}
+.cover-placeholder::before{content:'';position:absolute;inset:10px;border:1px solid rgba(184,137,42,.2);border-radius:3px}
+.ph-ornament{color:var(--gold);font-size:1rem;opacity:.6}
+.ph-title{font-family:'Cormorant Garamond',serif;font-size:.82rem;font-weight:600;color:var(--ink);line-height:1.25;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ph-line{width:18px;height:1px;background:rgba(184,137,42,.4)}
+.ph-author{font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+.badge-cat{position:absolute;bottom:7px;left:7px;padding:2px 7px;font-size:.5rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;border-radius:999px;background:rgba(250,247,242,.95);border:1px solid var(--border);color:var(--gold)}
 
-/* Price with strike */
-.book-price-wrap{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.book-price{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:600;color:var(--ink);letter-spacing:-.01em;line-height:1}
-.book-price sup{font-size:.58rem;font-family:'Inter',sans-serif;font-weight:700;color:var(--ink-soft);vertical-align:super;margin-left:2px;letter-spacing:.06em}
-.book-price-old{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:400;color:var(--ink-soft);text-decoration:line-through;opacity:.6;line-height:1}
-.book-price-old sup{font-size:.55rem;font-family:'Inter',sans-serif;vertical-align:super}
-.book-discount{font-size:.6rem;font-weight:700;background:var(--red);color:#fff;padding:2px 7px;border-radius:999px;letter-spacing:.06em;align-self:center}
+/* Card body */
+.book-body{padding:11px 11px 10px;border-top:1px solid rgba(13,10,6,.05)}
+.book-title{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;line-height:1.25;margin-bottom:3px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.book-author{font-size:.58rem;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-mid);margin-bottom:7px;font-weight:700}
+.book-desc{font-size:.76rem;color:var(--ink-soft);line-height:1.65;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.book-footer{padding-top:9px;border-top:1px solid rgba(13,10,6,.05)}
 
-.book-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.btn-now{background:var(--green);color:#fff;border:none;padding:10px 8px;font-size:.61rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:all .22s var(--ease);font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 3px 10px rgba(18,140,58,.25)}
-.btn-now:hover{background:var(--green-dk);transform:translateY(-1px);box-shadow:0 6px 16px rgba(18,140,58,.32)}
-.btn-cart{background:none;border:1.5px solid rgba(13,10,6,.12);color:var(--ink);padding:10px 8px;font-size:.61rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:all .22s var(--ease);font-family:'Inter',sans-serif}
+/* Price */
+.book-price-wrap{margin-bottom:9px}
+.book-price{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:var(--ink);letter-spacing:-.01em;line-height:1}
+.book-price sup{font-size:.56rem;font-family:'Inter',sans-serif;font-weight:700;color:var(--ink-soft);vertical-align:super;margin-left:2px}
+.price-old-row{display:flex;align-items:center;gap:7px;margin-top:3px}
+.book-price-old{font-size:.82rem;font-weight:500;color:var(--ink-muted);text-decoration:line-through;line-height:1}
+.book-price-old sup{font-size:.5rem;font-family:'Inter',sans-serif;vertical-align:super}
+.book-discount{font-size:.56rem;font-weight:700;background:var(--red);color:#fff;padding:2px 6px;border-radius:999px;letter-spacing:.05em}
+.book-economy{font-size:.62rem;font-weight:600;color:var(--green);margin-bottom:6px}
+
+/* Buttons — equal height */
+.book-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.btn-now{background:var(--green);color:#fff;border:none;padding:9px 6px;font-size:.58rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:all .22s var(--ease);font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:4px;height:34px;box-shadow:0 2px 8px rgba(15,122,61,.22)}
+.btn-now:hover{background:var(--green-dk);transform:translateY(-1px);box-shadow:0 5px 14px rgba(15,122,61,.3)}
+.btn-cart{background:none;border:1.5px solid rgba(13,10,6,.15);color:var(--ink);padding:9px 6px;font-size:.58rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:all .22s var(--ease);font-family:'Inter',sans-serif;height:34px;display:flex;align-items:center;justify-content:center}
 .btn-cart:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-pale)}
 .btn-cart.added{background:var(--gold-pale);color:var(--gold);border-color:rgba(184,137,42,.4)}
-
-/* FLOATING NOTIFICATION */
-.float-notif{position:fixed;bottom:90px;left:20px;z-index:500;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 28px rgba(13,10,6,.14);transform:translateX(-120%);transition:transform .4s var(--ease);max-width:280px}
-.float-notif.show{transform:translateX(0)}
-.float-notif-icon{width:36px;height:36px;border-radius:50%;background:var(--gold-pale);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem}
-.float-notif-text{font-size:.73rem;color:var(--ink);line-height:1.4}
-.float-notif-text strong{font-weight:700;display:block}
-.float-notif-time{font-size:.62rem;color:var(--ink-soft);margin-top:2px}
-
-/* CONFIRMATION OVERLAY */
-.confirm-overlay{position:fixed;inset:0;background:rgba(13,10,6,.65);z-index:600;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px}
-.confirm-overlay.open{opacity:1;pointer-events:all}
-.confirm-card{background:var(--card-bg);border-radius:16px;padding:40px 36px;max-width:420px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(13,10,6,.2);animation:slideUp .4s var(--ease)}
-@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-.confirm-icon{font-size:3rem;margin-bottom:16px}
-.confirm-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:var(--ink);margin-bottom:10px}
-.confirm-sub{font-size:.85rem;color:var(--ink-soft);line-height:1.7;margin-bottom:24px}
-.confirm-recap{background:var(--hero-bg);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:24px;text-align:left}
-.confirm-recap-title{font-size:.63rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
-.confirm-item{font-size:.8rem;color:var(--ink);padding:4px 0;border-bottom:1px solid rgba(13,10,6,.05)}
-.confirm-item:last-child{border-bottom:none}
-.confirm-total{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:var(--ink);margin-top:10px;text-align:right}
-.confirm-close{background:var(--ink);color:var(--hero-bg);border:none;padding:13px 32px;border-radius:var(--r);cursor:pointer;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;transition:background .25s}
-.confirm-close:hover{background:var(--gold)}
 
 /* CART */
 .cart-overlay{position:fixed;inset:0;background:rgba(13,10,6,.6);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(6px)}
 .cart-overlay.open{opacity:1;pointer-events:all}
-.cart-panel{position:fixed;top:0;right:0;bottom:0;width:min(460px,100vw);background:var(--hero-bg);border-left:1px solid var(--border);z-index:201;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .4s var(--ease);box-shadow:-20px 0 60px rgba(13,10,6,.16)}
+.cart-panel{position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);background:var(--hero-bg);border-left:1px solid var(--border);z-index:201;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .4s var(--ease);box-shadow:-16px 0 48px rgba(13,10,6,.14)}
 .cart-panel.open{transform:translateX(0)}
-.cart-header{display:flex;align-items:center;justify-content:space-between;padding:20px 26px;border-bottom:1px solid var(--border);background:var(--card-bg)}
-.cart-header-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;color:var(--ink)}
-.close-btn{background:none;border:none;color:var(--ink-soft);cursor:pointer;padding:6px;transition:all .2s;display:flex;border-radius:4px}
+.cart-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);background:var(--card-bg)}
+.cart-header-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;color:var(--ink)}
+.close-btn{background:none;border:none;color:var(--ink-soft);cursor:pointer;padding:5px;transition:all .2s;display:flex;border-radius:4px}
 .close-btn:hover{background:var(--cat-bg);color:var(--ink)}
-.cart-items{flex:1;overflow-y:auto;padding:16px 26px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
-.cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;gap:12px;text-align:center}
-.cart-empty-icon{font-size:2.4rem;opacity:.3}
-.cart-empty p{font-size:.82rem;color:var(--ink-soft);line-height:1.7}
-.cart-item{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid rgba(13,10,6,.06);animation:fadeIn .28s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
-.ci-thumb{width:44px;height:60px;background:var(--cat-bg);border-radius:3px;flex-shrink:0;overflow:hidden;border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.cart-items{flex:1;overflow-y:auto;padding:14px 22px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:180px;gap:10px;text-align:center}
+.cart-empty-icon{font-size:2.2rem;opacity:.3}
+.cart-empty p{font-size:.8rem;color:var(--ink-soft);line-height:1.7}
+.cart-item{display:flex;gap:11px;padding:12px 0;border-bottom:1px solid rgba(13,10,6,.06);animation:fadeIn .28s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateX(7px)}to{opacity:1;transform:translateX(0)}}
+.ci-thumb{width:40px;height:54px;background:var(--cat-bg);border-radius:3px;flex-shrink:0;overflow:hidden;border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
 .ci-thumb img{width:100%;height:100%;object-fit:cover}
 .ci-thumb-ph{width:100%;height:100%;background:linear-gradient(160deg,#EDE8DF,#E0D6C4);display:flex;align-items:center;justify-content:center;padding:3px}
-.ci-thumb-ph span{font-family:'Cormorant Garamond',serif;font-size:.5rem;color:var(--ink-soft);text-align:center;line-height:1.3}
+.ci-thumb-ph span{font-family:'Cormorant Garamond',serif;font-size:.48rem;color:var(--ink-soft);text-align:center;line-height:1.3}
 .ci-info{flex:1;min-width:0}
-.ci-title{font-family:'Cormorant Garamond',serif;font-size:.92rem;font-weight:600;color:var(--ink);line-height:1.28;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ci-price{font-size:.72rem;color:var(--gold);font-weight:700;margin-bottom:7px}
-.ci-qty-row{display:flex;align-items:center;gap:7px}
-.qty-btn{width:24px;height:24px;background:var(--cat-bg);border:1px solid var(--border);color:var(--ink);border-radius:3px;cursor:pointer;font-size:.86rem;display:flex;align-items:center;justify-content:center;transition:all .18s;font-weight:700}
+.ci-title{font-family:'Cormorant Garamond',serif;font-size:.88rem;font-weight:600;color:var(--ink);line-height:1.25;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-price{font-size:.7rem;color:var(--gold);font-weight:700;margin-bottom:6px}
+.ci-qty-row{display:flex;align-items:center;gap:6px}
+.qty-btn{width:22px;height:22px;background:var(--cat-bg);border:1px solid var(--border);color:var(--ink);border-radius:3px;cursor:pointer;font-size:.82rem;display:flex;align-items:center;justify-content:center;transition:all .18s;font-weight:700}
 .qty-btn:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-pale)}
-.qty-val{font-size:.82rem;min-width:18px;text-align:center;color:var(--ink);font-weight:700}
-.ci-remove{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:.62rem;padding:2px;transition:color .18s;align-self:flex-start;margin-top:2px;font-weight:700}
+.qty-val{font-size:.8rem;min-width:16px;text-align:center;color:var(--ink);font-weight:700}
+.ci-remove{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:.6rem;padding:2px;transition:color .18s;align-self:flex-start;margin-top:2px;font-weight:700}
 .ci-remove:hover{color:#B02A2A}
-.cart-form{padding:16px 26px 22px;border-top:1px solid var(--border);background:var(--card-bg)}
-.cart-total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(13,10,6,.06)}
-.cart-total-label{font-size:.63rem;letter-spacing:.17em;text-transform:uppercase;color:var(--ink-soft);font-weight:700}
-.cart-total-val{font-family:'Cormorant Garamond',serif;font-size:1.85rem;font-weight:600;color:var(--ink)}
-.form-group{margin-bottom:9px}
-.form-label{display:block;font-size:.6rem;letter-spacing:.17em;text-transform:uppercase;color:var(--ink-mid);margin-bottom:5px;font-weight:700}
-.form-input{width:100%;background:var(--hero-bg);border:1.5px solid rgba(13,10,6,.09);color:var(--ink);padding:10px 12px;font-family:'Inter',sans-serif;font-size:.87rem;border-radius:var(--r);outline:none;transition:all .2s}
+.cart-form{padding:14px 22px 20px;border-top:1px solid var(--border);background:var(--card-bg)}
+.cart-total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(13,10,6,.06)}
+.cart-total-label{font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);font-weight:700}
+.cart-total-val{font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:600;color:var(--ink)}
+.form-group{margin-bottom:8px}
+.form-label{display:block;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mid);margin-bottom:4px;font-weight:700}
+.form-input{width:100%;background:var(--hero-bg);border:1.5px solid rgba(13,10,6,.09);color:var(--ink);padding:9px 11px;font-family:'Inter',sans-serif;font-size:.85rem;border-radius:var(--r);outline:none;transition:all .2s}
 .form-input:focus{border-color:var(--gold);background:var(--card-bg);box-shadow:0 0 0 3px rgba(184,137,42,.1)}
-.form-input::placeholder{color:rgba(95,88,78,.45)}
-.whatsapp-btn{width:100%;background:var(--green);color:#fff;border:none;padding:14px;font-family:'Inter',sans-serif;font-size:.74rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:all .25s var(--ease);display:flex;align-items:center;justify-content:center;gap:9px;margin-top:12px;box-shadow:0 4px 16px rgba(18,140,58,.28)}
-.whatsapp-btn:hover{background:var(--green-dk);transform:translateY(-1px);box-shadow:0 8px 24px rgba(18,140,58,.35)}
+.form-input::placeholder{color:rgba(95,88,78,.42)}
+.whatsapp-btn{width:100%;background:var(--green);color:#fff;border:none;padding:13px;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:all .25s var(--ease);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:11px;box-shadow:0 4px 14px rgba(15,122,61,.28)}
+.whatsapp-btn:hover{background:var(--green-dk);transform:translateY(-1px);box-shadow:0 8px 22px rgba(15,122,61,.35)}
 
 /* MOBILE BAR */
-.mobile-cart-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:99;padding:9px 16px 14px;background:var(--card-bg);border-top:1px solid var(--border);box-shadow:0 -8px 28px rgba(13,10,6,.12)}
-.mobile-cart-bar button{width:100%;background:var(--ink);color:var(--hero-bg);border:none;padding:14px 20px;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.mobile-cart-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:99;padding:8px 16px 12px;background:var(--card-bg);border-top:1px solid var(--border);box-shadow:0 -6px 24px rgba(13,10,6,.1)}
+.mobile-cart-bar button{width:100%;background:var(--ink);color:var(--hero-bg);border:none;padding:13px 18px;font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+
+/* FLOATING NOTIF */
+.float-notif{position:fixed;bottom:80px;left:16px;z-index:500;background:var(--card-bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 6px 24px rgba(13,10,6,.12);transform:translateX(-120%);transition:transform .4s var(--ease);max-width:270px}
+.float-notif.show{transform:translateX(0)}
+.float-notif-icon{width:32px;height:32px;border-radius:50%;background:var(--gold-pale);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.9rem}
+.float-notif-text{font-size:.68rem;color:var(--ink);line-height:1.35}
+.float-notif-text strong{font-weight:700;display:block}
+.float-notif-time{font-size:.58rem;color:var(--ink-soft);margin-top:2px}
+
+/* CONFIRMATION */
+.confirm-overlay{position:fixed;inset:0;background:rgba(13,10,6,.65);z-index:600;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}
+.confirm-overlay.open{opacity:1;pointer-events:all}
+.confirm-card{background:var(--card-bg);border-radius:14px;padding:32px 28px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 56px rgba(13,10,6,.2);animation:slideUp .4s var(--ease)}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.confirm-icon{font-size:2.6rem;margin-bottom:12px}
+.confirm-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;color:var(--ink);margin-bottom:8px}
+.confirm-sub{font-size:.8rem;color:var(--ink-soft);line-height:1.7;margin-bottom:18px}
+.confirm-recap{background:var(--hero-bg);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:18px;text-align:left}
+.confirm-recap-title{font-size:.58rem;font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.confirm-item{font-size:.76rem;color:var(--ink);padding:3px 0;border-bottom:1px solid rgba(13,10,6,.05)}
+.confirm-item:last-child{border-bottom:none}
+.confirm-total{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--ink);margin-top:8px;text-align:right}
+.confirm-close{background:var(--ink);color:var(--hero-bg);border:none;padding:12px 28px;border-radius:var(--r);cursor:pointer;font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;transition:background .25s}
+.confirm-close:hover{background:var(--green)}
 
 /* TOAST */
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--ink);color:var(--hero-bg);padding:11px 22px;border-radius:var(--r);font-size:.76rem;font-weight:500;z-index:700;opacity:0;transition:all .28s;white-space:nowrap;pointer-events:none;border-left:3px solid var(--gold);box-shadow:0 8px 28px rgba(13,10,6,.28)}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--ink);color:var(--hero-bg);padding:10px 20px;border-radius:var(--r);font-size:.74rem;font-weight:500;z-index:700;opacity:0;transition:all .28s;white-space:nowrap;pointer-events:none;border-left:3px solid var(--gold);box-shadow:0 6px 24px rgba(13,10,6,.26)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* FOOTER */
-footer{padding:44px 36px;background:var(--ink);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;border-top:3px solid var(--gold)}
-.footer-left{display:flex;align-items:center;gap:13px}
-.footer-logo-img{width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(184,137,42,.4);display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(212,168,67,.12);flex-shrink:0}
+footer{padding:36px 20px;background:var(--ink);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;border-top:3px solid var(--gold)}
+.footer-left{display:flex;align-items:center;gap:11px}
+.footer-logo-img{width:36px;height:36px;border-radius:50%;border:1.5px solid rgba(184,137,42,.4);display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(212,168,67,.1);flex-shrink:0}
 .footer-logo-img img{width:100%;height:100%;object-fit:cover}
-.footer-logo-initials{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--gold-lt);line-height:1}
-.footer-brand-text .footer-name{font-family:'Cormorant Garamond',serif;font-size:1.05rem;color:var(--hero-bg);letter-spacing:.14em;text-transform:uppercase}
-.footer-brand-text .footer-name span{color:var(--gold-lt)}
-.footer-brand-text .footer-tagline{font-size:.6rem;color:rgba(250,247,242,.38);letter-spacing:.12em;text-transform:uppercase;margin-top:2px}
-.footer-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.footer-wa{font-size:.67rem;color:rgba(250,247,242,.55);display:flex;align-items:center;gap:6px}
-.footer-copy{font-size:.65rem;color:rgba(250,247,242,.35)}
+.footer-logo-initials{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--gold-lt)}
+.footer-name{font-family:'Cormorant Garamond',serif;font-size:.95rem;color:var(--hero-bg);letter-spacing:.13em;text-transform:uppercase}
+.footer-name span{color:var(--gold-lt)}
+.footer-tagline{font-size:.55rem;color:rgba(250,247,242,.35);letter-spacing:.11em;text-transform:uppercase;margin-top:2px}
+.footer-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.footer-wa{font-size:.63rem;color:rgba(250,247,242,.5);display:flex;align-items:center;gap:5px}
+.footer-copy{font-size:.6rem;color:rgba(250,247,242,.3)}
 
 /* REVEAL */
-.reveal{opacity:0;transform:translateY(16px);transition:opacity .52s ease,transform .52s ease}
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
 
 /* ADMIN */
 .admin-overlay{position:fixed;inset:0;background:rgba(13,10,6,.72);z-index:300;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px)}
 .admin-overlay.open{opacity:1;pointer-events:all}
-.admin-panel{position:fixed;top:0;left:0;bottom:0;width:min(600px,100vw);background:var(--card-bg);z-index:301;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .4s var(--ease);box-shadow:20px 0 60px rgba(13,10,6,.2)}
+.admin-panel{position:fixed;top:0;left:0;bottom:0;width:min(600px,100vw);background:var(--card-bg);z-index:301;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .4s var(--ease);box-shadow:16px 0 48px rgba(13,10,6,.18)}
 .admin-panel.open{transform:translateX(0)}
-.admin-header{display:flex;align-items:center;justify-content:space-between;padding:18px 26px;background:var(--ink);flex-shrink:0;border-bottom:2px solid var(--gold)}
-.admin-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:300;color:var(--hero-bg);letter-spacing:.06em}
+.admin-header{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;background:var(--ink);flex-shrink:0;border-bottom:2px solid var(--gold)}
+.admin-title{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:300;color:var(--hero-bg)}
 .admin-title span{color:var(--gold-lt)}
-.admin-body{flex:1;overflow-y:auto;padding:22px 26px;background:var(--hero-bg)}
-.admin-login{display:flex;flex-direction:column;gap:14px;padding:32px 0}
-.admin-login-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--ink)}
-.admin-login p{font-size:.82rem;color:var(--ink-soft);line-height:1.7}
-.admin-tabs{display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid var(--border)}
-.admin-tab{flex:1;padding:10px;font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:none;border:none;color:var(--ink-soft);cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;border-bottom:2px solid transparent;margin-bottom:-2px}
+.admin-body{flex:1;overflow-y:auto;padding:20px 22px;background:var(--hero-bg)}
+.admin-login{display:flex;flex-direction:column;gap:13px;padding:28px 0}
+.admin-login-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--ink)}
+.admin-login p{font-size:.8rem;color:var(--ink-soft);line-height:1.7}
+.admin-tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border)}
+.admin-tab{flex:1;padding:9px;font-size:.61rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;background:none;border:none;color:var(--ink-soft);cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;border-bottom:2px solid transparent;margin-bottom:-2px}
 .admin-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
 .admin-tab-content{display:none}
 .admin-tab-content.active{display:block}
-.shop-logo-upload{margin-bottom:16px}
-.logo-preview-wrap{display:flex;align-items:center;gap:16px;margin-bottom:12px}
-.logo-preview-circle{width:64px;height:64px;border-radius:50%;background:var(--gold-pale);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.logo-preview-wrap{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.logo-preview-circle{width:56px;height:56px;border-radius:50%;background:var(--gold-pale);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
 .logo-preview-circle img{width:100%;height:100%;object-fit:cover}
-.logo-preview-initials{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;color:var(--gold)}
-.logo-upload-info{font-size:.76rem;color:var(--ink-soft);line-height:1.6}
-.logo-upload-info strong{color:var(--ink);display:block;margin-bottom:2px}
-.admin-book-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
-.admin-book-row{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--card-bg);border:1px solid rgba(13,10,6,.07);border-radius:var(--r);transition:border-color .2s;box-shadow:0 1px 4px rgba(13,10,6,.04)}
+.logo-preview-initials{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--gold)}
+.logo-upload-info{font-size:.72rem;color:var(--ink-soft);line-height:1.55}
+.logo-upload-info strong{color:var(--ink);display:block;margin-bottom:1px}
+.admin-book-list{display:flex;flex-direction:column;gap:7px;margin-bottom:18px}
+.admin-book-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card-bg);border:1px solid rgba(13,10,6,.07);border-radius:var(--r);transition:border-color .2s}
 .admin-book-row:hover{border-color:var(--border)}
-.admin-book-thumb{width:34px;height:46px;background:var(--cat-bg);border-radius:3px;overflow:hidden;flex-shrink:0;border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.admin-book-thumb{width:30px;height:40px;background:var(--cat-bg);border-radius:2px;overflow:hidden;flex-shrink:0;border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
 .admin-book-thumb img{width:100%;height:100%;object-fit:cover}
-.admin-book-thumb-ph{font-family:'Cormorant Garamond',serif;font-size:.5rem;color:var(--ink-soft);text-align:center;padding:2px;line-height:1.2}
+.admin-book-thumb-ph{font-family:'Cormorant Garamond',serif;font-size:.46rem;color:var(--ink-soft);text-align:center;padding:2px;line-height:1.2}
 .admin-book-info{flex:1;min-width:0}
-.admin-book-title-text{font-size:.79rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.admin-book-meta{font-size:.66rem;color:var(--gold);font-weight:600}
-.admin-book-actions{display:flex;gap:5px;flex-shrink:0}
-.admin-edit-btn{background:var(--cat-bg);border:1px solid var(--border);color:var(--ink);padding:5px 9px;border-radius:3px;cursor:pointer;font-size:.65rem;font-weight:600;font-family:'Inter',sans-serif;transition:all .18s}
+.admin-book-title-text{font-size:.76rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-book-meta{font-size:.63rem;color:var(--gold);font-weight:600}
+.admin-book-actions{display:flex;gap:4px;flex-shrink:0}
+.admin-edit-btn{background:var(--cat-bg);border:1px solid var(--border);color:var(--ink);padding:4px 8px;border-radius:3px;cursor:pointer;font-size:.62rem;font-weight:600;font-family:'Inter',sans-serif;transition:all .18s}
 .admin-edit-btn:hover{border-color:var(--gold);color:var(--gold)}
-.admin-del-btn{background:none;border:1px solid rgba(176,42,42,.2);color:#B02A2A;padding:5px 9px;border-radius:3px;cursor:pointer;font-size:.65rem;font-weight:600;font-family:'Inter',sans-serif;transition:all .18s}
+.admin-del-btn{background:none;border:1px solid rgba(176,42,42,.2);color:#B02A2A;padding:4px 8px;border-radius:3px;cursor:pointer;font-size:.62rem;font-weight:600;font-family:'Inter',sans-serif;transition:all .18s}
 .admin-del-btn:hover{background:#B02A2A;color:#fff;border-color:#B02A2A}
-.admin-section-title{font-size:.62rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);padding-bottom:10px;border-bottom:1px solid var(--border);margin-bottom:14px}
-.admin-form{display:flex;flex-direction:column;gap:11px}
-.admin-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.admin-form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.admin-field{display:flex;flex-direction:column;gap:5px}
-.admin-label{font-size:.59rem;font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:var(--ink-mid)}
-.admin-input,.admin-select,.admin-textarea{background:var(--card-bg);border:1.5px solid rgba(13,10,6,.09);color:var(--ink);padding:9px 12px;font-family:'Inter',sans-serif;font-size:.84rem;border-radius:var(--r);outline:none;transition:all .2s;width:100%}
+.admin-section-title{font-size:.59rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);padding-bottom:9px;border-bottom:1px solid var(--border);margin-bottom:13px}
+.admin-form{display:flex;flex-direction:column;gap:10px}
+.admin-form-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.admin-field{display:flex;flex-direction:column;gap:4px}
+.admin-label{font-size:.57rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mid)}
+.admin-input,.admin-select,.admin-textarea{background:var(--card-bg);border:1.5px solid rgba(13,10,6,.09);color:var(--ink);padding:8px 11px;font-family:'Inter',sans-serif;font-size:.82rem;border-radius:var(--r);outline:none;transition:all .2s;width:100%}
 .admin-input:focus,.admin-select:focus,.admin-textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,137,42,.1)}
-.admin-textarea{resize:vertical;min-height:64px;line-height:1.6}
-.admin-checkbox-row{display:flex;align-items:center;gap:10px;padding:8px 0}
-.admin-checkbox-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--gold);cursor:pointer}
-.admin-checkbox-row label{font-size:.78rem;color:var(--ink);cursor:pointer;font-weight:500}
-.badge-selector{display:flex;gap:6px;flex-wrap:wrap}
-.badge-opt{padding:5px 11px;font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:999px;border:1.5px solid rgba(13,10,6,.1);cursor:pointer;transition:all .18s;font-family:'Inter',sans-serif;background:var(--card-bg);color:var(--ink-soft)}
+.admin-textarea{resize:vertical;min-height:60px;line-height:1.6}
+.admin-checkbox-row{display:flex;align-items:center;gap:9px;padding:7px 0}
+.admin-checkbox-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--gold);cursor:pointer}
+.admin-checkbox-row label{font-size:.75rem;color:var(--ink);cursor:pointer;font-weight:500}
+.badge-selector{display:flex;gap:5px;flex-wrap:wrap}
+.badge-opt{padding:4px 10px;font-size:.57rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;border-radius:999px;border:1.5px solid rgba(13,10,6,.1);cursor:pointer;transition:all .18s;font-family:'Inter',sans-serif;background:var(--card-bg);color:var(--ink-soft)}
 .badge-opt.selected-none{background:var(--cat-bg);color:var(--ink);border-color:rgba(13,10,6,.15)}
 .badge-opt.selected-bestseller{background:#0D0A06;color:#D4A843;border-color:#0D0A06}
 .badge-opt.selected-new{background:#1A6B3A;color:#fff;border-color:#1A6B3A}
-.badge-opt.selected-promo{background:#B02A2A;color:#fff;border-color:#B02A2A}
+.badge-opt.selected-promo{background:var(--red);color:#fff;border-color:var(--red)}
 .badge-opt.selected-limited{background:#7A4A00;color:#F5E9CC;border-color:#7A4A00}
-.admin-img-preview{width:100%;aspect-ratio:3/2;background:var(--cat-bg);border-radius:var(--r);overflow:hidden;display:flex;align-items:center;justify-content:center;border:1.5px dashed var(--border);margin-top:4px}
+.badge-opt.selected-coup{background:#6B2D6B;color:#fff;border-color:#6B2D6B}
+.badge-opt.selected-recommended{background:#1A4A6B;color:#fff;border-color:#1A4A6B}
+.admin-img-preview{width:100%;aspect-ratio:3/2;background:var(--cat-bg);border-radius:var(--r);overflow:hidden;display:flex;align-items:center;justify-content:center;border:1.5px dashed var(--border);margin-top:3px}
 .admin-img-preview img{width:100%;height:100%;object-fit:cover}
-.admin-img-preview span{font-size:.72rem;color:var(--ink-soft);text-align:center;padding:12px}
-.admin-btn-row{display:flex;gap:9px;margin-top:4px}
-.admin-save-btn{flex:1;background:var(--ink);color:var(--hero-bg);border:none;padding:12px;font-family:'Inter',sans-serif;font-size:.69rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:background .22s}
-.admin-save-btn:hover{background:var(--gold)}
-.admin-cancel-btn{background:none;border:1px solid var(--border);color:var(--ink-soft);padding:12px 18px;font-family:'Inter',sans-serif;font-size:.69rem;font-weight:600;border-radius:var(--r);cursor:pointer;transition:all .18s}
+.admin-img-preview span{font-size:.7rem;color:var(--ink-soft);text-align:center;padding:10px}
+.admin-btn-row{display:flex;gap:8px;margin-top:3px}
+.admin-save-btn{flex:1;background:var(--ink);color:var(--hero-bg);border:none;padding:11px;font-family:'Inter',sans-serif;font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:background .22s}
+.admin-save-btn:hover{background:var(--green)}
+.admin-cancel-btn{background:none;border:1px solid var(--border);color:var(--ink-soft);padding:11px 16px;font-family:'Inter',sans-serif;font-size:.66rem;font-weight:600;border-radius:var(--r);cursor:pointer;transition:all .18s}
 .admin-cancel-btn:hover{border-color:var(--ink);color:var(--ink)}
-.admin-add-new-btn{width:100%;background:none;border:1.5px dashed rgba(184,137,42,.35);color:var(--gold);padding:12px;font-family:'Inter',sans-serif;font-size:.69rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:all .22s;margin-bottom:20px;display:flex;align-items:center;justify-content:center;gap:8px}
+.admin-add-new-btn{width:100%;background:none;border:1.5px dashed rgba(184,137,42,.35);color:var(--gold);padding:11px;font-family:'Inter',sans-serif;font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-radius:var(--r);cursor:pointer;transition:all .22s;margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:7px}
 .admin-add-new-btn:hover{background:var(--gold-pale);border-color:var(--gold)}
-.empty-state{grid-column:1/-1;text-align:center;padding:72px 20px}
-.empty-state .es-icon{font-size:2.2rem;margin-bottom:10px;opacity:.35}
-.empty-state p{font-size:.85rem;color:var(--ink-soft);font-style:italic}
-.admin-hint{font-size:.72rem;color:var(--ink-soft);line-height:1.6;padding:10px 12px;background:var(--gold-pale);border-radius:var(--r);border-left:3px solid var(--gold);margin-bottom:4px}
+.admin-hint{font-size:.69rem;color:var(--ink-soft);line-height:1.55;padding:8px 11px;background:var(--gold-pale);border-radius:var(--r);border-left:3px solid var(--gold);margin-bottom:3px}
+.empty-state{grid-column:1/-1;text-align:center;padding:56px 20px}
+.empty-state .es-icon{font-size:2rem;margin-bottom:8px;opacity:.32}
+.empty-state p{font-size:.82rem;color:var(--ink-soft);font-style:italic}
+.upload-btn-label{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--green);color:#fff;padding:9px;border-radius:var(--r);cursor:pointer;font-size:.66rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;font-family:'Inter',sans-serif;transition:background .2s}
+.upload-btn-label:hover{background:var(--green-dk)}
+.del-img-btn{background:none;border:1.5px solid var(--border);color:var(--ink-soft);padding:9px 12px;border-radius:var(--r);cursor:pointer;font-size:.66rem;font-weight:600;font-family:'Inter',sans-serif;transition:all .2s}
+.del-img-btn:hover{border-color:#B02A2A;color:#B02A2A}
 
 /* RESPONSIVE */
-@media(max-width:768px){
-  nav{padding:12px 18px}
-  .nav-logo-sub{display:none}
-  .hero{padding:0 18px}
-  .hero-line{left:18px}
-  .hero-inner{padding:92px 0 40px 10px}
-  .hero-deco{display:none}
-  .hero-stats{flex-wrap:wrap}
-  .stat{flex:1 1 40%}
-  .proof-strip{padding:14px 18px;gap:20px}
-  .section{padding:48px 18px 72px}
-  .section-header{flex-direction:column;align-items:flex-start;gap:14px}
-  footer{padding:28px 18px}
-  .footer-right{align-items:flex-start}
-  .mobile-cart-bar{display:block}
-  .admin-form-row,.admin-form-row-3{grid-template-columns:1fr}
-  .search-filter-bar{flex-direction:column;align-items:stretch}
-  .float-notif{left:10px;right:10px;max-width:none}
-}
 @media(max-width:480px){
-  .books-grid{grid-template-columns:1fr 1fr;gap:12px}
-  .hero-title{font-size:2.6rem}
-  .book-body{padding:12px 12px 10px}
-  .book-title{font-size:.96rem}
-  .book-desc{font-size:.75rem}
-  .book-price{font-size:1.3rem}
-  .btn-now,.btn-cart{font-size:.58rem;padding:8px 5px}
-  .hero-trust{gap:7px}
-  .trust-badge{font-size:.6rem;padding:6px 10px}
+  .books-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .admin-form-row{grid-template-columns:1fr}
+  .search-filter-bar{flex-direction:column;align-items:stretch}
+  .hero-title{font-size:1.85rem}
 }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
+<!-- NAV — Admin hidden, accessible via long press on logo -->
 <nav>
-  <div class="nav-logo" onclick="scrollTo(0,0)">
+  <div class="nav-logo" id="navLogo" onclick="scrollTo(0,0)">
     <div class="nav-logo-img" id="navLogoWrap">
       <span class="nav-logo-initials" id="navLogoInitials">DB</span>
     </div>
@@ -375,12 +376,8 @@ footer{padding:44px 36px;background:var(--ink);display:flex;align-items:center;j
     </div>
   </div>
   <div class="nav-right">
-    <button class="admin-trigger" onclick="openAdminLogin()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-      Admin
-    </button>
     <button class="cart-btn" onclick="openCart()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
       Panier
       <span class="cart-count" id="cartCount">0</span>
     </button>
@@ -391,56 +388,75 @@ footer{padding:44px 36px;background:var(--ink);display:flex;align-items:center;j
 <section class="hero">
   <div class="hero-deco" id="heroDeco">D</div>
   <div class="hero-line"></div>
-  <div class="hero-inner">
+  <div style="position:relative;z-index:1;padding-bottom:0">
     <div class="hero-eyebrow" id="heroEyebrow">Bibliothèque · Abidjan, Côte d'Ivoire</div>
     <h1 class="hero-title display" id="heroTitle">
-      Des livres qui<br><em>transforment</em><br>les esprits.
+      Les meilleurs livres pour votre <em>intelligence</em>, votre discipline et votre leadership.
     </h1>
 
-    <!-- Live visitors -->
-    <div class="live-bar">
-      <div class="live-dot"></div>
-      <div class="live-text"><strong id="liveCount">—</strong> personnes consultent cette page en ce moment</div>
+    <!-- Stars inline -->
+    <div class="hero-stars">
+      <span class="stars-row">★★★★★</span>
+      <span class="stars-label"><strong>4,9/5</strong> · Plus de 500 lecteurs satisfaits</span>
     </div>
 
-    <p class="hero-sub" id="heroSub">Développement personnel, connaissance de soi et héritage africain — pour ceux qui refusent la médiocrité.</p>
+    <p class="hero-sub" id="heroSub">Des livres soigneusement sélectionnés sur le <strong>développement personnel</strong>, l'<strong>entrepreneuriat</strong>, la <strong>finance</strong> et l'<strong>histoire de l'Afrique</strong>.</p>
 
+    <!-- Live bar -->
+    <div class="live-bar">
+      <div class="live-dot"></div>
+      <div class="live-text" id="liveText">Des lecteurs consultent cette bibliothèque en ce moment</div>
+    </div>
+
+    <!-- Trust badges — uniques, non répétés -->
     <div class="hero-trust">
-      <div class="trust-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Paiement à la livraison</div>
-      <div class="trust-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Livraison 24-48h Abidjan</div>
-      <div class="trust-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Commande via WhatsApp</div>
-      <div class="trust-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>0% commission</div>
+      <div class="trust-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Livraison sous 24h à Abidjan</div>
+      <div class="trust-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Livraison partout en Côte d'Ivoire</div>
+      <div class="trust-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Réponse rapide sur WhatsApp</div>
     </div>
 
     <div class="hero-actions">
       <a href="#catalogue" class="hero-cta-primary">
         Voir la bibliothèque
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
       </a>
-      <button class="hero-cta-secondary" onclick="openCart()">Voir mon panier</button>
+      <button class="hero-cta-secondary" onclick="openCart()">Mon panier</button>
     </div>
   </div>
 
   <div class="hero-stats">
-    <div class="stat"><div class="stat-val display" id="heroStatCount">6<em>+</em></div><div class="stat-label">Titres disponibles</div></div>
+    <div class="stat"><div class="stat-val display" id="heroStatCount">100<em>+</em></div><div class="stat-label">Titres disponibles</div></div>
     <div class="stat"><div class="stat-val display">500<em>+</em></div><div class="stat-label">Lecteurs satisfaits</div></div>
-    <div class="stat"><div class="stat-val display">48<em>h</em></div><div class="stat-label">Livraison Abidjan</div></div>
-    <div class="stat"><div class="stat-val display">0<em>%</em></div><div class="stat-label">Commission</div></div>
+    <div class="stat"><div class="stat-val display">24<em>h</em></div><div class="stat-label">Livraison Abidjan</div></div>
+    <div class="stat"><div class="stat-val display">★★★★★</div><div class="stat-label">Note moyenne</div></div>
   </div>
 </section>
 
 <!-- PROOF STRIP -->
 <div class="proof-strip">
-  <div class="proof-item"><div class="proof-avatar">AK</div><div><div class="stars">★★★★★</div><div class="proof-text"><strong>Awa K.</strong> — "Ces livres ont changé ma vision"</div></div></div>
+  <div class="proof-item"><div class="proof-avatar">AK</div><div><div class="proof-stars">★★★★★</div><div class="proof-text"><strong>Awa K.</strong> — "Ces livres ont changé ma vision"</div></div></div>
   <div class="proof-sep"></div>
-  <div class="proof-item"><div class="proof-avatar">KD</div><div><div class="stars">★★★★★</div><div class="proof-text"><strong>Konan D.</strong> — "Livraison rapide, qualité top"</div></div></div>
+  <div class="proof-item"><div class="proof-avatar">KD</div><div><div class="proof-stars">★★★★★</div><div class="proof-text"><strong>Konan D.</strong> — "Livraison rapide, qualité top"</div></div></div>
   <div class="proof-sep"></div>
-  <div class="proof-item"><div class="proof-avatar">MB</div><div><div class="stars">★★★★★</div><div class="proof-text"><strong>Marie B.</strong> — "Je recommande à tous mes proches"</div></div></div>
+  <div class="proof-item"><div class="proof-avatar">MB</div><div><div class="proof-stars">★★★★★</div><div class="proof-text"><strong>Marie B.</strong> — "Je recommande à tous mes proches"</div></div></div>
   <div class="proof-sep"></div>
-  <div class="proof-item"><div class="proof-avatar">SY</div><div><div class="stars">★★★★★</div><div class="proof-text"><strong>Seydou Y.</strong> — "Le meilleur investissement de l'année"</div></div></div>
+  <div class="proof-item"><div class="proof-avatar">SY</div><div><div class="proof-stars">★★★★★</div><div class="proof-text"><strong>Seydou Y.</strong> — "Le meilleur investissement de l'année"</div></div></div>
 </div>
 
 <div class="band"></div>
+
+<!-- REASSURANCE -->
+<div class="reassurance reveal">
+  <div class="reassurance-title display">Pourquoi commander chez nous ?</div>
+  <div class="reassurance-grid">
+    <div class="reassurance-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Paiement à la livraison</span></div>
+    <div class="reassurance-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Livraison rapide sous 24h à Abidjan</span></div>
+    <div class="reassurance-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Commande WhatsApp simple</span></div>
+    <div class="reassurance-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Livres 100% originaux</span></div>
+    <div class="reassurance-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Support client rapide</span></div>
+    <div class="reassurance-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Livraison partout en CI</span></div>
+  </div>
+</div>
 
 <!-- CATALOGUE -->
 <section class="section" id="catalogue">
@@ -449,15 +465,15 @@ footer{padding:44px 36px;background:var(--ink);display:flex;align-items:center;j
   </div>
   <div class="search-filter-bar reveal">
     <div class="search-wrap">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input class="search-input" id="searchInput" type="text" placeholder="Rechercher un titre, un auteur…" oninput="handleSearch()">
     </div>
     <div class="filter-pills">
-      <button class="pill active" onclick="filterBooks('all',this)">Tous</button>
-      <button class="pill" onclick="filterBooks('pack',this)">Packs</button>
-      <button class="pill" onclick="filterBooks('devperso',this)">Dév. personnel</button>
-      <button class="pill" onclick="filterBooks('cheikh',this)">Cheikh Anta Diop</button>
-      <button class="pill" onclick="filterBooks('autre',this)">Autres</button>
+      <button class="pill active" onclick="filterBooks('all',this)">Tous <span id="countAll"></span></button>
+      <button class="pill" onclick="filterBooks('pack',this)">Packs <span id="countPack"></span></button>
+      <button class="pill" onclick="filterBooks('devperso',this)">Dév. perso <span id="countDevperso"></span></button>
+      <button class="pill" onclick="filterBooks('cheikh',this)">C. A. Diop <span id="countCheikh"></span></button>
+      <button class="pill" onclick="filterBooks('autre',this)">Autres <span id="countAutre"></span></button>
     </div>
   </div>
   <div class="results-count" id="resultsCount"></div>
@@ -467,38 +483,31 @@ footer{padding:44px 36px;background:var(--ink);display:flex;align-items:center;j
 <footer>
   <div class="footer-left">
     <div class="footer-logo-img" id="footerLogoWrap"><span class="footer-logo-initials" id="footerLogoInitials">DB</span></div>
-    <div class="footer-brand-text">
+    <div>
       <div class="footer-name"><span id="footerName1">Dilam B' </span><span id="footerName2"></span></div>
       <div class="footer-tagline" id="footerTagline">Les livres à p'tits prix</div>
     </div>
   </div>
   <div class="footer-right">
-    <div class="footer-wa"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="opacity:.6"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Commandes via WhatsApp</div>
+    <div class="footer-wa"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="opacity:.5"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>Commandes via WhatsApp</div>
     <div class="footer-copy" id="footerCopy">© 2026 · Livraison Côte d'Ivoire</div>
   </div>
 </footer>
 
-<!-- MOBILE BAR -->
 <div class="mobile-cart-bar" id="mobileBar" style="display:none">
   <button onclick="openCart()"><span>Voir mon panier</span><span id="mobileTotalBar">0 FCFA</span></button>
 </div>
 
-<!-- FLOATING NOTIFICATION -->
 <div class="float-notif" id="floatNotif">
   <div class="float-notif-icon">📦</div>
-  <div class="float-notif-text">
-    <strong id="floatNotifName">Kouamé</strong>
-    vient de commander <span id="floatNotifBook">Le Pouvoir d'un Esprit Aligné</span>
-    <div class="float-notif-time" id="floatNotifTime">Il y a 2 minutes</div>
-  </div>
+  <div class="float-notif-text"><strong id="floatNotifName">Kouamé</strong>vient de commander <span id="floatNotifBook"></span><div class="float-notif-time" id="floatNotifTime">À l'instant</div></div>
 </div>
 
-<!-- CONFIRMATION -->
 <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-card">
     <div class="confirm-icon">✅</div>
     <div class="confirm-title display">Commande envoyée !</div>
-    <div class="confirm-sub">Votre message WhatsApp a été préparé. Envoyez-le pour finaliser votre commande — nous vous répondons dans les plus brefs délais.</div>
+    <div class="confirm-sub">Votre message WhatsApp a été préparé. Envoyez-le pour finaliser votre commande.</div>
     <div class="confirm-recap" id="confirmRecap"></div>
     <button class="confirm-close" onclick="closeConfirm()">Parfait, merci !</button>
   </div>
@@ -511,20 +520,17 @@ footer{padding:44px 36px;background:var(--ink);display:flex;align-items:center;j
 <div class="cart-panel" id="cartPanel">
   <div class="cart-header">
     <h2 class="cart-header-title display">Mon panier</h2>
-    <button class="close-btn" onclick="closeCart()"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <button class="close-btn" onclick="closeCart()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
   <div class="cart-items" id="cartItems">
     <div class="cart-empty"><div class="cart-empty-icon">📚</div><p>Votre panier est vide.<br>Choisissez vos titres pour commencer.</p></div>
   </div>
   <div class="cart-form" id="cartForm" style="display:none">
-    <div class="cart-total-row">
-      <span class="cart-total-label">Total commande</span>
-      <span class="cart-total-val display" id="cartTotal">0 FCFA</span>
-    </div>
+    <div class="cart-total-row"><span class="cart-total-label">Total commande</span><span class="cart-total-val display" id="cartTotal">0 FCFA</span></div>
     <div class="form-group"><label class="form-label">Votre nom complet</label><input class="form-input" type="text" id="orderName" placeholder="Ex : Kouamé Jean-Paul"></div>
     <div class="form-group"><label class="form-label">Votre ville</label><input class="form-input" type="text" id="orderCity" placeholder="Ex : Cocody, Abidjan"></div>
     <button class="whatsapp-btn" onclick="sendWhatsApp()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
       Commander sur WhatsApp
     </button>
   </div>
@@ -535,10 +541,10 @@ footer{padding:44px 36px;background:var(--ink);display:flex;align-items:center;j
 <div class="admin-panel" id="adminPanel">
   <div class="admin-header">
     <div class="admin-title">Admin <span id="adminShopName">· Dilam B'</span></div>
-    <button class="close-btn" onclick="closeAdmin()" style="color:rgba(250,247,242,.5)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <button class="close-btn" onclick="closeAdmin()" style="color:rgba(250,247,242,.5)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   </div>
   <div class="admin-body">
-
+    <!-- LOGIN -->
     <div id="adminLoginScreen">
       <div class="admin-login">
         <div class="admin-login-title display">Accès réservé</div>
@@ -547,82 +553,72 @@ footer{padding:44px 36px;background:var(--ink);display:flex;align-items:center;j
         <button class="admin-save-btn" onclick="checkAdmin()">Accéder</button>
       </div>
     </div>
-
+    <!-- MAIN -->
     <div id="adminMainScreen" style="display:none">
       <div class="admin-tabs">
         <button class="admin-tab active" onclick="switchTab('boutique',this)">🏪 Boutique</button>
         <button class="admin-tab" onclick="switchTab('catalogue',this)">📚 Catalogue</button>
         <button class="admin-tab" onclick="switchTab('config',this)">⚙️ Config</button>
       </div>
-
       <!-- TAB BOUTIQUE -->
       <div class="admin-tab-content active" id="tab-boutique">
         <div class="admin-section-title">Logo de la boutique</div>
-        <div class="shop-logo-upload">
-          <div class="logo-preview-wrap">
-            <div class="logo-preview-circle" id="logoPreviewCircle"><span class="logo-preview-initials" id="logoPreviewInitials">DB</span></div>
-            <div class="logo-upload-info"><strong>Photo de profil ou logo</strong>Colle l'URL de ton image (JPG, PNG, WebP).<br>Recommandé : image carrée, min 200×200px.</div>
-          </div>
-          <div class="admin-field"><label class="admin-label">URL du logo</label><input class="admin-input" id="sLogoUrl" placeholder="https://… ou laisser vide pour initiales" oninput="previewLogo(this.value)"></div>
+        <div class="logo-preview-wrap">
+          <div class="logo-preview-circle" id="logoPreviewCircle"><span class="logo-preview-initials" id="logoPreviewInitials">DB</span></div>
+          <div class="logo-upload-info"><strong>Photo de profil ou logo</strong>Image carrée recommandée, min 200×200px</div>
         </div>
-        <div class="admin-section-title" style="margin-top:20px">Identité</div>
+        <div class="admin-field" style="margin-bottom:10px">
+          <div style="display:flex;gap:8px;margin-bottom:6px">
+            <label class="upload-btn-label">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Choisir un logo
+              <input type="file" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+            </label>
+            <button type="button" class="del-img-btn" onclick="clearLogo()">Supprimer</button>
+          </div>
+          <div class="admin-hint" style="margin-bottom:6px">Ou colle une URL ↓</div>
+          <input class="admin-input" id="sLogoUrl" placeholder="https://…" oninput="previewLogo(this.value)">
+        </div>
+        <div class="admin-section-title" style="margin-top:18px">Identité</div>
         <div class="admin-form">
           <div class="admin-form-row">
             <div class="admin-field"><label class="admin-label">Nom boutique (partie 1)</label><input class="admin-input" id="sName1" placeholder="Ex : Dilam B'"></div>
-            <div class="admin-field"><label class="admin-label">Nom boutique (partie 2 dorée)</label><input class="admin-input" id="sName2" placeholder="Ex : Livres"></div>
+            <div class="admin-field"><label class="admin-label">Partie 2 (dorée)</label><input class="admin-input" id="sName2" placeholder="optionnel"></div>
           </div>
-          <div class="admin-field"><label class="admin-label">Slogan (sous le nom)</label><input class="admin-input" id="sNavSub" placeholder="Ex : Les livres à p'tits prix"></div>
+          <div class="admin-field"><label class="admin-label">Slogan</label><input class="admin-input" id="sNavSub" placeholder="Ex : Les livres à p'tits prix"></div>
           <div class="admin-field"><label class="admin-label">Accroche hero</label><input class="admin-input" id="sTagline" placeholder="Ex : Bibliothèque · Abidjan"></div>
-          <div class="admin-field"><label class="admin-label">Titre hero</label><input class="admin-input" id="sHeroTitle" placeholder="Ex : Des livres qui transforment les esprits."></div>
+          <div class="admin-field"><label class="admin-label">Titre hero</label><input class="admin-input" id="sHeroTitle" placeholder="Ex : Les meilleurs livres pour…"></div>
           <div class="admin-field"><label class="admin-label">Description hero</label><textarea class="admin-textarea" id="sHeroSub"></textarea></div>
-          <div class="admin-field"><label class="admin-label">Texte footer</label><input class="admin-input" id="sFooterCopy" placeholder="Ex : © 2026 · Livraison Côte d'Ivoire"></div>
+          <div class="admin-field"><label class="admin-label">Texte footer</label><input class="admin-input" id="sFooterCopy" placeholder="© 2026 · Livraison CI"></div>
           <button class="admin-save-btn" onclick="saveShopSettings()">Enregistrer</button>
         </div>
       </div>
-
       <!-- TAB CATALOGUE -->
       <div class="admin-tab-content" id="tab-catalogue">
         <button class="admin-add-new-btn" onclick="showAddForm()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Ajouter un livre ou un pack
         </button>
         <div class="admin-section-title">Catalogue — <span id="adminCount">0</span> titres</div>
         <div class="admin-book-list" id="adminBookList"></div>
       </div>
-
       <!-- TAB CONFIG -->
       <div class="admin-tab-content" id="tab-config">
-        <div class="admin-section-title">WhatsApp & Communication</div>
-        <div class="admin-form" style="margin-bottom:24px">
-          <div class="admin-field">
-            <label class="admin-label">Numéro WhatsApp (avec indicatif, sans +)</label>
-            <input class="admin-input" id="cWaNumber" placeholder="Ex : 2250714313052">
-          </div>
-          <div class="admin-field">
-            <label class="admin-label">Message d'accueil WhatsApp (panier)</label>
-            <div class="admin-hint">Variables disponibles : <strong>{nom}</strong> = nom du client, <strong>{ville}</strong> = ville, <strong>{total}</strong> = montant total</div>
-            <textarea class="admin-textarea" id="cWaMessage" style="min-height:100px"></textarea>
-          </div>
-          <div class="admin-field">
-            <label class="admin-label">Message commande directe (1 livre)</label>
-            <div class="admin-hint">Variables : <strong>{titre}</strong>, <strong>{auteur}</strong>, <strong>{prix}</strong></div>
-            <textarea class="admin-textarea" id="cWaMessageDirect" style="min-height:80px"></textarea>
-          </div>
+        <div class="admin-section-title">WhatsApp & Messages</div>
+        <div class="admin-form" style="margin-bottom:22px">
+          <div class="admin-field"><label class="admin-label">Numéro WhatsApp (sans +)</label><input class="admin-input" id="cWaNumber" placeholder="2250714313052"></div>
+          <div class="admin-field"><label class="admin-label">Message panier (multi-livres)</label><div class="admin-hint">Variables : {nom} {ville} {articles} {total}</div><textarea class="admin-textarea" id="cWaMessage" style="min-height:90px"></textarea></div>
+          <div class="admin-field"><label class="admin-label">Message commande directe</label><div class="admin-hint">Variables : {titre} {auteur} {prix}</div><textarea class="admin-textarea" id="cWaMessageDirect" style="min-height:70px"></textarea></div>
           <button class="admin-save-btn" onclick="saveConfig()">Enregistrer</button>
         </div>
-
-        <div class="admin-section-title">Pixel Meta (Facebook Ads)</div>
+        <div class="admin-section-title">Pixel Meta</div>
         <div class="admin-form">
-          <div class="admin-field">
-            <label class="admin-label">Pixel ID</label>
-            <input class="admin-input" id="cPixelId" placeholder="Ex : 1234567890123456">
-          </div>
-          <div class="admin-hint">Une fois le Pixel ID enregistré, les événements <strong>PageView</strong>, <strong>AddToCart</strong> et <strong>InitiateCheckout</strong> seront trackés automatiquement.</div>
+          <div class="admin-field"><label class="admin-label">Pixel ID</label><input class="admin-input" id="cPixelId" placeholder="Ex : 1234567890123456"></div>
+          <div class="admin-hint">PageView, AddToCart et InitiateCheckout trackés automatiquement.</div>
           <button class="admin-save-btn" onclick="saveConfig()">Enregistrer</button>
         </div>
       </div>
     </div>
-
     <!-- BOOK FORM -->
     <div id="adminFormScreen" style="display:none">
       <div class="admin-section-title" id="adminFormTitle">Nouveau titre</div>
@@ -635,7 +631,7 @@ footer{padding:44px 36px;background:var(--ink);display:flex;align-items:center;j
         </div>
         <div class="admin-form-row">
           <div class="admin-field"><label class="admin-label">Prix actuel (FCFA) *</label><input class="admin-input" id="fPrice" type="number" placeholder="5000"></div>
-          <div class="admin-field"><label class="admin-label">Prix barré (FCFA, optionnel)</label><input class="admin-input" id="fOldPrice" type="number" placeholder="7000"></div>
+          <div class="admin-field"><label class="admin-label">Prix barré (optionnel)</label><input class="admin-input" id="fOldPrice" type="number" placeholder="7000"></div>
         </div>
         <div class="admin-field">
           <label class="admin-label">Badge</label>
@@ -645,26 +641,25 @@ footer{padding:44px 36px;background:var(--ink);display:flex;align-items:center;j
             <button type="button" class="badge-opt" data-badge="new" onclick="selectBadge('new')">✨ Nouveau</button>
             <button type="button" class="badge-opt" data-badge="promo" onclick="selectBadge('promo')">💰 Promo</button>
             <button type="button" class="badge-opt" data-badge="limited" onclick="selectBadge('limited')">⚡ Stock limité</button>
+            <button type="button" class="badge-opt" data-badge="coup" onclick="selectBadge('coup')">❤️ Coup de cœur</button>
+            <button type="button" class="badge-opt" data-badge="recommended" onclick="selectBadge('recommended')">📚 Recommandé</button>
           </div>
           <input type="hidden" id="fBadge" value="none">
         </div>
-        <div class="admin-checkbox-row">
-          <input type="checkbox" id="fOutOfStock">
-          <label for="fOutOfStock">Rupture de stock (désactive le livre)</label>
-        </div>
-        <div class="admin-field"><label class="admin-label">Description</label><textarea class="admin-textarea" id="fDesc" placeholder="1-2 phrases de description…"></textarea></div>
+        <div class="admin-checkbox-row"><input type="checkbox" id="fOutOfStock"><label for="fOutOfStock">Rupture de stock</label></div>
+        <div class="admin-field"><label class="admin-label">Description</label><textarea class="admin-textarea" id="fDesc" placeholder="1-2 phrases…"></textarea></div>
         <div class="admin-field">
-          <label class="admin-label">Couverture du livre</label>
-          <div style="display:flex;gap:9px;margin-bottom:8px">
-            <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--green);color:#fff;padding:10px;border-radius:var(--r);cursor:pointer;font-size:.69rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-family:'Inter',sans-serif;transition:background .2s" onmouseover="this.style.background='#0E6E2D'" onmouseout="this.style.background='#128C3A'">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <label class="admin-label">Couverture</label>
+          <div style="display:flex;gap:8px;margin-bottom:6px">
+            <label class="upload-btn-label">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
               Choisir une photo
               <input type="file" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
             </label>
-            <button type="button" onclick="clearImage()" style="background:none;border:1.5px solid var(--border);color:var(--ink-soft);padding:10px 14px;border-radius:var(--r);cursor:pointer;font-size:.69rem;font-weight:600;font-family:'Inter',sans-serif;transition:all .2s" onmouseover="this.style.borderColor='#B02A2A';this.style.color='#B02A2A'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink-soft)'">Supprimer</button>
+            <button type="button" class="del-img-btn" onclick="clearImage()">Supprimer</button>
           </div>
-          <div class="admin-hint" style="margin-bottom:8px">Ou colle une URL directement ↓</div>
-          <input class="admin-input" id="fImage" placeholder="https://… (optionnel)" oninput="previewImg(this.value)" style="margin-bottom:8px">
+          <div class="admin-hint" style="margin-bottom:5px">Ou colle une URL ↓</div>
+          <input class="admin-input" id="fImage" placeholder="https://…" oninput="previewImg(this.value)">
           <div class="admin-img-preview" id="imgPreview"><span>Aperçu de la couverture</span></div>
         </div>
         <div class="admin-btn-row">
@@ -673,83 +668,46 @@ footer{padding:44px 36px;background:var(--ink);display:flex;align-items:center;j
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════
-//  HELPERS
-// ══════════════════════════════════
-const SUPABASE_URL = 'https://wrtabhosppwzxpdawqt.supabase.co';
-const SUPABASE_KEY = 'eyJhbGci0iJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndydGFiaG9zcHB3enhhZGF3cXQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc1NDAwODczNywiZXhwIjoyMDY5NTg0NzM3fQ.eyJpc3MiOiJzdXBhYmFzZSJ9';
+// ══════════════ SUPABASE ══════════════
+const SUPABASE_URL = 'https://zsxwwvlugsokrymqmztq.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpzeHd3dmx1Z3Nva3J5bXFtenRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2ODQwODgsImV4cCI6MjA5NjI2MDA4OH0.WK71bzwNpsKCUllr7V3a-DQ-shZ-UjpPAeQ_474Sneo';
 const SUPABASE_BUCKET = 'Lamine-Livres';
 
-// Upload image to Supabase Storage
-async function uploadImage(file) {
+async function uploadToSupabase(file) {
   const ext = file.name.split('.').pop().toLowerCase();
-  const allowed = ['jpg','jpeg','png','webp','gif'];
-  if(!allowed.includes(ext)) { showToast('Format non supporté (JPG/PNG/WebP)'); return null; }
-  if(file.size > 5*1024*1024) { showToast('Image trop lourde (max 5 Mo)'); return null; }
-  const filename = 'cover_' + Date.now() + '_' + Math.random().toString(36).substring(2,8) + '.' + ext;
-  const uploadUrl = `${SUPABASE_URL}/storage/v1/object/${SUPABASE_BUCKET}/${filename}`;
+  if(!['jpg','jpeg','png','webp','gif'].includes(ext)){showToast('Format non supporté (JPG/PNG/WebP)');return null;}
+  if(file.size > 5*1024*1024){showToast('Image trop lourde (max 5 Mo)');return null;}
+  const fname = 'img_'+Date.now()+'_'+Math.random().toString(36).substring(2,7)+'.'+ext;
+  const url = SUPABASE_URL+'/storage/v1/object/'+SUPABASE_BUCKET+'/'+fname;
+  showToast('Upload en cours…');
   try {
-    showToast('Upload en cours…');
-    const res = await fetch(uploadUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': file.type,
-        'x-upsert': 'true'
-      },
-      body: file
-    });
-    if(!res.ok) {
-      const err = await res.text();
-      console.error('Upload error:', err);
-      showToast('Erreur upload — réessaie');
-      return null;
-    }
-    const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/${SUPABASE_BUCKET}/${filename}`;
+    const r = await fetch(url,{method:'POST',headers:{'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':file.type,'x-upsert':'true'},body:file});
+    if(!r.ok){const e=await r.text();console.error('Upload error:',e);showToast('Erreur upload — réessaie');return null;}
+    const pub = SUPABASE_URL+'/storage/v1/object/public/'+SUPABASE_BUCKET+'/'+fname;
     showToast('Image uploadée ✓');
-    return publicUrl;
-  } catch(e) {
-    console.error(e);
-    showToast('Erreur réseau — réessaie');
-    return null;
-  }
+    return pub;
+  } catch(e){console.error(e);showToast('Erreur réseau — réessaie');return null;}
 }
 
-const WA_ICON = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
-const BADGE_LABELS={bestseller:'🔥 Best Seller',new:'✨ Nouveau',promo:'💰 Promo',limited:'⚡ Stock limité'};
-const CAT_LABELS={pack:'Pack',devperso:'Dév. Personnel',cheikh:'C. A. Diop',autre:'Livre'};
-
-// ══════════════════════════════════
-//  CONFIG
-// ══════════════════════════════════
+// ══════════════ CONFIG ══════════════
 const DEFAULT_CONFIG={
   waNumber:'2250714313052',
-  waMessage:'🛒 *Nouvelle commande*\n\n*Nom :* {nom}\n*Ville :* {ville}\n\n{articles}\n\n*Total : {total} FCFA*\n\n---\nBonjour, je souhaite confirmer ma commande et connaître les modalités de livraison. Merci !',
-  waMessageDirect:'🛒 *Commande directe*\n\n*Livre :* {titre}\n*Auteur :* {auteur}\n*Prix :* {prix} FCFA\n\n---\nBonjour, je souhaite commander ce livre. Pouvez-vous me confirmer la disponibilité et les modalités de livraison ? Merci !',
+  waMessage:'🛒 *Nouvelle commande*\n\n*Nom :* {nom}\n*Ville :* {ville}\n\n{articles}\n\n*Total : {total} FCFA*\n\n---\nBonjour, je souhaite confirmer ma commande. Merci !',
+  waMessageDirect:'🛒 *Commande directe*\n\n*Livre :* {titre}\n*Auteur :* {auteur}\n*Prix :* {prix} FCFA\n\n---\nBonjour, je souhaite commander ce livre. Pouvez-vous confirmer la disponibilité ? Merci !',
   pixelId:''
 };
-
-const DEFAULT_SHOP={
-  logoUrl:'',name1:"Dilam B'",name2:'',
-  navSub:"Les livres à p'tits prix",
-  tagline:"Bibliothèque · Abidjan, Côte d'Ivoire",
-  heroTitle:"Des livres qui transforment les esprits.",
-  heroSub:"Développement personnel, connaissance de soi et héritage africain — pour ceux qui refusent la médiocrité.",
-  footerCopy:"© 2026 · Livraison Côte d'Ivoire"
-};
-
+const DEFAULT_SHOP={logoUrl:'',name1:"Dilam B'",name2:'',navSub:"Les livres à p'tits prix",tagline:"Bibliothèque · Abidjan, Côte d'Ivoire",heroTitle:"Les meilleurs livres pour votre intelligence, votre discipline et votre leadership.",heroSub:"Des livres soigneusement sélectionnés sur le développement personnel, l'entrepreneuriat, la finance et l'histoire de l'Afrique.",footerCopy:"© 2026 · Livraison Côte d'Ivoire"};
 const DEFAULT_BOOKS=[
   {id:1,title:"Le Pouvoir d'un Esprit Aligné",author:"Lamine Diabaté",price:5000,oldPrice:null,category:"devperso",badge:"bestseller",outOfStock:false,image:null,desc:"Découvrez la méthode pour aligner vos pensées, vos émotions et vos actions vers vos objectifs les plus ambitieux."},
-  {id:2,title:"90 Jours pour Renaître et Atteindre ses Objectifs",author:"Lamine Diabaté",price:5000,oldPrice:null,category:"devperso",badge:"none",outOfStock:false,image:null,desc:"Un programme structuré sur 90 jours pour transformer votre vie et atteindre vos objectifs avec méthode."},
-  {id:3,title:"Nations Nègres et Culture",author:"Cheikh Anta Diop",price:6000,oldPrice:null,category:"cheikh",badge:"none",outOfStock:false,image:null,desc:"L'œuvre majeure qui redéfinit l'histoire de l'Afrique et de l'humanité."},
-  {id:4,title:"Antériorité des Civilisations Nègres",author:"Cheikh Anta Diop",price:6000,oldPrice:null,category:"cheikh",badge:"none",outOfStock:false,image:null,desc:"Diop démontre avec rigueur scientifique l'antériorité de la civilisation africaine."},
-  {id:5,title:"L'Afrique Noire Précoloniale",author:"Cheikh Anta Diop",price:5500,oldPrice:null,category:"cheikh",badge:"none",outOfStock:false,image:null,desc:"Une étude approfondie des structures politiques et sociales de l'Afrique noire avant la colonisation."},
-  {id:6,title:"Civilisation ou Barbarie",author:"Cheikh Anta Diop",price:6500,oldPrice:null,category:"cheikh",badge:"none",outOfStock:false,image:null,desc:"Le testament intellectuel de Diop. Une synthèse encyclopédique de son œuvre."}
+  {id:2,title:"90 Jours pour Renaître et Atteindre ses Objectifs",author:"Lamine Diabaté",price:5000,oldPrice:null,category:"devperso",badge:"none",outOfStock:false,image:null,desc:"Un programme structuré sur 90 jours pour transformer votre vie avec méthode."},
+  {id:3,title:"Nations Nègres et Culture",author:"Cheikh Anta Diop",price:6000,oldPrice:null,category:"cheikh",badge:"recommended",outOfStock:false,image:null,desc:"L'œuvre majeure qui redéfinit l'histoire de l'Afrique et de l'humanité."},
+  {id:4,title:"Antériorité des Civilisations Nègres",author:"Cheikh Anta Diop",price:6000,oldPrice:null,category:"cheikh",badge:"none",outOfStock:false,image:null,desc:"Diop démontre avec rigueur l'antériorité de la civilisation africaine."},
+  {id:5,title:"L'Afrique Noire Précoloniale",author:"Cheikh Anta Diop",price:5500,oldPrice:null,category:"cheikh",badge:"none",outOfStock:false,image:null,desc:"Structures politiques et sociales de l'Afrique noire avant la colonisation."},
+  {id:6,title:"Civilisation ou Barbarie",author:"Cheikh Anta Diop",price:6500,oldPrice:null,category:"cheikh",badge:"none",outOfStock:false,image:null,desc:"Le testament intellectuel de Diop. Synthèse encyclopédique de son œuvre."}
 ];
 
 function ls(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
@@ -760,53 +718,31 @@ let SHOP=ls('sell_shop',DEFAULT_SHOP);
 let BOOKS=ls('lamine_books',DEFAULT_BOOKS);
 let cart=[],activeFilter='all',searchQuery='',adminLoggedIn=false,editingId=null;
 
-// ══════════════════════════════════
-//  PIXEL META
-// ══════════════════════════════════
-function fbq(...args){if(window.fbq)window.fbq(...args)}
-let _pixelInitialized = false;
+// ══════════════ PIXEL ══════════════
+let _pixelOk=false;
 function initPixel(){
-  if(!CONFIG.pixelId) return;
-  if(_pixelInitialized) {
-    // Already loaded, just re-init with new ID if changed
-    if(window.fbq) { window.fbq('init', CONFIG.pixelId); }
-    return;
-  }
-  _pixelInitialized = true;
-  !function(f,b,e,v,n,t,s){
-    if(f.fbq)return;
-    n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;
-    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];
-    t=b.createElement(e);t.async=!0;t.src=v;
-    s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s);
-  }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-  window.fbq('init', CONFIG.pixelId);
-  window.fbq('track', 'PageView');
+  if(!CONFIG.pixelId||_pixelOk)return;
+  _pixelOk=true;
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  window.fbq('init',CONFIG.pixelId);window.fbq('track','PageView');
 }
+function fbq(...a){if(window.fbq)window.fbq(...a)}
 
-// ══════════════════════════════════
-//  SHOP APPLY
-// ══════════════════════════════════
-function getInitials(n1,n2){return((n1||'')[0]||'').toUpperCase()+((n2||'')[0]||'').toUpperCase()||'DB'}
+// ══════════════ SHOP ══════════════
+function getInitials(a,b){return(((a||'')[0]||'').toUpperCase()+(b&&b[0]?b[0].toUpperCase():'')||'DB')}
 function applyShop(){
-  const s=SHOP;
-  const ini=getInitials(s.name1,s.name2)||'DB';
-  document.title=`${s.name1}${s.name2?' '+s.name2:''} — ${s.navSub||'Boutique'}`;
-  // Nav
+  const s=SHOP,ini=getInitials(s.name1,s.name2);
+  document.title=s.name1+(s.name2?' '+s.name2:'')+(s.navSub?' — '+s.navSub:'');
   const nw=document.getElementById('navLogoWrap');
   nw.innerHTML=s.logoUrl?`<img src="${s.logoUrl}" alt="logo">`:`<span class="nav-logo-initials">${ini}</span>`;
   document.getElementById('navName1').textContent=s.name1+(s.name2?' ':' ');
   document.getElementById('navName2').textContent=s.name2||'';
   document.getElementById('navSub').textContent=s.navSub;
-  // Hero
   document.getElementById('heroEyebrow').textContent=s.tagline;
-  document.getElementById('heroSub').textContent=s.heroSub;
+  document.getElementById('heroSub').innerHTML=s.heroSub;
   document.getElementById('heroDeco').textContent=(s.name1||'D')[0].toUpperCase();
-  const parts=s.heroTitle.split(' ');
-  if(parts.length>=3){const m=Math.floor(parts.length/2);document.getElementById('heroTitle').innerHTML=parts.slice(0,m).join(' ')+'<br><em>'+parts[m]+'</em><br>'+parts.slice(m+1).join(' ');}
-  else document.getElementById('heroTitle').textContent=s.heroTitle;
-  // Footer
+  // Hero title — bold key words
+  document.getElementById('heroTitle').innerHTML=s.heroTitle;
   const fw=document.getElementById('footerLogoWrap');
   fw.innerHTML=s.logoUrl?`<img src="${s.logoUrl}" alt="logo">`:`<span class="footer-logo-initials">${ini}</span>`;
   document.getElementById('footerName1').textContent=s.name1+(s.name2?' ':' ');
@@ -815,13 +751,6 @@ function applyShop(){
   document.getElementById('footerCopy').textContent=s.footerCopy;
   document.getElementById('adminShopName').textContent='· '+s.name1+(s.name2?' '+s.name2:'');
 }
-
-function previewLogo(url){
-  const c=document.getElementById('logoPreviewCircle');
-  const ini=getInitials(document.getElementById('sName1').value||SHOP.name1,document.getElementById('sName2').value||SHOP.name2);
-  c.innerHTML=url&&url.startsWith('http')?`<img src="${url}" onerror="this.parentElement.innerHTML='<span class=\\'logo-preview-initials\\'>${ini}</span>'">`:`<span class="logo-preview-initials">${ini}</span>`;
-}
-
 function fillShopForm(){
   const s=SHOP;
   document.getElementById('sLogoUrl').value=s.logoUrl||'';
@@ -834,15 +763,12 @@ function fillShopForm(){
   document.getElementById('sFooterCopy').value=s.footerCopy;
   previewLogo(s.logoUrl||'');
 }
-
 function fillConfigForm(){
-  const c=CONFIG;
-  document.getElementById('cWaNumber').value=c.waNumber;
-  document.getElementById('cWaMessage').value=c.waMessage;
-  document.getElementById('cWaMessageDirect').value=c.waMessageDirect;
-  document.getElementById('cPixelId').value=c.pixelId||'';
+  document.getElementById('cWaNumber').value=CONFIG.waNumber||'';
+  document.getElementById('cWaMessage').value=CONFIG.waMessage||'';
+  document.getElementById('cWaMessageDirect').value=CONFIG.waMessageDirect||'';
+  document.getElementById('cPixelId').value=CONFIG.pixelId||'';
 }
-
 function saveShopSettings(){
   SHOP={
     logoUrl:document.getElementById('sLogoUrl').value.trim(),
@@ -854,133 +780,109 @@ function saveShopSettings(){
     heroSub:document.getElementById('sHeroSub').value.trim()||DEFAULT_SHOP.heroSub,
     footerCopy:document.getElementById('sFooterCopy').value.trim()||DEFAULT_SHOP.footerCopy
   };
-  lsSet('sell_shop',SHOP);applyShop();showToast('Paramètres boutique enregistrés ✓');
+  lsSet('sell_shop',SHOP);applyShop();showToast('Paramètres enregistrés ✓');
 }
-
 function saveConfig(){
-  var waNum = document.getElementById('cWaNumber');
-  var waMsg = document.getElementById('cWaMessage');
-  var waMsgD = document.getElementById('cWaMessageDirect');
-  var pxId = document.getElementById('cPixelId');
-  var newConfig = {
-    waNumber: waNum ? waNum.value.trim() : DEFAULT_CONFIG.waNumber,
-    waMessage: waMsg ? waMsg.value.trim() : DEFAULT_CONFIG.waMessage,
-    waMessageDirect: waMsgD ? waMsgD.value.trim() : DEFAULT_CONFIG.waMessageDirect,
-    pixelId: pxId ? pxId.value.trim() : ''
-  };
-  if(!newConfig.waNumber) newConfig.waNumber = DEFAULT_CONFIG.waNumber;
-  if(!newConfig.waMessage) newConfig.waMessage = DEFAULT_CONFIG.waMessage;
-  if(!newConfig.waMessageDirect) newConfig.waMessageDirect = DEFAULT_CONFIG.waMessageDirect;
-  CONFIG = newConfig;
-  localStorage.setItem('sell_config', JSON.stringify(CONFIG));
-  // Load pixel asynchronously to avoid stack overflow
-  if(CONFIG.pixelId && !_pixelInitialized) {
-    setTimeout(initPixel, 100);
-  }
-  var t = document.getElementById('toast');
-  if(t){ t.textContent = 'Configuration enregistrée ✓'; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); }, 2400); }
+  var n=document.getElementById('cWaNumber'),m=document.getElementById('cWaMessage'),d=document.getElementById('cWaMessageDirect'),p=document.getElementById('cPixelId');
+  CONFIG={waNumber:(n?n.value.trim():'')||DEFAULT_CONFIG.waNumber,waMessage:(m?m.value.trim():'')||DEFAULT_CONFIG.waMessage,waMessageDirect:(d?d.value.trim():'')||DEFAULT_CONFIG.waMessageDirect,pixelId:p?p.value.trim():''};
+  localStorage.setItem('sell_config',JSON.stringify(CONFIG));
+  if(CONFIG.pixelId&&!_pixelOk)setTimeout(initPixel,100);
+  var t=document.getElementById('toast');if(t){t.textContent='Configuration enregistrée ✓';t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2400);}
+}
+function previewLogo(url){
+  const c=document.getElementById('logoPreviewCircle');
+  const ini=getInitials(document.getElementById('sName1').value||SHOP.name1,document.getElementById('sName2').value||SHOP.name2);
+  c.innerHTML=url&&url.startsWith('http')?`<img src="${url}" onerror="this.parentElement.innerHTML='<span class=\\'logo-preview-initials\\'>${ini}</span>'">`:`<span class="logo-preview-initials">${ini}</span>`;
 }
 
-// ══════════════════════════════════
-//  LIVE VISITORS
-// ══════════════════════════════════
-function startLiveVisitors(){
-  const base=Math.floor(Math.random()*12)+4;
-  document.getElementById('liveCount').textContent=base;
-  setInterval(()=>{
-    const delta=Math.random()<0.5?-1:1;
-    const cur=parseInt(document.getElementById('liveCount').textContent)||base;
-    const next=Math.max(2,Math.min(30,cur+delta));
-    document.getElementById('liveCount').textContent=next;
-  },8000);
+// ══════════════ LOGO/IMAGE UPLOAD ══════════════
+async function handleLogoUpload(e){
+  const f=e.target.files[0];if(!f)return;
+  const url=await uploadToSupabase(f);
+  if(url){document.getElementById('sLogoUrl').value=url;previewLogo(url);}
+  e.target.value='';
 }
-
-// ══════════════════════════════════
-//  FLOATING NOTIFICATION
-// ══════════════════════════════════
-// Notifications flottantes — uniquement sur vraies commandes
-let realOrders=[];
-
-function recordOrder(name,bookTitle){
-  const now=new Date();
-  realOrders.unshift({name,bookTitle,ts:now});
-  if(realOrders.length>20)realOrders.pop();
-  lsSet('sell_orders',realOrders);
-  triggerFloatNotif(name,bookTitle,'À l\'instant');
+function clearLogo(){
+  document.getElementById('sLogoUrl').value='';
+  const ini=getInitials(document.getElementById('sName1').value||SHOP.name1,document.getElementById('sName2').value||SHOP.name2);
+  document.getElementById('logoPreviewCircle').innerHTML='<span class="logo-preview-initials">'+ini+'</span>';
 }
-
-function loadRealOrders(){
-  realOrders=ls('sell_orders',[]);
+async function handleImageUpload(e){
+  const f=e.target.files[0];if(!f)return;
+  const url=await uploadToSupabase(f);
+  if(url){document.getElementById('fImage').value=url;previewImg(url);}
+  e.target.value='';
 }
+function clearImage(){document.getElementById('fImage').value='';document.getElementById('imgPreview').innerHTML='<span>Aperçu de la couverture</span>';}
 
-function triggerFloatNotif(name,bookTitle,timeLabel){
-  document.getElementById('floatNotifName').textContent=name;
-  document.getElementById('floatNotifBook').textContent=bookTitle.length>30?bookTitle.substring(0,30)+'…':bookTitle;
-  document.getElementById('floatNotifTime').textContent=timeLabel;
-  const n=document.getElementById('floatNotif');
-  n.classList.add('show');
-  setTimeout(()=>n.classList.remove('show'),5000);
-}
+// ══════════════ CATALOGUE ══════════════
+const BADGE_LABELS={bestseller:'🔥 Best Seller',new:'✨ Nouveau',promo:'💰 Promo',limited:'⚡ Stock limité',coup:'❤️ Coup de cœur',recommended:'📚 Recommandé'};
+const CAT_LABELS={pack:'Pack',devperso:'Dév. Personnel',cheikh:'C. A. Diop',autre:'Livre'};
 
-function startFloatNotifs(){
-  // Affiche les commandes réelles récentes (dernières 24h) en rotation
-  loadRealOrders();
-  const recent=realOrders.filter(o=>{
-    const age=(Date.now()-new Date(o.ts).getTime())/1000/60;
-    return age<1440; // moins de 24h
+function sortedBooks(){
+  // Order: packs → bestseller → new → others
+  const order={pack:0,devperso:1,cheikh:2,autre:3};
+  const badgeOrder={bestseller:0,coup:1,recommended:2,new:3,promo:4,limited:5,none:6};
+  return [...BOOKS].sort((a,b)=>{
+    if(order[a.category]!==order[b.category])return order[a.category]-order[b.category];
+    return (badgeOrder[a.badge]||6)-(badgeOrder[b.badge]||6);
   });
-  if(!recent.length)return; // aucune commande réelle = aucune notification
-  let idx=0;
-  function showNext(){
-    const o=recent[idx%recent.length];
-    const mins=Math.round((Date.now()-new Date(o.ts).getTime())/1000/60);
-    const label=mins<1?'À l\'instant':mins<60?`Il y a ${mins} min`:`Il y a ${Math.floor(mins/60)}h`;
-    triggerFloatNotif(o.name,o.bookTitle,label);
-    idx++;
-  }
-  setTimeout(()=>{showNext();setInterval(showNext,30000);},10000);
 }
 
-// ══════════════════════════════════
-//  CATALOGUE
-// ══════════════════════════════════
+function updateCounts(){
+  const cats=['all','pack','devperso','cheikh','autre'];
+  const ids=['countAll','countPack','countDevperso','countCheikh','countAutre'];
+  cats.forEach((c,i)=>{
+    const n=c==='all'?BOOKS.length:BOOKS.filter(b=>b.category===c).length;
+    const el=document.getElementById(ids[i]);
+    if(el)el.textContent=n>0?`(${n})`:'';
+  });
+}
+
 function getFiltered(){
-  let b=BOOKS;
+  let b=sortedBooks();
   if(activeFilter!=='all')b=b.filter(x=>x.category===activeFilter);
   if(searchQuery){const q=searchQuery.toLowerCase();b=b.filter(x=>x.title.toLowerCase().includes(q)||x.author.toLowerCase().includes(q));}
   return b;
 }
 
 function priceHTML(book){
-  const price=`<div class="book-price display">${book.price.toLocaleString('fr-FR')}<sup>FCFA</sup></div>`;
-  if(!book.oldPrice||book.oldPrice<=book.price)return `<div class="book-price-wrap">${price}</div>`;
+  const main=`<div class="book-price display">${book.price.toLocaleString('fr-FR')}<sup>FCFA</sup></div>`;
+  if(!book.oldPrice||book.oldPrice<=book.price)return`<div class="book-price-wrap">${main}</div>`;
   const disc=Math.round((1-book.price/book.oldPrice)*100);
-  const old=`<div class="book-price-old display">${book.oldPrice.toLocaleString('fr-FR')}<sup>FCFA</sup></div>`;
-  const badge=`<div class="book-discount">-${disc}%</div>`;
-  return `<div class="book-price-wrap">${price}${old}${badge}</div>`;
+  const eco=((book.oldPrice-book.price)).toLocaleString('fr-FR');
+  return`<div class="book-price-wrap">
+    <div class="book-economy">Économie : ${eco} FCFA</div>
+    ${main}
+    <div class="price-old-row">
+      <div class="book-price-old display">${book.oldPrice.toLocaleString('fr-FR')}<sup>FCFA</sup></div>
+      <div class="book-discount">-${disc}%</div>
+    </div>
+  </div>`;
 }
+
+const WA_SVG='<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
 
 function renderBooks(){
   const grid=document.getElementById('booksGrid');
   const filtered=getFiltered();
-  document.getElementById('heroStatCount').innerHTML=`${BOOKS.length}<em>+</em>`;
+  document.getElementById('heroStatCount').innerHTML='100<em>+</em>';
+  updateCounts();
   const rc=document.getElementById('resultsCount');
   rc.textContent=(searchQuery||activeFilter!=='all')?`${filtered.length} titre${filtered.length!==1?'s':''} trouvé${filtered.length!==1?'s':''}` :'';
-  if(!filtered.length){grid.innerHTML=`<div class="empty-state"><div class="es-icon">🔍</div><p>Aucun titre ne correspond à votre recherche.</p></div>`;return;}
+  if(!filtered.length){grid.innerHTML=`<div class="empty-state"><div class="es-icon">🔍</div><p>Aucun titre ne correspond.</p></div>`;return;}
   grid.innerHTML=filtered.map(book=>{
     const inCart=cart.find(i=>i.id===book.id);
     const catLabel=CAT_LABELS[book.category]||'Livre';
     const badgeHTML=book.badge&&book.badge!=='none'?`<div class="book-badge badge-${book.badge}">${BADGE_LABELS[book.badge]}</div>`:'';
     const coverHTML=book.image?`<img src="${book.image}" alt="${book.title}" loading="lazy">`:`<div class="cover-placeholder"><div class="ph-ornament">✦</div><div class="ph-title">${book.title}</div><div class="ph-line"></div><div class="ph-author">${book.author}</div></div>`;
     const oos=book.outOfStock?'out-of-stock':'';
-    return `<div class="book-card ${oos}">
+    return`<div class="book-card ${oos}">
       <div class="book-cover">
         ${badgeHTML}
         ${coverHTML}
         <div class="badge-cat">${catLabel}</div>
-        <button class="share-btn" onclick="shareBook(${book.id},event)" title="Partager">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        </button>
+        <button class="share-btn" onclick="shareBook(${book.id},event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
       </div>
       <div class="book-body">
         <div class="book-title">${book.title}</div>
@@ -989,7 +891,7 @@ function renderBooks(){
         <div class="book-footer">
           ${priceHTML(book)}
           <div class="book-actions">
-            <button class="btn-now" onclick="orderNow(${book.id})">${WA_ICON} Commander</button>
+            <button class="btn-now" onclick="orderNow(${book.id})">${WA_SVG} Commander</button>
             <button class="btn-cart ${inCart?'added':''}" onclick="addToCart(${book.id})" id="btn-${book.id}">${inCart?'✓ Ajouté':'+ Panier'}</button>
           </div>
         </div>
@@ -1002,71 +904,50 @@ function renderBooks(){
 function filterBooks(cat,el){activeFilter=cat;document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderBooks();}
 function handleSearch(){searchQuery=document.getElementById('searchInput').value.trim();renderBooks();}
 
-// ══════════════════════════════════
-//  SHARE
-// ══════════════════════════════════
+// ══════════════ SHARE ══════════════
 function shareBook(id,e){
   e.stopPropagation();
   const book=BOOKS.find(b=>b.id===id);if(!book)return;
-  const url=window.location.href.split('?')[0]+'?livre='+id;
-  if(navigator.share){navigator.share({title:book.title,text:`Découvrez "${book.title}" — ${book.price.toLocaleString('fr-FR')} FCFA`,url});}
-  else{navigator.clipboard.writeText(url).then(()=>showToast('Lien copié !')).catch(()=>showToast('Lien : '+url));}
+  const url=location.href.split('?')[0]+'?livre='+id;
+  if(navigator.share)navigator.share({title:book.title,text:`${book.title} — ${book.price.toLocaleString('fr-FR')} FCFA`,url});
+  else navigator.clipboard.writeText(url).then(()=>showToast('Lien copié !')).catch(()=>showToast('Lien : '+url));
 }
 
-// Handle direct link to book
-function handleDeepLink(){
-  const params=new URLSearchParams(window.location.search);
-  const id=parseInt(params.get('livre'));
-  if(!id)return;
-  setTimeout(()=>{
-    const card=document.querySelector(`[data-book-id="${id}"]`);
-    if(card){card.scrollIntoView({behavior:'smooth',block:'center'});}
-    else document.getElementById('catalogue').scrollIntoView({behavior:'smooth'});
-  },500);
-}
-
-// ══════════════════════════════════
-//  ORDER NOW
-// ══════════════════════════════════
+// ══════════════ ORDER ══════════════
 function orderNow(id){
   const book=BOOKS.find(b=>b.id===id);if(!book)return;
-  fbq('track','InitiateCheckout',{content_ids:[id],content_type:'product',value:book.price,currency:'XOF'});
-  const msg=CONFIG.waMessageDirect
-    .replace('{titre}',book.title)
-    .replace('{auteur}',book.author)
-    .replace('{prix}',book.price.toLocaleString('fr-FR'));
-  window.open(`https://wa.me/${CONFIG.waNumber}?text=${encodeURIComponent(msg)}`,'_blank');
-  // Enregistre la commande pour les notifications futures
+  const waNum=(CONFIG.waNumber||'2250714313052').trim().replace(/[^0-9]/g,'');
+  if(!waNum){showToast('Numéro WhatsApp non configuré');return;}
+  fbq('track','InitiateCheckout',{content_ids:[id],value:book.price,currency:'XOF'});
+  const tpl=CONFIG.waMessageDirect||DEFAULT_CONFIG.waMessageDirect;
+  const msg=tpl.replace('{titre}',book.title).replace('{auteur}',book.author).replace('{prix}',book.price.toLocaleString('fr-FR'));
+  const url='https://wa.me/'+waNum+'?text='+encodeURIComponent(msg);
+  window.open(url,'_blank');
   recordOrder('Un client',book.title);
 }
 
-// ══════════════════════════════════
-//  CART
-// ══════════════════════════════════
+// ══════════════ CART ══════════════
 function addToCart(id){
   const book=BOOKS.find(b=>b.id===id);if(!book||book.outOfStock)return;
   const ex=cart.find(i=>i.id===id);
   if(ex)ex.qty++;else cart.push({...book,qty:1});
   updateCartUI();
-  fbq('track','AddToCart',{content_ids:[id],content_type:'product',value:book.price,currency:'XOF'});
-  const s=book.title.length>26?book.title.substring(0,26)+'…':book.title;
-  showToast(`« ${s} » ajouté au panier`);
-  const btn=document.getElementById(`btn-${id}`);
+  fbq('track','AddToCart',{content_ids:[id],value:book.price,currency:'XOF'});
+  const s=book.title.length>24?book.title.substring(0,24)+'…':book.title;
+  showToast(`« ${s} » ajouté`);
+  const btn=document.getElementById('btn-'+id);
   if(btn){btn.textContent='✓ Ajouté';btn.classList.add('added');}
   const c=document.getElementById('cartCount');c.classList.add('bump');setTimeout(()=>c.classList.remove('bump'),300);
 }
-
 function removeFromCart(id){
   cart=cart.filter(i=>i.id!==id);
-  const btn=document.getElementById(`btn-${id}`);
+  const btn=document.getElementById('btn-'+id);
   if(btn){btn.textContent='+ Panier';btn.classList.remove('added');}
   updateCartUI();renderCartItems();
 }
-
 function changeQty(id,delta){const item=cart.find(i=>i.id===id);if(!item)return;item.qty+=delta;if(item.qty<=0)removeFromCart(id);else{updateCartUI();renderCartItems();}}
 function getTotal(){return cart.reduce((s,i)=>s+i.price*i.qty,0)}
 function getTotalQty(){return cart.reduce((s,i)=>s+i.qty,0)}
-
 function updateCartUI(){
   const qty=getTotalQty(),total=getTotal();
   document.getElementById('cartCount').textContent=qty;
@@ -1076,17 +957,15 @@ function updateCartUI(){
   else bar.style.display='none';
   renderCartItems();
 }
-
 function renderCartItems(){
   const c=document.getElementById('cartItems'),f=document.getElementById('cartForm');
-  if(!cart.length){c.innerHTML=`<div class="cart-empty"><div class="cart-empty-icon">📚</div><p>Votre panier est vide.<br>Choisissez vos titres pour commencer.</p></div>`;f.style.display='none';return;}
+  if(!cart.length){c.innerHTML='<div class="cart-empty"><div class="cart-empty-icon">📚</div><p>Votre panier est vide.<br>Choisissez vos titres pour commencer.</p></div>';f.style.display='none';return;}
   f.style.display='block';
   c.innerHTML=cart.map(item=>{
-    const t=item.image?`<img src="${item.image}" alt="${item.title}">`:`<div class="ci-thumb-ph"><span>${item.title.substring(0,18)}</span></div>`;
-    return `<div class="cart-item"><div class="ci-thumb">${t}</div><div class="ci-info"><div class="ci-title">${item.title}</div><div class="ci-price">${(item.price*item.qty).toLocaleString('fr-FR')} FCFA</div><div class="ci-qty-row"><button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button><span class="qty-val">${item.qty}</span><button class="qty-btn" onclick="changeQty(${item.id},1)">+</button></div></div><button class="ci-remove" onclick="removeFromCart(${item.id})">✕</button></div>`;
+    const t=item.image?`<img src="${item.image}" alt="${item.title}">`:`<div class="ci-thumb-ph"><span>${item.title.substring(0,16)}</span></div>`;
+    return`<div class="cart-item"><div class="ci-thumb">${t}</div><div class="ci-info"><div class="ci-title">${item.title}</div><div class="ci-price">${(item.price*item.qty).toLocaleString('fr-FR')} FCFA</div><div class="ci-qty-row"><button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button><span class="qty-val">${item.qty}</span><button class="qty-btn" onclick="changeQty(${item.id},1)">+</button></div></div><button class="ci-remove" onclick="removeFromCart(${item.id})">✕</button></div>`;
   }).join('');
 }
-
 function sendWhatsApp(){
   const name=document.getElementById('orderName').value.trim(),city=document.getElementById('orderCity').value.trim();
   if(!name){document.getElementById('orderName').focus();showToast('Veuillez entrer votre nom');return;}
@@ -1094,29 +973,61 @@ function sendWhatsApp(){
   if(!cart.length){showToast('Votre panier est vide');return;}
   fbq('track','InitiateCheckout',{content_ids:cart.map(i=>i.id),value:getTotal(),currency:'XOF'});
   const articles=cart.map(i=>`• ${i.title} × ${i.qty} — ${(i.price*i.qty).toLocaleString('fr-FR')} FCFA`).join('\n');
-  const msg=CONFIG.waMessage
-    .replace('{nom}',name)
-    .replace('{ville}',city)
-    .replace('{articles}',articles)
-    .replace('{total}',getTotal().toLocaleString('fr-FR'));
-  // Enregistre chaque livre du panier
-  cart.forEach(i=>recordOrder('Un client',i.title));
-  // Show confirmation
+  const msg=CONFIG.waMessage.replace('{nom}',name).replace('{ville}',city).replace('{articles}',articles).replace('{total}',getTotal().toLocaleString('fr-FR'));
   const recap=document.getElementById('confirmRecap');
-  recap.innerHTML=`<div class="confirm-recap-title">Récapitulatif</div>${cart.map(i=>`<div class="confirm-item">${i.title} × ${i.qty} — ${(i.price*i.qty).toLocaleString('fr-FR')} FCFA</div>`).join('')}<div class="confirm-total">${getTotal().toLocaleString('fr-FR')} FCFA</div>`;
+  recap.innerHTML='<div class="confirm-recap-title">Récapitulatif</div>'+cart.map(i=>`<div class="confirm-item">${i.title} × ${i.qty} — ${(i.price*i.qty).toLocaleString('fr-FR')} FCFA</div>`).join('')+`<div class="confirm-total">${getTotal().toLocaleString('fr-FR')} FCFA</div>`;
   document.getElementById('confirmOverlay').classList.add('open');
+  cart.forEach(i=>recordOrder('Un client',i.title));
   closeCart();
-  window.open(`https://wa.me/${CONFIG.waNumber}?text=${encodeURIComponent(msg)}`,'_blank');
+  const waNum2=(CONFIG.waNumber||'2250714313052').trim().replace(/[^0-9]/g,'');
+  if(!waNum2){showToast('Numéro WhatsApp non configuré');return;}
+  const url2='https://wa.me/'+waNum2+'?text='+encodeURIComponent(msg);
+  window.open(url2,'_blank');
 }
-
 function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');}
-
 function openCart(){document.getElementById('cartOverlay').classList.add('open');document.getElementById('cartPanel').classList.add('open');document.body.style.overflow='hidden';}
 function closeCart(){document.getElementById('cartOverlay').classList.remove('open');document.getElementById('cartPanel').classList.remove('open');document.body.style.overflow='';}
 
-// ══════════════════════════════════
-//  ADMIN
-// ══════════════════════════════════
+// ══════════════ FLOATING NOTIF ══════════════
+let realOrders=[];
+function recordOrder(name,bookTitle){
+  realOrders.unshift({name,bookTitle,ts:new Date().toISOString()});
+  if(realOrders.length>20)realOrders.pop();
+  lsSet('sell_orders',realOrders);
+  triggerFloatNotif(name,bookTitle,'À l\'instant');
+}
+function loadRealOrders(){realOrders=ls('sell_orders',[]);}
+function triggerFloatNotif(name,bookTitle,label){
+  const n=document.getElementById('floatNotif');
+  document.getElementById('floatNotifName').textContent=name+' ';
+  document.getElementById('floatNotifBook').textContent=bookTitle.length>28?bookTitle.substring(0,28)+'…':bookTitle;
+  document.getElementById('floatNotifTime').textContent=label;
+  n.classList.add('show');setTimeout(()=>n.classList.remove('show'),5000);
+}
+function startFloatNotifs(){
+  loadRealOrders();
+  const recent=realOrders.filter(o=>(Date.now()-new Date(o.ts).getTime())/60000<1440);
+  if(!recent.length)return;
+  let idx=0;
+  function showNext(){
+    const o=recent[idx%recent.length];
+    const mins=Math.round((Date.now()-new Date(o.ts).getTime())/60000);
+    const label=mins<1?'À l\'instant':mins<60?`Il y a ${mins} min`:`Il y a ${Math.floor(mins/60)}h`;
+    triggerFloatNotif(o.name,o.bookTitle,label);idx++;
+  }
+  setTimeout(()=>{showNext();setInterval(showNext,30000);},12000);
+}
+
+// ══════════════ ADMIN ══════════════
+// Long press on logo to open admin (800ms)
+let pressTimer=null;
+const navLogo=document.getElementById('navLogo');
+navLogo.addEventListener('mousedown',()=>{pressTimer=setTimeout(openAdminLogin,800);});
+navLogo.addEventListener('mouseup',()=>clearTimeout(pressTimer));
+navLogo.addEventListener('mouseleave',()=>clearTimeout(pressTimer));
+navLogo.addEventListener('touchstart',(e)=>{pressTimer=setTimeout(()=>{e.preventDefault();openAdminLogin();},800);},{passive:false});
+navLogo.addEventListener('touchend',()=>clearTimeout(pressTimer));
+
 function openAdminLogin(){
   document.getElementById('adminOverlay').classList.add('open');document.getElementById('adminPanel').classList.add('open');document.body.style.overflow='hidden';
   if(!adminLoggedIn){
@@ -1126,41 +1037,34 @@ function openAdminLogin(){
     setTimeout(()=>document.getElementById('adminPwd').focus(),400);
   }else showMainScreen();
 }
-
 function closeAdmin(){document.getElementById('adminOverlay').classList.remove('open');document.getElementById('adminPanel').classList.remove('open');document.body.style.overflow='';}
-
 function checkAdmin(){
-  const pwd='lamine2026';
-  if(document.getElementById('adminPwd').value===pwd){adminLoggedIn=true;showMainScreen();}
-  else{showToast('Mot de passe incorrect');document.getElementById('adminPwd').value='';document.getElementById('adminPwd').focus();}
+  if(document.getElementById('adminPwd').value==='lamine2026'){adminLoggedIn=true;showMainScreen();}
+  else{showToast('Mot de passe incorrect');document.getElementById('adminPwd').value='';}
 }
-
 function switchTab(tab,el){
   document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.admin-tab-content').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('tab-'+tab).classList.add('active');
+  el.classList.add('active');document.getElementById('tab-'+tab).classList.add('active');
 }
-
 function showMainScreen(){
   document.getElementById('adminLoginScreen').style.display='none';
   document.getElementById('adminFormScreen').style.display='none';
   document.getElementById('adminMainScreen').style.display='block';
   renderAdminList();fillShopForm();fillConfigForm();
 }
-
 function renderAdminList(){
   document.getElementById('adminCount').textContent=BOOKS.length;
   const list=document.getElementById('adminBookList');
-  if(!BOOKS.length){list.innerHTML=`<div style="text-align:center;padding:24px;color:var(--ink-soft);font-style:italic;font-size:.82rem;">Aucun titre. Cliquez sur "Ajouter".</div>`;return;}
+  if(!BOOKS.length){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink-soft);font-style:italic;font-size:.8rem;">Aucun titre. Cliquez sur Ajouter.</div>';return;}
   list.innerHTML=BOOKS.map(book=>{
     const t=book.image?`<img src="${book.image}" alt="${book.title}">`:`<div class="admin-book-thumb-ph">${book.title.substring(0,10)}</div>`;
-    const oos=book.outOfStock?' · ⛔ Rupture':'';
-    const promo=book.oldPrice?` · Promo`:'';
-    return `<div class="admin-book-row"><div class="admin-book-thumb">${t}</div><div class="admin-book-info"><div class="admin-book-title-text">${book.title}</div><div class="admin-book-meta">${book.price.toLocaleString('fr-FR')} FCFA · ${CAT_LABELS[book.category]||book.category}${promo}${oos}</div></div><div class="admin-book-actions"><button class="admin-edit-btn" onclick="editBook(${book.id})">Modifier</button><button class="admin-del-btn" onclick="deleteBook(${book.id})">Suppr.</button></div></div>`;
+    const b=book.badge&&book.badge!=='none'?` · ${BADGE_LABELS[book.badge]}`:'';
+    const oos=book.outOfStock?' · ⛔':'';
+    const promo=book.oldPrice?` · -${Math.round((1-book.price/book.oldPrice)*100)}%`:'';
+    return`<div class="admin-book-row"><div class="admin-book-thumb">${t}</div><div class="admin-book-info"><div class="admin-book-title-text">${book.title}</div><div class="admin-book-meta">${book.price.toLocaleString('fr-FR')} FCFA · ${CAT_LABELS[book.category]||book.category}${promo}${b}${oos}</div></div><div class="admin-book-actions"><button class="admin-edit-btn" onclick="editBook(${book.id})">Modifier</button><button class="admin-del-btn" onclick="deleteBook(${book.id})">Suppr.</button></div></div>`;
   }).join('');
 }
-
 function showAddForm(){
   editingId=null;document.getElementById('adminFormTitle').textContent='Nouveau titre';
   ['fTitle','fAuthor','fDesc','fImage'].forEach(id=>document.getElementById(id).value='');
@@ -1171,35 +1075,30 @@ function showAddForm(){
   document.getElementById('adminMainScreen').style.display='none';document.getElementById('adminFormScreen').style.display='block';
   setTimeout(()=>document.getElementById('fTitle').focus(),100);
 }
-
 function editBook(id){
   const book=BOOKS.find(b=>b.id===id);if(!book)return;
   editingId=id;document.getElementById('adminFormTitle').textContent='Modifier le titre';
   document.getElementById('fTitle').value=book.title;document.getElementById('fAuthor').value=book.author;
   document.getElementById('fPrice').value=book.price;document.getElementById('fOldPrice').value=book.oldPrice||'';
-  document.getElementById('fCategory').value=book.category;
-  document.getElementById('fDesc').value=book.desc||'';document.getElementById('fImage').value=book.image||'';
-  document.getElementById('fOutOfStock').checked=!!book.outOfStock;
+  document.getElementById('fCategory').value=book.category;document.getElementById('fDesc').value=book.desc||'';
+  document.getElementById('fImage').value=book.image||'';document.getElementById('fOutOfStock').checked=!!book.outOfStock;
   previewImg(book.image||'');selectBadge(book.badge||'none');
   document.getElementById('adminMainScreen').style.display='none';document.getElementById('adminFormScreen').style.display='block';
 }
-
 function deleteBook(id){
   const book=BOOKS.find(b=>b.id===id);if(!book||!confirm(`Supprimer "${book.title}" ?`))return;
   BOOKS=BOOKS.filter(b=>b.id!==id);lsSet('lamine_books',BOOKS);renderBooks();renderAdminList();showToast('Titre supprimé');
 }
-
 function saveBook(){
   const title=document.getElementById('fTitle').value.trim(),author=document.getElementById('fAuthor').value.trim();
   const price=parseInt(document.getElementById('fPrice').value);
-  const oldPriceRaw=parseInt(document.getElementById('fOldPrice').value);
-  const oldPrice=isNaN(oldPriceRaw)||oldPriceRaw<=0?null:oldPriceRaw;
+  const opRaw=parseInt(document.getElementById('fOldPrice').value);const oldPrice=isNaN(opRaw)||opRaw<=0?null:opRaw;
   const category=document.getElementById('fCategory').value,desc=document.getElementById('fDesc').value.trim();
   const image=document.getElementById('fImage').value.trim()||null,badge=document.getElementById('fBadge').value;
   const outOfStock=document.getElementById('fOutOfStock').checked;
-  if(!title){showToast('Le titre est obligatoire');document.getElementById('fTitle').focus();return;}
-  if(!author){showToast("L'auteur est obligatoire");document.getElementById('fAuthor').focus();return;}
-  if(!price||price<=0){showToast('Entrez un prix valide');document.getElementById('fPrice').focus();return;}
+  if(!title){showToast('Titre obligatoire');document.getElementById('fTitle').focus();return;}
+  if(!author){showToast("Auteur obligatoire");document.getElementById('fAuthor').focus();return;}
+  if(!price||price<=0){showToast('Prix invalide');document.getElementById('fPrice').focus();return;}
   if(editingId!==null){
     const idx=BOOKS.findIndex(b=>b.id===editingId);
     if(idx!==-1)BOOKS[idx]={...BOOKS[idx],title,author,price,oldPrice,category,desc,image,badge,outOfStock};
@@ -1211,53 +1110,37 @@ function saveBook(){
   }
   lsSet('lamine_books',BOOKS);renderBooks();showMainScreen();
 }
-
 function selectBadge(val){
   document.getElementById('fBadge').value=val;
-  document.querySelectorAll('.badge-opt').forEach(btn=>{btn.className='badge-opt';if(btn.dataset.badge===val)btn.classList.add(`selected-${val}`);});
+  document.querySelectorAll('.badge-opt').forEach(btn=>{btn.className='badge-opt';if(btn.dataset.badge===val)btn.classList.add('selected-'+val);});
 }
-
 function previewImg(url){
   const p=document.getElementById('imgPreview');
   if(url&&url.startsWith('http'))p.innerHTML=`<img src="${url}" onerror="this.parentElement.innerHTML='<span>URL invalide</span>'">`;
   else p.innerHTML='<span>Aperçu de la couverture</span>';
 }
 
-// ══════════════════════════════════
-//  UTILS
-// ══════════════════════════════════
-async function handleImageUpload(event) {
-  const file = event.target.files[0];
-  if(!file) return;
-  const url = await uploadImage(file);
-  if(url) {
-    document.getElementById('fImage').value = url;
-    previewImg(url);
-  }
-  event.target.value = ''; // reset input
+// ══════════════ UTILS ══════════════
+function showToast(msg){
+  const t=document.getElementById('toast');
+  if(t){t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
 }
-
-function clearImage() {
-  document.getElementById('fImage').value = '';
-  document.getElementById('imgPreview').innerHTML = '<span>Aperçu de la couverture</span>';
-}
-
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
-
 function observeReveal(){
   const els=document.querySelectorAll('.reveal:not(.visible)');
-  const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*55);obs.unobserve(e.target);}});},{threshold:.06});
+  const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*50);obs.unobserve(e.target);}});},{threshold:.06});
   els.forEach(el=>obs.observe(el));
 }
+function handleDeepLink(){
+  const id=parseInt(new URLSearchParams(location.search).get('livre'));
+  if(!id)return;
+  setTimeout(()=>document.getElementById('catalogue').scrollIntoView({behavior:'smooth'}),600);
+}
 
-// ══════════════════════════════════
-//  INIT
-// ══════════════════════════════════
+// ══════════════ INIT ══════════════
 applyShop();
 renderBooks();
 observeReveal();
 initPixel();
-startLiveVisitors();
 startFloatNotifs();
 handleDeepLink();
 </script>
