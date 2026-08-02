@@ -725,9 +725,11 @@ function initPixel(){
   if(!CONFIG.pixelId||_pixelOk)return;
   _pixelOk=true;
   !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-  window.fbq('init',CONFIG.pixelId);window.fbq('track','PageView');
+  window.trackEvent('init',CONFIG.pixelId);window.trackEvent('track','PageView');
 }
-function fbq(...a){if(window.fbq)window.fbq(...a)}
+function trackEvent(...a){
+  try{if(window.fbq&&window._fbq)window.fbq.apply(window,a);}catch(e){}
+}
 
 // ══════════════ SHOP ══════════════
 function getInitials(a,b){return(((a||'')[0]||'').toUpperCase()+(b&&b[0]?b[0].toUpperCase():'')||'DB')}
@@ -917,7 +919,7 @@ function orderNow(id){
   const book=BOOKS.find(b=>b.id===id);if(!book)return;
   const waNum=(CONFIG.waNumber||'2250714313052').trim().replace(/[^0-9]/g,'');
   if(!waNum){showToast('Numéro WhatsApp non configuré');return;}
-  fbq('track','InitiateCheckout',{content_ids:[id],value:book.price,currency:'XOF'});
+  trackEvent('track','InitiateCheckout',{content_ids:[id],value:book.price,currency:'XOF'});
   const tpl=CONFIG.waMessageDirect||DEFAULT_CONFIG.waMessageDirect;
   const msg=tpl.replace('{titre}',book.title).replace('{auteur}',book.author).replace('{prix}',book.price.toLocaleString('fr-FR'));
   const url='https://wa.me/'+waNum+'?text='+encodeURIComponent(msg);
@@ -931,7 +933,7 @@ function addToCart(id){
   const ex=cart.find(i=>i.id===id);
   if(ex)ex.qty++;else cart.push({...book,qty:1});
   updateCartUI();
-  fbq('track','AddToCart',{content_ids:[id],value:book.price,currency:'XOF'});
+  trackEvent('track','AddToCart',{content_ids:[id],value:book.price,currency:'XOF'});
   const s=book.title.length>24?book.title.substring(0,24)+'…':book.title;
   showToast(`« ${s} » ajouté`);
   const btn=document.getElementById('btn-'+id);
@@ -970,7 +972,7 @@ function sendWhatsApp(){
   if(!name){document.getElementById('orderName').focus();showToast('Veuillez entrer votre nom');return;}
   if(!city){document.getElementById('orderCity').focus();showToast('Veuillez entrer votre ville');return;}
   if(!cart.length){showToast('Votre panier est vide');return;}
-  fbq('track','InitiateCheckout',{content_ids:cart.map(i=>i.id),value:getTotal(),currency:'XOF'});
+  trackEvent('track','InitiateCheckout',{content_ids:cart.map(i=>i.id),value:getTotal(),currency:'XOF'});
   const articles=cart.map(i=>`• ${i.title} × ${i.qty} — ${(i.price*i.qty).toLocaleString('fr-FR')} FCFA`).join('\n');
   const msg=CONFIG.waMessage.replace('{nom}',name).replace('{ville}',city).replace('{articles}',articles).replace('{total}',getTotal().toLocaleString('fr-FR'));
   const recap=document.getElementById('confirmRecap');
