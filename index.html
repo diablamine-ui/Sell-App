@@ -343,6 +343,31 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .wa-btn{width:100%;background:var(--green);color:#fff;border:none;padding:13px;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;transition:all .25s var(--ease);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:11px;box-shadow:0 4px 14px rgba(15,122,61,.28);-webkit-tap-highlight-color:transparent}
 .wa-btn:hover{background:var(--green-dk);transform:translateY(-1px);box-shadow:0 6px 20px rgba(15,122,61,.35)}
 
+.cart-page{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.cart-page.open{display:block}
+.cart-nav{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:rgba(250,247,242,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.cart-back-btn{display:flex;align-items:center;gap:7px;background:none;border:none;color:var(--ink3);cursor:pointer;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;padding:0;-webkit-tap-highlight-color:transparent;transition:color .2s}
+.cart-back-btn:hover{color:var(--ink)}
+.cart-page-items{padding:14px 20px}
+.cart-page-form{padding:14px 20px 48px;border-top:1px solid var(--border);background:var(--white)}
+/* ── UPSELL ── */
+.upsell-box{margin:0 16px 16px;border-radius:var(--r);overflow:hidden}
+.upsell-header{background:linear-gradient(135deg,#0F7A3D,#0A5C2D);padding:14px 16px;color:#fff}
+.upsell-h-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;margin-bottom:3px}
+.upsell-h-sub{font-size:.72rem;opacity:.88;line-height:1.45}
+.upsell-books-scroll{display:flex;gap:10px;overflow-x:auto;padding:12px 16px;background:var(--white);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);scrollbar-width:none}
+.upsell-books-scroll::-webkit-scrollbar{display:none}
+.upsell-card{flex-shrink:0;width:82px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;transition:transform .2s}
+.upsell-card:active{transform:scale(.96)}
+.upsell-card-img{width:82px;height:114px;border-radius:5px;overflow:hidden;border:1px solid var(--bcard);margin-bottom:5px;background:var(--bg2)}
+.upsell-card-img img{width:100%;height:100%;object-fit:cover}
+.upsell-card-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:5px;font-family:'Cormorant Garamond',serif;font-size:.52rem;color:var(--ink3);text-align:center;line-height:1.3}
+.upsell-card-title{font-size:.6rem;color:var(--ink);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:2px;font-weight:500}
+.upsell-card-price{font-size:.62rem;font-weight:700;color:var(--gold)}
+.upsell-add-btn{font-size:.56rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+.upsell-congrats{background:linear-gradient(135deg,#0F7A3D,#0A5C2D);margin:0 16px 16px;border-radius:var(--r);padding:14px 16px;color:#fff;display:flex;align-items:center;gap:12px}
+.upsell-congrats-text .title{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600}
+.upsell-congrats-text .sub{font-size:.7rem;opacity:.88;margin-top:2px}
 /* ── MOBILE BAR ── */
 .mobile-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:99;padding:8px 16px 14px;background:var(--white);border-top:1px solid var(--border);box-shadow:0 -6px 24px rgba(13,10,6,.1)}
 .mobile-bar-btn{width:100%;background:var(--ink);color:var(--bg);border:none;padding:13px 18px;font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;display:flex;align-items:center;justify-content:space-between;-webkit-tap-highlight-color:transparent}
@@ -710,14 +735,33 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
   </div>
 </div>
 
-<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
-
-<!-- CART -->
-<div class="cart-panel" id="cartPanel">
-  <div class="cart-header">
-    <h2 class="cart-header-title display">Mon panier</h2>
-    <button class="close-btn" onclick="closeCart()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+<div class="cart-page" id="cartPage">
+  <nav class="cart-nav">
+    <button class="cart-back-btn" onclick="closeCart()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Retour
+    </button>
+    <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:300;color:var(--ink)">Mon panier</span>
+    <span style="width:60px"></span>
+  </nav>
+  <div class="cart-page-items" id="cartItems">
+    <div class="cart-empty"><div class="cart-empty-icon">📚</div><p>Votre panier est vide.<br>Choisissez vos titres pour commencer.</p></div>
   </div>
+  <div id="upsellSection"></div>
+  <div class="cart-page-form" id="cartForm" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(13,10,6,.06)">
+      <span class="cart-total-label">Total commande</span>
+      <span class="cart-total-val display" id="cartTotal">0 FCFA</span>
+    </div>
+    <div class="form-group"><label class="form-label">Nom complet</label><input class="form-input" type="text" id="orderName" placeholder="Ex : Kouamé Jean-Paul"></div>
+    <div class="form-group"><label class="form-label">Ville / Quartier</label><input class="form-input" type="text" id="orderCity" placeholder="Ex : Cocody, Abidjan"></div>
+    <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" type="tel" id="orderPhone" placeholder="Ex : 07 XX XX XX XX"></div>
+    <button class="wa-btn" onclick="sendWhatsApp()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Commander sur WhatsApp
+    </button>
+  </div>
+</div>
   <div class="cart-items" id="cartItems">
     <div class="cart-empty"><div class="cart-empty-icon">📚</div><p>Votre panier est vide.<br>Choisissez vos titres pour commencer.</p></div>
   </div>
@@ -1263,6 +1307,7 @@ function renderCartItems(){
   const c=document.getElementById('cartItems'),f=document.getElementById('cartForm');
   if(!cart.length){c.innerHTML='<div class="cart-empty"><div class="cart-empty-icon">📚</div><p>Votre panier est vide.<br>Choisissez vos titres pour commencer.</p></div>';f.style.display='none';return;}
   f.style.display='block';
+  renderUpsell();
   c.innerHTML=cart.map(item=>{
     const t=item.image?`<img src="${item.image}" alt="${item.title}">`:`<div class="ci-thumb-ph"><span>${item.title.substring(0,16)}</span></div>`;
     return`<div class="cart-item"><div class="ci-thumb">${t}</div><div class="ci-info"><div class="ci-title">${item.title}</div><div class="ci-price">${(item.price*item.qty).toLocaleString('fr-FR')} FCFA</div><div class="ci-qty-row"><button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button><span class="qty-val">${item.qty}</span><button class="qty-btn" onclick="changeQty(${item.id},1)">+</button></div></div><button class="ci-remove" onclick="removeFromCart(${item.id})">✕</button></div>`;
@@ -1288,8 +1333,16 @@ function sendWhatsApp(){
   window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
 }
 function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');}
-function openCart(){updateWaFloat();document.getElementById('cartOverlay').classList.add('open');document.getElementById('cartPanel').classList.add('open');document.body.style.overflow='hidden';checkUpsell();}
-function closeCart(){setTimeout(updateWaFloat,300);document.getElementById('cartOverlay').classList.remove('open');document.getElementById('cartPanel').classList.remove('open');document.body.style.overflow='';}
+function openCart(){
+  document.getElementById('cartPage').classList.add('open');
+  document.body.style.overflow='hidden';
+  document.getElementById('cartPage').scrollTop=0;
+  renderCartItems();
+}
+function closeCart(){
+  document.getElementById('cartPage').classList.remove('open');
+  document.body.style.overflow='';
+}
 
 // ══════════ FLOAT NOTIF ══════════
 let realOrders=[];
@@ -1915,6 +1968,63 @@ document.addEventListener('DOMContentLoaded', function(){
     }, {passive:false});
   }
 });
+
+// ══ UPSELL ══
+var freeDelivery = false;
+
+function renderUpsell() {
+  var el = document.getElementById('upsellSection');
+  if (!el) return;
+  var qty = getTotalQty();
+  if (qty < 2) { el.innerHTML = ''; freeDelivery = false; return; }
+
+  if (qty >= 3) {
+    freeDelivery = true;
+    el.innerHTML = '<div class="upsell-congrats"><div style="font-size:1.6rem">&#x2705;</div><div class="upsell-congrats-text"><div class="title">Livraison offerte !</div><div class="sub">F&#233;licitations ! Votre livraison &#224; Abidjan est offerte.</div></div></div>';
+    return;
+  }
+
+  // 2 livres — suggérer livres de même catégorie
+  freeDelivery = false;
+  var cartIds = cart.map(function(i) { return i.id; });
+  var cartCats = cart.map(function(i) { return i.category; });
+
+  // Score books: same category = higher priority
+  var suggestions = BOOKS
+    .filter(function(b) { return cartIds.indexOf(b.id) === -1 && !b.outOfStock; })
+    .map(function(b) {
+      var score = cartCats.indexOf(b.category) !== -1 ? 2 : 0;
+      if (b.badge === 'bestseller') score += 1;
+      return { book: b, score: score };
+    })
+    .sort(function(a, b) { return b.score - a.score; })
+    .slice(0, 5)
+    .map(function(x) { return x.book; });
+
+  if (!suggestions.length) { el.innerHTML = ''; return; }
+
+  var catLabel = cartCats.length ? (CAT_LABELS[cartCats[0]] || 'similaires') : 'recommand&#233;s';
+
+  var cards = suggestions.map(function(book) {
+    var img = book.image
+      ? '<img src="' + book.image + '" alt="">'
+      : '<div class="upsell-card-ph">' + book.title.substring(0, 22) + '</div>';
+    return '<div class="upsell-card" onclick="addToCart(' + book.id + ');renderUpsell()">'
+      + '<div class="upsell-card-img">' + img + '</div>'
+      + '<div class="upsell-card-title">' + book.title + '</div>'
+      + '<div class="upsell-card-price">' + book.price.toLocaleString('fr-FR') + ' F</div>'
+      + '<div class="upsell-add-btn">+ Ajouter</div>'
+      + '</div>';
+  }).join('');
+
+  el.innerHTML = '<div class="upsell-box">'
+    + '<div class="upsell-header">'
+    + '<div class="upsell-h-title">&#x1F381; Livraison offerte !</div>'
+    + '<div class="upsell-h-sub">Ajoutez 1 titre ' + catLabel + ' et la livraison &#224; Abidjan est offerte.</div>'
+    + '</div>'
+    + '<div class="upsell-books-scroll">' + cards + '</div>'
+    + '</div>';
+}
 
 // ══════════ INIT ══════════
 applyShop();
