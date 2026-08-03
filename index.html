@@ -1288,7 +1288,7 @@ function sendWhatsApp(){
   window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
 }
 function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');}
-function openCart(){updateWaFloat();document.getElementById('cartOverlay').classList.add('open');document.getElementById('cartPanel').classList.add('open');document.body.style.overflow='hidden';}
+function openCart(){updateWaFloat();document.getElementById('cartOverlay').classList.add('open');document.getElementById('cartPanel').classList.add('open');document.body.style.overflow='hidden';checkUpsell();}
 function closeCart(){setTimeout(updateWaFloat,300);document.getElementById('cartOverlay').classList.remove('open');document.getElementById('cartPanel').classList.remove('open');document.body.style.overflow='';}
 
 // ══════════ FLOAT NOTIF ══════════
