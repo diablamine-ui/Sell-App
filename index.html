@@ -286,33 +286,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .bm-btn-cart:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-pale)}
 .bm-btn-cart.added{background:var(--gold-pale);color:var(--gold);border-color:rgba(169,119,28,.35)}
 
-/* ── UPSELL ── */
-.upsell-banner{display:none;background:linear-gradient(135deg,#0F7A3D,#0A5C2D);color:#fff;padding:14px 16px;margin:0 0 0;animation:slideDown .3s ease}
-.upsell-banner.show{display:block}
-@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.upsell-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;margin-bottom:4px}
-.upsell-sub{font-size:.75rem;opacity:.9;line-height:1.5;margin-bottom:10px}
-.upsell-books{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
-.upsell-books::-webkit-scrollbar{display:none}
-.upsell-book{flex-shrink:0;width:75px;cursor:pointer;text-align:center;transition:transform .2s}
-.upsell-book:hover{transform:translateY(-2px)}
-.upsell-book-cover{width:75px;height:105px;border-radius:4px;overflow:hidden;border:2px solid rgba(255,255,255,0.2);margin-bottom:5px;background:rgba(255,255,255,0.1)}
-.upsell-book-cover img{width:100%;height:100%;object-fit:cover}
-.upsell-book-cover-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:4px;font-family:'Cormorant Garamond',serif;font-size:.5rem;color:rgba(255,255,255,0.8);text-align:center}
-.upsell-book-title{font-size:.58rem;color:rgba(255,255,255,.9);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.upsell-book-price{font-size:.62rem;font-weight:700;color:#F5E8CC;margin-top:2px}
-.upsell-delivery{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 10px;font-size:.65rem;font-weight:600;margin-top:8px}
-
 /* ── CART PANEL ── */
-.cart-overlay{position:fixed;inset:0;background:rgba(13,10,6,.55);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(6px)}
-.cart-overlay.open{opacity:1;pointer-events:all}
-.cart-panel{position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);background:var(--bg);border-left:1px solid var(--border);z-index:201;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .38s var(--ease);box-shadow:-20px 0 60px rgba(13,10,6,.14);overflow:hidden}
-.cart-panel.open{transform:translateX(0)}
-.cart-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border);background:var(--white)}
-.cart-header-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;color:var(--ink)}
-.close-btn{background:none;border:none;color:var(--ink3);cursor:pointer;padding:5px;transition:all .2s;display:flex;border-radius:4px;-webkit-tap-highlight-color:transparent}
-.close-btn:hover{background:var(--bg2);color:var(--ink)}
-.cart-items{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px 20px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+/* Cart page replaces panel */
+.cart-page{display:none;position:fixed;inset:0;z-index:300;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.cart-page.open{display:block}
+.cart-nav{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:rgba(250,247,242,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.cart-back{display:flex;align-items:center;gap:7px;background:none;border:none;color:var(--ink3);cursor:pointer;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;padding:0;-webkit-tap-highlight-color:transparent;transition:color .2s}
+.cart-back:hover{color:var(--ink)}
+/* Keep old classes for compatibility but hide overlay/panel */
+.cart-overlay{display:none!important}
+.cart-panel{display:none!important}
+.cart-header{display:none}
+.cart-items{padding:0}
 .cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:180px;gap:10px;text-align:center}
 .cart-empty-icon{font-size:2.2rem;opacity:.28}
 .cart-empty p{font-size:.8rem;color:var(--ink3);line-height:1.7}
@@ -342,6 +327,25 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .form-input::placeholder{color:rgba(108,100,90,.42)}
 .wa-btn{width:100%;background:var(--green);color:#fff;border:none;padding:13px;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;transition:all .25s var(--ease);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:11px;box-shadow:0 4px 14px rgba(15,122,61,.28);-webkit-tap-highlight-color:transparent}
 .wa-btn:hover{background:var(--green-dk);transform:translateY(-1px);box-shadow:0 6px 20px rgba(15,122,61,.35)}
+
+/* ── UPSELL ── */
+.upsell-section{background:linear-gradient(135deg,#0F7A3D,#0A5C2D);border-radius:var(--r);margin:16px 20px;padding:16px;color:#fff}
+.upsell-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;margin-bottom:4px}
+.upsell-sub{font-size:.75rem;opacity:.9;line-height:1.5;margin-bottom:12px}
+.upsell-books-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.upsell-books-row::-webkit-scrollbar{display:none}
+.upsell-book-card{flex-shrink:0;width:80px;cursor:pointer;text-align:center;transition:transform .2s;-webkit-tap-highlight-color:transparent}
+.upsell-book-card:hover{transform:translateY(-2px)}
+.upsell-book-img{width:80px;height:110px;border-radius:5px;overflow:hidden;border:2px solid rgba(255,255,255,.2);margin-bottom:5px;background:rgba(255,255,255,.1)}
+.upsell-book-img img{width:100%;height:100%;object-fit:cover}
+.upsell-book-img-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:4px;font-family:'Cormorant Garamond',serif;font-size:.5rem;color:rgba(255,255,255,.8);text-align:center;line-height:1.3}
+.upsell-book-name{font-size:.6rem;color:rgba(255,255,255,.9);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.upsell-book-price{font-size:.65rem;font-weight:700;color:#F5E8CC;margin-top:2px}
+.upsell-free-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:5px 12px;font-size:.68rem;font-weight:600;margin-top:10px}
+.upsell-congrats{background:linear-gradient(135deg,#0F7A3D,#0A5C2D);border-radius:var(--r);margin:16px 20px;padding:16px;color:#fff;text-align:center}
+.upsell-congrats-icon{font-size:2rem;margin-bottom:8px}
+.upsell-congrats-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;margin-bottom:4px}
+.upsell-congrats-sub{font-size:.78rem;opacity:.9;margin-bottom:10px}
 
 /* ── MOBILE BAR ── */
 .mobile-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:99;padding:8px 16px 14px;background:var(--white);border-top:1px solid var(--border);box-shadow:0 -6px 24px rgba(13,10,6,.1)}
@@ -712,23 +716,29 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 
 <div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
 
-<!-- CART -->
-<div class="cart-panel" id="cartPanel">
-  <div class="cart-header">
-    <h2 class="cart-header-title display">Mon panier</h2>
-    <button class="close-btn" onclick="closeCart()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-  </div>
-  <div class="cart-items" id="cartItems">
+<!-- CART PAGE -->
+<div class="cart-page" id="cartPage">
+  <nav class="cart-nav">
+    <button class="cart-back" onclick="closeCart()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Retour
+    </button>
+    <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:300;color:var(--ink)">Mon panier</span>
+    <span style="width:60px"></span>
+  </nav>
+  <div id="cartItems" style="padding:16px 20px">
     <div class="cart-empty"><div class="cart-empty-icon">📚</div><p>Votre panier est vide.<br>Choisissez vos titres pour commencer.</p></div>
   </div>
-
-  <div class="cart-form" id="cartForm" style="display:none">
-    <div class="cart-total-row"><span class="cart-total-label">Total commande</span><span class="cart-total-val display" id="cartTotal">0 FCFA</span></div>
+  <div id="upsellSection"></div>
+  <div id="cartForm" style="display:none;padding:16px 20px 40px;border-top:1px solid var(--border);margin-top:8px;background:var(--white)">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(13,10,6,.06)">
+      <span style="font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);font-weight:700">Total commande</span>
+      <span class="cart-total-val display" id="cartTotal">0 FCFA</span>
+    </div>
     <div class="form-group"><label class="form-label">Nom complet</label><input class="form-input" type="text" id="orderName" placeholder="Ex : Kouamé Jean-Paul"></div>
     <div class="form-group"><label class="form-label">Ville / Quartier</label><input class="form-input" type="text" id="orderCity" placeholder="Ex : Cocody, Abidjan"></div>
     <div class="form-group"><label class="form-label">Téléphone</label><input class="form-input" type="tel" id="orderPhone" placeholder="Ex : 07 XX XX XX XX"></div>
-    <button class="wa-btn" onclick="sendWhatsApp()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <button class="wa-btn" onclick="sendWhatsApp()"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
       Commander sur WhatsApp
     </button>
   </div>
@@ -1237,7 +1247,7 @@ function removeFromCart(id){
   cart=cart.filter(i=>i.id!==id);
   const btn=document.getElementById('btn-'+id);
   if(btn){btn.textContent='+ Panier';btn.classList.remove('added');}
-  updateCartUI();renderCartItems();checkUpsell();
+  updateCartUI();renderCartItems();
 }
 function changeQty(id,delta){const item=cart.find(i=>i.id===id);if(!item)return;item.qty+=delta;if(item.qty<=0)removeFromCart(id);else{updateCartUI();renderCartItems();}}
 function getTotal(){return cart.reduce((s,i)=>s+i.price*i.qty,0)}
@@ -1249,18 +1259,18 @@ function updateCartUI(){
   const bar=document.getElementById('mobileBar');
   if(qty>0){bar.style.display='block';document.getElementById('mobileTotalBar').textContent=total.toLocaleString('fr-FR')+' FCFA';}
   else bar.style.display='none';
-  renderCartItems();checkUpsell();
+  renderCartItems();
 }
 function renderCartItems(){
   const c=document.getElementById('cartItems'),f=document.getElementById('cartForm');
   if(!cart.length){c.innerHTML='<div class="cart-empty"><div class="cart-empty-icon">📚</div><p>Votre panier est vide.<br>Choisissez vos titres pour commencer.</p></div>';f.style.display='none';return;}
   f.style.display='block';
-  // Render upsell banner
-  var upsellEl=document.getElementById('upsellBanner');
+  // Render upsell
+  renderUpsell();
   c.innerHTML=cart.map(item=>{
     const t=item.image?`<img src="${item.image}" alt="${item.title}">`:`<div class="ci-thumb-ph"><span>${item.title.substring(0,16)}</span></div>`;
     return`<div class="cart-item"><div class="ci-thumb">${t}</div><div class="ci-info"><div class="ci-title">${item.title}</div><div class="ci-price">${(item.price*item.qty).toLocaleString('fr-FR')} FCFA</div><div class="ci-qty-row"><button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button><span class="qty-val">${item.qty}</span><button class="qty-btn" onclick="changeQty(${item.id},1)">+</button></div></div><button class="ci-remove" onclick="removeFromCart(${item.id})">✕</button></div>`;
-  }).join('')+'<div id="upsellBanner" class="upsell-banner"></div>';
+  }).join('');
 }
 function sendWhatsApp(){
   const name=document.getElementById('orderName').value.trim(),city=document.getElementById('orderCity').value.trim();
@@ -1273,7 +1283,7 @@ function sendWhatsApp(){
   trackEvent('track','InitiateCheckout',{content_ids:cart.map(i=>i.id),value:getTotal(),currency:'XOF'});
   const articles=cart.map(i=>`• ${i.title} × ${i.qty} — ${(i.price*i.qty).toLocaleString('fr-FR')} FCFA`).join('\n');
   const tpl=CONFIG.waMessage||DC.waMessage;
-  const msg=tpl.replace('{nom}',name).replace('{ville}',city).replace('{telephone}',phone||'Non renseigné').replace('{articles}',articles+(freeDelivery?'\n\uD83C\uDF81 Livraison offerte':'')).replace('{total}',getTotal().toLocaleString('fr-FR'));
+  const msg=tpl.replace('{nom}',name).replace('{ville}',city).replace('{telephone}',phone||'Non renseigné').replace('{articles}',articles+(freeDelivery?'\n\uD83C\uDF81 Livraison offerte à Abidjan':'')).replace('{total}',getTotal().toLocaleString('fr-FR'));
   const recap=document.getElementById('confirmRecap');
   recap.innerHTML='<div class="confirm-recap-label">Récapitulatif</div>'+cart.map(i=>`<div class="confirm-item">${i.title} × ${i.qty} — ${(i.price*i.qty).toLocaleString('fr-FR')} FCFA</div>`).join('')+`<div class="confirm-total">${getTotal().toLocaleString('fr-FR')} FCFA</div>`;
   document.getElementById('confirmOverlay').classList.add('open');
@@ -1282,8 +1292,8 @@ function sendWhatsApp(){
   window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
 }
 function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');}
-function openCart(){updateWaFloat();document.getElementById('cartOverlay').classList.add('open');document.getElementById('cartPanel').classList.add('open');document.body.style.overflow='hidden';checkUpsell();}
-function closeCart(){setTimeout(updateWaFloat,300);document.getElementById('cartOverlay').classList.remove('open');document.getElementById('cartPanel').classList.remove('open');document.body.style.overflow='';}
+function openCart(){updateWaFloat();document.getElementById('cartPage').classList.add('open');document.body.style.overflow='hidden';renderCartItems();}
+function closeCart(){setTimeout(updateWaFloat,300);document.getElementById('cartPage').classList.remove('open');document.body.style.overflow='';}
 
 // ══════════ FLOAT NOTIF ══════════
 let realOrders=[];
@@ -1535,34 +1545,6 @@ function closeBookModalDirect(){
 function handleOverlayTouch(e){
   if(e.target===document.getElementById('bookModalOverlay')){
     closeBookModalDirect();
-  }
-}
-
-// ══ UPSELL ══
-var freeDelivery=false;
-function checkUpsell(){
-  var qty=getTotalQty();
-  var banner=document.getElementById('upsellBanner');
-  var cartIds=cart.map(function(i){return i.id;});
-  if(qty===2){
-    var suggestions=BOOKS.filter(function(b){return cartIds.indexOf(b.id)===-1&&!b.outOfStock;}).slice(0,4);
-    if(suggestions.length>0){
-      var html=suggestions.map(function(book){
-        var cover=book.image?('<img src="'+book.image+'" alt="">'):('<div class="upsell-book-cover-ph">'+book.title.substring(0,20)+'</div>');
-        return '<div class="upsell-book" onclick="event.stopPropagation();addToCart('+book.id+')"><div class="upsell-book-cover">'+cover+'</div><div class="upsell-book-title">'+book.title+'</div><div class="upsell-book-price">'+book.price.toLocaleString('fr-FR')+' F</div></div>';
-      }).join('');
-      document.getElementById('upsellBooks').innerHTML=html;
-      banner.innerHTML='<div class="upsell-title">\uD83C\uDF81 Livraison offerte !</div><div class="upsell-sub">Ajoutez un 3\u00e8me livre et la livraison vous est offerte \u00e0 Abidjan.</div><div class="upsell-books" id="upsellBooks">'+html+'</div><div class="upsell-delivery"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Livraison offerte \u00e0 Abidjan</div>';
-      banner.classList.add('show');
-      freeDelivery=false;
-    }
-  } else if(qty>=3&&!freeDelivery){
-    freeDelivery=true;
-    banner.innerHTML='<div class="upsell-title">\u2705 Livraison offerte !</div><div class="upsell-sub">F\u00e9licitations ! Votre livraison \u00e0 Abidjan est offerte.</div><div class="upsell-delivery"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Livraison gratuite \u00e0 Abidjan</div>';
-    banner.classList.add('show');
-  } else if(qty<2){
-    banner.classList.remove('show');
-    freeDelivery=false;
   }
 }
 
@@ -1851,48 +1833,6 @@ function importCSV(e){
   };
   reader.readAsText(file,'UTF-8');
   e.target.value='';
-}
-
-// ══ UPSELL ══
-var freeDelivery=false;
-function checkUpsell(){
-  var qty=getTotalQty();
-  var banner=document.getElementById('upsellBanner');
-  if(!banner)return;
-  var cartIds=cart.map(function(i){return i.id;});
-  if(qty===2){
-    var suggestions=BOOKS.filter(function(b){return cartIds.indexOf(b.id)===-1&&!b.outOfStock;}).slice(0,4);
-    if(suggestions.length){
-      var booksHtml=suggestions.map(function(book){
-        var cover=book.image?('<img src="'+book.image+'" alt="">'):('<div class="upsell-book-cover-ph">'+book.title.substring(0,20)+'</div>');
-        return '<div class="upsell-book" onclick="event.stopPropagation();addToCart('+book.id+')"><div class="upsell-book-cover">'+cover+'</div><div class="upsell-book-title">'+book.title+'</div><div class="upsell-book-price">'+book.price.toLocaleString('fr-FR')+' F</div></div>';
-      }).join('');
-      document.getElementById('upsellBooks').innerHTML=booksHtml;
-      banner.classList.add('show');
-      freeDelivery=false;
-    }
-  } else if(qty>=3&&!freeDelivery){
-    freeDelivery=true;
-    banner.innerHTML='<div class="upsell-title">\u2705 Livraison offerte !</div><div class="upsell-sub">F\u00e9licitations ! Votre livraison \u00e0 Abidjan est offerte.</div><div class="upsell-delivery"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Livraison gratuite \u00e0 Abidjan</div>';
-    banner.classList.add('show');
-  } else if(qty<2){
-    banner.classList.remove('show');
-    freeDelivery=false;
-  }
-}
-
-function showToast(msg){const t=document.getElementById('toast');if(t){t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}}
-function observeReveal(){const els=document.querySelectorAll('.reveal:not(.visible)');const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*50);obs.unobserve(e.target);}});},{threshold:.06});els.forEach(el=>obs.observe(el));}
-function handleDeepLink(){
-  const id=parseInt(new URLSearchParams(location.search).get('livre'));
-  if(!id)return;
-  // Wait for books to load then open page
-  function tryOpen(){
-    const book=BOOKS.find(b=>b.id===id);
-    if(book){openBookPage(id);}
-    else{setTimeout(tryOpen,300);}
-  }
-  setTimeout(tryOpen,500);
 }
 
 // ══════════ WHEEL FIX FOR DESKTOP ══════════
