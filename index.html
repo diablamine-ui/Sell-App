@@ -882,6 +882,9 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
       <!-- STATS -->
       <div class="admin-tab-content" id="tab-stats">
         <div class="adm-section-title">Statistiques</div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+          <button onclick="resetStats()" style="background:none;border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase">Remettre à zéro</button>
+        </div>
         <div id="statsContent" style="display:flex;flex-direction:column;gap:10px"></div>
       </div>
 
@@ -1641,6 +1644,13 @@ function savePositions(){BOOKS.forEach(function(book){sbPatch('books',book.id,{p
 function duplicateBook(id){var book=BOOKS.find(function(b){return b.id===id;});if(!book)return;var newId=BOOKS.length?Math.max.apply(null,BOOKS.map(function(b){return b.id;}))+1:1;var maxPos=BOOKS.length?Math.max.apply(null,BOOKS.map(function(b){return b.position||0;}))+1:0;var copy=Object.assign({},book,{id:newId,title:'[Copie] '+book.title,position:maxPos});BOOKS.push(copy);lsSet('lamine_books',BOOKS);renderBooks();renderAdminList();showToast('Livre dupliqué ✓');sbPost('books',bookToRow(copy)).catch(function(e){console.warn(e);});}
 
 // ══ STATS ══
+function resetStats(){
+  if(!confirm('Remettre toutes les statistiques à zéro ?'))return;
+  localStorage.removeItem('sell_stats');
+  renderStats();
+  showToast('Statistiques remises à zéro ✓');
+}
+
 function renderStats(){var stats=ls('sell_stats',{});var el=document.getElementById('statsContent');if(!el)return;var tv=0,tc=0,to=0;Object.keys(stats).forEach(function(k){tv+=(stats[k].views||0);tc+=(stats[k].carts||0);to+=(stats[k].orders||0);});var html='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px"><div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--ink)">'+tv+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Vues</div></div><div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--gold)">'+tc+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Paniers</div></div><div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--green)">'+to+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Commandes</div></div></div>';var sorted=BOOKS.slice().sort(function(a,b){return ((stats[b.id]&&stats[b.id].orders)||0)-((stats[a.id]&&stats[a.id].orders)||0);});html+='<div class="adm-section-title">Par livre</div>';sorted.forEach(function(book){var s=stats[book.id]||{views:0,carts:0,orders:0};html+='<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px"><div style="font-size:.76rem;font-weight:600;color:var(--ink);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+book.title+'</div><div style="display:flex;gap:12px"><span style="font-size:.68rem;color:var(--ink3)">👁 <strong>'+(s.views||0)+'</strong></span><span style="font-size:.68rem;color:var(--gold)">🛒 <strong>'+(s.carts||0)+'</strong></span><span style="font-size:.68rem;color:var(--green)">✅ <strong>'+(s.orders||0)+'</strong></span></div></div>';});el.innerHTML=html;}
 function trackStat(bookId,type){var stats=ls('sell_stats',{});if(!stats[bookId])stats[bookId]={views:0,carts:0,orders:0};stats[bookId][type]=(stats[bookId][type]||0)+1;lsSet('sell_stats',stats);}
 
