@@ -1366,12 +1366,12 @@ navLogo.addEventListener('touchend',()=>clearTimeout(pressTimer));
 document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&e.key==='A'){e.preventDefault();openAdminLogin();}});
 if(location.hash==='#admin')setTimeout(openAdminLogin,500);
 
-function openAdminLogin(){updateWaFloat();
+function openAdminLogin(){if(document.getElementById('waFloat'))updateWaFloat();
   document.getElementById('adminOverlay').classList.add('open');document.getElementById('adminPanel').classList.add('open');document.body.style.overflow='hidden';
   if(!adminLoggedIn){document.getElementById('adminLoginScreen').style.display='block';document.getElementById('adminMainScreen').style.display='none';document.getElementById('adminFormScreen').style.display='none';setTimeout(()=>document.getElementById('adminPwd').focus(),400);}
   else showMainScreen();
 }
-function closeAdmin(){setTimeout(updateWaFloat,300);document.getElementById('adminOverlay').classList.remove('open');document.getElementById('adminPanel').classList.remove('open');document.body.style.overflow='';}
+function closeAdmin(){if(document.getElementById('waFloat'))setTimeout(updateWaFloat,300);document.getElementById('adminOverlay').classList.remove('open');document.getElementById('adminPanel').classList.remove('open');document.body.style.overflow='';}
 function checkAdmin(){
   if(document.getElementById('adminPwd').value==='lamine2026'){adminLoggedIn=true;showMainScreen();}
   else{showToast('Mot de passe incorrect');document.getElementById('adminPwd').value='';}
@@ -1696,7 +1696,7 @@ function openWhatsAppDirect(){
 function updateWaFloat(){
   var el=document.getElementById('waFloat');
   if(!el)return;
-  var cartOpen=document.getElementById('cartPanel').classList.contains('open');
+  var cartOpen=document.getElementById('cartPage').classList.contains('open');
   var adminOpen=document.getElementById('adminPanel').classList.contains('open');
   el.style.display=(cartOpen||adminOpen)?'none':'flex';
 }
