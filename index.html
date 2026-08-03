@@ -12,6 +12,13 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dilam B' — Les livres à p'tits prix</title>
+<meta name="description" id="metaDesc" content="Dilam B' — Les meilleurs livres pour votre développement personnel, entrepreneuriat, finance et histoire africaine. Livraison 24h à Abidjan.">
+<meta property="og:title" id="ogTitle" content="Dilam B' — Les livres à p'tits prix">
+<meta property="og:description" id="ogDesc" content="La bibliothèque premium des entrepreneurs africains.">
+<meta property="og:image" id="ogImage" content="">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lamine-livres.vercel.app">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -214,6 +221,23 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .btn-cart{background:none;border:1.5px solid rgba(13,10,6,.14);color:var(--ink);padding:8px 6px;font-size:.58rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;height:32px;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
 .btn-cart:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-pale)}
 .btn-cart.added{background:var(--gold-pale);color:var(--gold);border-color:rgba(169,119,28,.35)}
+
+/* ── UPSELL BANNER ── */
+.upsell-banner{display:none;background:linear-gradient(135deg,#0F7A3D,#0A5C2D);color:#fff;padding:14px 16px;margin:10px 0;border-radius:var(--r);animation:slideDown .3s var(--ease)}
+.upsell-banner.show{display:block}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.upsell-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.upsell-sub{font-size:.75rem;opacity:.9;line-height:1.5;margin-bottom:10px}
+.upsell-books{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.upsell-books::-webkit-scrollbar{display:none}
+.upsell-book{flex-shrink:0;width:80px;cursor:pointer;text-align:center;transition:transform .2s}
+.upsell-book:hover{transform:translateY(-2px)}
+.upsell-book-cover{width:80px;height:110px;border-radius:4px;overflow:hidden;border:2px solid rgba(255,255,255,0.2);margin-bottom:5px;background:rgba(255,255,255,0.1)}
+.upsell-book-cover img{width:100%;height:100%;object-fit:cover}
+.upsell-book-cover-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:4px;font-family:'Cormorant Garamond',serif;font-size:.55rem;color:rgba(255,255,255,0.8);text-align:center}
+.upsell-book-title{font-size:.6rem;color:rgba(255,255,255,.9);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.upsell-book-price{font-size:.65rem;font-weight:700;color:#F5E8CC;margin-top:2px}
+.upsell-delivery-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 10px;font-size:.65rem;font-weight:600;margin-top:8px}
 
 /* ── BOOK PAGE ── */
 .book-page{display:none;position:fixed;inset:0;z-index:400;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -623,7 +647,10 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
       Retour
     </button>
     <div class="bp-shop-name" id="bpShopName">Dilam B'</div>
-    <div style="width:60px"></div>
+    <button onclick="shareCurrentBook()" style="background:none;border:1.5px solid var(--border);color:var(--ink3);padding:7px 10px;border-radius:var(--r-sm);cursor:pointer;display:flex;align-items:center;gap:5px;font-size:.62rem;font-weight:700;font-family:'Inter',sans-serif;transition:all .2s;-webkit-tap-highlight-color:transparent" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink3)'">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Partager
+    </button>
   </nav>
   <div class="bp-cover" id="bpCover"></div>
   <div class="bp-body">
@@ -643,6 +670,12 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
       </div>
     </div>
   </div>
+  <!-- VOUS AIMEREZ AUSSI -->
+  <div id="bpRelated" style="padding:0 20px 24px;max-width:640px;margin:0 auto">
+    <div style="font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;padding-top:16px;border-top:1px solid var(--border)">Vous aimerez aussi</div>
+    <div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none" id="bpRelatedBooks"></div>
+  </div>
+
   <div class="bp-actions">
     <button class="bp-btn-now" id="bpBtnNow">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -690,6 +723,16 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
   <div class="cart-items" id="cartItems">
     <div class="cart-empty"><div class="cart-empty-icon">📚</div><p>Votre panier est vide.<br>Choisissez vos titres pour commencer.</p></div>
   </div>
+  <!-- UPSELL BANNER -->
+  <div class="upsell-banner" id="upsellBanner">
+    <div class="upsell-title">🎁 Livraison offerte !</div>
+    <div class="upsell-sub">Ajoutez un 3ème livre et la livraison vous est offerte à Abidjan.</div>
+    <div class="upsell-books" id="upsellBooks"></div>
+    <div class="upsell-delivery-badge">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Livraison offerte à Abidjan
+    </div>
+  </div>
   <div class="cart-form" id="cartForm" style="display:none">
     <div class="cart-total-row"><span class="cart-total-label">Total commande</span><span class="cart-total-val display" id="cartTotal">0 FCFA</span></div>
     <div class="form-group"><label class="form-label">Nom complet</label><input class="form-input" type="text" id="orderName" placeholder="Ex : Kouamé Jean-Paul"></div>
@@ -722,6 +765,7 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
       <div class="admin-tabs">
         <button class="admin-tab active" onclick="switchTab('boutique',this)">🏪 Boutique</button>
         <button class="admin-tab" onclick="switchTab('catalogue',this)">📚 Catalogue</button>
+        <button class="admin-tab" onclick="switchTab('stats',this)">📊 Stats</button>
         <button class="admin-tab" onclick="switchTab('config',this)">⚙️ Config</button>
       </div>
       <!-- BOUTIQUE -->
@@ -757,19 +801,34 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
       <div class="admin-tab-content" id="tab-catalogue">
         <button class="adm-add-btn" onclick="showAddForm()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Ajouter un livre ou un pack</button>
         <div style="display:flex;gap:8px;margin-bottom:16px">
+          <button onclick="exportCSV()" style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:9px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink3)'">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
           <button onclick="exportCatalogue()" style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:9px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink3)'">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Exporter catalogue
           </button>
           <label style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:9px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink3)'">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Importer catalogue
+            Import JSON
             <input type="file" accept=".json" style="display:none" onchange="importCatalogue(event)">
+          </label>
+          <label style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:9px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink3)'">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import CSV
+            <input type="file" accept=".csv,.xlsx" style="display:none" onchange="importCSV(event)">
           </label>
         </div>
         <div class="adm-section-title">Catalogue — <span id="adminCount">0</span> titres</div>
         <div class="admin-book-list" id="adminBookList"></div>
       </div>
+      <!-- STATS TAB -->
+      <div class="admin-tab-content" id="tab-stats">
+        <div class="adm-section-title">Statistiques</div>
+        <div id="statsContent" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+
       <!-- CONFIG -->
       <div class="admin-tab-content" id="tab-config">
         <div class="adm-section-title">WhatsApp</div>
@@ -1158,6 +1217,7 @@ function orderNow(id){
   const tpl=CONFIG.waMessageDirect||DC.waMessageDirect;
   const msg=tpl.replace('{titre}',book.title).replace('{auteur}',book.author).replace('{prix}',book.price.toLocaleString('fr-FR'));
   window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
+  trackStat(id,'orders');
   try{recordOrder('Un client',book.title);}catch(e){}
 }
 
@@ -1168,6 +1228,7 @@ function addToCart(id){
   if(ex)ex.qty++;else cart.push({...book,qty:1});
   updateCartUI();
   trackEvent('track','AddToCart',{content_ids:[id],value:book.price,currency:'XOF'});
+  trackStat(id,'carts');
   const s=book.title.length>22?book.title.substring(0,22)+'…':book.title;
   showToast(`« ${s} » ajouté`);
   const btn=document.getElementById('btn-'+id);
@@ -1191,6 +1252,7 @@ function updateCartUI(){
   if(qty>0){bar.style.display='block';document.getElementById('mobileTotalBar').textContent=total.toLocaleString('fr-FR')+' FCFA';}
   else bar.style.display='none';
   renderCartItems();
+  checkUpsell();
 }
 function renderCartItems(){
   const c=document.getElementById('cartItems'),f=document.getElementById('cartForm');
@@ -1211,8 +1273,9 @@ function sendWhatsApp(){
   if(!waNum){showToast('Numéro WhatsApp non configuré');return;}
   trackEvent('track','InitiateCheckout',{content_ids:cart.map(i=>i.id),value:getTotal(),currency:'XOF'});
   const articles=cart.map(i=>`• ${i.title} × ${i.qty} — ${(i.price*i.qty).toLocaleString('fr-FR')} FCFA`).join('\n');
+  const livraison=freeDelivery?'\n🎁 *Livraison offerte à Abidjan*':'';
   const tpl=CONFIG.waMessage||DC.waMessage;
-  const msg=tpl.replace('{nom}',name).replace('{ville}',city).replace('{telephone}',phone||'Non renseigné').replace('{articles}',articles).replace('{total}',getTotal().toLocaleString('fr-FR'));
+  const msg=tpl.replace('{nom}',name).replace('{ville}',city).replace('{telephone}',phone||'Non renseigné').replace('{articles}',articles+livraison).replace('{total}',getTotal().toLocaleString('fr-FR'));
   const recap=document.getElementById('confirmRecap');
   recap.innerHTML='<div class="confirm-recap-label">Récapitulatif</div>'+cart.map(i=>`<div class="confirm-item">${i.title} × ${i.qty} — ${(i.price*i.qty).toLocaleString('fr-FR')} FCFA</div>`).join('')+`<div class="confirm-total">${getTotal().toLocaleString('fr-FR')} FCFA</div>`;
   document.getElementById('confirmOverlay').classList.add('open');
@@ -1256,7 +1319,7 @@ function checkAdmin(){
   if(document.getElementById('adminPwd').value==='lamine2026'){adminLoggedIn=true;showMainScreen();}
   else{showToast('Mot de passe incorrect');document.getElementById('adminPwd').value='';}
 }
-function switchTab(tab,el){document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.admin-tab-content').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('tab-'+tab).classList.add('active');}
+function switchTab(tab,el){document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.admin-tab-content').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('tab-'+tab).classList.add('active');if(tab==='stats')renderStats();}
 function showMainScreen(){document.getElementById('adminLoginScreen').style.display='none';document.getElementById('adminFormScreen').style.display='none';document.getElementById('adminMainScreen').style.display='block';renderAdminList();fillShopForm();fillConfigForm();}
 function renderAdminList(){
   document.getElementById('adminCount').textContent=BOOKS.length;
@@ -1275,7 +1338,7 @@ function renderAdminList(){
       <div class="drag-handle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div>
       <div class="admin-book-thumb">${t}</div>
       <div class="admin-book-info"><div class="admin-book-t">${book.title}</div><div class="admin-book-m">${book.price.toLocaleString('fr-FR')} FCFA · ${CAT_LABELS[book.category]||book.category}${p}${b}${oos}</div></div>
-      <div class="admin-book-actions"><button class="adm-edit" onclick="editBook(${book.id})">Modifier</button><button class="adm-del" onclick="deleteBook(${book.id})">Suppr.</button></div>
+      <div class="admin-book-actions"><button class="adm-edit" onclick="editBook(${book.id})">Modifier</button><button class="adm-edit" onclick="duplicateBook(${book.id})" style="background:var(--gold-pale);border-color:rgba(169,119,28,.3);color:var(--gold)">Dupliquer</button><button class="adm-del" onclick="deleteBook(${book.id})">Suppr.</button></div>
     </div>`;
   }).join('');
 }
@@ -1368,6 +1431,58 @@ function importCatalogue(e){
   e.target.value='';
 }
 
+// ══════════ UPSELL ══════════
+let freeDelivery = false;
+
+function checkUpsell(){
+  const totalQty = getTotalQty();
+  const banner = document.getElementById('upsellBanner');
+  const cartIds = cart.map(i=>i.id);
+
+  // Show upsell when exactly 2 books in cart
+  if(totalQty === 2){
+    // Get books not in cart, pick up to 4 suggestions
+    const suggestions = BOOKS
+      .filter(b=>!cartIds.includes(b.id) && !b.outOfStock)
+      .slice(0,4);
+
+    if(suggestions.length > 0){
+      const booksHTML = suggestions.map(book=>{
+        const cover = book.image
+          ? `<img src="${book.image}" alt="${book.title}">`
+          : `<div class="upsell-book-cover-ph">${book.title.substring(0,20)}</div>`;
+        return `<div class="upsell-book" onclick="addUpsellBook(${book.id})">
+          <div class="upsell-book-cover">${cover}</div>
+          <div class="upsell-book-title">${book.title}</div>
+          <div class="upsell-book-price">${book.price.toLocaleString('fr-FR')} F</div>
+        </div>`;
+      }).join('');
+      document.getElementById('upsellBooks').innerHTML = booksHTML;
+      banner.classList.add('show');
+      freeDelivery = false;
+    }
+  } else if(totalQty >= 3 && !freeDelivery){
+    // 3+ books — delivery offered
+    freeDelivery = true;
+    banner.innerHTML = `
+      <div class="upsell-title">✅ Livraison offerte !</div>
+      <div class="upsell-sub">Félicitations ! Votre livraison à Abidjan est offerte.</div>
+      <div class="upsell-delivery-badge">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Livraison gratuite à Abidjan
+      </div>`;
+    banner.classList.add('show');
+  } else if(totalQty < 2){
+    banner.classList.remove('show');
+    freeDelivery = false;
+  }
+}
+
+function addUpsellBook(id){
+  addToCart(id);
+  // Banner will update via checkUpsell called in updateCartUI
+}
+
 // ══════════ DRAG & DROP ══════════
 let dragSrcId=null,touchDragEl=null,touchClone=null,touchStartY=0;
 
@@ -1451,6 +1566,201 @@ async function savePositionsToSupabase(){
   }catch(e){console.warn('Position save error:',e);}
 }
 
+// ══════════ SEO ══════════
+function updateSEO(book){
+  if(!book){
+    document.getElementById('metaDesc').content="Dilam B' — Les meilleurs livres pour votre développement personnel, entrepreneuriat et finance.";
+    document.getElementById('ogTitle').content="Dilam B' — Les livres à p'tits prix";
+    document.getElementById('ogDesc').content="La bibliothèque premium des entrepreneurs africains.";
+    document.getElementById('ogImage').content='';
+    document.title="Dilam B' — Les livres à p'tits prix";
+    return;
+  }
+  document.getElementById('metaDesc').content=book.desc||book.title+' par '+book.author+' — disponible sur Dilam B'.';
+  document.getElementById('ogTitle').content=book.title+' — Dilam B'';
+  document.getElementById('ogDesc').content=(book.desc||'').substring(0,120)+'…';
+  document.getElementById('ogImage').content=book.image||'';
+  document.title=book.title+' — Dilam B'';
+}
+
+// ══════════ SHARE BOOK PAGE ══════════
+function shareCurrentBook(){
+  const url=location.href;
+  const book=BOOKS.find(b=>location.search.includes('livre='+b.id));
+  if(!book)return;
+  const text=book.title+' — '+book.price.toLocaleString('fr-FR')+' FCFA
+'+url;
+  if(navigator.share){
+    navigator.share({title:book.title,text,url});
+  } else {
+    // Partage WhatsApp direct
+    window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
+  }
+}
+
+// ══════════ RELATED BOOKS ══════════
+function renderRelatedBooks(currentBook){
+  const related=BOOKS
+    .filter(b=>b.id!==currentBook.id && b.category===currentBook.category && !b.outOfStock)
+    .slice(0,4);
+  if(!related.length){
+    document.getElementById('bpRelated').style.display='none';
+    return;
+  }
+  document.getElementById('bpRelated').style.display='block';
+  document.getElementById('bpRelatedBooks').innerHTML=related.map(book=>{
+    const cover=book.image
+      ?`<img src="${book.image}" alt="${book.title}" style="width:100%;height:100%;object-fit:cover">`
+      :`<div style="width:100%;height:100%;background:linear-gradient(160deg,#EDE8DF,#E2D9C8);display:flex;align-items:center;justify-content:center;padding:4px;font-family:'Cormorant Garamond',serif;font-size:.5rem;color:var(--ink3);text-align:center">${book.title.substring(0,20)}</div>`;
+    return`<div onclick="openBookPage(${book.id})" style="flex-shrink:0;width:90px;cursor:pointer">
+      <div style="width:90px;height:125px;border-radius:5px;overflow:hidden;border:1px solid var(--border);margin-bottom:5px;box-shadow:var(--shadow-sm)">${cover}</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:.78rem;font-weight:600;color:var(--ink);line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${book.title}</div>
+      <div style="font-size:.65rem;font-weight:700;color:var(--gold);margin-top:2px">${book.price.toLocaleString('fr-FR')} F</div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════ DUPLICATE BOOK ══════════
+function duplicateBook(id){
+  const book=BOOKS.find(b=>b.id===id);
+  if(!book)return;
+  const newId=BOOKS.length?Math.max(...BOOKS.map(b=>b.id))+1:1;
+  const maxPos=BOOKS.length?Math.max(...BOOKS.map(b=>b.position||0))+1:0;
+  const copy={...book,id:newId,title:'[Copie] '+book.title,position:maxPos};
+  BOOKS.push(copy);
+  lsSet('lamine_books',BOOKS);
+  renderBooks();
+  renderAdminList();
+  showToast('Livre dupliqué ✓');
+  // Save to Supabase
+  sbPost('books',bookToRow(copy)).catch(e=>console.warn(e));
+}
+
+// ══════════ STATISTICS ══════════
+function renderStats(){
+  const stats=ls('sell_stats',{});
+  const el=document.getElementById('statsContent');
+  if(!el)return;
+
+  const totalViews=Object.values(stats).reduce((s,b)=>s+(b.views||0),0);
+  const totalCarts=Object.values(stats).reduce((s,b)=>s+(b.carts||0),0);
+  const totalOrders=Object.values(stats).reduce((s,b)=>s+(b.orders||0),0);
+
+  // Summary cards
+  let html=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center;box-shadow:var(--shadow-sm)">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--ink)">${totalViews}</div>
+      <div style="font-size:.58rem;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;font-weight:600">Vues</div>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center;box-shadow:var(--shadow-sm)">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--gold)">${totalCarts}</div>
+      <div style="font-size:.58rem;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;font-weight:600">Paniers</div>
+    </div>
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center;box-shadow:var(--shadow-sm)">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:600;color:var(--green)">${totalOrders}</div>
+      <div style="font-size:.58rem;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;font-weight:600">Commandes</div>
+    </div>
+  </div>`;
+
+  // Per book stats
+  const booksWithStats=BOOKS.map(b=>({...b,s:stats[b.id]||{views:0,carts:0,orders:0}}))
+    .sort((a,b)=>(b.s.orders||0)-(a.s.orders||0));
+
+  if(booksWithStats.length){
+    html+=`<div class="adm-section-title">Par livre</div>`;
+    html+=booksWithStats.map(book=>`
+      <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;box-shadow:var(--shadow-sm)">
+        <div style="font-size:.76rem;font-weight:600;color:var(--ink);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${book.title}</div>
+        <div style="display:flex;gap:12px">
+          <div style="font-size:.68rem;color:var(--ink3)">👁 <strong>${book.s.views||0}</strong> vues</div>
+          <div style="font-size:.68rem;color:var(--gold)">🛒 <strong>${book.s.carts||0}</strong> paniers</div>
+          <div style="font-size:.68rem;color:var(--green)">✅ <strong>${book.s.orders||0}</strong> commandes</div>
+        </div>
+      </div>`).join('');
+  } else {
+    html+='<div style="text-align:center;color:var(--ink3);font-style:italic;font-size:.8rem;padding:20px">Aucune statistique encore.</div>';
+  }
+
+  el.innerHTML=html;
+}
+
+// Track stats
+function trackStat(bookId, type){
+  const stats=ls('sell_stats',{});
+  if(!stats[bookId])stats[bookId]={views:0,carts:0,orders:0};
+  stats[bookId][type]=(stats[bookId][type]||0)+1;
+  lsSet('sell_stats',stats);
+}
+
+// ══════════ CSV EXPORT/IMPORT ══════════
+function exportCSV(){
+  const headers=['id','title','author','price','old_price','category','badge','description','image','out_of_stock'];
+  const rows=BOOKS.map(b=>[
+    b.id,
+    '"'+(b.title||'').replace(/"/g,'""')+'"',
+    '"'+(b.author||'').replace(/"/g,'""')+'"',
+    b.price||0,
+    b.oldPrice||'',
+    b.category||'autre',
+    b.badge||'none',
+    '"'+(b.desc||'').replace(/"/g,'""').replace(/
+/g,' ')+'"',
+    b.image||'',
+    b.outOfStock?'oui':'non'
+  ].join(','));
+  const csv=[headers.join(','),...rows].join('
+');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='dilam-catalogue-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('CSV exporté ✓');
+}
+
+function importCSV(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      const lines=ev.target.result.split('
+').filter(l=>l.trim());
+      if(lines.length<2){showToast('Fichier vide');return;}
+      const headers=lines[0].split(',').map(h=>h.trim().toLowerCase());
+      const books=[];
+      for(let i=1;i<lines.length;i++){
+        const vals=lines[i].match(/(".*?"|[^,]+)(?=,|$)/g)||[];
+        const clean=v=>v?v.replace(/^"|"$/g,'').replace(/""/g,'"').trim():'';
+        const row={};
+        headers.forEach((h,idx)=>row[h]=clean(vals[idx]||''));
+        if(!row.title||!row.author)continue;
+        const maxId=books.length?Math.max(...books.map(b=>b.id),0):0;
+        books.push({
+          id:parseInt(row.id)||maxId+1,
+          title:row.title,author:row.author,
+          price:parseInt(row.price)||0,
+          oldPrice:parseInt(row.old_price)||null,
+          category:row.category||'autre',
+          badge:row.badge||'none',
+          desc:row.description||'',
+          image:row.image||null,
+          outOfStock:row.out_of_stock==='oui',
+          position:i
+        });
+      }
+      if(!books.length){showToast('Aucun livre valide');return;}
+      if(!confirm(`Importer ${books.length} livres depuis CSV ?`))return;
+      BOOKS=books;
+      lsSet('lamine_books',BOOKS);
+      renderBooks();renderAdminList();
+      showToast(books.length+' livres importés ✓');
+    }catch(err){console.error(err);showToast('Erreur CSV');}
+  };
+  reader.readAsText(file,'UTF-8');
+  e.target.value='';
+}
+
 // ══════════ UTILS ══════════
 // ══════════ BOOK PAGE ══════════
 function openBookPage(id){
@@ -1490,6 +1800,12 @@ function openBookPage(id){
   cartBtn.className='bp-btn-cart'+(inCart?' added':'');
   cartBtn.onclick=()=>{addToCart(id);cartBtn.textContent='✓ Ajouté';cartBtn.classList.add('added');};
   document.getElementById('bpBtnNow').onclick=()=>{closeBookPage();orderNow(id);};
+  // Related books
+  renderRelatedBooks(book);
+  // SEO
+  updateSEO(book);
+  // Track view
+  trackStat(id,'views');
   // Open page
   document.getElementById('bookPage').classList.add('open');
   document.getElementById('bookPage').scrollTop=0;
@@ -1500,6 +1816,7 @@ function closeBookPage(){
   document.getElementById('bookPage').classList.remove('open');
   document.body.style.overflow='';
   history.pushState({},'',location.pathname);
+  updateSEO(null);
 }
 
 // Handle browser back button
