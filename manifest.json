@@ -1,0 +1,43 @@
+{
+  "name": "Dilam B' — Les livres à p'tits prix",
+  "short_name": "Dilam B'",
+  "description": "La bibliothèque premium des entrepreneurs africains. Livres de développement personnel, finance et histoire africaine.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#A9771C",
+  "orientation": "portrait",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["shopping", "books", "education"],
+  "shortcuts": [
+    {
+      "name": "Catalogue",
+      "short_name": "Livres",
+      "description": "Voir tous les livres disponibles",
+      "url": "/#catalogue",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
