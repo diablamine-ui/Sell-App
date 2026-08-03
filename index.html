@@ -993,9 +993,9 @@ async function loadBooksFromDB(){
     // Try Supabase first (5 second timeout)
     const controller=new AbortController();
     const timeout=setTimeout(()=>controller.abort(),5000);
-    const r=await fetch(`${SB_URL}/rest/v1/books?order=created_at.asc`,{
+    const r=await fetch(`${SB_URL}/rest/v1/books?order=position.asc,created_at.asc`,{
       signal:controller.signal,
-      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}
+      headers:{...SB_HEADERS}
     });
     clearTimeout(timeout);
     if(!r.ok)throw new Error('HTTP '+r.status);
@@ -1004,7 +1004,7 @@ async function loadBooksFromDB(){
       BOOKS=rows.map(rowToBook);
       // Load config from Supabase
       try{
-        const cfgR=await fetch(`${SB_URL}/rest/v1/shop_config`,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
+        const cfgR=await fetch(`${SB_URL}/rest/v1/shop_config`,{headers:{...SB_HEADERS}});
         if(cfgR.ok){
           const cfgRows=await cfgR.json();
           cfgRows.forEach(row=>{
@@ -1568,30 +1568,32 @@ async function savePositionsToSupabase(){
 
 // ══════════ SEO ══════════
 function updateSEO(book){
+  var shopName = SHOP.name1 + (SHOP.name2 ? ' ' + SHOP.name2 : '');
   if(!book){
-    document.getElementById('metaDesc').content="Dilam B' — Les meilleurs livres pour votre développement personnel, entrepreneuriat et finance.";
-    document.getElementById('ogTitle').content="Dilam B' — Les livres à p'tits prix";
-    document.getElementById('ogDesc').content="La bibliothèque premium des entrepreneurs africains.";
-    document.getElementById('ogImage').content='';
-    document.title="Dilam B' — Les livres à p'tits prix";
+    document.getElementById('metaDesc').setAttribute('content', shopName + ' — Les meilleurs livres pour votre développement personnel, entrepreneuriat et finance.');
+    document.getElementById('ogTitle').setAttribute('content', shopName + ' — Les livres a p'tits prix');
+    document.getElementById('ogDesc').setAttribute('content', 'La bibliotheque premium des entrepreneurs africains.');
+    document.getElementById('ogImage').setAttribute('content', '');
+    document.title = shopName;
     return;
   }
-  document.getElementById('metaDesc').content=book.desc||book.title+' par '+book.author+' — disponible sur Dilam B'.';
-  document.getElementById('ogTitle').content=book.title+' — Dilam B'';
-  document.getElementById('ogDesc').content=(book.desc||'').substring(0,120)+'…';
-  document.getElementById('ogImage').content=book.image||'';
-  document.title=book.title+' — Dilam B'';
+  document.getElementById('metaDesc').setAttribute('content', book.desc || book.title + ' par ' + book.author);
+  document.getElementById('ogTitle').setAttribute('content', book.title + ' — ' + shopName);
+  document.getElementById('ogDesc').setAttribute('content', (book.desc || '').substring(0, 120));
+  document.getElementById('ogImage').setAttribute('content', book.image || '');
+  document.title = book.title + ' — ' + shopName;
 }
 
 // ══════════ SHARE BOOK PAGE ══════════
 function shareCurrentBook(){
-  const url=location.href;
-  const book=BOOKS.find(b=>location.search.includes('livre='+b.id));
+  var params=new URLSearchParams(location.search);
+  var bookId=parseInt(params.get('livre'));
+  var book=BOOKS.find(function(b){return b.id===bookId;});
   if(!book)return;
-  const text=book.title+' — '+book.price.toLocaleString('fr-FR')+' FCFA
-'+url;
+  var url=location.href;
+  var text=book.title+' — '+book.price.toLocaleString('fr-FR')+' FCFA — '+url;
   if(navigator.share){
-    navigator.share({title:book.title,text,url});
+    navigator.share({title:book.title,text:text,url:url});
   } else {
     // Partage WhatsApp direct
     window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank');
