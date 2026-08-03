@@ -1694,7 +1694,7 @@ function trackStat(bookId, type){
   lsSet('sell_stats',stats);
 }
 
-// ══════════ CSV EXPORT/IMPORT ══════════
+// ══════════ CSV EXPORT ET IMPORT ══════════
 function exportCSV(){
   const headers=['id','title','author','price','old_price','category','badge','description','image','out_of_stock'];
   const rows=BOOKS.map(b=>[
