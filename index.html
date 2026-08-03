@@ -306,13 +306,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 /* ── CART PANEL ── */
 .cart-overlay{position:fixed;inset:0;background:rgba(13,10,6,.55);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(6px)}
 .cart-overlay.open{opacity:1;pointer-events:all}
-.cart-panel{position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);background:var(--bg);border-left:1px solid var(--border);z-index:201;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .38s var(--ease);box-shadow:-20px 0 60px rgba(13,10,6,.14)}
+.cart-panel{position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);background:var(--bg);border-left:1px solid var(--border);z-index:201;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .38s var(--ease);box-shadow:-20px 0 60px rgba(13,10,6,.14);overflow:hidden}
 .cart-panel.open{transform:translateX(0)}
 .cart-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border);background:var(--white)}
 .cart-header-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;color:var(--ink)}
 .close-btn{background:none;border:none;color:var(--ink3);cursor:pointer;padding:5px;transition:all .2s;display:flex;border-radius:4px;-webkit-tap-highlight-color:transparent}
 .close-btn:hover{background:var(--bg2);color:var(--ink)}
-.cart-items{flex:1;overflow-y:auto;padding:14px 20px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.cart-items{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px 20px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 .cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:180px;gap:10px;text-align:center}
 .cart-empty-icon{font-size:2.2rem;opacity:.28}
 .cart-empty p{font-size:.8rem;color:var(--ink3);line-height:1.7}
@@ -331,7 +331,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .qty-val{font-size:.8rem;min-width:16px;text-align:center;color:var(--ink);font-weight:700}
 .ci-remove{background:none;border:none;color:var(--ink3);cursor:pointer;font-size:.6rem;padding:2px;transition:color .18s;align-self:flex-start;margin-top:1px;font-weight:700}
 .ci-remove:hover{color:var(--red)}
-.cart-form{padding:14px 20px 20px;border-top:1px solid var(--border);background:var(--white)}
+.cart-form{padding:14px 20px 20px;border-top:1px solid var(--border);background:var(--white);flex-shrink:0}
 .cart-total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(13,10,6,.06)}
 .cart-total-label{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);font-weight:700}
 .cart-total-val{font-family:'Cormorant Garamond',serif;font-size:1.75rem;font-weight:600;color:var(--ink)}
@@ -1186,7 +1186,7 @@ function renderBooks(){
     const oos=book.outOfStock?'out-of-stock':'';
     return`<div class="book-card ${oos}">
       <div class="book-cover" onclick="openBookPage(${book.id})" style="cursor:pointer">${badgeHTML}${coverHTML}<div class="badge-cat">${catLabel}</div>
-        <button class="share-btn" onclick="shareBook(${book.id},event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
+        <button class="share-btn" onclick="event.stopPropagation();shareBook(${book.id},event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
       </div>
       <div class="book-body" onclick="openBookPage(${book.id})" style="cursor:pointer">
         <div class="book-title">${book.title}</div>
@@ -1195,8 +1195,8 @@ function renderBooks(){
         <div class="book-footer">
           ${priceHTML(book)}
           <div class="book-actions">
-            <button class="btn-now" onclick="orderNow(${book.id})">${WA_SVG} Commander</button>
-            <button class="btn-cart ${inCart?'added':''}" onclick="addToCart(${book.id})" id="btn-${book.id}">${inCart?'✓ Ajouté':'+ Panier'}</button>
+            <button class="btn-now" onclick="event.stopPropagation();orderNow(${book.id})">${WA_SVG} Commander</button>
+            <button class="btn-cart ${inCart?'added':''}" onclick="event.stopPropagation();addToCart(${book.id})" id="btn-${book.id}">${inCart?'✓ Ajouté':'+ Panier'}</button>
           </div>
         </div>
       </div>
@@ -1555,7 +1555,7 @@ function checkUpsell(){
     if(suggestions.length>0){
       var html=suggestions.map(function(book){
         var cover=book.image?('<img src="'+book.image+'" alt="">'):('<div class="upsell-book-cover-ph">'+book.title.substring(0,20)+'</div>');
-        return '<div class="upsell-book" onclick="addToCart('+book.id+')"><div class="upsell-book-cover">'+cover+'</div><div class="upsell-book-title">'+book.title+'</div><div class="upsell-book-price">'+book.price.toLocaleString('fr-FR')+' F</div></div>';
+        return '<div class="upsell-book" onclick="event.stopPropagation();addToCart('+book.id+')"><div class="upsell-book-cover">'+cover+'</div><div class="upsell-book-title">'+book.title+'</div><div class="upsell-book-price">'+book.price.toLocaleString('fr-FR')+' F</div></div>';
       }).join('');
       document.getElementById('upsellBooks').innerHTML=html;
       banner.innerHTML='<div class="upsell-title">\uD83C\uDF81 Livraison offerte !</div><div class="upsell-sub">Ajoutez un 3\u00e8me livre et la livraison vous est offerte \u00e0 Abidjan.</div><div class="upsell-books" id="upsellBooks">'+html+'</div><div class="upsell-delivery"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Livraison offerte \u00e0 Abidjan</div>';
@@ -1871,7 +1871,7 @@ function checkUpsell(){
     if(suggestions.length){
       var booksHtml=suggestions.map(function(book){
         var cover=book.image?('<img src="'+book.image+'" alt="">'):('<div class="upsell-book-cover-ph">'+book.title.substring(0,20)+'</div>');
-        return '<div class="upsell-book" onclick="addToCart('+book.id+')"><div class="upsell-book-cover">'+cover+'</div><div class="upsell-book-title">'+book.title+'</div><div class="upsell-book-price">'+book.price.toLocaleString('fr-FR')+' F</div></div>';
+        return '<div class="upsell-book" onclick="event.stopPropagation();addToCart('+book.id+')"><div class="upsell-book-cover">'+cover+'</div><div class="upsell-book-title">'+book.title+'</div><div class="upsell-book-price">'+book.price.toLocaleString('fr-FR')+' F</div></div>';
       }).join('');
       document.getElementById('upsellBooks').innerHTML=booksHtml;
       banner.classList.add('show');
