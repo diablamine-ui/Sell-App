@@ -993,9 +993,9 @@ async function loadBooksFromDB(){
     // Try Supabase first (5 second timeout)
     const controller=new AbortController();
     const timeout=setTimeout(()=>controller.abort(),5000);
-    const r=await fetch(`${SB_URL}/rest/v1/books?order=position.asc,created_at.asc`,{
+    const r=await fetch(`${SB_URL}/rest/v1/books?order=created_at.asc`,{
       signal:controller.signal,
-      headers:{...SB_HEADERS}
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'}
     });
     clearTimeout(timeout);
     if(!r.ok)throw new Error('HTTP '+r.status);
@@ -1004,7 +1004,7 @@ async function loadBooksFromDB(){
       BOOKS=rows.map(rowToBook);
       // Load config from Supabase
       try{
-        const cfgR=await fetch(`${SB_URL}/rest/v1/shop_config`,{headers:{...SB_HEADERS}});
+        const cfgR=await fetch(`${SB_URL}/rest/v1/shop_config`,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});
         if(cfgR.ok){
           const cfgRows=await cfgR.json();
           cfgRows.forEach(row=>{
