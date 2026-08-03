@@ -436,6 +436,11 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 .adm-cancel:hover{border-color:var(--ink);color:var(--ink)}
 .adm-add-btn{width:100%;background:none;border:1.5px dashed rgba(169,119,28,.35);color:var(--gold);padding:10px;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;transition:all .2s;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:7px;-webkit-tap-highlight-color:transparent}
 .adm-add-btn:hover{background:var(--gold-pale);border-color:var(--gold)}
+.drag-handle{cursor:grab;color:var(--ink3);padding:0 6px;flex-shrink:0;display:flex;align-items:center;touch-action:none}
+.drag-handle:active{cursor:grabbing}
+.drag-handle svg{pointer-events:none}
+.admin-book-row.dragging{opacity:.4;background:var(--gold-pale);border-color:var(--gold)}
+.admin-book-row.drag-over{border-top:2px solid var(--gold)}
 .adm-hint{font-size:.66rem;color:var(--ink3);line-height:1.55;padding:7px 10px;background:var(--gold-pale);border-radius:var(--r-sm);border-left:3px solid var(--gold);margin-bottom:3px}
 .empty-state{grid-column:1/-1;text-align:center;padding:56px 20px}
 .empty-state .es-i{font-size:1.8rem;margin-bottom:7px;opacity:.3}
@@ -1062,7 +1067,19 @@ const CAT_LABELS={pack:'Pack',devperso:'Dév. Personnel',productivite:'Productiv
 const BADGE_ORDER={bestseller:0,coup:1,recommended:2,new:3,promo:4,limited:5,none:6};
 const CAT_ORDER={pack:0,devperso:1,productivite:2,finance:3,cheikh:4,autre:5};
 
-function sorted(){return[...BOOKS].sort((a,b)=>{const co=CAT_ORDER;const bo=BADGE_ORDER;if(co[a.category]!==co[b.category])return(co[a.category]||9)-(co[b.category]||9);return(bo[a.badge]||6)-(bo[b.badge]||6);});}
+function sorted(){
+  // If any book has manual position set, use position order
+  const hasPositions=BOOKS.some(b=>b.position!==undefined&&b.position!==null);
+  if(hasPositions){
+    return[...BOOKS].sort((a,b)=>(a.position||999)-(b.position||999));
+  }
+  // Otherwise use category/badge order
+  return[...BOOKS].sort((a,b)=>{
+    const co=CAT_ORDER,bo=BADGE_ORDER;
+    if(co[a.category]!==co[b.category])return(co[a.category]||9)-(co[b.category]||9);
+    return(bo[a.badge]||6)-(bo[b.badge]||6);
+  });
+}
 
 function updateCounts(){
   const cats={all:BOOKS.length,pack:0,devperso:0,productivite:0,finance:0,cheikh:0,autre:0};
@@ -1245,12 +1262,21 @@ function renderAdminList(){
   document.getElementById('adminCount').textContent=BOOKS.length;
   const list=document.getElementById('adminBookList');
   if(!BOOKS.length){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink3);font-style:italic;font-size:.78rem;">Aucun titre.</div>';return;}
-  list.innerHTML=BOOKS.map(book=>{
+  // Sort by position for admin list
+  const sorted=[...BOOKS].sort((a,b)=>(a.position||999)-(b.position||999));
+  list.innerHTML=sorted.map(book=>{
     const t=book.image?`<img src="${book.image}" alt="${book.title}">`:`<div class="admin-book-thumb-ph">${book.title.substring(0,10)}</div>`;
     const b=book.badge&&book.badge!=='none'?` · ${BADGE_LABELS[book.badge]}`:'';
     const oos=book.outOfStock?' · ⛔':'';
     const p=book.oldPrice?` · -${Math.round((1-book.price/book.oldPrice)*100)}%`:'';
-    return`<div class="admin-book-row"><div class="admin-book-thumb">${t}</div><div class="admin-book-info"><div class="admin-book-t">${book.title}</div><div class="admin-book-m">${book.price.toLocaleString('fr-FR')} FCFA · ${CAT_LABELS[book.category]||book.category}${p}${b}${oos}</div></div><div class="admin-book-actions"><button class="adm-edit" onclick="editBook(${book.id})">Modifier</button><button class="adm-del" onclick="deleteBook(${book.id})">Suppr.</button></div></div>`;
+    return`<div class="admin-book-row" draggable="true" data-id="${book.id}" 
+      ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event)" ondragend="dragEnd(event)"
+      ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
+      <div class="drag-handle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div>
+      <div class="admin-book-thumb">${t}</div>
+      <div class="admin-book-info"><div class="admin-book-t">${book.title}</div><div class="admin-book-m">${book.price.toLocaleString('fr-FR')} FCFA · ${CAT_LABELS[book.category]||book.category}${p}${b}${oos}</div></div>
+      <div class="admin-book-actions"><button class="adm-edit" onclick="editBook(${book.id})">Modifier</button><button class="adm-del" onclick="deleteBook(${book.id})">Suppr.</button></div>
+    </div>`;
   }).join('');
 }
 function showAddForm(){
@@ -1340,6 +1366,89 @@ function importCatalogue(e){
   };
   reader.readAsText(file);
   e.target.value='';
+}
+
+// ══════════ DRAG & DROP ══════════
+let dragSrcId=null,touchDragEl=null,touchClone=null,touchStartY=0;
+
+function dragStart(e){
+  dragSrcId=parseInt(e.currentTarget.dataset.id);
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed='move';
+}
+function dragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  document.querySelectorAll('.admin-book-row').forEach(r=>r.classList.remove('drag-over'));
+  e.currentTarget.classList.add('drag-over');
+}
+function dragDrop(e){
+  e.preventDefault();
+  const targetId=parseInt(e.currentTarget.dataset.id);
+  if(dragSrcId===targetId)return;
+  reorderBooks(dragSrcId,targetId);
+}
+function dragEnd(e){
+  document.querySelectorAll('.admin-book-row').forEach(r=>{
+    r.classList.remove('dragging','drag-over');
+  });
+}
+
+// Touch drag for mobile
+function touchStart(e){
+  if(e.target.closest('.adm-edit,.adm-del'))return;
+  touchDragEl=e.currentTarget;
+  dragSrcId=parseInt(touchDragEl.dataset.id);
+  touchStartY=e.touches[0].clientY;
+  touchDragEl.classList.add('dragging');
+}
+function touchMove(e){
+  if(!touchDragEl)return;
+  e.preventDefault();
+  const touch=e.touches[0];
+  const els=document.querySelectorAll('.admin-book-row:not(.dragging)');
+  document.querySelectorAll('.admin-book-row').forEach(r=>r.classList.remove('drag-over'));
+  els.forEach(el=>{
+    const rect=el.getBoundingClientRect();
+    if(touch.clientY>rect.top&&touch.clientY<rect.bottom){
+      el.classList.add('drag-over');
+    }
+  });
+}
+function touchEnd(e){
+  if(!touchDragEl)return;
+  const overEl=document.querySelector('.admin-book-row.drag-over');
+  if(overEl){
+    const targetId=parseInt(overEl.dataset.id);
+    if(dragSrcId!==targetId)reorderBooks(dragSrcId,targetId);
+  }
+  document.querySelectorAll('.admin-book-row').forEach(r=>r.classList.remove('dragging','drag-over'));
+  touchDragEl=null;dragSrcId=null;
+}
+
+function reorderBooks(srcId,targetId){
+  const srcIdx=BOOKS.findIndex(b=>b.id===srcId);
+  const tgtIdx=BOOKS.findIndex(b=>b.id===targetId);
+  if(srcIdx===-1||tgtIdx===-1)return;
+  // Reorder in array
+  const [moved]=BOOKS.splice(srcIdx,1);
+  BOOKS.splice(tgtIdx,0,moved);
+  // Assign positions
+  BOOKS.forEach((b,i)=>b.position=i);
+  lsSet('lamine_books',BOOKS);
+  // Save to Supabase async
+  savePositionsToSupabase();
+  renderAdminList();
+  renderBooks();
+  showToast('Ordre mis à jour ✓');
+}
+
+async function savePositionsToSupabase(){
+  try{
+    for(const book of BOOKS){
+      await sbPatch('books',book.id,{position:book.position});
+    }
+  }catch(e){console.warn('Position save error:',e);}
 }
 
 // ══════════ UTILS ══════════
