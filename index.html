@@ -721,15 +721,7 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
   <div class="cart-items" id="cartItems">
     <div class="cart-empty"><div class="cart-empty-icon">📚</div><p>Votre panier est vide.<br>Choisissez vos titres pour commencer.</p></div>
   </div>
-  <div class="upsell-banner" id="upsellBanner">
-    <div class="upsell-title">🎁 Livraison offerte !</div>
-    <div class="upsell-sub">Ajoutez un 3ème livre et la livraison vous est offerte à Abidjan.</div>
-    <div class="upsell-books" id="upsellBooks"></div>
-    <div class="upsell-delivery">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-      Livraison offerte à Abidjan
-    </div>
-  </div>
+
   <div class="cart-form" id="cartForm" style="display:none">
     <div class="cart-total-row"><span class="cart-total-label">Total commande</span><span class="cart-total-val display" id="cartTotal">0 FCFA</span></div>
     <div class="form-group"><label class="form-label">Nom complet</label><input class="form-input" type="text" id="orderName" placeholder="Ex : Kouamé Jean-Paul"></div>
@@ -1263,10 +1255,12 @@ function renderCartItems(){
   const c=document.getElementById('cartItems'),f=document.getElementById('cartForm');
   if(!cart.length){c.innerHTML='<div class="cart-empty"><div class="cart-empty-icon">📚</div><p>Votre panier est vide.<br>Choisissez vos titres pour commencer.</p></div>';f.style.display='none';return;}
   f.style.display='block';
+  // Render upsell banner
+  var upsellEl=document.getElementById('upsellBanner');
   c.innerHTML=cart.map(item=>{
     const t=item.image?`<img src="${item.image}" alt="${item.title}">`:`<div class="ci-thumb-ph"><span>${item.title.substring(0,16)}</span></div>`;
     return`<div class="cart-item"><div class="ci-thumb">${t}</div><div class="ci-info"><div class="ci-title">${item.title}</div><div class="ci-price">${(item.price*item.qty).toLocaleString('fr-FR')} FCFA</div><div class="ci-qty-row"><button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button><span class="qty-val">${item.qty}</span><button class="qty-btn" onclick="changeQty(${item.id},1)">+</button></div></div><button class="ci-remove" onclick="removeFromCart(${item.id})">✕</button></div>`;
-  }).join('');
+  }).join('')+'<div id="upsellBanner" class="upsell-banner"></div>';
 }
 function sendWhatsApp(){
   const name=document.getElementById('orderName').value.trim(),city=document.getElementById('orderCity').value.trim();
