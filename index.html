@@ -284,6 +284,23 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .bm-btn-cart:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-pale)}
 .bm-btn-cart.added{background:var(--gold-pale);color:var(--gold);border-color:rgba(169,119,28,.35)}
 
+/* ── UPSELL ── */
+.upsell-banner{display:none;background:linear-gradient(135deg,#0F7A3D,#0A5C2D);color:#fff;padding:14px 16px;margin:0 0 0;animation:slideDown .3s ease}
+.upsell-banner.show{display:block}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.upsell-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:600;margin-bottom:4px}
+.upsell-sub{font-size:.75rem;opacity:.9;line-height:1.5;margin-bottom:10px}
+.upsell-books{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.upsell-books::-webkit-scrollbar{display:none}
+.upsell-book{flex-shrink:0;width:75px;cursor:pointer;text-align:center;transition:transform .2s}
+.upsell-book:hover{transform:translateY(-2px)}
+.upsell-book-cover{width:75px;height:105px;border-radius:4px;overflow:hidden;border:2px solid rgba(255,255,255,0.2);margin-bottom:5px;background:rgba(255,255,255,0.1)}
+.upsell-book-cover img{width:100%;height:100%;object-fit:cover}
+.upsell-book-cover-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:4px;font-family:'Cormorant Garamond',serif;font-size:.5rem;color:rgba(255,255,255,0.8);text-align:center}
+.upsell-book-title{font-size:.58rem;color:rgba(255,255,255,.9);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.upsell-book-price{font-size:.62rem;font-weight:700;color:#F5E8CC;margin-top:2px}
+.upsell-delivery{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 10px;font-size:.65rem;font-weight:600;margin-top:8px}
+
 /* ── CART PANEL ── */
 .cart-overlay{position:fixed;inset:0;background:rgba(13,10,6,.55);z-index:200;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(6px)}
 .cart-overlay.open{opacity:1;pointer-events:all}
@@ -436,6 +453,11 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 .adm-cancel:hover{border-color:var(--ink);color:var(--ink)}
 .adm-add-btn{width:100%;background:none;border:1.5px dashed rgba(169,119,28,.35);color:var(--gold);padding:10px;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;transition:all .2s;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:7px;-webkit-tap-highlight-color:transparent}
 .adm-add-btn:hover{background:var(--gold-pale);border-color:var(--gold)}
+.drag-handle{cursor:grab;color:var(--ink3);padding:0 6px;flex-shrink:0;display:flex;align-items:center;touch-action:none}
+.drag-handle:active{cursor:grabbing}
+.drag-handle svg{pointer-events:none}
+.admin-book-row.dragging{opacity:.4;background:var(--gold-pale);border-color:var(--gold)}
+.admin-book-row.drag-over{border-top:2px solid var(--gold)}
 .adm-hint{font-size:.66rem;color:var(--ink3);line-height:1.55;padding:7px 10px;background:var(--gold-pale);border-radius:var(--r-sm);border-left:3px solid var(--gold);margin-bottom:3px}
 .empty-state{grid-column:1/-1;text-align:center;padding:56px 20px}
 .empty-state .es-i{font-size:1.8rem;margin-bottom:7px;opacity:.3}
@@ -685,6 +707,15 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
   <div class="cart-items" id="cartItems">
     <div class="cart-empty"><div class="cart-empty-icon">📚</div><p>Votre panier est vide.<br>Choisissez vos titres pour commencer.</p></div>
   </div>
+  <div class="upsell-banner" id="upsellBanner">
+    <div class="upsell-title">🎁 Livraison offerte !</div>
+    <div class="upsell-sub">Ajoutez un 3ème livre et la livraison vous est offerte à Abidjan.</div>
+    <div class="upsell-books" id="upsellBooks"></div>
+    <div class="upsell-delivery">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Livraison offerte à Abidjan
+    </div>
+  </div>
   <div class="cart-form" id="cartForm" style="display:none">
     <div class="cart-total-row"><span class="cart-total-label">Total commande</span><span class="cart-total-val display" id="cartTotal">0 FCFA</span></div>
     <div class="form-group"><label class="form-label">Nom complet</label><input class="form-input" type="text" id="orderName" placeholder="Ex : Kouamé Jean-Paul"></div>
@@ -717,6 +748,7 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
       <div class="admin-tabs">
         <button class="admin-tab active" onclick="switchTab('boutique',this)">🏪 Boutique</button>
         <button class="admin-tab" onclick="switchTab('catalogue',this)">📚 Catalogue</button>
+        <button class="admin-tab" onclick="switchTab('stats',this)">📊 Stats</button>
         <button class="admin-tab" onclick="switchTab('config',this)">⚙️ Config</button>
       </div>
       <!-- BOUTIQUE -->
@@ -750,6 +782,14 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
       </div>
       <!-- CATALOGUE -->
       <div class="admin-tab-content" id="tab-catalogue">
+        <div style="display:flex;gap:7px;margin-bottom:10px">
+          <button onclick="exportCSV()" style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:8px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.6rem;font-weight:700;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
+          <label style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:8px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.6rem;font-weight:700;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import CSV
+            <input type="file" accept=".csv" style="display:none" onchange="importCSV(event)">
+          </label>
+        </div>
         <button class="adm-add-btn" onclick="showAddForm()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Ajouter un livre ou un pack</button>
         <div style="display:flex;gap:8px;margin-bottom:16px">
           <button onclick="exportCatalogue()" style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:9px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink3)'">
@@ -765,6 +805,12 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
         <div class="adm-section-title">Catalogue — <span id="adminCount">0</span> titres</div>
         <div class="admin-book-list" id="adminBookList"></div>
       </div>
+      <!-- STATS -->
+      <div class="admin-tab-content" id="tab-stats">
+        <div class="adm-section-title">Statistiques</div>
+        <div id="statsContent" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+
       <!-- CONFIG -->
       <div class="admin-tab-content" id="tab-config">
         <div class="adm-section-title">WhatsApp</div>
@@ -1141,7 +1187,7 @@ function orderNow(id){
   const tpl=CONFIG.waMessageDirect||DC.waMessageDirect;
   const msg=tpl.replace('{titre}',book.title).replace('{auteur}',book.author).replace('{prix}',book.price.toLocaleString('fr-FR'));
   window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
-  try{recordOrder('Un client',book.title);}catch(e){}
+  trackStat(id,'orders');try{recordOrder('Un client',book.title);}catch(e){}
 }
 
 // ══════════ CART ══════════
@@ -1150,7 +1196,7 @@ function addToCart(id){
   const ex=cart.find(i=>i.id===id);
   if(ex)ex.qty++;else cart.push({...book,qty:1});
   updateCartUI();
-  trackEvent('track','AddToCart',{content_ids:[id],value:book.price,currency:'XOF'});
+  trackStat(id,'carts');trackEvent('track','AddToCart',{content_ids:[id],value:book.price,currency:'XOF'});
   const s=book.title.length>22?book.title.substring(0,22)+'…':book.title;
   showToast(`« ${s} » ajouté`);
   const btn=document.getElementById('btn-'+id);
@@ -1173,7 +1219,7 @@ function updateCartUI(){
   const bar=document.getElementById('mobileBar');
   if(qty>0){bar.style.display='block';document.getElementById('mobileTotalBar').textContent=total.toLocaleString('fr-FR')+' FCFA';}
   else bar.style.display='none';
-  renderCartItems();
+  renderCartItems();checkUpsell();
 }
 function renderCartItems(){
   const c=document.getElementById('cartItems'),f=document.getElementById('cartForm');
@@ -1239,7 +1285,7 @@ function checkAdmin(){
   if(document.getElementById('adminPwd').value==='lamine2026'){adminLoggedIn=true;showMainScreen();}
   else{showToast('Mot de passe incorrect');document.getElementById('adminPwd').value='';}
 }
-function switchTab(tab,el){document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.admin-tab-content').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('tab-'+tab).classList.add('active');}
+function switchTab(tab,el){if(tab==='stats')setTimeout(renderStats,50);document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.admin-tab-content').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('tab-'+tab).classList.add('active');}
 function showMainScreen(){document.getElementById('adminLoginScreen').style.display='none';document.getElementById('adminFormScreen').style.display='none';document.getElementById('adminMainScreen').style.display='block';renderAdminList();fillShopForm();fillConfigForm();}
 function renderAdminList(){
   document.getElementById('adminCount').textContent=BOOKS.length;
@@ -1250,7 +1296,7 @@ function renderAdminList(){
     const b=book.badge&&book.badge!=='none'?` · ${BADGE_LABELS[book.badge]}`:'';
     const oos=book.outOfStock?' · ⛔':'';
     const p=book.oldPrice?` · -${Math.round((1-book.price/book.oldPrice)*100)}%`:'';
-    return`<div class="admin-book-row"><div class="admin-book-thumb">${t}</div><div class="admin-book-info"><div class="admin-book-t">${book.title}</div><div class="admin-book-m">${book.price.toLocaleString('fr-FR')} FCFA · ${CAT_LABELS[book.category]||book.category}${p}${b}${oos}</div></div><div class="admin-book-actions"><button class="adm-edit" onclick="editBook(${book.id})">Modifier</button><button class="adm-del" onclick="deleteBook(${book.id})">Suppr.</button></div></div>`;
+    return`<div class="admin-book-row" draggable="true" data-id="${book.id}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event)" ondragend="dragEnd(event)" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)"><div class="drag-handle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div><div class="admin-book-thumb">${t}</div><div class="admin-book-info"><div class="admin-book-t">${book.title}</div><div class="admin-book-m">${book.price.toLocaleString('fr-FR')} FCFA · ${CAT_LABELS[book.category]||book.category}${p}${b}${oos}</div></div><div class="admin-book-actions"><button class="adm-edit" onclick="editBook(${book.id})">Modifier</button><button class="adm-edit" onclick="duplicateBook(${book.id})" style="background:var(--gold-pale);color:var(--gold);border-color:rgba(169,119,28,.3)">Dupliquer</button><button class="adm-del" onclick="deleteBook(${book.id})">Suppr.</button></div></div>`;
   }).join('');
 }
 function showAddForm(){
@@ -1344,7 +1390,7 @@ function importCatalogue(e){
 
 // ══════════ UTILS ══════════
 // ══════════ BOOK PAGE ══════════
-function openBookPage(id){
+function openBookPage(id){trackStat(id,'views');
   const book=BOOKS.find(b=>b.id===id);if(!book)return;
   // Update URL
   history.pushState({bookId:id},'',location.pathname+'?livre='+id);
@@ -1458,6 +1504,95 @@ function handleOverlayTouch(e){
   if(e.target===document.getElementById('bookModalOverlay')){
     closeBookModalDirect();
   }
+}
+
+// ══ UPSELL ══
+var freeDelivery=false;
+function checkUpsell(){
+  var qty=getTotalQty();
+  var banner=document.getElementById('upsellBanner');
+  var cartIds=cart.map(function(i){return i.id;});
+  if(qty===2){
+    var suggestions=BOOKS.filter(function(b){return cartIds.indexOf(b.id)===-1&&!b.outOfStock;}).slice(0,4);
+    if(suggestions.length>0){
+      var html=suggestions.map(function(book){
+        var cover=book.image?('<img src="'+book.image+'" alt="">'):('<div class="upsell-book-cover-ph">'+book.title.substring(0,20)+'</div>');
+        return '<div class="upsell-book" onclick="addToCart('+book.id+')"><div class="upsell-book-cover">'+cover+'</div><div class="upsell-book-title">'+book.title+'</div><div class="upsell-book-price">'+book.price.toLocaleString('fr-FR')+' F</div></div>';
+      }).join('');
+      document.getElementById('upsellBooks').innerHTML=html;
+      banner.innerHTML='<div class="upsell-title">\uD83C\uDF81 Livraison offerte !</div><div class="upsell-sub">Ajoutez un 3\u00e8me livre et la livraison vous est offerte \u00e0 Abidjan.</div><div class="upsell-books" id="upsellBooks">'+html+'</div><div class="upsell-delivery"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Livraison offerte \u00e0 Abidjan</div>';
+      banner.classList.add('show');
+      freeDelivery=false;
+    }
+  } else if(qty>=3&&!freeDelivery){
+    freeDelivery=true;
+    banner.innerHTML='<div class="upsell-title">\u2705 Livraison offerte !</div><div class="upsell-sub">F\u00e9licitations ! Votre livraison \u00e0 Abidjan est offerte.</div><div class="upsell-delivery"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Livraison gratuite \u00e0 Abidjan</div>';
+    banner.classList.add('show');
+  } else if(qty<2){
+    banner.classList.remove('show');
+    freeDelivery=false;
+  }
+}
+
+// ══ DRAG & DROP ══
+var dragSrcId=null;
+function dragStart(e){dragSrcId=parseInt(e.currentTarget.dataset.id);e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
+function dragOver(e){e.preventDefault();document.querySelectorAll('.admin-book-row').forEach(function(r){r.classList.remove('drag-over');});e.currentTarget.classList.add('drag-over');}
+function dragDrop(e){e.preventDefault();var targetId=parseInt(e.currentTarget.dataset.id);if(dragSrcId!==targetId)reorderBooks(dragSrcId,targetId);}
+function dragEnd(e){document.querySelectorAll('.admin-book-row').forEach(function(r){r.classList.remove('dragging','drag-over');});}
+function touchStart(e){if(e.target.closest('.adm-edit,.adm-del'))return;dragSrcId=parseInt(e.currentTarget.dataset.id);e.currentTarget.classList.add('dragging');}
+function touchMove(e){if(!dragSrcId)return;e.preventDefault();var touch=e.touches[0];document.querySelectorAll('.admin-book-row').forEach(function(r){r.classList.remove('drag-over');var rect=r.getBoundingClientRect();if(touch.clientY>rect.top&&touch.clientY<rect.bottom)r.classList.add('drag-over');});}
+function touchEnd(e){var over=document.querySelector('.admin-book-row.drag-over');if(over){var tid=parseInt(over.dataset.id);if(dragSrcId!==tid)reorderBooks(dragSrcId,tid);}document.querySelectorAll('.admin-book-row').forEach(function(r){r.classList.remove('dragging','drag-over');});dragSrcId=null;}
+function reorderBooks(srcId,targetId){var si=BOOKS.findIndex(function(b){return b.id===srcId;});var ti=BOOKS.findIndex(function(b){return b.id===targetId;});if(si===-1||ti===-1)return;var moved=BOOKS.splice(si,1)[0];BOOKS.splice(ti,0,moved);BOOKS.forEach(function(b,i){b.position=i;});lsSet('lamine_books',BOOKS);savePositions();renderAdminList();renderBooks();showToast('Ordre mis à jour ✓');}
+function savePositions(){BOOKS.forEach(function(book){sbPatch('books',book.id,{position:book.position}).catch(function(e){console.warn(e);});});}
+
+// ══ DUPLICATE ══
+function duplicateBook(id){var book=BOOKS.find(function(b){return b.id===id;});if(!book)return;var newId=BOOKS.length?Math.max.apply(null,BOOKS.map(function(b){return b.id;}))+1:1;var maxPos=BOOKS.length?Math.max.apply(null,BOOKS.map(function(b){return b.position||0;}))+1:0;var copy=Object.assign({},book,{id:newId,title:'[Copie] '+book.title,position:maxPos});BOOKS.push(copy);lsSet('lamine_books',BOOKS);renderBooks();renderAdminList();showToast('Livre dupliqué ✓');sbPost('books',bookToRow(copy)).catch(function(e){console.warn(e);});}
+
+// ══ STATS ══
+function renderStats(){var stats=ls('sell_stats',{});var el=document.getElementById('statsContent');if(!el)return;var tv=0,tc=0,to=0;Object.keys(stats).forEach(function(k){tv+=(stats[k].views||0);tc+=(stats[k].carts||0);to+=(stats[k].orders||0);});var html='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px"><div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--ink)">'+tv+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Vues</div></div><div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--gold)">'+tc+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Paniers</div></div><div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--green)">'+to+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Commandes</div></div></div>';var sorted=BOOKS.slice().sort(function(a,b){return ((stats[b.id]&&stats[b.id].orders)||0)-((stats[a.id]&&stats[a.id].orders)||0);});html+='<div class="adm-section-title">Par livre</div>';sorted.forEach(function(book){var s=stats[book.id]||{views:0,carts:0,orders:0};html+='<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px"><div style="font-size:.76rem;font-weight:600;color:var(--ink);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+book.title+'</div><div style="display:flex;gap:12px"><span style="font-size:.68rem;color:var(--ink3)">👁 <strong>'+(s.views||0)+'</strong></span><span style="font-size:.68rem;color:var(--gold)">🛒 <strong>'+(s.carts||0)+'</strong></span><span style="font-size:.68rem;color:var(--green)">✅ <strong>'+(s.orders||0)+'</strong></span></div></div>';});el.innerHTML=html;}
+function trackStat(bookId,type){var stats=ls('sell_stats',{});if(!stats[bookId])stats[bookId]={views:0,carts:0,orders:0};stats[bookId][type]=(stats[bookId][type]||0)+1;lsSet('sell_stats',stats);}
+
+// ══ CSV ══
+function exportCSV(){
+  var nl=String.fromCharCode(10);
+  var headers='id,title,author,price,old_price,category,badge,description,image,out_of_stock';
+  function esc(s){return '"'+(s||'').replace(/"/g,'""').replace(/[\r\n]+/g,' ')+'"';}
+  var rows=BOOKS.map(function(b){return [b.id,esc(b.title),esc(b.author),b.price||0,b.oldPrice||'',b.category||'autre',b.badge||'none',esc(b.desc),b.image||'',b.outOfStock?'oui':'non'].join(',');});
+  var csv=[headers].concat(rows).join(nl);
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='dilam-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  showToast('CSV exporté !');
+}
+function importCSV(e){
+  var file=e.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var nl=String.fromCharCode(10);
+      var lines=ev.target.result.split(nl).filter(function(l){return l.trim();});
+      if(lines.length<2){showToast('Fichier vide');return;}
+      var headers=lines[0].split(',').map(function(h){return h.trim().toLowerCase();});
+      var books=[];
+      for(var i=1;i<lines.length;i++){
+        var vals=lines[i].match(/(".*?"|[^,]+)(?=,|$)/g)||[];
+        function clean(v){return v?(v+'').replace(/^"|"$/g,'').replace(/""/g,'"').trim():'';}
+        var row={};
+        headers.forEach(function(h,idx){row[h]=clean(vals[idx]||'');});
+        if(!row.title||!row.author)continue;
+        var maxId=books.length?Math.max.apply(null,books.map(function(b){return b.id;})):0;
+        books.push({id:parseInt(row.id)||maxId+1,title:row.title,author:row.author,price:parseInt(row.price)||0,oldPrice:parseInt(row.old_price)||null,category:row.category||'autre',badge:row.badge||'none',desc:row.description||'',image:row.image||null,outOfStock:row.out_of_stock==='oui',position:i});
+      }
+      if(!books.length){showToast('Aucun livre valide');return;}
+      if(!confirm('Importer '+books.length+' livres ?'))return;
+      BOOKS=books;lsSet('lamine_books',BOOKS);renderBooks();renderAdminList();
+      showToast(books.length+' livres importés !');
+    }catch(err){console.error(err);showToast('Erreur CSV');}
+  };
+  reader.readAsText(file,'UTF-8');
+  e.target.value='';
 }
 
 function showToast(msg){const t=document.getElementById('toast');if(t){t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}}
