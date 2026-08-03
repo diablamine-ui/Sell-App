@@ -558,7 +558,9 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
     <button class="pill active" onclick="filterBooks('all',this)">Tous <span class="pill-count" id="cAll"></span></button>
     <button class="pill" onclick="filterBooks('pack',this)">Packs <span class="pill-count" id="cPack"></span></button>
     <button class="pill" onclick="filterBooks('devperso',this)">Dév. perso <span class="pill-count" id="cDevperso"></span></button>
-    <button class="pill" onclick="filterBooks('cheikh',this)">C. A. Diop <span class="pill-count" id="cCheikh"></span></button>
+    <button class="pill" onclick="filterBooks('cheikh',this)">Cheikh Anta Diop <span class="pill-count" id="cCheikh"></span></button>
+    <button class="pill" onclick="filterBooks('productivite',this)">Productivité <span class="pill-count" id="cProductivite"></span></button>
+    <button class="pill" onclick="filterBooks('finance',this)">Intelligence fin. <span class="pill-count" id="cFinance"></span></button>
     <button class="pill" onclick="filterBooks('autre',this)">Autres <span class="pill-count" id="cAutre"></span></button>
   </div>
   <div class="results-info" id="resultsInfo"></div>
@@ -781,7 +783,7 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
         <div class="adm-field"><label class="adm-label">Titre *</label><input class="adm-input" id="fTitle" placeholder="Ex : Le Pouvoir d'un Esprit Aligné"></div>
         <div class="adm-row">
           <div class="adm-field"><label class="adm-label">Auteur *</label><input class="adm-input" id="fAuthor" placeholder="Ex : Lamine Diabaté"></div>
-          <div class="adm-field"><label class="adm-label">Catégorie</label><select class="adm-select" id="fCategory"><option value="pack">Pack</option><option value="devperso">Développement personnel</option><option value="cheikh">Cheikh Anta Diop</option><option value="autre">Autre</option></select></div>
+          <div class="adm-field"><label class="adm-label">Catégorie</label><select class="adm-select" id="fCategory"><option value="pack">Pack</option><option value="devperso">Développement personnel</option><option value="productivite">Productivité</option><option value="finance">Intelligence financière</option><option value="cheikh">Cheikh Anta Diop</option><option value="autre">Autre</option></select></div>
         </div>
         <div class="adm-row">
           <div class="adm-field"><label class="adm-label">Prix actuel (FCFA) *</label><input class="adm-input" id="fPrice" type="number" placeholder="5000"></div>
@@ -1049,16 +1051,16 @@ function startLiveVisitors(){
 
 // ══════════ CATALOGUE ══════════
 const BADGE_LABELS={bestseller:'🔥 Best Seller',new:'✨ Nouveau',promo:'💰 Promo',limited:'⚡ Stock limité',coup:'❤️ Coup de cœur',recommended:'📚 Recommandé'};
-const CAT_LABELS={pack:'Pack',devperso:'Dév. Personnel',cheikh:'C. A. Diop',autre:'Livre'};
+const CAT_LABELS={pack:'Pack',devperso:'Dév. Personnel',productivite:'Productivité',finance:'Intel. Financière',cheikh:'Cheikh Anta Diop',autre:'Livre'};
 const BADGE_ORDER={bestseller:0,coup:1,recommended:2,new:3,promo:4,limited:5,none:6};
-const CAT_ORDER={pack:0,devperso:1,cheikh:2,autre:3};
+const CAT_ORDER={pack:0,devperso:1,productivite:2,finance:3,cheikh:4,autre:5};
 
 function sorted(){return[...BOOKS].sort((a,b)=>{const co=CAT_ORDER;const bo=BADGE_ORDER;if(co[a.category]!==co[b.category])return(co[a.category]||9)-(co[b.category]||9);return(bo[a.badge]||6)-(bo[b.badge]||6);});}
 
 function updateCounts(){
-  const cats={all:BOOKS.length,pack:0,devperso:0,cheikh:0,autre:0};
+  const cats={all:BOOKS.length,pack:0,devperso:0,productivite:0,finance:0,cheikh:0,autre:0};
   BOOKS.forEach(b=>{if(cats[b.category]!==undefined)cats[b.category]++;});
-  const ids={all:'cAll',pack:'cPack',devperso:'cDevperso',cheikh:'cCheikh',autre:'cAutre'};
+  const ids={all:'cAll',pack:'cPack',devperso:'cDevperso',productivite:'cProductivite',finance:'cFinance',cheikh:'cCheikh',autre:'cAutre'};
   Object.keys(cats).forEach(k=>{const el=document.getElementById(ids[k]);if(el)el.textContent=cats[k]>0?`(${cats[k]})`:'';});
 }
 
