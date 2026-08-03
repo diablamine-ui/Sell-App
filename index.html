@@ -1696,48 +1696,38 @@ function trackStat(bookId, type){
 
 // ══════════ CSV EXPORT ET IMPORT ══════════
 function exportCSV(){
-  const headers=['id','title','author','price','old_price','category','badge','description','image','out_of_stock'];
-  const rows=BOOKS.map(b=>[
-    b.id,
-    '"'+(b.title||'').replace(/"/g,'""')+'"',
-    '"'+(b.author||'').replace(/"/g,'""')+'"',
-    b.price||0,
-    b.oldPrice||'',
-    b.category||'autre',
-    b.badge||'none',
-    '"'+(b.desc||'').replace(/"/g,'""').replace(/
-/g,' ')+'"',
-    b.image||'',
-    b.outOfStock?'oui':'non'
-  ].join(','));
-  const csv=[headers.join(','),...rows].join('
-');
-  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
+  var nl=String.fromCharCode(10);
+  var headers=['id','title','author','price','old_price','category','badge','description','image','out_of_stock'];
+  var rows=BOOKS.map(function(b){
+    function esc(s){return '"'+(s||'').replace(/"/g,'""').replace(/[\r\n]+/g,' ')+'"';}
+    return [b.id,esc(b.title),esc(b.author),b.price||0,b.oldPrice||'',b.category||'autre',b.badge||'none',esc(b.desc),b.image||'',b.outOfStock?'oui':'non'].join(',');
+  });
+  var csv=[headers.join(',')].concat(rows).join(nl);
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
   a.href=url;a.download='dilam-catalogue-'+new Date().toISOString().slice(0,10)+'.csv';
   document.body.appendChild(a);a.click();document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  showToast('CSV exporté ✓');
+  showToast('CSV exporte !');
 }
-
 function importCSV(e){
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
+  var file=e.target.files[0];if(!file)return;
+  var reader=new FileReader();
   reader.onload=function(ev){
     try{
-      const lines=ev.target.result.split('
-').filter(l=>l.trim());
+      var nl=String.fromCharCode(10);
+      var lines=ev.target.result.split(nl).filter(function(l){return l.trim();});
       if(lines.length<2){showToast('Fichier vide');return;}
-      const headers=lines[0].split(',').map(h=>h.trim().toLowerCase());
-      const books=[];
-      for(let i=1;i<lines.length;i++){
-        const vals=lines[i].match(/(".*?"|[^,]+)(?=,|$)/g)||[];
-        const clean=v=>v?v.replace(/^"|"$/g,'').replace(/""/g,'"').trim():'';
-        const row={};
-        headers.forEach((h,idx)=>row[h]=clean(vals[idx]||''));
+      var headers=lines[0].split(',').map(function(h){return h.trim().toLowerCase();});
+      var books=[];
+      for(var i=1;i<lines.length;i++){
+        var vals=lines[i].match(/(".*?"|[^,]+)(?=,|$)/g)||[];
+        var clean=function(v){return v?(v+'').replace(/^"|"$/g,'').replace(/""/g,'"').trim():'';};
+        var row={};
+        headers.forEach(function(h,idx){row[h]=clean(vals[idx]||'');});
         if(!row.title||!row.author)continue;
-        const maxId=books.length?Math.max(...books.map(b=>b.id),0):0;
+        var maxId=books.length?Math.max.apply(null,books.map(function(b){return b.id;})):0;
         books.push({
           id:parseInt(row.id)||maxId+1,
           title:row.title,author:row.author,
@@ -1752,186 +1742,13 @@ function importCSV(e){
         });
       }
       if(!books.length){showToast('Aucun livre valide');return;}
-      if(!confirm(`Importer ${books.length} livres depuis CSV ?`))return;
+      if(!confirm('Importer '+books.length+' livres depuis CSV ?'))return;
       BOOKS=books;
       lsSet('lamine_books',BOOKS);
       renderBooks();renderAdminList();
-      showToast(books.length+' livres importés ✓');
+      showToast(books.length+' livres importes !');
     }catch(err){console.error(err);showToast('Erreur CSV');}
   };
   reader.readAsText(file,'UTF-8');
   e.target.value='';
 }
-
-// ══════════ UTILS ══════════
-// ══════════ BOOK PAGE ══════════
-function openBookPage(id){
-  const book=BOOKS.find(b=>b.id===id);if(!book)return;
-  // Update URL
-  history.pushState({bookId:id},'',location.pathname+'?livre='+id);
-  // Shop name
-  document.getElementById('bpShopName').textContent=SHOP.name1+(SHOP.name2?' '+SHOP.name2:'');
-  // Cover
-  const cov=document.getElementById('bpCover');
-  if(book.image){cov.innerHTML=`<img src="${book.image}" alt="${book.title}">`;}
-  else{cov.innerHTML=`<div class="bp-cover-ph"><div style="font-size:2rem;color:var(--gold);opacity:.5">✦</div><div style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:var(--ink)">${book.title}</div><div style="font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3)">${book.author}</div></div>`;}
-  // Meta
-  document.getElementById('bpCategory').textContent=CAT_LABELS[book.category]||'Livre';
-  const badgeEl=document.getElementById('bpBadge');
-  if(book.badge&&book.badge!=='none'){badgeEl.innerHTML=`<div class="bp-badge badge-${book.badge}">${BADGE_LABELS[book.badge]}</div>`;}
-  else badgeEl.innerHTML='';
-  document.getElementById('bpTitle').textContent=book.title;
-  document.getElementById('bpAuthor').textContent=book.author;
-  // Description
-  const descEl=document.getElementById('bpDesc');
-  descEl.textContent=book.desc||'';
-  if(!book.desc||!book.desc.trim()) descEl.innerHTML='<em style="color:var(--ink3)">Aucune description renseignée.</em>';
-  // Price
-  document.getElementById('bpPrice').innerHTML=book.price.toLocaleString('fr-FR')+'<sup>FCFA</sup>';
-  const oldRow=document.getElementById('bpPriceOldRow');
-  if(book.oldPrice&&book.oldPrice>book.price){
-    const disc=Math.round((1-book.price/book.oldPrice)*100);
-    document.getElementById('bpPriceOld').innerHTML=book.oldPrice.toLocaleString('fr-FR')+'<sup>FCFA</sup>';
-    document.getElementById('bpDiscount').textContent='-'+disc+'%';
-    oldRow.style.display='flex';
-  } else oldRow.style.display='none';
-  // Buttons
-  const inCart=cart.find(i=>i.id===id);
-  const cartBtn=document.getElementById('bpBtnCart');
-  cartBtn.textContent=inCart?'✓ Ajouté':'+ Panier';
-  cartBtn.className='bp-btn-cart'+(inCart?' added':'');
-  cartBtn.onclick=()=>{addToCart(id);cartBtn.textContent='✓ Ajouté';cartBtn.classList.add('added');};
-  document.getElementById('bpBtnNow').onclick=()=>{closeBookPage();orderNow(id);};
-  // Related books
-  renderRelatedBooks(book);
-  // SEO
-  updateSEO(book);
-  // Track view
-  trackStat(id,'views');
-  // Open page
-  document.getElementById('bookPage').classList.add('open');
-  document.getElementById('bookPage').scrollTop=0;
-  document.body.style.overflow='hidden';
-}
-
-function closeBookPage(){
-  document.getElementById('bookPage').classList.remove('open');
-  document.body.style.overflow='';
-  history.pushState({},'',location.pathname);
-  updateSEO(null);
-}
-
-// Handle browser back button
-window.addEventListener('popstate',function(e){
-  if(document.getElementById('bookPage').classList.contains('open')){
-    document.getElementById('bookPage').classList.remove('open');
-    document.body.style.overflow='';
-  }
-});
-
-// ══════════ BOOK MODAL ══════════
-let currentModalBookId = null;
-
-function openBookModal(id){
-  const book=BOOKS.find(b=>b.id===id);if(!book)return;
-  currentModalBookId=id;
-  // Prevent page scroll
-  document.body.style.overflow='hidden';
-  const CAT=CAT_LABELS[book.category]||'Livre';
-  // Cover
-  const cover=document.getElementById('bmCover');
-  if(book.image){cover.innerHTML=`<img src="${book.image}" alt="${book.title}">`;}
-  else{cover.innerHTML=`<div class="bm-cover-ph"><div class="ph-icon" style="font-size:1.5rem;color:var(--gold);opacity:.6">✦</div><div class="ph-title">${book.title}</div><div class="ph-sep" style="width:28px;height:1px;background:rgba(169,119,28,.4)"></div><div class="ph-author">${book.author}</div></div>`;}
-  document.getElementById('bmCategory').textContent=CAT;
-  document.getElementById('bmTitle').textContent=book.title;
-  document.getElementById('bmAuthor').textContent=book.author;
-  var descEl=document.getElementById('bmDesc');
-  if(book.desc&&book.desc.trim()){
-    descEl.innerHTML=book.desc.replace(/\n/g,'<br>');
-  } else {
-    descEl.innerHTML='<em style="color:var(--ink3);font-size:.82rem">Aucune description renseignée.</em>';
-  }
-  // Price
-  const pr=document.getElementById('bmPriceRow');
-  let ph=`<div class="bm-price display">${book.price.toLocaleString('fr-FR')}<sup>FCFA</sup></div>`;
-  if(book.oldPrice&&book.oldPrice>book.price){
-    const disc=Math.round((1-book.price/book.oldPrice)*100);
-    ph+=`<div class="bm-price-old display">${book.oldPrice.toLocaleString('fr-FR')}<sup>FCFA</sup></div><div class="bm-discount">-${disc}%</div>`;
-  }
-  pr.innerHTML=ph;
-  // Buttons
-  const inCart=cart.find(i=>i.id===id);
-  const btnCart=document.getElementById('bmBtnCart');
-  btnCart.textContent=inCart?'✓ Ajouté':'+ Panier';
-  btnCart.className='bm-btn-cart'+(inCart?' added':'');
-  btnCart.onclick=()=>{addToCart(id);btnCart.textContent='✓ Ajouté';btnCart.classList.add('added');};
-  document.getElementById('bmBtnNow').onclick=()=>{closeBookModal();orderNow(id);};
-  // Open
-  document.getElementById('bookModalOverlay').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-
-function closeBookModal(e){
-  if(e&&e.target!==document.getElementById('bookModalOverlay'))return;
-  document.getElementById('bookModalOverlay').classList.remove('open');
-  document.body.style.overflow='';
-  currentModalBookId=null;
-}
-function closeBookModalDirect(){
-  document.getElementById('bookModalOverlay').classList.remove('open');
-  document.body.style.overflow='';
-  currentModalBookId=null;
-}
-function handleOverlayTouch(e){
-  if(e.target===document.getElementById('bookModalOverlay')){
-    closeBookModalDirect();
-  }
-}
-
-function showToast(msg){const t=document.getElementById('toast');if(t){t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}}
-function observeReveal(){const els=document.querySelectorAll('.reveal:not(.visible)');const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*50);obs.unobserve(e.target);}});},{threshold:.06});els.forEach(el=>obs.observe(el));}
-function handleDeepLink(){
-  const id=parseInt(new URLSearchParams(location.search).get('livre'));
-  if(!id)return;
-  // Wait for books to load then open page
-  function tryOpen(){
-    const book=BOOKS.find(b=>b.id===id);
-    if(book){openBookPage(id);}
-    else{setTimeout(tryOpen,300);}
-  }
-  setTimeout(tryOpen,500);
-}
-
-// ══════════ WHEEL FIX FOR DESKTOP ══════════
-document.addEventListener('DOMContentLoaded', function(){
-  var scroll = document.getElementById('bookModalScroll');
-  if(scroll){
-    scroll.addEventListener('wheel', function(e){
-      e.stopPropagation();
-      var atTop = scroll.scrollTop === 0;
-      var atBottom = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 1;
-      if((atTop && e.deltaY < 0)||(atBottom && e.deltaY > 0)){
-        e.preventDefault();
-      }
-    }, {passive:false});
-  }
-});
-
-// ══════════ INIT ══════════
-applyShop();
-observeReveal();
-startLiveVisitors();
-handleDeepLink();
-loadBooksFromDB();
-</script>
-<script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load',function(){
-    navigator.serviceWorker.register('/sw.js')
-      .then(function(reg){console.log('SW registered');})
-      .catch(function(err){console.log('SW error:',err);});
-  });
-}
-</script>
-</body>
-</html>
