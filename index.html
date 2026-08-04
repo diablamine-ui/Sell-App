@@ -1268,6 +1268,12 @@ function orderNow(id){
   const book=BOOKS.find(b=>b.id===id);if(!book)return;
   const waNum=(CONFIG.waNumber||DC.waNumber).trim().replace(/[^0-9]/g,'');
   if(!waNum){showToast('Numéro WhatsApp non configuré');return;}
+  capiEvent('InitiateCheckout', {
+    content_ids: [id],
+    content_name: book.title,
+    value: book.price,
+    currency: 'XOF'
+  });
   trackEvent('track','InitiateCheckout',{content_ids:[id],value:book.price,currency:'XOF'});
   const tpl=CONFIG.waMessageDirect||DC.waMessageDirect;
   const msg=tpl.replace('{titre}',book.title).replace('{auteur}',book.author).replace('{prix}',book.price.toLocaleString('fr-FR'));
@@ -1281,7 +1287,13 @@ function addToCart(id){
   const ex=cart.find(i=>i.id===id);
   if(ex)ex.qty++;else cart.push({...book,qty:1});
   updateCartUI();
-  trackStat(id,'carts');trackStat(id,'carts');trackEvent('track','AddToCart',{content_ids:[id],value:book.price,currency:'XOF'});
+  trackStat(id,'carts');trackStat(id,'carts');capiEvent('AddToCart', {
+    content_ids: [id],
+    content_name: book.title,
+    value: book.price,
+    currency: 'XOF'
+  });
+  trackEvent('track','AddToCart',{content_ids:[id],value:book.price,currency:'XOF'});
   const s=book.title.length>22?book.title.substring(0,22)+'…':book.title;
   showToast(`« ${s} » ajouté`);
   const btn=document.getElementById('btn-'+id);
@@ -1324,6 +1336,12 @@ function sendWhatsApp(){
   if(!cart.length){showToast('Votre panier est vide');return;}
   const waNum=(CONFIG.waNumber||DC.waNumber).trim().replace(/[^0-9]/g,'');
   if(!waNum){showToast('Numéro WhatsApp non configuré');return;}
+  capiEvent('InitiateCheckout', {
+    content_ids: [id],
+    content_name: book.title,
+    value: book.price,
+    currency: 'XOF'
+  });
   trackEvent('track','InitiateCheckout',{content_ids:cart.map(i=>i.id),value:getTotal(),currency:'XOF'});
   const articles=cart.map(i=>`• ${i.title} × ${i.qty} — ${(i.price*i.qty).toLocaleString('fr-FR')} FCFA`).join('\n');
   const tpl=CONFIG.waMessage||DC.waMessage;
@@ -2036,12 +2054,45 @@ function renderUpsell() {
     + '</div>';
 }
 
+// ══ META CONVERSIONS API ══
+var CAPI_PIXEL = '1671688320192246';
+var CAPI_TOKEN = 'EAAPLLm14rLoBSDKqK4ASpdHkOObIIuQEkooMsdqFO1ZCqu8zGBQWolQUIo9kK0ma9O40SHY7ZBEh0AVACvA08KgnZAtZBKH6chxWrK2AJrIZBQH2us8PsceT5iqpTCiugtG5R3Ycja23aEkGdX7JXK8uJJtA5ockNibVkfRXeidiAp94raHEZCk4z8g8U1JAZDZD';
+
+function capiEvent(eventName, eventData) {
+  try {
+    var eventId = 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    var payload = {
+      data: [{
+        event_name: eventName,
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: eventId,
+        event_source_url: window.location.href,
+        action_source: 'website',
+        user_data: {
+          client_user_agent: navigator.userAgent,
+          client_ip_address: ''
+        },
+        custom_data: eventData || {}
+      }]
+    };
+    fetch('https://graph.facebook.com/v18.0/' + CAPI_PIXEL + '/events?access_token=' + CAPI_TOKEN, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    }).then(function(r) {
+      if(r.ok) console.log('CAPI ' + eventName + ' sent');
+      else r.text().then(function(t){console.warn('CAPI error:', t);});
+    }).catch(function(e){console.warn('CAPI fetch error:', e);});
+  } catch(e) { console.warn('CAPI error:', e); }
+}
+
 // ══════════ INIT ══════════
 applyShop();
 observeReveal();
 startLiveVisitors();
 handleDeepLink();
 loadBooksFromDB();
+setTimeout(function(){ capiEvent('PageView', {}); }, 2000);
 initCountdowns();
 setTimeout(updateWaFloat,500);
 </script>
