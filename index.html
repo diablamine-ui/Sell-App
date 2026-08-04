@@ -1278,7 +1278,7 @@ function orderNow(id){
   const tpl=CONFIG.waMessageDirect||DC.waMessageDirect;
   const msg=tpl.replace('{titre}',book.title).replace('{auteur}',book.author).replace('{prix}',book.price.toLocaleString('fr-FR'));
   window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
-  trackStat(id,'orders');trackStat(id,'orders');try{recordOrder('Un client',book.title);}catch(e){}
+  trackStat(id,'orders');try{recordOrder('Un client',book.title);}catch(e){}
 }
 
 // ══════════ CART ══════════
@@ -1336,11 +1336,11 @@ function sendWhatsApp(){
   if(!cart.length){showToast('Votre panier est vide');return;}
   const waNum=(CONFIG.waNumber||DC.waNumber).trim().replace(/[^0-9]/g,'');
   if(!waNum){showToast('Numéro WhatsApp non configuré');return;}
-  capiEvent('InitiateCheckout', {
-    content_ids: [id],
-    content_name: book.title,
-    value: book.price,
-    currency: 'XOF'
+  capiEvent('Lead', {
+    content_ids: cart.map(function(i){return i.id;}),
+    value: getTotal(),
+    currency: 'XOF',
+    num_items: getTotalQty()
   });
   trackEvent('track','InitiateCheckout',{content_ids:cart.map(i=>i.id),value:getTotal(),currency:'XOF'});
   const articles=cart.map(i=>`• ${i.title} × ${i.qty} — ${(i.price*i.qty).toLocaleString('fr-FR')} FCFA`).join('\n');
