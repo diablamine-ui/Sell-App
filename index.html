@@ -1397,7 +1397,13 @@ function checkAdmin(){
   if(document.getElementById('adminPwd').value==='lamine2026'){adminLoggedIn=true;showMainScreen();}
   else{showToast('Mot de passe incorrect');document.getElementById('adminPwd').value='';}
 }
-function switchTab(tab,el){if(tab==='stats')setTimeout(renderStats,50);if(tab==='stats')setTimeout(renderStats,50);document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.admin-tab-content').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('tab-'+tab).classList.add('active');}
+function switchTab(tab,el){
+  if(tab==='stats'){loadStatsFromSupabase();setTimeout(renderStats,600);}
+  document.querySelectorAll('.admin-tab').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.admin-tab-content').forEach(function(t){t.classList.remove('active');});
+  el.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+}
 function showMainScreen(){document.getElementById('adminLoginScreen').style.display='none';document.getElementById('adminFormScreen').style.display='none';document.getElementById('adminMainScreen').style.display='block';renderAdminList();fillShopForm();fillConfigForm();}
 function renderAdminList(){
   document.getElementById('adminCount').textContent=BOOKS.length;
@@ -1670,7 +1676,38 @@ function resetStats(){
 }
 
 function renderStats(){var stats=ls('sell_stats',{});var el=document.getElementById('statsContent');if(!el)return;var tv=0,tc=0,to=0;Object.keys(stats).forEach(function(k){tv+=(stats[k].views||0);tc+=(stats[k].carts||0);to+=(stats[k].orders||0);});var html='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px"><div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--ink)">'+tv+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Vues</div></div><div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--gold)">'+tc+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Paniers</div></div><div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--green)">'+to+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Commandes</div></div></div>';var sorted=BOOKS.slice().sort(function(a,b){return ((stats[b.id]&&stats[b.id].orders)||0)-((stats[a.id]&&stats[a.id].orders)||0);});html+='<div class="adm-section-title">Par livre</div>';sorted.forEach(function(book){var s=stats[book.id]||{views:0,carts:0,orders:0};html+='<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px"><div style="font-size:.76rem;font-weight:600;color:var(--ink);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+book.title+'</div><div style="display:flex;gap:12px"><span style="font-size:.68rem;color:var(--ink3)">👁 <strong>'+(s.views||0)+'</strong></span><span style="font-size:.68rem;color:var(--gold)">🛒 <strong>'+(s.carts||0)+'</strong></span><span style="font-size:.68rem;color:var(--green)">✅ <strong>'+(s.orders||0)+'</strong></span></div></div>';});el.innerHTML=html;}
-function trackStat(bookId,type){var stats=ls('sell_stats',{});if(!stats[bookId])stats[bookId]={views:0,carts:0,orders:0};stats[bookId][type]=(stats[bookId][type]||0)+1;lsSet('sell_stats',stats);}
+function trackStat(bookId,type){
+  // Local first
+  var stats=ls('sell_stats',{});
+  if(!stats[bookId])stats[bookId]={views:0,carts:0,orders:0};
+  stats[bookId][type]=(stats[bookId][type]||0)+1;
+  lsSet('sell_stats',stats);
+  // Sync to Supabase
+  syncStatToSupabase(bookId, stats[bookId]);
+}
+
+function syncStatToSupabase(bookId, stat){
+  var data={book_id:bookId,views:stat.views||0,carts:stat.carts||0,orders:stat.orders||0,updated_at:new Date().toISOString()};
+  fetch(SB_URL+'/rest/v1/stats',{
+    method:'POST',
+    headers:Object.assign({},SB_HEADERS,{'Prefer':'resolution=merge-duplicates'}),
+    body:JSON.stringify(data)
+  }).catch(function(e){console.warn('Stats sync error:',e);});
+}
+
+function loadStatsFromSupabase(){
+  fetch(SB_URL+'/rest/v1/stats',{headers:SB_HEADERS})
+  .then(function(r){return r.json();})
+  .then(function(rows){
+    if(!rows||!rows.length)return;
+    var stats={};
+    rows.forEach(function(row){
+      stats[row.book_id]={views:row.views||0,carts:row.carts||0,orders:row.orders||0};
+    });
+    lsSet('sell_stats',stats);
+    console.log('Stats loaded from Supabase');
+  }).catch(function(e){console.warn('Stats load error:',e);});
+}
 
 // ══ CSV ══
 function exportCSV(){
@@ -2092,6 +2129,7 @@ observeReveal();
 startLiveVisitors();
 handleDeepLink();
 loadBooksFromDB();
+setTimeout(loadStatsFromSupabase, 3000);
 setTimeout(function(){ capiEvent('PageView', {}); }, 2000);
 initCountdowns();
 setTimeout(updateWaFloat,500);
