@@ -855,7 +855,7 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
           </label>
         </div>
         <div style="display:flex;gap:7px;margin-bottom:10px">
-          <button id="reorderBtn" onclick="toggleReorderMode()" style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:9px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s">
+          <button id="reorderBtn" onclick="toggleReorderMode()" style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:9px;border-radius:var(--r-sm);cursor:pointer;font-family:Inter,sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             Réorganiser
           </button>
@@ -883,7 +883,7 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
       <div class="admin-tab-content" id="tab-stats">
         <div class="adm-section-title">Statistiques</div>
         <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
-          <button onclick="resetStats()" style="background:none;border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase">Remettre à zéro</button>
+          <button onclick="resetStats()" style="background:none;border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:var(--r-sm);cursor:pointer;font-family:Inter,sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase">Remettre à zéro</button>
         </div>
         <div id="statsContent" style="display:flex;flex-direction:column;gap:10px"></div>
       </div>
@@ -1671,19 +1671,92 @@ function duplicateBook(id){var book=BOOKS.find(function(b){return b.id===id;});i
 function resetStats(){
   if(!confirm('Remettre toutes les statistiques à zéro ?'))return;
   localStorage.removeItem('sell_stats');
+  // Clear Supabase stats
+  fetch(SB_URL+'/rest/v1/stats',{
+    method:'DELETE',
+    headers:Object.assign({},SB_HEADERS,{'Accept':'application/json'})
+  }).catch(function(e){console.warn(e);});
   renderStats();
-  showToast('Statistiques remises à zéro ✓');
+  showToast('Statistiques remises à zéro !');
 }
 
-function renderStats(){var stats=ls('sell_stats',{});var el=document.getElementById('statsContent');if(!el)return;var tv=0,tc=0,to=0;Object.keys(stats).forEach(function(k){tv+=(stats[k].views||0);tc+=(stats[k].carts||0);to+=(stats[k].orders||0);});var html='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px"><div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--ink)">'+tv+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Vues</div></div><div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--gold)">'+tc+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Paniers</div></div><div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--green)">'+to+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Commandes</div></div></div>';var sorted=BOOKS.slice().sort(function(a,b){return ((stats[b.id]&&stats[b.id].orders)||0)-((stats[a.id]&&stats[a.id].orders)||0);});html+='<div class="adm-section-title">Par livre</div>';sorted.forEach(function(book){var s=stats[book.id]||{views:0,carts:0,orders:0};html+='<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px"><div style="font-size:.76rem;font-weight:600;color:var(--ink);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+book.title+'</div><div style="display:flex;gap:12px"><span style="font-size:.68rem;color:var(--ink3)">👁 <strong>'+(s.views||0)+'</strong></span><span style="font-size:.68rem;color:var(--gold)">🛒 <strong>'+(s.carts||0)+'</strong></span><span style="font-size:.68rem;color:var(--green)">✅ <strong>'+(s.orders||0)+'</strong></span></div></div>';});el.innerHTML=html;}
+function renderStats(){
+  var el=document.getElementById('statsContent');
+  if(!el)return;
+  el.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink3);font-size:.8rem;">Chargement...</div>';
+  fetch(SB_URL+'/rest/v1/stats',{headers:SB_HEADERS})
+  .then(function(r){return r.json();})
+  .then(function(rows){
+    // Merge with localStorage fallback
+    var lsStats=ls('sell_stats',{});
+    var statsMap={};
+    // Start with Supabase data
+    if(rows&&rows.length){
+      rows.forEach(function(row){
+        statsMap[row.book_id]={views:row.views||0,carts:row.carts||0,orders:row.orders||0};
+      });
+    }
+    // Add any localStorage data not in Supabase
+    Object.keys(lsStats).forEach(function(k){
+      if(!statsMap[k])statsMap[k]=lsStats[k];
+    });
+    renderStatsHTML(statsMap);
+  })
+  .catch(function(){
+    // Fallback to localStorage
+    renderStatsHTML(ls('sell_stats',{}));
+  });
+}
+
+function renderStatsHTML(statsMap){
+  var el=document.getElementById('statsContent');
+  if(!el)return;
+  var tv=0,tc=0,to2=0;
+  Object.keys(statsMap).forEach(function(k){
+    tv+=(statsMap[k].views||0);
+    tc+=(statsMap[k].carts||0);
+    to2+=(statsMap[k].orders||0);
+  });
+  var html='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">'
+    +'<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--ink)">'+tv+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Vues</div></div>'
+    +'<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--gold)">'+tc+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Paniers</div></div>'
+    +'<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--green)">'+to2+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Commandes</div></div>'
+    +'</div><div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button onclick="resetStats()" style="background:none;border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:var(--r-sm);cursor:pointer;font-family:Inter,sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase">Remettre à zéro</button></div>'
+    +'<div class="adm-section-title">Par livre</div>';
+  var sorted=BOOKS.slice().sort(function(a,b){
+    return ((statsMap[b.id]&&statsMap[b.id].orders)||0)-((statsMap[a.id]&&statsMap[a.id].orders)||0);
+  });
+  sorted.forEach(function(book){
+    var s=statsMap[book.id]||{views:0,carts:0,orders:0};
+    html+='<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:6px">'
+      +'<div style="font-size:.75rem;font-weight:600;color:var(--ink);margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+book.title+'</div>'
+      +'<div style="display:flex;gap:14px"><span style="font-size:.68rem;color:var(--ink3)">👁 '+(s.views||0)+'</span><span style="font-size:.68rem;color:var(--gold)">🛒 '+(s.carts||0)+'</span><span style="font-size:.68rem;color:var(--green)">✅ '+(s.orders||0)+'</span></div>'
+      +'</div>';
+  });
+  el.innerHTML=html;
+}
+
+
 function trackStat(bookId,type){
-  // Local first
-  var stats=ls('sell_stats',{});
-  if(!stats[bookId])stats[bookId]={views:0,carts:0,orders:0};
-  stats[bookId][type]=(stats[bookId][type]||0)+1;
-  lsSet('sell_stats',stats);
-  // Sync to Supabase
-  syncStatToSupabase(bookId, stats[bookId]);
+  // Read current from Supabase, increment, write back
+  fetch(SB_URL+'/rest/v1/stats?book_id=eq.'+bookId,{headers:SB_HEADERS})
+  .then(function(r){return r.json();})
+  .then(function(rows){
+    var cur=rows&&rows.length?rows[0]:{book_id:bookId,views:0,carts:0,orders:0};
+    cur[type]=(cur[type]||0)+1;
+    cur.updated_at=new Date().toISOString();
+    return fetch(SB_URL+'/rest/v1/stats',{
+      method:'POST',
+      headers:Object.assign({},SB_HEADERS,{'Prefer':'resolution=merge-duplicates'}),
+      body:JSON.stringify(cur)
+    });
+  }).catch(function(e){
+    // Fallback to localStorage if Supabase unavailable
+    var stats=ls('sell_stats',{});
+    if(!stats[bookId])stats[bookId]={views:0,carts:0,orders:0};
+    stats[bookId][type]=(stats[bookId][type]||0)+1;
+    lsSet('sell_stats',stats);
+  });
 }
 
 function syncStatToSupabase(bookId, stat){
@@ -1914,9 +1987,9 @@ function renderStats(){
   var tv=0,tc=0,to2=0;
   Object.keys(stats).forEach(function(k){tv+=(stats[k].views||0);tc+=(stats[k].carts||0);to2+=(stats[k].orders||0);});
   var html='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">'
-    +'<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:1.6rem;font-weight:600;color:var(--ink)">'+tv+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Vues</div></div>'
-    +'<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:1.6rem;font-weight:600;color:var(--gold)">'+tc+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Paniers</div></div>'
-    +'<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:1.6rem;font-weight:600;color:var(--green)">'+to2+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Commandes</div></div>'
+    +'<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--ink)">'+tv+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Vues</div></div>'
+    +'<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--gold)">'+tc+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Paniers</div></div>'
+    +'<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--green)">'+to2+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Commandes</div></div>'
     +'</div><div class="adm-section-title">Par livre</div>';
   var sorted=BOOKS.slice().sort(function(a,b){return ((stats[b.id]&&stats[b.id].orders)||0)-((stats[a.id]&&stats[a.id].orders)||0);});
   sorted.forEach(function(book){
