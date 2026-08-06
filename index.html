@@ -1616,6 +1616,7 @@ function checkUpsell(){
 }
 
 // ══ DRAG & DROP ══
+var dragSrcId=null;
 function dragStart(e){dragSrcId=parseInt(e.currentTarget.dataset.id);e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
 function dragOver(e){e.preventDefault();document.querySelectorAll('.admin-book-row').forEach(function(r){r.classList.remove('drag-over');});e.currentTarget.classList.add('drag-over');}
 function dragDrop(e){e.preventDefault();var targetId=parseInt(e.currentTarget.dataset.id);if(dragSrcId!==targetId)reorderBooks(dragSrcId,targetId);}
@@ -1844,28 +1845,6 @@ function filterAdminList(){
     row.style.display=match?'':'none';
   });
 }
-
-// ══ DRAG & DROP (reorder mode only) ══
-var dragSrcId=null;
-
-
-
-
-var touchDragId=null,touchLongPress=null;
-
-
-
-
-
-// ══ DUPLICATE ══
-
-
-// ══ STATS ══
-
-
-
-
-// ══ UPSELL ══
 
 
 function showToast(msg){const t=document.getElementById('toast');if(t){t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}}
