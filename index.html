@@ -2201,11 +2201,10 @@ initCountdowns();
 setTimeout(updateWaFloat,500);
 </script>
 <script>
+// Unregister any old service workers to prevent caching issues
 if('serviceWorker' in navigator){
-  window.addEventListener('load',function(){
-    navigator.serviceWorker.register('/sw.js')
-      .then(function(reg){console.log('SW registered');})
-      .catch(function(err){console.log('SW error:',err);});
+  navigator.serviceWorker.getRegistrations().then(function(regs){
+    regs.forEach(function(reg){reg.unregister();});
   });
 }
 </script>
