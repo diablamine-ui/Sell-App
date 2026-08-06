@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dilam-b-v1';
+const CACHE_NAME = 'dilam-b-v3';
 const ASSETS = [
   '/',
   '/index.html',
@@ -28,16 +28,20 @@ self.addEventListener('activate', function(e) {
   self.clients.claim();
 });
 
-// Fetch — network first, fallback to cache
+// Fetch — network first, NEVER cache index.html
 self.addEventListener('fetch', function(e) {
-  // Skip non-GET and external requests
   if (e.request.method !== 'GET') return;
   if (!e.request.url.startsWith(self.location.origin)) return;
+
+  // Always fetch index.html fresh from network
+  if (e.request.url.endsWith('/') || e.request.url.includes('index.html')) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
 
   e.respondWith(
     fetch(e.request)
       .then(function(response) {
-        // Cache successful responses
         if (response && response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then(function(cache) {
@@ -47,10 +51,7 @@ self.addEventListener('fetch', function(e) {
         return response;
       })
       .catch(function() {
-        // Network failed — serve from cache
-        return caches.match(e.request).then(function(cached) {
-          return cached || caches.match('/index.html');
-        });
+        return caches.match(e.request);
       })
   );
 });
