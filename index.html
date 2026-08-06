@@ -1735,18 +1735,17 @@ function renderStatsHTML(statsMap){
 
 function trackStat(bookId,type){
   var bid=parseInt(bookId);
-  // Always save locally first
+  // Save locally
   var stats=ls('sell_stats',{});
   if(!stats[bid])stats[bid]={views:0,carts:0,orders:0};
   stats[bid][type]=(stats[bid][type]||0)+1;
   lsSet('sell_stats',stats);
-  // Then sync to Supabase
-  var localStat=stats[bid];
-  var data={book_id:bid,views:localStat.views,carts:localStat.carts,orders:localStat.orders,updated_at:new Date().toISOString()};
+  // POST directly to Supabase - no GET first
+  var s=stats[bid];
   fetch(SB_URL+'/rest/v1/stats',{
     method:'POST',
     headers:Object.assign({},SB_HEADERS,{'Prefer':'resolution=merge-duplicates,return=minimal'}),
-    body:JSON.stringify(data)
+    body:JSON.stringify({book_id:bid,views:s.views,carts:s.carts,orders:s.orders,updated_at:new Date().toISOString()})
   }).catch(function(){});
 }
 
