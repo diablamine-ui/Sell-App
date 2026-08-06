@@ -1304,7 +1304,7 @@ function removeFromCart(id){
   cart=cart.filter(i=>i.id!==id);
   const btn=document.getElementById('btn-'+id);
   if(btn){btn.textContent='+ Panier';btn.classList.remove('added');}
-  updateCartUI();renderCartItems();checkUpsell();
+  updateCartUI();renderCartItems();
 }
 function changeQty(id,delta){const item=cart.find(i=>i.id===id);if(!item)return;item.qty+=delta;if(item.qty<=0)removeFromCart(id);else{updateCartUI();renderCartItems();}}
 function getTotal(){return cart.reduce((s,i)=>s+i.price*i.qty,0)}
@@ -1316,7 +1316,7 @@ function updateCartUI(){
   const bar=document.getElementById('mobileBar');
   if(qty>0){bar.style.display='block';document.getElementById('mobileTotalBar').textContent=total.toLocaleString('fr-FR')+' FCFA';}
   else bar.style.display='none';
-  renderCartItems();checkUpsell();
+  renderCartItems();
 }
 function renderCartItems(){
   const c=document.getElementById('cartItems'),f=document.getElementById('cartForm');
@@ -1672,7 +1672,7 @@ function resetStats(){
   if(!confirm('Remettre toutes les statistiques à zéro ?'))return;
   localStorage.removeItem('sell_stats');
   // Clear Supabase stats
-  fetch(SB_URL+'/rest/v1/stats',{
+  fetch(SB_URL+'/rest/v1/stats?book_id=gte.0',{
     method:'DELETE',
     headers:Object.assign({},SB_HEADERS,{'Accept':'application/json'})
   }).catch(function(e){console.warn(e);});
@@ -1745,9 +1745,9 @@ function trackStat(bookId,type){
     var cur=rows&&rows.length?rows[0]:{book_id:bookId,views:0,carts:0,orders:0};
     cur[type]=(cur[type]||0)+1;
     cur.updated_at=new Date().toISOString();
-    return fetch(SB_URL+'/rest/v1/stats',{
+    return fetch(SB_URL+'/rest/v1/stats?on_conflict=book_id',{
       method:'POST',
-      headers:Object.assign({},SB_HEADERS,{'Prefer':'resolution=merge-duplicates'}),
+      headers:Object.assign({},SB_HEADERS,{'Prefer':'resolution=merge-duplicates,return=minimal'}),
       body:JSON.stringify(cur)
     });
   }).catch(function(e){
