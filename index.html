@@ -312,7 +312,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .cart-header-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;color:var(--ink)}
 .close-btn{background:none;border:none;color:var(--ink3);cursor:pointer;padding:5px;transition:all .2s;display:flex;border-radius:4px;-webkit-tap-highlight-color:transparent}
 .close-btn:hover{background:var(--bg2);color:var(--ink)}
-.cart-items{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:14px 20px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+/* cart-items CSS removed - using cart-page-items now */
 .cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:180px;gap:10px;text-align:center}
 .cart-empty-icon{font-size:2.2rem;opacity:.28}
 .cart-empty p{font-size:.8rem;color:var(--ink3);line-height:1.7}
@@ -744,9 +744,7 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
     <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:300;color:var(--ink)">Mon panier</span>
     <span style="width:60px"></span>
   </nav>
-  <div class="cart-page-items" id="cartItems">
-    <div class="cart-empty"><div class="cart-empty-icon">📚</div><p>Votre panier est vide.<br>Choisissez vos titres pour commencer.</p></div>
-  </div>
+  <div class="cart-page-items" id="cartItems"></div>
   <div id="upsellSection"></div>
   <div class="cart-page-form" id="cartForm" style="display:none">
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(13,10,6,.06)">
@@ -1287,7 +1285,7 @@ function addToCart(id){
   const ex=cart.find(i=>i.id===id);
   if(ex)ex.qty++;else cart.push({...book,qty:1});
   updateCartUI();
-  trackStat(id,'carts');trackStat(id,'carts');capiEvent('AddToCart', {
+  trackStat(id,'carts');capiEvent('AddToCart', {
     content_ids: [id],
     content_name: book.title,
     value: book.price,
@@ -1738,8 +1736,9 @@ function renderStatsHTML(statsMap){
 
 
 function trackStat(bookId,type){
+  console.log('trackStat called:', bookId, type);
   // Read current from Supabase, increment, write back
-  fetch(SB_URL+'/rest/v1/stats?book_id=eq.'+bookId,{headers:SB_HEADERS})
+  fetch(SB_URL+'/rest/v1/stats?book_id=eq.'+parseInt(bookId),{headers:SB_HEADERS})
   .then(function(r){return r.json();})
   .then(function(rows){
     var cur=rows&&rows.length?rows[0]:{book_id:parseInt(bookId),views:0,carts:0,orders:0};
