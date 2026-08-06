@@ -1,57 +1,55 @@
-const CACHE_NAME = 'dilam-b-v3';
-const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json'
-];
+const CACHE_NAME = 'dilam-b-v4';
 
-// Install — cache assets
+// Install - skip waiting immediately
 self.addEventListener('install', function(e) {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(ASSETS);
-    })
-  );
   self.skipWaiting();
 });
 
-// Activate — clean old caches
+// Activate - delete ALL old caches
 self.addEventListener('activate', function(e) {
   e.waitUntil(
     caches.keys().then(function(keys) {
-      return Promise.all(
-        keys.filter(function(key) { return key !== CACHE_NAME; })
-            .map(function(key) { return caches.delete(key); })
-      );
+      return Promise.all(keys.map(function(key) {
+        return caches.delete(key);
+      }));
+    }).then(function() {
+      return self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
-// Fetch — network first, NEVER cache index.html
+// Fetch - ALWAYS network first, NEVER cache HTML
 self.addEventListener('fetch', function(e) {
   if (e.request.method !== 'GET') return;
-  if (!e.request.url.startsWith(self.location.origin)) return;
-
-  // Always fetch index.html fresh from network
-  if (e.request.url.endsWith('/') || e.request.url.includes('index.html')) {
+  
+  var url = e.request.url;
+  
+  // Never cache HTML files or API calls
+  if (
+    url.includes('.html') ||
+    url.endsWith('/') ||
+    url.includes('supabase') ||
+    url.includes('cloudinary') ||
+    url.includes('facebook') ||
+    url.includes('graph.facebook')
+  ) {
     e.respondWith(fetch(e.request));
     return;
   }
-
+  
+  // For static assets (images, fonts) - cache then network
   e.respondWith(
-    fetch(e.request)
-      .then(function(response) {
+    caches.match(e.request).then(function(cached) {
+      var networkFetch = fetch(e.request).then(function(response) {
         if (response && response.status === 200) {
-          const clone = response.clone();
+          var clone = response.clone();
           caches.open(CACHE_NAME).then(function(cache) {
             cache.put(e.request, clone);
           });
         }
         return response;
-      })
-      .catch(function() {
-        return caches.match(e.request);
-      })
+      });
+      return cached || networkFetch;
+    })
   );
 });
