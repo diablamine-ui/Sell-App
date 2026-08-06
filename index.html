@@ -1669,42 +1669,40 @@ function duplicateBook(id){var book=BOOKS.find(function(b){return b.id===id;});i
 function resetStats(){
   if(!confirm('Remettre toutes les statistiques à zéro ?'))return;
   localStorage.removeItem('sell_stats');
-  // Clear Supabase stats
   fetch(SB_URL+'/rest/v1/stats?book_id=gte.0',{
     method:'DELETE',
-    headers:Object.assign({},SB_HEADERS,{'Accept':'application/json'})
-  }).catch(function(e){console.warn(e);});
-  renderStats();
+    headers:Object.assign({},SB_HEADERS)
+  }).catch(function(){});
+  setTimeout(renderStats,500);
   showToast('Statistiques remises à zéro !');
 }
 
 function renderStats(){
   var el=document.getElementById('statsContent');
   if(!el)return;
-  el.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink3);font-size:.8rem;">Chargement...</div>';
+  el.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink3);font-size:.8rem">Chargement...</div>';
+  // Load from Supabase
   fetch(SB_URL+'/rest/v1/stats',{headers:SB_HEADERS})
   .then(function(r){return r.json();})
   .then(function(rows){
-    // Merge with localStorage fallback
-    var lsStats=ls('sell_stats',{});
-    var statsMap={};
-    // Start with Supabase data
+    var merged=ls('sell_stats',{});
     if(rows&&rows.length){
       rows.forEach(function(row){
-        statsMap[row.book_id]={views:row.views||0,carts:row.carts||0,orders:row.orders||0};
+        var bid=row.book_id;
+        if(!merged[bid])merged[bid]={views:0,carts:0,orders:0};
+        // Take max of local and remote
+        merged[bid].views=Math.max(merged[bid].views||0,row.views||0);
+        merged[bid].carts=Math.max(merged[bid].carts||0,row.carts||0);
+        merged[bid].orders=Math.max(merged[bid].orders||0,row.orders||0);
       });
     }
-    // Add any localStorage data not in Supabase
-    Object.keys(lsStats).forEach(function(k){
-      if(!statsMap[k])statsMap[k]=lsStats[k];
-    });
-    renderStatsHTML(statsMap);
+    renderStatsHTML(merged);
   })
   .catch(function(){
-    // Fallback to localStorage
     renderStatsHTML(ls('sell_stats',{}));
   });
 }
+
 
 function renderStatsHTML(statsMap){
   var el=document.getElementById('statsContent');
@@ -1736,26 +1734,20 @@ function renderStatsHTML(statsMap){
 
 
 function trackStat(bookId,type){
-  console.log('trackStat called:', bookId, type);
-  // Read current from Supabase, increment, write back
-  fetch(SB_URL+'/rest/v1/stats?book_id=eq.'+parseInt(bookId),{headers:SB_HEADERS})
-  .then(function(r){return r.json();})
-  .then(function(rows){
-    var cur=rows&&rows.length?rows[0]:{book_id:parseInt(bookId),views:0,carts:0,orders:0};
-    cur[type]=(cur[type]||0)+1;
-    cur.updated_at=new Date().toISOString();
-    return fetch(SB_URL+'/rest/v1/stats?on_conflict=book_id',{
-      method:'POST',
-      headers:Object.assign({},SB_HEADERS,{'Prefer':'resolution=merge-duplicates,return=minimal'}),
-      body:JSON.stringify(cur)
-    });
-  }).catch(function(e){
-    // Fallback to localStorage if Supabase unavailable
-    var stats=ls('sell_stats',{});
-    if(!stats[bookId])stats[bookId]={views:0,carts:0,orders:0};
-    stats[bookId][type]=(stats[bookId][type]||0)+1;
-    lsSet('sell_stats',stats);
-  });
+  var bid=parseInt(bookId);
+  // Always save locally first
+  var stats=ls('sell_stats',{});
+  if(!stats[bid])stats[bid]={views:0,carts:0,orders:0};
+  stats[bid][type]=(stats[bid][type]||0)+1;
+  lsSet('sell_stats',stats);
+  // Then sync to Supabase
+  var localStat=stats[bid];
+  var data={book_id:bid,views:localStat.views,carts:localStat.carts,orders:localStat.orders,updated_at:new Date().toISOString()};
+  fetch(SB_URL+'/rest/v1/stats',{
+    method:'POST',
+    headers:Object.assign({},SB_HEADERS,{'Prefer':'resolution=merge-duplicates,return=minimal'}),
+    body:JSON.stringify(data)
+  }).catch(function(){});
 }
 
 function syncStatToSupabase(bookId, stat){
@@ -1772,13 +1764,16 @@ function loadStatsFromSupabase(){
   .then(function(r){return r.json();})
   .then(function(rows){
     if(!rows||!rows.length)return;
-    var stats={};
+    var local=ls('sell_stats',{});
     rows.forEach(function(row){
-      stats[row.book_id]={views:row.views||0,carts:row.carts||0,orders:row.orders||0};
+      var bid=row.book_id;
+      if(!local[bid])local[bid]={views:0,carts:0,orders:0};
+      local[bid].views=Math.max(local[bid].views||0,row.views||0);
+      local[bid].carts=Math.max(local[bid].carts||0,row.carts||0);
+      local[bid].orders=Math.max(local[bid].orders||0,row.orders||0);
     });
-    lsSet('sell_stats',stats);
-    console.log('Stats loaded from Supabase');
-  }).catch(function(e){console.warn('Stats load error:',e);});
+    lsSet('sell_stats',local);
+  }).catch(function(){});
 }
 
 // ══ CSV ══
