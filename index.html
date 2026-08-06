@@ -1496,7 +1496,7 @@ function importCatalogue(e){
 
 // ══════════ UTILS ══════════
 // ══════════ BOOK PAGE ══════════
-function openBookPage(id){trackStat(id,'views');trackStat(id,'views');
+function openBookPage(id){trackStat(id,'views');
   const book=BOOKS.find(b=>b.id===id);if(!book)return;
   // Update URL
   history.pushState({bookId:id},'',location.pathname+'?livre='+id);
