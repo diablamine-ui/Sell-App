@@ -1304,9 +1304,9 @@ function removeFromCart(id){
   cart=cart.filter(i=>i.id!==id);
   const btn=document.getElementById('btn-'+id);
   if(btn){btn.textContent='+ Panier';btn.classList.remove('added');}
-  updateCartUI();renderCartItems();
+  updateCartUI();
 }
-function changeQty(id,delta){const item=cart.find(i=>i.id===id);if(!item)return;item.qty+=delta;if(item.qty<=0)removeFromCart(id);else{updateCartUI();renderCartItems();}}
+function changeQty(id,delta){const item=cart.find(i=>i.id===id);if(!item)return;item.qty+=delta;if(item.qty<=0)removeFromCart(id);else{updateCartUI();}}
 function getTotal(){return cart.reduce((s,i)=>s+i.price*i.qty,0)}
 function getTotalQty(){return cart.reduce((s,i)=>s+i.qty,0)}
 function updateCartUI(){
@@ -1742,7 +1742,7 @@ function trackStat(bookId,type){
   fetch(SB_URL+'/rest/v1/stats?book_id=eq.'+bookId,{headers:SB_HEADERS})
   .then(function(r){return r.json();})
   .then(function(rows){
-    var cur=rows&&rows.length?rows[0]:{book_id:bookId,views:0,carts:0,orders:0};
+    var cur=rows&&rows.length?rows[0]:{book_id:parseInt(bookId),views:0,carts:0,orders:0};
     cur[type]=(cur[type]||0)+1;
     cur.updated_at=new Date().toISOString();
     return fetch(SB_URL+'/rest/v1/stats?on_conflict=book_id',{
