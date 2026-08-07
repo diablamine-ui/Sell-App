@@ -1661,10 +1661,13 @@ function renderStats(){
         merged[bid].orders=Math.max(merged[bid].orders||0,row.orders||0);
       });
     }
+    window._lastStatsMap=merged;
     renderStatsHTML(merged);
   })
   .catch(function(){
-    renderStatsHTML(ls('sell_stats',{}));
+    var fb=ls('sell_stats',{});
+    window._lastStatsMap=fb;
+    renderStatsHTML(fb);
   });
 }
 
@@ -1693,7 +1696,6 @@ function renderStatsHTML(statsMap){
     +'<div style="font-size:.58rem;color:'+(activeSort==="orders"?'var(--gold)':'var(--ink3)')+';text-transform:uppercase;font-weight:600">✅ Commandes</div></div>'
     +'</div><div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button onclick="resetStats()" style="background:none;border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:var(--r-sm);cursor:pointer;font-family:Inter,sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase">Remettre à zéro</button></div>'
     +'<div class="adm-section-title">Par livre — triés par '+(activeSort==="views"?'vues':activeSort==="carts"?'paniers':'commandes')+'</div>';
-  var activeSort=window._statSort||'orders';
   var sorted=BOOKS.slice().sort(function(a,b){
     return ((statsMap[b.id]&&statsMap[b.id][activeSort])||0)-((statsMap[a.id]&&statsMap[a.id][activeSort])||0);
   });
@@ -1859,7 +1861,11 @@ function filterAdminList(){
 
 function sortStats(metric){
   window._statSort=metric;
-  renderStats();
+  if(window._lastStatsMap){
+    renderStatsHTML(window._lastStatsMap);
+  } else {
+    renderStats();
+  }
 }
 
 function showToast(msg){const t=document.getElementById('toast');if(t){t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}}
