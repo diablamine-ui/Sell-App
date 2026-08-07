@@ -1678,14 +1678,24 @@ function renderStatsHTML(statsMap){
     tc+=(statsMap[k].carts||0);
     to2+=(statsMap[k].orders||0);
   });
+  var activeSort=window._statSort||'orders';
+  var cardStyle='background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center;cursor:pointer;transition:all .2s';
+  var cardStyleActive='border-color:var(--gold);box-shadow:0 0 0 2px rgba(169,119,28,.15)';
   var html='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">'
-    +'<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--ink)">'+tv+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Vues</div></div>'
-    +'<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--gold)">'+tc+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Paniers</div></div>'
-    +'<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center"><div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--green)">'+to2+'</div><div style="font-size:.58rem;color:var(--ink3);text-transform:uppercase;font-weight:600">Commandes</div></div>'
+    +'<div style="'+cardStyle+(activeSort==="views"?';'+cardStyleActive:'')+'" onclick="sortStats(\'views\')">'
+    +'<div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--ink)">'+tv+'</div>'
+    +'<div style="font-size:.58rem;color:'+(activeSort==="views"?'var(--gold)':'var(--ink3)')+';text-transform:uppercase;font-weight:600">👁 Vues</div></div>'
+    +'<div style="'+cardStyle+(activeSort==="carts"?';'+cardStyleActive:'')+'" onclick="sortStats(\'carts\')">'
+    +'<div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--gold)">'+tc+'</div>'
+    +'<div style="font-size:.58rem;color:'+(activeSort==="carts"?'var(--gold)':'var(--ink3)')+';text-transform:uppercase;font-weight:600">🛒 Paniers</div></div>'
+    +'<div style="'+cardStyle+(activeSort==="orders"?';'+cardStyleActive:'')+'" onclick="sortStats(\'orders\')">'
+    +'<div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--green)">'+to2+'</div>'
+    +'<div style="font-size:.58rem;color:'+(activeSort==="orders"?'var(--gold)':'var(--ink3)')+';text-transform:uppercase;font-weight:600">✅ Commandes</div></div>'
     +'</div><div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button onclick="resetStats()" style="background:none;border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:var(--r-sm);cursor:pointer;font-family:Inter,sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase">Remettre à zéro</button></div>'
-    +'<div class="adm-section-title">Par livre</div>';
+    +'<div class="adm-section-title">Par livre — triés par '+(activeSort==="views"?'vues':activeSort==="carts"?'paniers':'commandes')+'</div>';
+  var activeSort=window._statSort||'orders';
   var sorted=BOOKS.slice().sort(function(a,b){
-    return ((statsMap[b.id]&&statsMap[b.id].orders)||0)-((statsMap[a.id]&&statsMap[a.id].orders)||0);
+    return ((statsMap[b.id]&&statsMap[b.id][activeSort])||0)-((statsMap[a.id]&&statsMap[a.id][activeSort])||0);
   });
   sorted.forEach(function(book){
     var s=statsMap[book.id]||{views:0,carts:0,orders:0};
@@ -1846,6 +1856,11 @@ function filterAdminList(){
   });
 }
 
+
+function sortStats(metric){
+  window._statSort=metric;
+  renderStats();
+}
 
 function showToast(msg){const t=document.getElementById('toast');if(t){t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}}
 function observeReveal(){const els=document.querySelectorAll('.reveal:not(.visible)');const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*50);obs.unobserve(e.target);}});},{threshold:.06});els.forEach(el=>obs.observe(el));}
