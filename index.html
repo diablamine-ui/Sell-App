@@ -418,89 +418,167 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 .reveal.visible{opacity:1;transform:translateY(0)}
 
 /* ══════════════════════════
-   ADMIN
+   ADMIN — PREMIUM
 ══════════════════════════ */
 .admin-overlay{position:fixed;inset:0;background:rgba(13,10,6,.7);z-index:300;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(8px)}
 .admin-overlay.open{opacity:1;pointer-events:all}
-.admin-panel{position:fixed;top:0;left:0;bottom:0;width:min(600px,100vw);background:var(--white);z-index:301;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .38s var(--ease);box-shadow:20px 0 60px rgba(13,10,6,.18)}
+.admin-panel{position:fixed;top:0;left:0;bottom:0;width:min(680px,100vw);background:#0F0D0A;z-index:301;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .38s var(--ease);box-shadow:20px 0 80px rgba(0,0,0,.4)}
 .admin-panel.open{transform:translateX(0)}
-.admin-header{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;background:var(--ink);flex-shrink:0;border-bottom:2px solid var(--gold)}
-.admin-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:300;color:var(--bg);letter-spacing:.05em}
-.admin-title span{color:var(--gold-lt)}
-.admin-body{flex:1;overflow-y:auto;padding:18px 20px;background:var(--bg)}
-.admin-login{display:flex;flex-direction:column;gap:12px;padding:28px 0}
-.admin-login-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--ink)}
-.admin-login p{font-size:.78rem;color:var(--ink3);line-height:1.7}
-.admin-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:18px}
-.admin-tab{flex:1;padding:9px;font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:none;border:none;color:var(--ink3);cursor:pointer;font-family:'Inter',sans-serif;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;-webkit-tap-highlight-color:transparent}
-.admin-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
+/* Header */
+.admin-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;background:#0F0D0A;flex-shrink:0;border-bottom:1px solid rgba(169,119,28,.2)}
+.admin-header-left{display:flex;align-items:center;gap:12px}
+.admin-header-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--gold),var(--gold-lt));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.admin-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;color:#FAF7F2;letter-spacing:.03em}
+.admin-title span{color:var(--gold-lt);font-size:.75rem;font-weight:600;font-family:'Inter',sans-serif;letter-spacing:.12em;text-transform:uppercase;display:block;margin-top:1px}
+.admin-close{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(250,247,242,.5);cursor:pointer;padding:7px;transition:all .2s;display:flex;border-radius:8px;-webkit-tap-highlight-color:transparent}
+.admin-close:hover{background:rgba(255,255,255,.12);color:#FAF7F2}
+
+/* Body */
+.admin-body{flex:1;overflow-y:auto;background:#141210;scrollbar-width:thin;scrollbar-color:rgba(169,119,28,.3) transparent}
+.admin-body::-webkit-scrollbar{width:4px}
+.admin-body::-webkit-scrollbar-track{background:transparent}
+.admin-body::-webkit-scrollbar-thumb{background:rgba(169,119,28,.3);border-radius:999px}
+
+/* Login */
+.admin-login{padding:40px 24px}
+.admin-login-card{background:#1A1713;border:1px solid rgba(169,119,28,.15);border-radius:12px;padding:28px}
+.admin-login-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:#FAF7F2;margin-bottom:6px}
+.admin-login-sub{font-size:.75rem;color:rgba(250,247,242,.4);margin-bottom:22px}
+
+/* Nav tabs */
+.admin-tabs{display:flex;padding:0 24px;gap:2px;background:#0F0D0A;border-bottom:1px solid rgba(169,119,28,.15);flex-shrink:0}
+.admin-tab{flex:1;padding:12px 8px;font-size:.58rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:none;border:none;color:rgba(250,247,242,.35);cursor:pointer;font-family:'Inter',sans-serif;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;-webkit-tap-highlight-color:transparent;display:flex;flex-direction:column;align-items:center;gap:4px}
+.admin-tab-icon{font-size:1rem}
+.admin-tab.active{color:var(--gold-lt);border-bottom-color:var(--gold)}
 .admin-tab-content{display:none}
 .admin-tab-content.active{display:block}
-.logo-wrap{display:flex;align-items:center;gap:13px;margin-bottom:10px}
-.logo-circle{width:52px;height:52px;border-radius:50%;background:var(--gold-pale);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+
+/* Section label */
+.adm-section-label{font-size:.56rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);padding:20px 24px 10px;border-bottom:1px solid rgba(169,119,28,.1);margin-bottom:0;display:flex;align-items:center;justify-content:space-between}
+.adm-section-label span{color:rgba(250,247,242,.3);font-weight:400;letter-spacing:0;text-transform:none;font-size:.68rem}
+
+/* KPI Cards */
+.admin-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px 24px}
+.kpi-card{background:#1A1713;border:1px solid rgba(169,119,28,.12);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);opacity:0;transition:opacity .2s}
+.kpi-card:hover,.kpi-card.active{border-color:rgba(169,119,28,.4);background:#1F1B16}
+.kpi-card:hover::before,.kpi-card.active::before{opacity:1}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;line-height:1;margin-bottom:4px}
+.kpi-label{font-size:.56rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(250,247,242,.4)}
+.kpi-icon{position:absolute;top:12px;right:12px;font-size:1.1rem;opacity:.25}
+
+/* Book list */
+.admin-book-list{padding:0 24px 16px;display:flex;flex-direction:column;gap:6px}
+.admin-book-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#1A1713;border:1px solid rgba(169,119,28,.1);border-radius:8px;transition:all .2s}
+.admin-book-row:hover{border-color:rgba(169,119,28,.3);background:#1F1B16}
+.admin-book-row.dragging{opacity:.4;background:#252015;border-color:var(--gold)}
+.admin-book-row.drag-over{border-top:2px solid var(--gold)}
+.admin-book-thumb{width:32px;height:44px;background:#252015;border-radius:4px;overflow:hidden;flex-shrink:0;border:1px solid rgba(169,119,28,.15);display:flex;align-items:center;justify-content:center}
+.admin-book-thumb img{width:100%;height:100%;object-fit:cover}
+.admin-book-thumb-ph{font-family:'Cormorant Garamond',serif;font-size:.42rem;color:rgba(250,247,242,.3);text-align:center;padding:2px;line-height:1.2}
+.admin-book-info{flex:1;min-width:0}
+.admin-book-t{font-size:.72rem;font-weight:600;color:#FAF7F2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.admin-book-m{font-size:.6rem;color:var(--gold);font-weight:500}
+.admin-book-actions{display:flex;gap:4px;flex-shrink:0}
+.adm-btn-sm{padding:5px 9px;border-radius:5px;cursor:pointer;font-size:.58rem;font-weight:700;font-family:'Inter',sans-serif;transition:all .18s;-webkit-tap-highlight-color:transparent;border:1px solid transparent}
+.adm-btn-edit{background:rgba(169,119,28,.12);color:var(--gold-lt);border-color:rgba(169,119,28,.2)}
+.adm-btn-edit:hover{background:rgba(169,119,28,.25)}
+.adm-btn-dup{background:rgba(15,122,61,.1);color:#4ade80;border-color:rgba(15,122,61,.2)}
+.adm-btn-dup:hover{background:rgba(15,122,61,.2)}
+.adm-btn-del{background:rgba(179,38,30,.1);color:#f87171;border-color:rgba(179,38,30,.2)}
+.adm-btn-del:hover{background:rgba(179,38,30,.2)}
+
+/* Form */
+.admin-form-wrap{padding:16px 24px}
+.adm-form{display:flex;flex-direction:column;gap:12px}
+.adm-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.adm-field{display:flex;flex-direction:column;gap:5px}
+.adm-label{font-size:.56rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(250,247,242,.45)}
+.adm-input,.adm-select,.adm-textarea{background:#1A1713;border:1px solid rgba(169,119,28,.2);color:#FAF7F2;padding:9px 11px;font-family:'Inter',sans-serif;font-size:.82rem;border-radius:7px;outline:none;transition:all .2s;width:100%}
+.adm-input:focus,.adm-select:focus,.adm-textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(169,119,28,.12);background:#1F1B16}
+.adm-input::placeholder,.adm-textarea::placeholder{color:rgba(250,247,242,.2)}
+.adm-select option{background:#1A1713}
+.adm-textarea{resize:vertical;min-height:60px;line-height:1.6}
+.adm-checkbox{display:flex;align-items:center;gap:9px;padding:6px 0}
+.adm-checkbox input{width:15px;height:15px;accent-color:var(--gold);cursor:pointer}
+.adm-checkbox label{font-size:.74rem;color:rgba(250,247,242,.7);cursor:pointer}
+.adm-hint{font-size:.64rem;color:rgba(250,247,242,.3);line-height:1.55;padding:8px 10px;background:rgba(169,119,28,.08);border-radius:6px;border-left:2px solid rgba(169,119,28,.4);margin-bottom:2px}
+
+/* Badge selector */
+.badge-sel{display:flex;gap:5px;flex-wrap:wrap}
+.badge-opt{padding:4px 9px;font-size:.54rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;border:1px solid rgba(255,255,255,.1);cursor:pointer;transition:all .18s;font-family:'Inter',sans-serif;background:rgba(255,255,255,.04);color:rgba(250,247,242,.4);-webkit-tap-highlight-color:transparent}
+.badge-opt.sel-none{background:rgba(255,255,255,.08);color:rgba(250,247,242,.7);border-color:rgba(255,255,255,.15)}
+.badge-opt.sel-bestseller{background:#0D0A06;color:#C4912A;border-color:#C4912A}
+.badge-opt.sel-new{background:#145A32;color:#4ade80;border-color:#145A32}
+.badge-opt.sel-promo{background:#7f1d1d;color:#fca5a5;border-color:#991b1b}
+.badge-opt.sel-limited{background:#6B3A00;color:#F5E8CC;border-color:#92400e}
+.badge-opt.sel-coup{background:#4A1A4A;color:#E8B4E8;border-color:#6b21a8}
+.badge-opt.sel-recommended{background:#1A3A5C;color:#93c5fd;border-color:#1e40af}
+
+/* Image preview */
+.img-preview{width:100%;aspect-ratio:3/2;background:#1A1713;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:1px dashed rgba(169,119,28,.25);margin-top:4px}
+.img-preview img{width:100%;height:100%;object-fit:cover}
+.img-preview span{font-size:.66rem;color:rgba(250,247,242,.25);text-align:center;padding:10px}
+
+/* Buttons */
+.adm-btn-row{display:flex;gap:8px;margin-top:4px}
+.adm-save{flex:1;background:linear-gradient(135deg,var(--gold),var(--gold-lt));color:#0F0D0A;border:none;padding:12px;font-family:'Inter',sans-serif;font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-radius:8px;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.adm-save:hover{opacity:.9;transform:translateY(-1px)}
+.adm-cancel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(250,247,242,.5);padding:12px 16px;font-family:'Inter',sans-serif;font-size:.66rem;font-weight:600;border-radius:8px;cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent}
+.adm-cancel:hover{background:rgba(255,255,255,.1);color:#FAF7F2}
+.adm-add-btn{width:100%;background:none;border:1px dashed rgba(169,119,28,.3);color:rgba(169,119,28,.7);padding:11px;font-family:'Inter',sans-serif;font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:8px;cursor:pointer;transition:all .2s;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:7px;-webkit-tap-highlight-color:transparent}
+.adm-add-btn:hover{background:rgba(169,119,28,.08);border-color:var(--gold);color:var(--gold)}
+.upload-label{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(15,122,61,.15);color:#4ade80;border:1px solid rgba(15,122,61,.3);padding:9px;border-radius:7px;cursor:pointer;font-size:.62rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-family:'Inter',sans-serif;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.upload-label:hover{background:rgba(15,122,61,.25)}
+.del-img-btn{background:rgba(179,38,30,.1);border:1px solid rgba(179,38,30,.2);color:#f87171;padding:9px 12px;border-radius:7px;cursor:pointer;font-size:.62rem;font-weight:600;font-family:'Inter',sans-serif;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.del-img-btn:hover{background:rgba(179,38,30,.2)}
+
+/* Logo wrap */
+.logo-wrap{display:flex;align-items:center;gap:13px;margin-bottom:12px;padding:14px;background:#1A1713;border-radius:10px;border:1px solid rgba(169,119,28,.12)}
+.logo-circle{width:52px;height:52px;border-radius:50%;background:#252015;border:2px solid rgba(169,119,28,.3);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
 .logo-circle img{width:100%;height:100%;object-fit:cover}
 .logo-initials-prev{font-family:'Cormorant Garamond',serif;font-size:1.25rem;font-weight:600;color:var(--gold)}
-.logo-info{font-size:.7rem;color:var(--ink3);line-height:1.55}
-.logo-info strong{color:var(--ink);display:block;margin-bottom:1px}
-.admin-book-list{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
-.admin-book-row{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--white);border:1px solid rgba(13,10,6,.07);border-radius:var(--r-sm);transition:border-color .2s;box-shadow:var(--shadow-sm)}
-.admin-book-row:hover{border-color:var(--border)}
-.admin-book-thumb{width:30px;height:40px;background:var(--bg2);border-radius:3px;overflow:hidden;flex-shrink:0;border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
-.admin-book-thumb img{width:100%;height:100%;object-fit:cover}
-.admin-book-thumb-ph{font-family:'Cormorant Garamond',serif;font-size:.46rem;color:var(--ink3);text-align:center;padding:2px;line-height:1.2}
-.admin-book-info{flex:1;min-width:0}
-.admin-book-t{font-size:.75rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.admin-book-m{font-size:.62rem;color:var(--gold);font-weight:600}
-.admin-book-actions{display:flex;gap:4px;flex-shrink:0}
-.adm-edit{background:var(--bg2);border:1px solid var(--border);color:var(--ink);padding:4px 8px;border-radius:3px;cursor:pointer;font-size:.61rem;font-weight:600;font-family:'Inter',sans-serif;transition:all .18s;-webkit-tap-highlight-color:transparent}
-.adm-edit:hover{border-color:var(--gold);color:var(--gold)}
-.adm-del{background:none;border:1px solid rgba(179,38,30,.2);color:var(--red);padding:4px 8px;border-radius:3px;cursor:pointer;font-size:.61rem;font-weight:600;font-family:'Inter',sans-serif;transition:all .18s;-webkit-tap-highlight-color:transparent}
-.adm-del:hover{background:var(--red);color:#fff;border-color:var(--red)}
-.adm-section-title{font-size:.58rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);padding-bottom:9px;border-bottom:1px solid var(--border);margin-bottom:12px}
-.adm-form{display:flex;flex-direction:column;gap:10px}
-.adm-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.adm-field{display:flex;flex-direction:column;gap:4px}
-.adm-label{font-size:.56rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--ink2)}
-.adm-input,.adm-select,.adm-textarea{background:var(--white);border:1.5px solid rgba(13,10,6,.09);color:var(--ink);padding:8px 10px;font-family:'Inter',sans-serif;font-size:.82rem;border-radius:var(--r-sm);outline:none;transition:all .2s;width:100%}
-.adm-input:focus,.adm-select:focus,.adm-textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(169,119,28,.1)}
-.adm-textarea{resize:vertical;min-height:58px;line-height:1.6}
-.adm-checkbox{display:flex;align-items:center;gap:8px;padding:6px 0}
-.adm-checkbox input{width:14px;height:14px;accent-color:var(--gold);cursor:pointer}
-.adm-checkbox label{font-size:.73rem;color:var(--ink);cursor:pointer;font-weight:500}
-.badge-sel{display:flex;gap:5px;flex-wrap:wrap}
-.badge-opt{padding:4px 9px;font-size:.56rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;border:1.5px solid rgba(13,10,6,.1);cursor:pointer;transition:all .18s;font-family:'Inter',sans-serif;background:var(--white);color:var(--ink3);-webkit-tap-highlight-color:transparent}
-.badge-opt.sel-none{background:var(--bg2);color:var(--ink);border-color:rgba(13,10,6,.14)}
-.badge-opt.sel-bestseller{background:#0D0A06;color:#C4912A;border-color:#0D0A06}
-.badge-opt.sel-new{background:#145A32;color:#fff;border-color:#145A32}
-.badge-opt.sel-promo{background:var(--red);color:#fff;border-color:var(--red)}
-.badge-opt.sel-limited{background:#6B3A00;color:#F5E8CC;border-color:#6B3A00}
-.badge-opt.sel-coup{background:#4A1A4A;color:#E8B4E8;border-color:#4A1A4A}
-.badge-opt.sel-recommended{background:#1A3A5C;color:#A8D0F0;border-color:#1A3A5C}
-.img-preview{width:100%;aspect-ratio:3/2;background:var(--bg2);border-radius:var(--r-sm);overflow:hidden;display:flex;align-items:center;justify-content:center;border:1.5px dashed var(--border);margin-top:4px}
-.img-preview img{width:100%;height:100%;object-fit:cover}
-.img-preview span{font-size:.68rem;color:var(--ink3);text-align:center;padding:10px}
-.adm-btn-row{display:flex;gap:8px;margin-top:3px}
-.adm-save{flex:1;background:var(--ink);color:var(--bg);border:none;padding:11px;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;transition:background .2s;-webkit-tap-highlight-color:transparent}
-.adm-save:hover{background:var(--green)}
-.adm-cancel{background:none;border:1px solid var(--border);color:var(--ink3);padding:11px 16px;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:600;border-radius:var(--r-sm);cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent}
-.adm-cancel:hover{border-color:var(--ink);color:var(--ink)}
-.adm-add-btn{width:100%;background:none;border:1.5px dashed rgba(169,119,28,.35);color:var(--gold);padding:10px;font-family:'Inter',sans-serif;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;transition:all .2s;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:7px;-webkit-tap-highlight-color:transparent}
-.adm-add-btn:hover{background:var(--gold-pale);border-color:var(--gold)}
-.drag-handle{cursor:grab;color:var(--ink3);padding:0 6px;flex-shrink:0;display:flex;align-items:center;touch-action:none}
+.logo-info{font-size:.7rem;color:rgba(250,247,242,.4);line-height:1.55}
+.logo-info strong{color:rgba(250,247,242,.8);display:block;margin-bottom:2px}
+
+/* Drag handle */
+.drag-handle{cursor:grab;color:rgba(250,247,242,.2);padding:0 6px;flex-shrink:0;display:flex;align-items:center;touch-action:none}
 .drag-handle:active{cursor:grabbing}
 .drag-handle svg{pointer-events:none}
-.admin-book-row.dragging{opacity:.4;background:var(--gold-pale);border-color:var(--gold)}
-.admin-book-row.drag-over{border-top:2px solid var(--gold)}
-.adm-hint{font-size:.66rem;color:var(--ink3);line-height:1.55;padding:7px 10px;background:var(--gold-pale);border-radius:var(--r-sm);border-left:3px solid var(--gold);margin-bottom:3px}
-.empty-state{grid-column:1/-1;text-align:center;padding:56px 20px}
-.empty-state .es-i{font-size:1.8rem;margin-bottom:7px;opacity:.3}
-.empty-state p{font-size:.8rem;color:var(--ink3);font-style:italic}
-.upload-label{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--green);color:#fff;padding:8px;border-radius:var(--r-sm);cursor:pointer;font-size:.63rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-family:'Inter',sans-serif;transition:background .2s;-webkit-tap-highlight-color:transparent}
-.upload-label:hover{background:var(--green-dk)}
-.del-img-btn{background:none;border:1.5px solid var(--border);color:var(--ink3);padding:8px 11px;border-radius:var(--r-sm);cursor:pointer;font-size:.63rem;font-weight:600;font-family:'Inter',sans-serif;transition:all .2s;-webkit-tap-highlight-color:transparent}
-.del-img-btn:hover{border-color:var(--red);color:var(--red)}
 
-/* ── RESPONSIVE ── */
+/* Admin search */
+.admin-search-wrap{position:relative;padding:12px 24px 0}
+.admin-search-wrap svg{position:absolute;left:36px;top:50%;transform:translateY(-20%);color:rgba(250,247,242,.25);pointer-events:none}
+.admin-search-input{width:100%;background:#1A1713;border:1px solid rgba(169,119,28,.15);color:#FAF7F2;padding:9px 10px 9px 34px;font-family:'Inter',sans-serif;font-size:.8rem;border-radius:7px;outline:none;transition:all .2s}
+.admin-search-input:focus{border-color:var(--gold);background:#1F1B16}
+.admin-search-input::placeholder{color:rgba(250,247,242,.2)}
+
+/* Reorder button */
+.reorder-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;transition:all .2s;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(250,247,242,.4);-webkit-tap-highlight-color:transparent}
+.reorder-btn:hover{background:rgba(255,255,255,.08);color:rgba(250,247,242,.7)}
+.reorder-btn.active{background:rgba(169,119,28,.15);border-color:var(--gold);color:var(--gold)}
+
+/* Config */
+.config-section{padding:0 24px 20px}
+.config-section+.config-section{border-top:1px solid rgba(169,119,28,.1);padding-top:16px}
+
+/* Empty state */
+.admin-empty{text-align:center;padding:40px 20px;color:rgba(250,247,242,.25)}
+.admin-empty-icon{font-size:1.8rem;margin-bottom:8px;opacity:.4}
+
+/* Stats book row */
+.stats-book-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#1A1713;border:1px solid rgba(169,119,28,.1);border-radius:8px;margin-bottom:5px;transition:border-color .2s}
+.stats-book-row:hover{border-color:rgba(169,119,28,.25)}
+.stats-bar-wrap{flex:1;min-width:0}
+.stats-bar-label{font-size:.65rem;font-weight:600;color:#FAF7F2;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stats-bar-track{height:4px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+.stats-bar-fill{height:100%;border-radius:999px;transition:width .4s ease}
+.stats-bar-nums{display:flex;gap:12px;margin-top:4px}
+.stats-num{font-size:.58rem;color:rgba(250,247,242,.35);font-weight:500}
+.stats-num strong{font-weight:700}
+
+/* ── RESPONSIVE ── *//* ── RESPONSIVE ── */
 @media(max-width:480px){
   .books-grid{grid-template-columns:1fr 1fr;gap:10px}
   .hero-title{font-size:1.9rem}
@@ -759,163 +837,231 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 <!-- ADMIN -->
 <div class="admin-overlay" id="adminOverlay" onclick="closeAdmin()"></div>
 <div class="admin-panel" id="adminPanel">
+
+  <!-- HEADER -->
   <div class="admin-header">
-    <div class="admin-title">Admin <span id="adminShopName">· Dilam B'</span></div>
-    <button class="close-btn" onclick="closeAdmin()" style="color:rgba(250,247,242,.5)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="admin-header-left">
+      <div class="admin-header-icon">📚</div>
+      <div>
+        <div class="admin-title">Dilam B' <span id="adminShopName">Administration</span></div>
+      </div>
+    </div>
+    <button class="admin-close" onclick="closeAdmin()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
   </div>
+
   <div class="admin-body">
+
+    <!-- LOGIN -->
     <div id="adminLoginScreen">
       <div class="admin-login">
-        <div class="admin-login-title display">Accès réservé</div>
-        <p>Entrez votre mot de passe pour gérer votre boutique.</p>
-        <div class="adm-field"><label class="adm-label">Mot de passe</label><input class="adm-input" type="password" id="adminPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter') checkAdmin()"></div>
-        <button class="adm-save" onclick="checkAdmin()">Accéder</button>
+        <div class="admin-login-card">
+          <div class="admin-login-title">Accès réservé</div>
+          <div class="admin-login-sub">Entrez votre mot de passe pour accéder au tableau de bord.</div>
+          <div class="adm-field" style="margin-bottom:14px">
+            <label class="adm-label">Mot de passe</label>
+            <input class="adm-input" type="password" id="adminPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter') checkAdmin()">
+          </div>
+          <button class="adm-save" onclick="checkAdmin()">Accéder au tableau de bord</button>
+        </div>
       </div>
     </div>
+
+    <!-- MAIN -->
     <div id="adminMainScreen" style="display:none">
+
+      <!-- TABS -->
       <div class="admin-tabs">
-        <button class="admin-tab active" onclick="switchTab('boutique',this)">🏪 Boutique</button>
-        <button class="admin-tab" onclick="switchTab('catalogue',this)">📚 Catalogue</button>
-        <button class="admin-tab" onclick="switchTab('stats',this)">📊 Stats</button>
-        <button class="admin-tab" onclick="switchTab('config',this)">⚙️ Config</button>
-      </div>
-      <!-- BOUTIQUE -->
-      <div class="admin-tab-content active" id="tab-boutique">
-        <div class="adm-section-title">Logo</div>
-        <div class="logo-wrap">
-          <div class="logo-circle" id="logoPreviewCircle"><span class="logo-initials-prev" id="logoPreviewInitials">DB</span></div>
-          <div class="logo-info"><strong>Photo de profil ou logo</strong>Image carrée min 200×200px</div>
-        </div>
-        <div class="adm-field" style="margin-bottom:12px">
-          <div style="display:flex;gap:7px;margin-bottom:5px">
-            <label class="upload-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Choisir<input type="file" accept="image/*" style="display:none" onchange="handleLogoUpload(event)"></label>
-            <button type="button" class="del-img-btn" onclick="clearLogo()">Supprimer</button>
-          </div>
-          <div class="adm-hint" style="margin-bottom:5px">Ou colle une URL ↓</div>
-          <input class="adm-input" id="sLogoUrl" placeholder="https://…" oninput="previewLogo(this.value)">
-        </div>
-        <div class="adm-section-title">Identité</div>
-        <div class="adm-form">
-          <div class="adm-row">
-            <div class="adm-field"><label class="adm-label">Nom (partie 1)</label><input class="adm-input" id="sName1" placeholder="Dilam B'"></div>
-            <div class="adm-field"><label class="adm-label">Partie 2 (dorée)</label><input class="adm-input" id="sName2" placeholder="optionnel"></div>
-          </div>
-          <div class="adm-field"><label class="adm-label">Slogan</label><input class="adm-input" id="sNavSub" placeholder="Les livres à p'tits prix"></div>
-          <div class="adm-field"><label class="adm-label">Accroche hero</label><input class="adm-input" id="sTagline" placeholder="Bibliothèque · Abidjan"></div>
-          <div class="adm-field"><label class="adm-label">Titre hero</label><input class="adm-input" id="sHeroTitle" placeholder="Titre principal…"></div>
-          <div class="adm-field"><label class="adm-label">Description hero</label><textarea class="adm-textarea" id="sHeroSub"></textarea></div>
-          <div class="adm-field"><label class="adm-label">Texte footer</label><input class="adm-input" id="sFooterCopy" placeholder="© 2026 · Livraison CI"></div>
-          <button class="adm-save" onclick="saveShopSettings()">Enregistrer</button>
-        </div>
-      </div>
-      <!-- CATALOGUE -->
-      <div class="admin-tab-content" id="tab-catalogue">
-        <div style="display:flex;gap:7px;margin-bottom:10px">
-          <button onclick="exportCSV()" style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:8px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.6rem;font-weight:700;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
-          <label style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:8px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.6rem;font-weight:700;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import CSV
-            <input type="file" accept=".csv" style="display:none" onchange="importCSV(event)">
-          </label>
-        </div>
-        <div style="display:flex;gap:7px;margin-bottom:10px">
-          <button id="reorderBtn" onclick="toggleReorderMode()" style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:9px;border-radius:var(--r-sm);cursor:pointer;font-family:Inter,sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-            Réorganiser
-          </button>
-        </div>
-        <button class="adm-add-btn" onclick="showAddForm()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Ajouter un livre ou un pack</button>
-        <div style="display:flex;gap:8px;margin-bottom:16px">
-          <button onclick="exportCatalogue()" style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:9px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink3)'">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Exporter catalogue
-          </button>
-          <label style="flex:1;background:none;border:1.5px solid var(--border);color:var(--ink3);padding:9px;border-radius:var(--r-sm);cursor:pointer;font-family:'Inter',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--ink3)'">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Importer catalogue
-            <input type="file" accept=".json" style="display:none" onchange="importCatalogue(event)">
-          </label>
-        </div>
-        <div style="position:relative;margin-bottom:10px">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ink3)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="adminSearch" placeholder="Rechercher dans le catalogue…" oninput="filterAdminList()" style="width:100%;background:var(--white);border:1.5px solid rgba(13,10,6,.09);color:var(--ink);padding:8px 10px 8px 32px;font-family:'Inter',sans-serif;font-size:.82rem;border-radius:var(--r-sm);outline:none">
-        </div>
-        <div class="adm-section-title">Catalogue — <span id="adminCount">0</span> titres</div>
-        <div class="admin-book-list" id="adminBookList"></div>
-      </div>
-      <!-- STATS -->
-      <div class="admin-tab-content" id="tab-stats">
-        <div class="adm-section-title">Statistiques</div>
-        <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
-          <button onclick="resetStats()" style="background:none;border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:var(--r-sm);cursor:pointer;font-family:Inter,sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase">Remettre à zéro</button>
-        </div>
-        <div id="statsContent" style="display:flex;flex-direction:column;gap:10px"></div>
+        <button class="admin-tab active" onclick="switchTab('boutique',this)">
+          <span class="admin-tab-icon">🏪</span>Boutique
+        </button>
+        <button class="admin-tab" onclick="switchTab('catalogue',this)">
+          <span class="admin-tab-icon">📚</span>Catalogue
+        </button>
+        <button class="admin-tab" onclick="switchTab('stats',this)">
+          <span class="admin-tab-icon">📊</span>Stats
+        </button>
+        <button class="admin-tab" onclick="switchTab('config',this)">
+          <span class="admin-tab-icon">⚙️</span>Config
+        </button>
       </div>
 
-      <!-- CONFIG -->
-      <div class="admin-tab-content" id="tab-config">
-        <div class="adm-section-title">WhatsApp</div>
-        <div class="adm-form" style="margin-bottom:20px">
-          <div class="adm-field"><label class="adm-label">Numéro (sans +)</label><input class="adm-input" id="cWaNumber" placeholder="2250714313052"></div>
-          <div class="adm-field"><label class="adm-label">Message panier</label><div class="adm-hint">Variables : {nom} {ville} {telephone} {articles} {total}</div><textarea class="adm-textarea" id="cWaMessage" style="min-height:80px"></textarea></div>
-          <div class="adm-field"><label class="adm-label">Message commande directe</label><div class="adm-hint">Variables : {titre} {auteur} {prix}</div><textarea class="adm-textarea" id="cWaMessageDirect" style="min-height:70px"></textarea></div>
-          <button class="adm-save" onclick="saveConfig()">Enregistrer</button>
-        </div>
-        <div class="adm-section-title">Pixel Meta</div>
-        <div class="adm-form">
-          <div class="adm-field"><label class="adm-label">Pixel ID</label><input class="adm-input" id="cPixelId" placeholder="1234567890123456"></div>
-          <div class="adm-hint">PageView, AddToCart, InitiateCheckout trackés automatiquement.</div>
-          <button class="adm-save" onclick="saveConfig()">Enregistrer</button>
+      <!-- ═══ BOUTIQUE ═══ -->
+      <div class="admin-tab-content active" id="tab-boutique">
+        <div class="adm-section-label">Logo & Identité</div>
+        <div class="admin-form-wrap">
+          <div class="logo-wrap">
+            <div class="logo-circle" id="logoPreviewCircle"><span class="logo-initials-prev" id="logoPreviewInitials">DB</span></div>
+            <div class="logo-info"><strong>Photo de profil ou logo</strong>Image carrée min 200×200px</div>
+          </div>
+          <div class="adm-field" style="margin-bottom:14px">
+            <div style="display:flex;gap:7px;margin-bottom:6px">
+              <label class="upload-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Choisir
+                <input type="file" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+              </label>
+              <button type="button" class="del-img-btn" onclick="clearLogo()">Supprimer</button>
+            </div>
+            <div class="adm-hint" style="margin-bottom:5px">Ou colle une URL ↓</div>
+            <input class="adm-input" id="sLogoUrl" placeholder="https://…" oninput="previewLogo(this.value)">
+          </div>
+          <div class="adm-form">
+            <div class="adm-row">
+              <div class="adm-field"><label class="adm-label">Nom (partie 1)</label><input class="adm-input" id="sName1" placeholder="Dilam B'"></div>
+              <div class="adm-field"><label class="adm-label">Partie 2 (dorée)</label><input class="adm-input" id="sName2" placeholder="optionnel"></div>
+            </div>
+            <div class="adm-field"><label class="adm-label">Slogan</label><input class="adm-input" id="sNavSub" placeholder="Les livres à p'tits prix"></div>
+            <div class="adm-field"><label class="adm-label">Accroche hero</label><input class="adm-input" id="sTagline" placeholder="Bibliothèque · Abidjan"></div>
+            <div class="adm-field"><label class="adm-label">Titre hero</label><input class="adm-input" id="sHeroTitle" placeholder="Titre principal…"></div>
+            <div class="adm-field"><label class="adm-label">Description hero</label><textarea class="adm-textarea" id="sHeroSub"></textarea></div>
+            <div class="adm-field"><label class="adm-label">Texte footer</label><input class="adm-input" id="sFooterCopy" placeholder="© 2026 · Livraison CI"></div>
+            <button class="adm-save" onclick="saveShopSettings()">Enregistrer</button>
+          </div>
         </div>
       </div>
-    </div>
+
+      <!-- ═══ CATALOGUE ═══ -->
+      <div class="admin-tab-content" id="tab-catalogue">
+        <div class="adm-section-label">Catalogue <span id="adminCount">0</span> titres</div>
+
+        <!-- Actions bar -->
+        <div style="padding:12px 24px;display:flex;gap:7px;flex-wrap:wrap">
+          <button onclick="showAddForm()" class="adm-save" style="flex:2;padding:10px">+ Ajouter un titre</button>
+          <button id="reorderBtn" onclick="toggleReorderMode()" class="reorder-btn" style="flex:1">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            Trier
+          </button>
+        </div>
+
+        <!-- Import/Export -->
+        <div style="padding:0 24px 12px;display:flex;gap:6px">
+          <button onclick="exportCSV()" style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(250,247,242,.4);padding:7px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.58rem;font-weight:700;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:4px">↓ CSV</button>
+          <label style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(250,247,242,.4);padding:7px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.58rem;font-weight:700;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:4px">↑ CSV<input type="file" accept=".csv" style="display:none" onchange="importCSV(event)"></label>
+          <button onclick="exportCatalogue()" style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(250,247,242,.4);padding:7px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.58rem;font-weight:700;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:4px">↓ JSON</button>
+          <label style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(250,247,242,.4);padding:7px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.58rem;font-weight:700;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:4px">↑ JSON<input type="file" accept=".json" style="display:none" onchange="importCatalogue(event)"></label>
+        </div>
+
+        <!-- Search -->
+        <div class="admin-search-wrap" style="padding-bottom:12px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="admin-search-input" type="text" id="adminSearch" placeholder="Rechercher un titre…" oninput="filterAdminList()">
+        </div>
+
+        <div class="admin-book-list" id="adminBookList"></div>
+      </div>
+
+      <!-- ═══ STATS ═══ -->
+      <div class="admin-tab-content" id="tab-stats">
+        <div class="adm-section-label">Tableau de bord <span><button onclick="resetStats()" style="background:rgba(179,38,30,.15);border:1px solid rgba(179,38,30,.3);color:#f87171;padding:4px 10px;border-radius:5px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.56rem;font-weight:700;text-transform:uppercase">Réinitialiser</button></span></div>
+        <div class="admin-kpi-grid" id="kpiGrid">
+          <div class="kpi-card active" onclick="sortStats('views')">
+            <div class="kpi-icon">👁</div>
+            <div class="kpi-val" id="kpiViews" style="color:#FAF7F2">0</div>
+            <div class="kpi-label">Vues</div>
+          </div>
+          <div class="kpi-card" onclick="sortStats('carts')">
+            <div class="kpi-icon">🛒</div>
+            <div class="kpi-val" id="kpiCarts" style="color:var(--gold-lt)">0</div>
+            <div class="kpi-label">Paniers</div>
+          </div>
+          <div class="kpi-card" onclick="sortStats('orders')">
+            <div class="kpi-icon">✅</div>
+            <div class="kpi-val" id="kpiOrders" style="color:#4ade80">0</div>
+            <div class="kpi-label">Commandes</div>
+          </div>
+        </div>
+        <div class="adm-section-label" id="statsLabel">Par livre — triés par vues</div>
+        <div style="padding:0 24px 24px" id="statsContent"></div>
+      </div>
+
+      <!-- ═══ CONFIG ═══ -->
+      <div class="admin-tab-content" id="tab-config">
+        <div class="adm-section-label">WhatsApp</div>
+        <div class="config-section">
+          <div class="adm-form">
+            <div class="adm-field"><label class="adm-label">Numéro (sans +)</label><input class="adm-input" id="cWaNumber" placeholder="2250714313052"></div>
+            <div class="adm-field"><label class="adm-label">Message panier</label><div class="adm-hint">Variables : {nom} {ville} {telephone} {articles} {total}</div><textarea class="adm-textarea" id="cWaMessage" style="min-height:80px"></textarea></div>
+            <div class="adm-field"><label class="adm-label">Message commande directe</label><div class="adm-hint">Variables : {titre} {auteur} {prix}</div><textarea class="adm-textarea" id="cWaMessageDirect" style="min-height:70px"></textarea></div>
+            <button class="adm-save" onclick="saveConfig()">Enregistrer</button>
+          </div>
+        </div>
+        <div class="adm-section-label">Pixel Meta</div>
+        <div class="config-section">
+          <div class="adm-form">
+            <div class="adm-field"><label class="adm-label">Pixel ID</label><input class="adm-input" id="cPixelId" placeholder="1234567890123456"></div>
+            <div class="adm-hint">PageView, AddToCart, InitiateCheckout trackés automatiquement.</div>
+            <button class="adm-save" onclick="saveConfig()">Enregistrer</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end adminMainScreen -->
+
     <!-- BOOK FORM -->
     <div id="adminFormScreen" style="display:none">
-      <div class="adm-section-title" id="adminFormTitle">Nouveau titre</div>
-      <div class="adm-form">
-        <input type="hidden" id="editId">
-        <div class="adm-field"><label class="adm-label">Titre *</label><input class="adm-input" id="fTitle" placeholder="Ex : Le Pouvoir d'un Esprit Aligné"></div>
-        <div class="adm-row">
-          <div class="adm-field"><label class="adm-label">Auteur *</label><input class="adm-input" id="fAuthor" placeholder="Ex : Lamine Diabaté"></div>
-          <div class="adm-field"><label class="adm-label">Catégorie</label><select class="adm-select" id="fCategory"><option value="pack">Pack</option><option value="devperso">Développement personnel</option><option value="productivite">Productivité</option><option value="finance">Intelligence financière</option><option value="cheikh">Cheikh Anta Diop</option><option value="autre">Autre</option></select></div>
-        </div>
-        <div class="adm-row">
-          <div class="adm-field"><label class="adm-label">Prix actuel (FCFA) *</label><input class="adm-input" id="fPrice" type="number" placeholder="5000"></div>
-          <div class="adm-field"><label class="adm-label">Prix barré (optionnel)</label><input class="adm-input" id="fOldPrice" type="number" placeholder="7000"></div>
-        </div>
-        <div class="adm-field">
-          <label class="adm-label">Badge</label>
-          <div class="badge-sel">
-            <button type="button" class="badge-opt sel-none" data-badge="none" onclick="selectBadge('none')">Aucun</button>
-            <button type="button" class="badge-opt" data-badge="bestseller" onclick="selectBadge('bestseller')">🔥 Best Seller</button>
-            <button type="button" class="badge-opt" data-badge="new" onclick="selectBadge('new')">✨ Nouveau</button>
-            <button type="button" class="badge-opt" data-badge="promo" onclick="selectBadge('promo')">💰 Promo</button>
-            <button type="button" class="badge-opt" data-badge="limited" onclick="selectBadge('limited')">⚡ Stock limité</button>
-            <button type="button" class="badge-opt" data-badge="coup" onclick="selectBadge('coup')">❤️ Coup de cœur</button>
-            <button type="button" class="badge-opt" data-badge="recommended" onclick="selectBadge('recommended')">📚 Recommandé</button>
+      <div class="adm-section-label" id="adminFormTitle">Nouveau titre</div>
+      <div class="admin-form-wrap">
+        <div class="adm-form">
+          <input type="hidden" id="editId">
+          <div class="adm-field"><label class="adm-label">Titre *</label><input class="adm-input" id="fTitle" placeholder="Ex : Le Pouvoir d'un Esprit Aligné"></div>
+          <div class="adm-row">
+            <div class="adm-field"><label class="adm-label">Auteur *</label><input class="adm-input" id="fAuthor" placeholder="Ex : Lamine Diabaté"></div>
+            <div class="adm-field"><label class="adm-label">Catégorie</label>
+              <select class="adm-select" id="fCategory">
+                <option value="pack">Pack</option>
+                <option value="devperso">Développement personnel</option>
+                <option value="productivite">Productivité</option>
+                <option value="finance">Intelligence financière</option>
+                <option value="cheikh">Cheikh Anta Diop</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
           </div>
-          <input type="hidden" id="fBadge" value="none">
-        </div>
-        <div class="adm-checkbox"><input type="checkbox" id="fOutOfStock"><label for="fOutOfStock">Rupture de stock</label></div>
-        <div class="adm-field"><label class="adm-label">Description</label><textarea class="adm-textarea" id="fDesc" placeholder="Description complète du livre…" style="min-height:140px"></textarea></div>
-        <div class="adm-field">
-          <label class="adm-label">Couverture</label>
-          <div style="display:flex;gap:7px;margin-bottom:5px">
-            <label class="upload-label"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Choisir une photo<input type="file" accept="image/*" style="display:none" onchange="handleImageUpload(event)"></label>
-            <button type="button" class="del-img-btn" onclick="clearImage()">Supprimer</button>
+          <div class="adm-row">
+            <div class="adm-field"><label class="adm-label">Prix actuel (FCFA) *</label><input class="adm-input" id="fPrice" type="number" placeholder="5000"></div>
+            <div class="adm-field"><label class="adm-label">Prix barré (optionnel)</label><input class="adm-input" id="fOldPrice" type="number" placeholder="7000"></div>
           </div>
-          <div class="adm-hint" style="margin-bottom:4px">Ou colle une URL ↓</div>
-          <input class="adm-input" id="fImage" placeholder="https://…" oninput="previewImg(this.value)">
-          <div class="img-preview" id="imgPreview"><span>Aperçu de la couverture</span></div>
-        </div>
-        <div class="adm-btn-row">
-          <button class="adm-cancel" onclick="showMainScreen()">Annuler</button>
-          <button class="adm-save" onclick="saveBook()">Enregistrer</button>
+          <div class="adm-field">
+            <label class="adm-label">Badge</label>
+            <div class="badge-sel">
+              <button type="button" class="badge-opt sel-none" data-badge="none" onclick="selectBadge('none')">Aucun</button>
+              <button type="button" class="badge-opt" data-badge="bestseller" onclick="selectBadge('bestseller')">🔥 Best Seller</button>
+              <button type="button" class="badge-opt" data-badge="new" onclick="selectBadge('new')">✨ Nouveau</button>
+              <button type="button" class="badge-opt" data-badge="promo" onclick="selectBadge('promo')">💰 Promo</button>
+              <button type="button" class="badge-opt" data-badge="limited" onclick="selectBadge('limited')">⚡ Stock limité</button>
+              <button type="button" class="badge-opt" data-badge="coup" onclick="selectBadge('coup')">❤️ Coup de cœur</button>
+              <button type="button" class="badge-opt" data-badge="recommended" onclick="selectBadge('recommended')">📚 Recommandé</button>
+            </div>
+            <input type="hidden" id="fBadge" value="none">
+          </div>
+          <div class="adm-checkbox"><input type="checkbox" id="fOutOfStock"><label for="fOutOfStock">Rupture de stock</label></div>
+          <div class="adm-field"><label class="adm-label">Description</label><textarea class="adm-textarea" id="fDesc" placeholder="Description complète du livre…" style="min-height:120px"></textarea></div>
+          <div class="adm-field">
+            <label class="adm-label">Couverture</label>
+            <div style="display:flex;gap:7px;margin-bottom:6px">
+              <label class="upload-label">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Choisir une photo
+                <input type="file" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+              </label>
+              <button type="button" class="del-img-btn" onclick="clearImage()">Supprimer</button>
+            </div>
+            <div class="adm-hint" style="margin-bottom:5px">Ou colle une URL ↓</div>
+            <input class="adm-input" id="fImage" placeholder="https://…" oninput="previewImg(this.value)">
+            <div class="img-preview" id="imgPreview"><span>Aperçu de la couverture</span></div>
+          </div>
+          <div class="adm-btn-row">
+            <button class="adm-cancel" onclick="showMainScreen()">Annuler</button>
+            <button class="adm-save" onclick="saveBook()">Enregistrer</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
+
+  </div><!-- end admin-body -->
+</div><!-- end admin-panel -->
 
 <script>
 // ══════════ CLOUDINARY ══════════
@@ -1378,7 +1524,16 @@ function renderAdminList(){
     const b=book.badge&&book.badge!=='none'?` · ${BADGE_LABELS[book.badge]}`:'';
     const oos=book.outOfStock?' · ⛔':'';
     const p=book.oldPrice?` · -${Math.round((1-book.price/book.oldPrice)*100)}%`:'';
-    return`<div class="admin-book-row" draggable="true" data-id="${book.id}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event)" ondragend="dragEnd(event)" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)"><div class="drag-handle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div><div class="admin-book-thumb">${t}</div><div class="admin-book-info"><div class="admin-book-t">${book.title}</div><div class="admin-book-m">${book.price.toLocaleString('fr-FR')} FCFA · ${CAT_LABELS[book.category]||book.category}${p}${b}${oos}</div></div><div class="admin-book-actions"><button class="adm-edit" onclick="editBook(${book.id})">Modifier</button><button class="adm-edit" onclick="duplicateBook(${book.id})" style="background:var(--gold-pale);color:var(--gold);border-color:rgba(169,119,28,.3)">Dupliquer</button><button class="adm-del" onclick="deleteBook(${book.id})">Suppr.</button></div></div>`;
+    return`<div class="admin-book-row" draggable="true" data-id="${book.id}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event)" ondragend="dragEnd(event)" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
+      <div class="drag-handle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div>
+      <div class="admin-book-thumb">${t}</div>
+      <div class="admin-book-info"><div class="admin-book-t">${book.title}</div><div class="admin-book-m">${book.price.toLocaleString('fr-FR')} FCFA · ${CAT_LABELS[book.category]||book.category}${p}${b}${oos}</div></div>
+      <div class="admin-book-actions">
+        <button class="adm-btn-sm adm-btn-edit" onclick="editBook(${book.id})">Modifier</button>
+        <button class="adm-btn-sm adm-btn-dup" onclick="duplicateBook(${book.id})">Copier</button>
+        <button class="adm-btn-sm adm-btn-del" onclick="deleteBook(${book.id})">✕</button>
+      </div>
+    </div>`;
   }).join('');
 }
 function showAddForm(){
@@ -1681,32 +1836,48 @@ function renderStatsHTML(statsMap){
     tc+=(statsMap[k].carts||0);
     to2+=(statsMap[k].orders||0);
   });
-  var activeSort=window._statSort||'orders';
-  var cardStyle='background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center;cursor:pointer;transition:all .2s';
-  var cardStyleActive='border-color:var(--gold);box-shadow:0 0 0 2px rgba(169,119,28,.15)';
-  var html='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">'
-    +'<div style="'+cardStyle+(activeSort==="views"?';'+cardStyleActive:'')+'" onclick="sortStats(\'views\')">'
-    +'<div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--ink)">'+tv+'</div>'
-    +'<div style="font-size:.58rem;color:'+(activeSort==="views"?'var(--gold)':'var(--ink3)')+';text-transform:uppercase;font-weight:600">👁 Vues</div></div>'
-    +'<div style="'+cardStyle+(activeSort==="carts"?';'+cardStyleActive:'')+'" onclick="sortStats(\'carts\')">'
-    +'<div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--gold)">'+tc+'</div>'
-    +'<div style="font-size:.58rem;color:'+(activeSort==="carts"?'var(--gold)':'var(--ink3)')+';text-transform:uppercase;font-weight:600">🛒 Paniers</div></div>'
-    +'<div style="'+cardStyle+(activeSort==="orders"?';'+cardStyleActive:'')+'" onclick="sortStats(\'orders\')">'
-    +'<div style="font-family:Cormorant Garamond,serif;font-size:1.6rem;font-weight:600;color:var(--green)">'+to2+'</div>'
-    +'<div style="font-size:.58rem;color:'+(activeSort==="orders"?'var(--gold)':'var(--ink3)')+';text-transform:uppercase;font-weight:600">✅ Commandes</div></div>'
-    +'</div><div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button onclick="resetStats()" style="background:none;border:1px solid var(--red);color:var(--red);padding:6px 12px;border-radius:var(--r-sm);cursor:pointer;font-family:Inter,sans-serif;font-size:.62rem;font-weight:700;text-transform:uppercase">Remettre à zéro</button></div>'
-    +'<div class="adm-section-title">Par livre — triés par '+(activeSort==="views"?'vues':activeSort==="carts"?'paniers':'commandes')+'</div>';
+  // Update KPI cards
+  var kv=document.getElementById('kpiViews');var kc=document.getElementById('kpiCarts');var ko=document.getElementById('kpiOrders');
+  if(kv)kv.textContent=tv;if(kc)kc.textContent=tc;if(ko)ko.textContent=to2;
+  // Update active KPI card
+  var activeSort=window._statSort||'views';
+  var labels={views:'vues',carts:'paniers',orders:'commandes'};
+  var lbl=document.getElementById('statsLabel');
+  if(lbl)lbl.textContent='Par livre — triés par '+labels[activeSort];
+  document.querySelectorAll('.kpi-card').forEach(function(c){c.classList.remove('active');});
+  var cards=document.querySelectorAll('.kpi-card');
+  if(activeSort==='views'&&cards[0])cards[0].classList.add('active');
+  if(activeSort==='carts'&&cards[1])cards[1].classList.add('active');
+  if(activeSort==='orders'&&cards[2])cards[2].classList.add('active');
+  // Sort books
   var sorted=BOOKS.slice().sort(function(a,b){
     return ((statsMap[b.id]&&statsMap[b.id][activeSort])||0)-((statsMap[a.id]&&statsMap[a.id][activeSort])||0);
   });
+  // Max for bar scale
+  var maxVal=Math.max(1,sorted.reduce(function(m,b){
+    var s=statsMap[b.id]||{};return Math.max(m,s[activeSort]||0);
+  },0));
+  var colors={views:'#FAF7F2',carts:'#C4912A',orders:'#4ade80'};
+  var html='';
   sorted.forEach(function(book){
     var s=statsMap[book.id]||{views:0,carts:0,orders:0};
-    html+='<div style="background:var(--white);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:6px">'
-      +'<div style="font-size:.75rem;font-weight:600;color:var(--ink);margin-bottom:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+book.title+'</div>'
-      +'<div style="display:flex;gap:14px"><span style="font-size:.68rem;color:var(--ink3)">👁 '+(s.views||0)+'</span><span style="font-size:.68rem;color:var(--gold)">🛒 '+(s.carts||0)+'</span><span style="font-size:.68rem;color:var(--green)">✅ '+(s.orders||0)+'</span></div>'
+    var val=s[activeSort]||0;
+    var pct=Math.round((val/maxVal)*100);
+    var thumb=book.image?('<img src="'+book.image+'" style="width:32px;height:44px;object-fit:cover;border-radius:4px;border:1px solid rgba(169,119,28,.2)">'):('<div style="width:32px;height:44px;background:#252015;border-radius:4px;border:1px solid rgba(169,119,28,.15);display:flex;align-items:center;justify-content:center;font-size:.5rem;color:rgba(250,247,242,.3);text-align:center;padding:2px">'+book.title.substring(0,8)+'</div>');
+    html+='<div class="stats-book-row">'
+      +'<div style="flex-shrink:0">'+thumb+'</div>'
+      +'<div class="stats-bar-wrap">'
+      +'<div class="stats-bar-label">'+book.title+'</div>'
+      +'<div class="stats-bar-track"><div class="stats-bar-fill" style="width:'+pct+'%;background:'+colors[activeSort]+'"></div></div>'
+      +'<div class="stats-bar-nums">'
+      +'<span class="stats-num">👁 <strong>'+(s.views||0)+'</strong></span>'
+      +'<span class="stats-num">🛒 <strong>'+(s.carts||0)+'</strong></span>'
+      +'<span class="stats-num">✅ <strong>'+(s.orders||0)+'</strong></span>'
+      +'</div></div>'
+      +'<div style="font-family:Cormorant Garamond,serif;font-size:1.3rem;font-weight:600;color:'+colors[activeSort]+';flex-shrink:0;min-width:28px;text-align:right">'+val+'</div>'
       +'</div>';
   });
-  el.innerHTML=html;
+  el.innerHTML=html||'<div class="admin-empty"><div class="admin-empty-icon">📊</div>Aucune donnée</div>';
 }
 
 
@@ -1838,7 +2009,7 @@ function toggleReorderMode(){
     btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Terminer';
     showToast('Mode réorganisation activé — glissez les livres');
   } else {
-    btn.style.background='';btn.style.color='';btn.style.borderColor='';
+    btn.classList.remove('active');
     btn.innerHTML='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg> Réorganiser';
     showToast('Ordre sauvegardé ✓');
   }
