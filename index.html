@@ -1524,7 +1524,7 @@ function renderAdminList(){
     const b=book.badge&&book.badge!=='none'?` · ${BADGE_LABELS[book.badge]}`:'';
     const oos=book.outOfStock?' · ⛔':'';
     const p=book.oldPrice?` · -${Math.round((1-book.price/book.oldPrice)*100)}%`:'';
-    return`<div class="admin-book-row" draggable="true" data-id="${book.id}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event)" ondragend="dragEnd(event)" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
+    return`<div class="admin-book-row" ${reorderMode?"draggable=\"true\"":""} data-id="${book.id}" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event)" ondragend="dragEnd(event)" ontouchstart="touchStart(event)" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)">
       <div class="drag-handle"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div>
       <div class="admin-book-thumb">${t}</div>
       <div class="admin-book-info"><div class="admin-book-t">${book.title}</div><div class="admin-book-m">${book.price.toLocaleString('fr-FR')} FCFA · ${CAT_LABELS[book.category]||book.category}${p}${b}${oos}</div></div>
@@ -1772,12 +1772,12 @@ function checkUpsell(){
 
 // ══ DRAG & DROP ══
 var dragSrcId=null;
-function dragStart(e){dragSrcId=parseInt(e.currentTarget.dataset.id);e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
+function dragStart(e){if(!reorderMode)return;dragSrcId=parseInt(e.currentTarget.dataset.id);e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
 function dragOver(e){e.preventDefault();document.querySelectorAll('.admin-book-row').forEach(function(r){r.classList.remove('drag-over');});e.currentTarget.classList.add('drag-over');}
 function dragDrop(e){e.preventDefault();var targetId=parseInt(e.currentTarget.dataset.id);if(dragSrcId!==targetId)reorderBooks(dragSrcId,targetId);}
 function dragEnd(e){document.querySelectorAll('.admin-book-row').forEach(function(r){r.classList.remove('dragging','drag-over');});}
-function touchStart(e){if(e.target.closest('.adm-edit,.adm-del'))return;dragSrcId=parseInt(e.currentTarget.dataset.id);e.currentTarget.classList.add('dragging');}
-function touchMove(e){if(!dragSrcId)return;e.preventDefault();var touch=e.touches[0];document.querySelectorAll('.admin-book-row').forEach(function(r){r.classList.remove('drag-over');var rect=r.getBoundingClientRect();if(touch.clientY>rect.top&&touch.clientY<rect.bottom)r.classList.add('drag-over');});}
+function touchStart(e){if(!reorderMode)return;if(e.target.closest('.adm-btn-sm'))return;dragSrcId=parseInt(e.currentTarget.dataset.id);e.currentTarget.classList.add('dragging');}
+function touchMove(e){if(!reorderMode||!dragSrcId)return;e.preventDefault();var touch=e.touches[0];document.querySelectorAll('.admin-book-row').forEach(function(r){r.classList.remove('drag-over');var rect=r.getBoundingClientRect();if(touch.clientY>rect.top&&touch.clientY<rect.bottom)r.classList.add('drag-over');});}
 function touchEnd(e){var over=document.querySelector('.admin-book-row.drag-over');if(over){var tid=parseInt(over.dataset.id);if(dragSrcId!==tid)reorderBooks(dragSrcId,tid);}document.querySelectorAll('.admin-book-row').forEach(function(r){r.classList.remove('dragging','drag-over');});dragSrcId=null;}
 function reorderBooks(srcId,targetId){var si=BOOKS.findIndex(function(b){return b.id===srcId;});var ti=BOOKS.findIndex(function(b){return b.id===targetId;});if(si===-1||ti===-1)return;var moved=BOOKS.splice(si,1)[0];BOOKS.splice(ti,0,moved);BOOKS.forEach(function(b,i){b.position=i;});lsSet('lamine_books',BOOKS);savePositions();renderAdminList();renderBooks();showToast('Ordre mis à jour ✓');}
 function savePositions(){BOOKS.forEach(function(book){sbPatch('books',book.id,{position:book.position}).catch(function(e){console.warn(e);});});}
