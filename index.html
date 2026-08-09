@@ -1201,6 +1201,7 @@ let CONFIG=ls('sell_config',DC);
 let SHOP=ls('sell_shop',DS);
 let BOOKS=[];
 let cart=[],activeFilter='all',searchQuery='',adminLoggedIn=false,editingId=null;
+var ADMIN_OPEN=false;
 
 // ══════════ LOAD DATA ══════════
 const DB_DEFAULT=[
@@ -1269,7 +1270,7 @@ function initPixel(){
   !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
   window.fbq('init',CONFIG.pixelId);window.fbq('track','PageView');
 }
-function trackEvent(...a){try{if(window.fbq&&window._fbq)window.fbq.apply(window,a);}catch(e){}}
+function trackEvent(...a){try{if(ADMIN_OPEN)return;if(window.fbq&&window._fbq)window.fbq.apply(window,a);}catch(e){}}
 
 // ══════════ SHOP ══════════
 function getIni(a,b){return(((a||'')[0]||'')+(b&&b[0]?b[0]:'')).toUpperCase()||'DB'}
@@ -1555,11 +1556,12 @@ document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&e.key==='A'){e
 if(location.hash==='#admin')setTimeout(openAdminLogin,500);
 
 function openAdminLogin(){
+  ADMIN_OPEN=true;
   document.getElementById('adminOverlay').classList.add('open');document.getElementById('adminPanel').classList.add('open');document.body.style.overflow='hidden';
   if(!adminLoggedIn){document.getElementById('adminLoginScreen').style.display='block';document.getElementById('adminMainScreen').style.display='none';document.getElementById('adminFormScreen').style.display='none';setTimeout(()=>document.getElementById('adminPwd').focus(),400);}
   else showMainScreen();
 }
-function closeAdmin(){document.getElementById('adminOverlay').classList.remove('open');document.getElementById('adminPanel').classList.remove('open');document.body.style.overflow='';}
+function closeAdmin(){ADMIN_OPEN=false;document.getElementById('adminOverlay').classList.remove('open');document.getElementById('adminPanel').classList.remove('open');document.body.style.overflow='';}
 function checkAdmin(){
   if(document.getElementById('adminPwd').value==='lamine2026'){adminLoggedIn=true;showMainScreen();}
   else{showToast('Mot de passe incorrect');document.getElementById('adminPwd').value='';}
@@ -1941,6 +1943,7 @@ function renderStatsHTML(statsMap){
 
 
 function trackStat(bookId,type){
+  if(ADMIN_OPEN)return;
   var bid=parseInt(bookId);
   // Save locally
   var stats=ls('sell_stats',{});
@@ -2415,6 +2418,7 @@ var CAPI_PIXEL = '1671688320192246';
 var CAPI_TOKEN = 'EAAPLLm14rLoBSDKqK4ASpdHkOObIIuQEkooMsdqFO1ZCqu8zGBQWolQUIo9kK0ma9O40SHY7ZBEh0AVACvA08KgnZAtZBKH6chxWrK2AJrIZBQH2us8PsceT5iqpTCiugtG5R3Ycja23aEkGdX7JXK8uJJtA5ockNibVkfRXeidiAp94raHEZCk4z8g8U1JAZDZD';
 
 function capiEvent(eventName, eventData) {
+  if(ADMIN_OPEN)return;
   try {
     var eventId = 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     var payload = {
