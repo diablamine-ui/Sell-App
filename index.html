@@ -1004,8 +1004,15 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
                 <input class="adm-input" id="vAmount" type="number" placeholder="Ex : 61000">
               </div>
               <div class="adm-field">
-                <label class="adm-label">Titre / Pack vendu</label>
-                <input class="adm-input" id="vTitle" placeholder="Ex : Pack Cheikh Anta Diop">
+                <label class="adm-label">Pub source</label>
+                <select class="adm-select" id="vCampaign">
+                  <option value="Organique">Organique (sans pub)</option>
+                  <option value="NEW TUNNEL 04/08">NEW TUNNEL 04/08</option>
+                  <option value="NEW PUB 01/08">NEW PUB 01/08</option>
+                  <option value="ANTA DIOP 01/08">ANTA DIOP 01/08</option>
+                  <option value="NEW ANTA DIOP MAI">NEW ANTA DIOP MAI</option>
+                  <option value="Autre">Autre</option>
+                </select>
               </div>
             </div>
             <button class="adm-save" onclick="recordSale()" style="margin-top:4px">
@@ -2111,7 +2118,8 @@ function recordSale(){
         value: amount / 655.957,
         currency: 'USD',
         content_name: title,
-        content_type: 'product'
+        content_type: 'product',
+        content_category: document.getElementById('vCampaign').value
       }
     }]
   };
@@ -2132,11 +2140,13 @@ function recordSale(){
   });
 
   // Save locally
+  var campaign = document.getElementById('vCampaign').value;
   var vente = {
     id: Date.now(),
     phone: phone.slice(-4).padStart(phone.length, '•'),
     amount: amount,
     title: title,
+    campaign: campaign,
     date: new Date().toLocaleString('fr-FR'),
     eventId: eventId
   };
@@ -2147,13 +2157,14 @@ function recordSale(){
   fetch(SB_URL+'/rest/v1/ventes', {
     method:'POST',
     headers: Object.assign({},SB_HEADERS,{'Prefer':'return=minimal'}),
-    body: JSON.stringify({phone_masked: vente.phone, amount: amount, title: title, event_id: eventId})
+    body: JSON.stringify({phone_masked: vente.phone, amount: amount, title: title, campaign: campaign, event_id: eventId})
   }).catch(function(){});
 
   // Clear form
   document.getElementById('vPhone').value='';
   document.getElementById('vAmount').value='';
   document.getElementById('vTitle').value='';
+  document.getElementById('vCampaign').selectedIndex=0;
 
   renderVentes();
 }
@@ -2178,14 +2189,31 @@ function renderVentes(){
     return;
   }
   var total = VENTES.reduce(function(s,v){return s+v.amount;},0);
-  el.innerHTML = '<div style="background:#1A1713;border:1px solid rgba(169,119,28,.2);border-radius:8px;padding:12px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">'
+  // Stats by campaign
+  var bycamp = {};
+  VENTES.forEach(function(v){
+    var c = v.campaign||'Organique';
+    if(!bycamp[c]) bycamp[c]={count:0,total:0};
+    bycamp[c].count++;
+    bycamp[c].total+=v.amount;
+  });
+  var campHtml = Object.keys(bycamp).map(function(c){
+    return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+      +'<span style="font-size:.62rem;color:rgba(250,247,242,.5)">'+c+' ('+bycamp[c].count+'x)</span>'
+      +'<span style="font-size:.62rem;font-weight:700;color:#4ade80">'+bycamp[c].total.toLocaleString('fr-FR')+' F</span>'
+      +'</div>';
+  }).join('');
+  el.innerHTML = '<div style="background:#1A1713;border:1px solid rgba(169,119,28,.2);border-radius:8px;padding:12px 14px;margin-bottom:12px">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
     + '<span style="font-size:.6rem;color:rgba(250,247,242,.4);text-transform:uppercase;letter-spacing:.1em">Total CA</span>'
     + '<span style="font-family:Cormorant Garamond,serif;font-size:1.4rem;font-weight:600;color:#4ade80">'+total.toLocaleString('fr-FR')+' FCFA</span>'
+    + '</div>'
+    + campHtml
     + '</div>'
     + VENTES.map(function(v){
       return '<div class="vente-row">'
         + '<div class="vente-amount">'+v.amount.toLocaleString('fr-FR')+'<span style="font-size:.55rem;font-family:Inter,sans-serif;font-weight:600;color:rgba(74,222,128,.6)"> F</span></div>'
-        + '<div class="vente-info"><div class="vente-title">'+v.title+'</div><div class="vente-meta">'+v.phone+' · '+v.date+'</div></div>'
+        + '<div class="vente-info"><div class="vente-title">'+v.title+'</div><div class="vente-meta">'+v.phone+' · '+(v.campaign||'—')+' · '+v.date+'</div></div>'
         + '<div class="vente-capi">CAPI ✓</div>'
         + '</div>';
     }).join('');
