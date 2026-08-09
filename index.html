@@ -2263,75 +2263,99 @@ function showImportPreview(rows){
   preview.innerHTML = html;
 }
 
-function sendImportToMeta(){
+async function hashPhone(phone){
+  try{
+    var msgBuffer = new TextEncoder().encode(phone);
+    var hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    var hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(function(b){return b.toString(16).padStart(2,'0');}).join('');
+  }catch(e){
+    return phone; // fallback plain if crypto not available
+  }
+}
+
+function parseDate(dateStr){
+  // Parse DD/MM/YYYY format
+  try{
+    var parts = dateStr.split('/');
+    if(parts.length===3){
+      var d = new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+      return Math.floor(d.getTime()/1000);
+    }
+  }catch(e){}
+  return Math.floor(Date.now()/1000);
+}
+
+async function sendImportToMeta(){
   var rows = _importRows;
+  if(!rows||!rows.length){showToast('Aucune vente à envoyer');return;}
   var campaign = document.getElementById('importCampaign').value;
   var btn = document.getElementById('importSendBtn');
   var statusEl = document.getElementById('importStatus');
-  if(btn) btn.disabled = true;
-  if(btn) btn.textContent = 'Envoi en cours...';
+  if(btn){btn.disabled=true;btn.textContent='Envoi en cours...';}
 
-  var sent = 0;
-  var failed = 0;
-  var total = rows.length;
+  var sent=0,failed=0,total=rows.length;
 
-  function sendNext(idx){
-    if(idx >= rows.length){
-      // Done
-      if(btn){btn.disabled=false;btn.textContent='✅ '+sent+' envoyés / '+failed+' échecs';}
-      if(statusEl)statusEl.textContent = sent+'/'+total+' ✅';
-      showToast('Import terminé : '+sent+' Purchases envoyés à Meta !');
-      // Save all to local + Supabase
-      rows.forEach(function(r){
-        var vente = {
-          id: Date.now()+Math.random(),
-          phone: r.phone.slice(-4).padStart(r.phone.length,'•'),
-          amount: r.montant,
-          title: 'Import MonStockPro',
-          campaign: campaign,
-          date: r.date,
-          eventId: 'import_'+Date.now()
-        };
-        VENTES.unshift(vente);
-      });
-      lsSet('sell_ventes', VENTES);
-      renderVentes();
-      return;
-    }
-
+  for(var idx=0;idx<rows.length;idx++){
     var r = rows[idx];
-    if(statusEl)statusEl.textContent = (idx+1)+'/'+total+'...';
+    if(statusEl)statusEl.textContent=(idx+1)+'/'+total+'...';
 
-    var payload = {
-      data:[{
-        event_name:'Purchase',
-        event_time: Math.floor(Date.now()/1000) - (total-idx)*60,
-        event_id:'import_'+Date.now()+'_'+idx,
-        action_source:'other',
-        user_data:{ph:[r.phone],client_user_agent:navigator.userAgent},
-        custom_data:{
-          value: r.montant/655.957,
-          currency:'USD',
-          content_name:'Import MonStockPro',
-          content_category: campaign
-        }
-      }]
-    };
-
-    fetch('https://graph.facebook.com/v18.0/'+CAPI_PIXEL+'/events?access_token='+CAPI_TOKEN,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
-    }).then(function(res){
-      if(res.ok)sent++;else failed++;
-      setTimeout(function(){sendNext(idx+1);},150);
-    }).catch(function(){
+    try{
+      var hashedPhone = await hashPhone(r.phone);
+      var eventTime = parseDate(r.date);
+      var payload = {
+        data:[{
+          event_name:'Purchase',
+          event_time: eventTime,
+          event_id:'import_'+eventTime+'_'+idx,
+          action_source:'other',
+          user_data:{ph:[hashedPhone]},
+          custom_data:{
+            value: r.montant/655.957,
+            currency:'USD',
+            content_name:'Import MonStockPro',
+            content_category: campaign
+          }
+        }]
+      };
+      var res = await fetch('https://graph.facebook.com/v18.0/'+CAPI_PIXEL+'/events?access_token='+CAPI_TOKEN,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+      if(res.ok){sent++;}
+      else{
+        var err=await res.json();
+        console.warn('CAPI error idx '+idx+':',err);
+        failed++;
+      }
+    }catch(e){
+      console.warn('Error idx '+idx+':',e);
       failed++;
-      setTimeout(function(){sendNext(idx+1);},150);
-    });
+    }
+    // Small delay between requests
+    await new Promise(function(resolve){setTimeout(resolve,100);});
   }
 
-  sendNext(0);
+  // Done
+  if(btn){btn.disabled=false;btn.textContent='✅ '+sent+' envoyés / '+failed+' échecs';}
+  if(statusEl)statusEl.textContent=sent+'/'+total+' ✅';
+  showToast('Import terminé : '+sent+' Purchases envoyés à Meta !');
+
+  // Save to localStorage
+  rows.forEach(function(r){
+    VENTES.unshift({
+      id:Date.now()+Math.random(),
+      phone:r.phone.slice(-4).padStart(r.phone.length,'•'),
+      amount:r.montant,
+      title:'Import MonStockPro',
+      campaign:campaign,
+      date:r.date,
+      eventId:'import_'+Date.now()
+    });
+  });
+  lsSet('sell_ventes',VENTES);
+  renderVentes();
 }
 
 function sortStats(metric){
