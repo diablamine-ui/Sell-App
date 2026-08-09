@@ -1020,6 +1020,20 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
             </button>
           </div>
         </div>
+
+        <div class="adm-section-label" style="margin-top:8px">Import en masse <span id="importStatus"></span></div>
+        <div style="padding:12px 24px">
+          <div class="adm-hint" style="margin-bottom:10px">
+            Importe ton export MonStockPro (CSV mensuel). Les Purchase sont envoyés à Meta automatiquement.
+          </div>
+          <label class="upload-label" style="margin-bottom:8px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Importer CSV MonStockPro
+            <input type="file" accept=".csv,.txt" style="display:none" onchange="importVentesCSV(event)">
+          </label>
+          <div id="importPreview"></div>
+        </div>
+
         <div class="adm-section-label" style="margin-top:8px">Historique</div>
         <div style="padding:0 24px 24px" id="ventesList"></div>
       </div>
@@ -2151,6 +2165,173 @@ function updateVentesSelect(){
   sel.innerHTML = CAMPAIGNS.map(function(c){
     return '<option value="'+c+'"'+(c===current?' selected':'')+'>'+c+'</option>';
   }).join('');
+}
+
+// ══ IMPORT CSV VENTES ══
+function importVentesCSV(e){
+  var file = e.target.files[0];
+  if(!file){return;}
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var text = ev.target.result;
+    // Detect encoding - try UTF-8 first
+    var rows = parseMonStockCSV(text);
+    if(!rows.length){
+      showToast('Aucune vente trouvée dans ce fichier');
+      return;
+    }
+    // Show preview
+    showImportPreview(rows);
+  };
+  reader.readAsText(file, 'UTF-8');
+  e.target.value='';
+}
+
+function parseMonStockCSV(text){
+  var lines = text.split(String.fromCharCode(10)).map(function(l){return l.trim();});
+  var rows = [];
+  var headerIdx = -1;
+
+  // Find header line
+  for(var i=0;i<lines.length;i++){
+    if(lines[i].toLowerCase().indexOf('whatsapp')>-1 || lines[i].toLowerCase().indexOf('montant')>-1){
+      headerIdx = i;
+      break;
+    }
+  }
+  if(headerIdx === -1) return [];
+
+  var headers = lines[headerIdx].split(';').map(function(h){return h.trim().toLowerCase();});
+  var dateIdx = headers.findIndex(function(h){return h.includes('date');});
+  var waIdx = headers.findIndex(function(h){return h.includes('whatsapp');});
+  var montantIdx = headers.findIndex(function(h){return h.includes('montant');});
+  var clientIdx = headers.findIndex(function(h){return h.includes('client');});
+
+  for(var j=headerIdx+1;j<lines.length;j++){
+    var line = lines[j];
+    if(!line || line.startsWith('===') || line.startsWith('---') || line.startsWith('TOTAL') || line.startsWith('Période') || line.startsWith('RAPPORT')) continue;
+    var cols = line.split(';');
+    if(cols.length < 3) continue;
+
+    var phone = waIdx>-1 ? (cols[waIdx]||'').trim().replace(/[^0-9]/g,'') : '';
+    var montantRaw = montantIdx>-1 ? (cols[montantIdx]||'').trim().replace(/[^0-9]/g,'') : '';
+    var montant = parseInt(montantRaw);
+    var date = dateIdx>-1 ? (cols[dateIdx]||'').trim() : '';
+    var client = clientIdx>-1 ? (cols[clientIdx]||'').trim() : '';
+
+    if(!phone || !montant || montant <= 0) continue;
+
+    // Normalize phone to international format
+    if(phone.startsWith('0') && phone.length === 10) phone = '225' + phone.slice(1);
+    if(!phone.startsWith('225')) phone = '225' + phone;
+
+    rows.push({phone: phone, montant: montant, date: date, client: client});
+  }
+  return rows;
+}
+
+var _importRows = [];
+function showImportPreview(rows){
+  _importRows = rows;
+  var totalCA = rows.reduce(function(s,r){return s+r.montant;},0);
+  var preview = document.getElementById('importPreview');
+  if(!preview) return;
+
+  var html = '<div style="background:#1A1713;border:1px solid rgba(169,119,28,.2);border-radius:8px;padding:12px 14px;margin-bottom:10px">'
+    + '<div style="display:flex;justify-content:space-between;margin-bottom:8px">'
+    + '<span style="font-size:.62rem;color:rgba(250,247,242,.4)">'+rows.length+' ventes détectées</span>'
+    + '<span style="font-size:.9rem;font-weight:700;color:#4ade80;font-family:Cormorant Garamond,serif">'+totalCA.toLocaleString('fr-FR')+' FCFA</span>'
+    + '</div>'
+    + '<div style="max-height:140px;overflow-y:auto">'
+    + rows.slice(0,5).map(function(r){
+        return '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)">'
+          +'<span style="font-size:.6rem;color:rgba(250,247,242,.4)">'+r.client+' · '+r.date+'</span>'
+          +'<span style="font-size:.6rem;font-weight:600;color:#4ade80">'+r.montant.toLocaleString('fr-FR')+' F</span>'
+          +'</div>';
+      }).join('')
+    + (rows.length>5?'<div style="font-size:.58rem;color:rgba(250,247,242,.25);padding-top:4px">... et '+(rows.length-5)+' autres</div>':'')
+    + '</div></div>'
+    + '<div style="display:flex;gap:8px">'
+    + '<select class="adm-select" id="importCampaign" style="flex:1">'
+    + CAMPAIGNS.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('')
+    + '</select>'
+    + '<button onclick="sendImportToMeta()" class="adm-save" style="flex:1;padding:10px" id="importSendBtn">'
+    + '🚀 Envoyer '+rows.length+' Purchases à Meta'
+    + '</button>'
+    + '</div>';
+
+  preview.innerHTML = html;
+}
+
+function sendImportToMeta(){
+  var rows = _importRows;
+  var campaign = document.getElementById('importCampaign').value;
+  var btn = document.getElementById('importSendBtn');
+  var statusEl = document.getElementById('importStatus');
+  if(btn) btn.disabled = true;
+  if(btn) btn.textContent = 'Envoi en cours...';
+
+  var sent = 0;
+  var failed = 0;
+  var total = rows.length;
+
+  function sendNext(idx){
+    if(idx >= rows.length){
+      // Done
+      if(btn){btn.disabled=false;btn.textContent='✅ '+sent+' envoyés / '+failed+' échecs';}
+      if(statusEl)statusEl.textContent = sent+'/'+total+' ✅';
+      showToast('Import terminé : '+sent+' Purchases envoyés à Meta !');
+      // Save all to local + Supabase
+      rows.forEach(function(r){
+        var vente = {
+          id: Date.now()+Math.random(),
+          phone: r.phone.slice(-4).padStart(r.phone.length,'•'),
+          amount: r.montant,
+          title: 'Import MonStockPro',
+          campaign: campaign,
+          date: r.date,
+          eventId: 'import_'+Date.now()
+        };
+        VENTES.unshift(vente);
+      });
+      lsSet('sell_ventes', VENTES);
+      renderVentes();
+      return;
+    }
+
+    var r = rows[idx];
+    if(statusEl)statusEl.textContent = (idx+1)+'/'+total+'...';
+
+    var payload = {
+      data:[{
+        event_name:'Purchase',
+        event_time: Math.floor(Date.now()/1000) - (total-idx)*60,
+        event_id:'import_'+Date.now()+'_'+idx,
+        action_source:'other',
+        user_data:{ph:[r.phone],client_user_agent:navigator.userAgent},
+        custom_data:{
+          value: r.montant/655.957,
+          currency:'USD',
+          content_name:'Import MonStockPro',
+          content_category: campaign
+        }
+      }]
+    };
+
+    fetch('https://graph.facebook.com/v18.0/'+CAPI_PIXEL+'/events?access_token='+CAPI_TOKEN,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    }).then(function(res){
+      if(res.ok)sent++;else failed++;
+      setTimeout(function(){sendNext(idx+1);},150);
+    }).catch(function(){
+      failed++;
+      setTimeout(function(){sendNext(idx+1);},150);
+    });
+  }
+
+  sendNext(0);
 }
 
 function sortStats(metric){
