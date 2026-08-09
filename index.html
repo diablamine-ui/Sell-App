@@ -2179,7 +2179,40 @@ function hashPhone(phone){
 }
 
 function renderVentes(){
-  VENTES = ls('sell_ventes', []);
+  var el = document.getElementById('ventesList');
+  var countEl = document.getElementById('ventesCount');
+  if(!el) return;
+  el.innerHTML='<div style="text-align:center;padding:20px;color:rgba(250,247,242,.3);font-size:.8rem">Chargement...</div>';
+  // Load from Supabase
+  fetch(SB_URL+'/rest/v1/ventes?order=created_at.desc',{headers:SB_HEADERS})
+  .then(function(r){return r.json();})
+  .then(function(rows){
+    if(rows&&rows.length){
+      // Merge Supabase with localStorage
+      VENTES = rows.map(function(r){
+        return {
+          id: r.id,
+          phone: r.phone_masked||'••••',
+          amount: r.amount,
+          title: r.title||'—',
+          campaign: r.campaign||'—',
+          date: new Date(r.created_at).toLocaleString('fr-FR'),
+          eventId: r.event_id
+        };
+      });
+      lsSet('sell_ventes', VENTES);
+    } else {
+      VENTES = ls('sell_ventes', []);
+    }
+    _renderVentesHTML();
+  })
+  .catch(function(){
+    VENTES = ls('sell_ventes', []);
+    _renderVentesHTML();
+  });
+}
+
+function _renderVentesHTML(){
   var el = document.getElementById('ventesList');
   var countEl = document.getElementById('ventesCount');
   if(!el) return;
