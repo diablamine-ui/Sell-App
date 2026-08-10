@@ -2271,15 +2271,22 @@ function showImportPreview(rows){
   preview.innerHTML = html;
 }
 
-async function hashPhone(phone){
+async function sha256(str){
   try{
-    var msgBuffer = new TextEncoder().encode(phone);
+    var clean = str.trim().toLowerCase();
+    var msgBuffer = new TextEncoder().encode(clean);
     var hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
     var hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(function(b){return b.toString(16).padStart(2,'0');}).join('');
-  }catch(e){
-    return phone; // fallback plain if crypto not available
-  }
+  }catch(e){return str;}
+}
+
+async function hashPhone(phone){
+  // Normalize: remove spaces, +, ensure starts with 225
+  phone = phone.replace(/[^0-9]/g,'');
+  if(phone.startsWith('0')&&phone.length===10) phone='225'+phone.slice(1);
+  if(!phone.startsWith('225')) phone='225'+phone;
+  return sha256(phone);
 }
 
 function parseDate(dateStr){
@@ -2302,10 +2309,10 @@ async function buildUserData(r){
   if(r.client){
     var nameParts = r.client.replace(/^(M\.|Mme|Mme\.|M|Dr\.|Maître|Père)/i,'').trim().split(' ');
     var firstName = nameParts[nameParts.length-1]||'';
-    if(firstName.length>1) ud.fn = [await hashPhone(firstName.toLowerCase())];
+    if(firstName.length>1) ud.fn = [await sha256(firstName)];
   }
-  // Country - always CI
-  ud.country = [await hashPhone('ci')];
+  // Country - always CI  
+  ud.country = [await sha256('ci')];
   // Client IP - not available in browser for privacy
   ud.client_user_agent = navigator.userAgent;
   return ud;
@@ -2360,7 +2367,10 @@ async function sendImportToMeta(){
         sent++;
         if(idx===0)console.log('CAPI success sample:',JSON.stringify(resJson));
       } else {
-        if(idx===0)console.error('CAPI error sample:',JSON.stringify(resJson));
+        if(idx===0){
+          console.error('CAPI error sample:',JSON.stringify(resJson));
+          console.error('Payload sent:',JSON.stringify(payload));
+        }
         failed++;
       }
     }catch(e){
