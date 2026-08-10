@@ -2323,10 +2323,12 @@ async function sendImportToMeta(){
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify(payload)
       });
-      if(res.ok){sent++;}
-      else{
-        var err=await res.json();
-        console.warn('CAPI error idx '+idx+':',err);
+      var resJson = await res.json();
+      if(res.ok){
+        sent++;
+        if(idx===0)console.log('CAPI success sample:',JSON.stringify(resJson));
+      } else {
+        if(idx===0)console.error('CAPI error sample:',JSON.stringify(resJson));
         failed++;
       }
     }catch(e){
