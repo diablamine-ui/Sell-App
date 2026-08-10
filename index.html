@@ -2225,7 +2225,8 @@ function parseMonStockCSV(text){
     if(phone.startsWith('0') && phone.length === 10) phone = '225' + phone.slice(1);
     if(!phone.startsWith('225')) phone = '225' + phone;
 
-    rows.push({phone: phone, montant: montant, date: date, client: client});
+    var zone = cols.length > 3 ? (cols[3]||'').trim() : '';
+    rows.push({phone: phone, montant: montant, date: date, client: client, zone: zone});
   }
   return rows;
 }
@@ -2293,6 +2294,23 @@ function parseDate(dateStr){
   return Math.floor(Date.now()/1000);
 }
 
+async function buildUserData(r){
+  var ud = {};
+  // Phone - required
+  if(r.phone) ud.ph = [await hashPhone(r.phone)];
+  // First name from client field
+  if(r.client){
+    var nameParts = r.client.replace(/^(M\.|Mme|Mme\.|M|Dr\.|Maître|Père)/i,'').trim().split(' ');
+    var firstName = nameParts[nameParts.length-1]||'';
+    if(firstName.length>1) ud.fn = [await hashPhone(firstName.toLowerCase())];
+  }
+  // Country - always CI
+  ud.country = [await hashPhone('ci')];
+  // Client IP - not available in browser for privacy
+  ud.client_user_agent = navigator.userAgent;
+  return ud;
+}
+
 async function sendImportToMeta(){
   var rows = _importRows;
   if(!rows||!rows.length){showToast('Aucune vente à envoyer');return;}
@@ -2323,7 +2341,7 @@ async function sendImportToMeta(){
           event_time: eventTime,
           event_id:'import_'+eventTime+'_'+idx,
           action_source:'other',
-          user_data:{ph:[hashedPhone]},
+          user_data:(await buildUserData(r)),
           custom_data:{
             value: r.montant/655.957,
             currency:'USD',
