@@ -2579,9 +2579,30 @@ function _renderVentesHTML(){
 function showToast(msg){const t=document.getElementById('toast');if(t){t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}}
 function observeReveal(){const els=document.querySelectorAll('.reveal:not(.visible)');const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*50);obs.unobserve(e.target);}});},{threshold:.06});els.forEach(el=>obs.observe(el));}
 function handleDeepLink(){
-  const id=parseInt(new URLSearchParams(location.search).get('livre'));
+  const params = new URLSearchParams(location.search);
+  
+  // Category filter from URL ?cat=devperso
+  const cat = params.get('cat');
+  if(cat){
+    setTimeout(function(){
+      // Find the pill button for this category
+      var pills = document.querySelectorAll('.pill');
+      var targetPill = null;
+      pills.forEach(function(p){
+        var oc = p.getAttribute('onclick')||'';
+        if(oc.indexOf("'"+cat+"'")>-1) targetPill = p;
+      });
+      if(targetPill){
+        filterBooks(cat, targetPill);
+        var section = document.getElementById('catalogue');
+        if(section) section.scrollIntoView({behavior:'smooth'});
+      }
+    }, 800);
+  }
+
+  // Book deep link ?livre=123
+  const id=parseInt(params.get('livre'));
   if(!id)return;
-  // Wait for books to load then open page
   function tryOpen(){
     const book=BOOKS.find(b=>b.id===id);
     if(book){openBookPage(id);}
