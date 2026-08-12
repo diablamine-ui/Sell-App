@@ -1134,19 +1134,29 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 </div><!-- end admin-panel -->
 
 <script>
-// ══════════ CLOUDINARY ══════════
-const CLOUDINARY_CLOUD='p8dqblws',CLOUDINARY_PRESET='sell_app';
+// ══════════ SUPABASE STORAGE ══════════
+const SB_BUCKET='lamine-livres';
 async function uploadImg(file){
   const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
   if(!['jpg','jpeg','png','webp','gif'].includes(ext)){showToast('Format non supporté');return null;}
   if(file.size>10*1024*1024){showToast('Max 10 Mo');return null;}
   showToast('Upload en cours…');
   try{
-    const fd=new FormData();
-    fd.append('file',file);fd.append('upload_preset',CLOUDINARY_PRESET);fd.append('folder','sell_app');
-    const r=await fetch('https://api.cloudinary.com/v1_1/'+CLOUDINARY_CLOUD+'/image/upload',{method:'POST',body:fd});
-    if(!r.ok){console.error(await r.text());showToast('Erreur upload');return null;}
-    const d=await r.json();showToast('Image uploadée ✓');return d.secure_url;
+    const filename='books/'+Date.now()+'-'+Math.random().toString(36).substr(2,6)+'.'+ext;
+    const r=await fetch(SB_URL+'/storage/v1/object/'+SB_BUCKET+'/'+filename,{
+      method:'POST',
+      headers:{
+        'apikey':SB_KEY,
+        'Authorization':'Bearer '+SB_KEY,
+        'Content-Type':file.type,
+        'x-upsert':'true'
+      },
+      body:file
+    });
+    if(!r.ok){const t=await r.text();console.error(t);showToast('Erreur upload');return null;}
+    const url=SB_URL+'/storage/v1/object/public/'+SB_BUCKET+'/'+filename;
+    showToast('Image uploadée ✓');
+    return url;
   }catch(e){console.error(e);showToast('Erreur réseau');return null;}
 }
 
