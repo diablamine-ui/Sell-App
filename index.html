@@ -1135,7 +1135,7 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 
 <script>
 // ══════════ SUPABASE STORAGE ══════════
-const SB_BUCKET='lamine-livres';
+const SB_BUCKET='Lamine-Livres';
 async function uploadImg(file){
   const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
   if(!['jpg','jpeg','png','webp','gif'].includes(ext)){showToast('Format non supporté');return null;}
