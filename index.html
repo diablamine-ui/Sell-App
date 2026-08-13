@@ -1426,7 +1426,7 @@ function applyShop(){
   document.getElementById('navName2').textContent=s.name2||'';
   document.getElementById('navSub').textContent=s.navSub;
   document.getElementById('heroEyebrow').textContent=s.tagline;
-  document.getElementById('heroSub').innerHTML=s.heroSub;
+  var heroSub=document.getElementById('heroSub');if(heroSub)heroSub.innerHTML=s.heroSub;
   document.getElementById('heroDeco').textContent=(s.name1||'D')[0].toUpperCase();
   document.getElementById('heroTitle').innerHTML=s.heroTitle;
   const fw=document.getElementById('footerLogoWrap');
