@@ -1032,7 +1032,7 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
             </div>
             <div class="adm-field"><label class="adm-label">Slogan</label><input class="adm-input" id="sNavSub" placeholder="Les livres à p'tits prix"></div>
             <div class="adm-field"><label class="adm-label">Accroche hero</label><input class="adm-input" id="sTagline" placeholder="Bibliothèque · Abidjan"></div>
-            <div class="adm-field"><label class="adm-label">Titre hero</label><input class="adm-input" id="sHeroTitle" placeholder="Titre principal…"></div>
+            <div class="adm-field"><label class="adm-label">Titre hero</label><textarea class="adm-textarea" id="sHeroTitle" placeholder="Titre principal…" style="min-height:70px"></textarea></div>
             <div class="adm-field"><label class="adm-label">Description hero</label><textarea class="adm-textarea" id="sHeroSub"></textarea></div>
             <div class="adm-field"><label class="adm-label">Texte footer</label><input class="adm-input" id="sFooterCopy" placeholder="© 2026 · Livraison CI"></div>
             <button class="adm-save" onclick="saveShopSettings()">Enregistrer</button>
@@ -1428,7 +1428,7 @@ function applyShop(){
   document.getElementById('heroEyebrow').textContent=s.tagline;
   var heroSub=document.getElementById('heroSub');if(heroSub)heroSub.innerHTML=s.heroSub;
   document.getElementById('heroDeco').textContent=(s.name1||'D')[0].toUpperCase();
-  document.getElementById('heroTitle').innerHTML=s.heroTitle;
+  var ht=document.getElementById('heroTitle');if(ht)ht.innerHTML=s.heroTitle.replace(/\n/g,'<br>');
   const fw=document.getElementById('footerLogoWrap');
   fw.innerHTML=s.logoUrl?`<img src="${s.logoUrl}" alt="logo">`:`<span class="footer-logo-initials">${ini}</span>`;
   document.getElementById('footerName1').textContent=s.name1;
