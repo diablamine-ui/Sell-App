@@ -2784,15 +2784,26 @@ function openBookDirectPage(id){
     document.getElementById('bdpVideoFrame').src='';
   }
 
-  // Suggestions - same category, exclude current
-  var suggestions = BOOKS.filter(function(b){
+  // Suggestions - same category, exclude current, randomized
+  var sameCat = BOOKS.filter(function(b){
     return b.id !== id && b.category === book.category && !b.outOfStock;
-  }).slice(0,3);
+  });
+  // Shuffle same category
+  for(var si=sameCat.length-1;si>0;si--){
+    var sj=Math.floor(Math.random()*(si+1));
+    var tmp=sameCat[si];sameCat[si]=sameCat[sj];sameCat[sj]=tmp;
+  }
+  var suggestions = sameCat.slice(0,3);
   if(suggestions.length < 3){
-    var extra = BOOKS.filter(function(b){
-      return b.id !== id && b.category !== book.category && !b.outOfStock && b.badge==='bestseller';
-    }).slice(0, 3-suggestions.length);
-    suggestions = suggestions.concat(extra);
+    var otherBest = BOOKS.filter(function(b){
+      return b.id !== id && b.category !== book.category && !b.outOfStock;
+    });
+    // Shuffle others too
+    for(var oi=otherBest.length-1;oi>0;oi--){
+      var oj=Math.floor(Math.random()*(oi+1));
+      var otmp=otherBest[oi];otherBest[oi]=otherBest[oj];otherBest[oj]=otmp;
+    }
+    suggestions = suggestions.concat(otherBest.slice(0, 3-suggestions.length));
   }
 
   var suggestionsHtml = '';
