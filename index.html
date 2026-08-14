@@ -656,6 +656,12 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
   </div>
 </nav>
 
+<!-- BANDEAU OFFRE -->
+<div id="bandeauOffre" style="display:none;background:var(--green);color:#fff;text-align:center;padding:8px 16px;font-size:.72rem;font-weight:600;position:fixed;top:58px;left:0;right:0;z-index:99;box-shadow:0 2px 8px rgba(11,93,59,.3)">
+  <span id="bandeauTexte">🎁 Livraison offerte pour 3 livres achetés aujourd'hui</span>
+  <button onclick="document.getElementById('bandeauOffre').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;margin-left:12px;font-size:.85rem">✕</button>
+</div>
+
 <!-- HERO -->
 <section class="hero">
   <div class="hero-bg-letter" id="heroDeco">D</div>
@@ -739,22 +745,22 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
     <div class="objectif-card" onclick="filterBooks('finance',document.querySelector('.pill[onclick*=\'finance\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
       <div class="objectif-icon">💰</div>
       <div class="objectif-title">Maîtriser mes finances</div>
-      <div class="objectif-sub">Épargne, investissement, richesse</div>
+      <div class="objectif-sub">Tu travailles dur mais ton argent disparaît avant la fin du mois ?</div>
     </div>
     <div class="objectif-card" onclick="filterBooks('devperso',document.querySelector('.pill[onclick*=\'devperso\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
       <div class="objectif-icon">🧠</div>
       <div class="objectif-title">Développer mon mental</div>
-      <div class="objectif-sub">Leadership, discipline, succès</div>
+      <div class="objectif-sub">Tu veux avancer mais quelque chose te bloque intérieurement ?</div>
     </div>
     <div class="objectif-card" onclick="filterBooks('cheikh',document.querySelector('.pill[onclick*=\'cheikh\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
       <div class="objectif-icon">📚</div>
       <div class="objectif-title">Connaître mon histoire</div>
-      <div class="objectif-sub">Cheikh Anta Diop, civilisation africaine</div>
+      <div class="objectif-sub">Un peuple qui ne connaît pas son histoire laisse les autres la raconter.</div>
     </div>
     <div class="objectif-card" onclick="filterBooks('productivite',document.querySelector('.pill[onclick*=\'productivite\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
       <div class="objectif-icon">🚀</div>
       <div class="objectif-title">Booster ma productivité</div>
-      <div class="objectif-sub">Organisation, focus, performance</div>
+      <div class="objectif-sub">Tu sais ce que tu dois faire, mais tu n'arrives pas à le faire régulièrement ?</div>
     </div>
   </div>
 </section>
@@ -1148,6 +1154,20 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 
       <!-- ═══ CONFIG ═══ -->
       <div class="admin-tab-content" id="tab-config">
+        <div class="adm-section-label">Bandeau offre du moment</div>
+        <div class="config-section">
+          <div class="adm-form">
+            <div class="adm-checkbox">
+              <input type="checkbox" id="cBandeauActive">
+              <label for="cBandeauActive">Afficher le bandeau sur le site</label>
+            </div>
+            <div class="adm-field">
+              <label class="adm-label">Message du bandeau</label>
+              <input class="adm-input" id="cBandeauTexte" placeholder="🎁 Livraison offerte pour 3 livres achetés aujourd'hui">
+            </div>
+            <button class="adm-save" onclick="saveBandeau()">Enregistrer</button>
+          </div>
+        </div>
         <div class="adm-section-label">WhatsApp</div>
         <div class="config-section">
           <div class="adm-form">
@@ -1229,6 +1249,10 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
             <div class="adm-hint" style="margin-bottom:5px">Ou colle une URL ↓</div>
             <input class="adm-input" id="fImage" placeholder="https://…" oninput="previewImg(this.value)">
             <div class="img-preview" id="imgPreview"><span>Aperçu de la couverture</span></div>
+          </div>
+          <div class="adm-checkbox">
+            <input type="checkbox" id="fFeatured">
+            <label for="fFeatured">⭐ Afficher en best-seller sur la home (3 max)</label>
           </div>
           <div class="adm-field">
             <label class="adm-label">Slug URL (lamine-livres.vercel.app/livre/<strong>slug</strong>)</label>
@@ -1320,11 +1344,11 @@ async function sbUpsertConfig(key, value){
 
 // Map Supabase row → app book object
 function rowToBook(row){
-  return{id:row.id,title:row.title,author:row.author,price:row.price,oldPrice:row.old_price||null,category:row.category||'autre',badge:row.badge||'none',outOfStock:row.out_of_stock||false,image:row.image||null,desc:row.description||'',slug:row.slug||'',videoUrl:row.video_url||''};
+  return{id:row.id,title:row.title,author:row.author,price:row.price,oldPrice:row.old_price||null,category:row.category||'autre',badge:row.badge||'none',outOfStock:row.out_of_stock||false,image:row.image||null,desc:row.description||'',slug:row.slug||'',videoUrl:row.video_url||'',featured:row.featured||false};
 }
 // Map app book object → Supabase row
 function bookToRow(book){
-  return{title:book.title,author:book.author,price:book.price,old_price:book.oldPrice||null,category:book.category,badge:book.badge||'none',out_of_stock:book.outOfStock||false,image:book.image||null,description:book.desc||'',slug:book.slug||'',video_url:book.videoUrl||''};
+  return{title:book.title,author:book.author,price:book.price,old_price:book.oldPrice||null,category:book.category,badge:book.badge||'none',out_of_stock:book.outOfStock||false,image:book.image||null,description:book.desc||'',slug:book.slug||'',video_url:book.videoUrl||'',featured:book.featured||false};
 }
 
 // ══════════ DEFAULTS ══════════
@@ -1379,6 +1403,7 @@ async function loadBooksFromDB(){
             if(row.key==='sell_config')CONFIG={...DC,...row.value};
             if(row.key==='sell_shop')SHOP={...DS,...row.value};
             if(row.key==='sell_campaigns'&&Array.isArray(row.value))CAMPAIGNS=row.value;
+            if(row.key==='sell_bandeau')lsSet('sell_bandeau',row.value);
           });
         }
       }catch(e){}
@@ -1586,8 +1611,11 @@ function orderNow(id){
     currency: 'XOF'
   });
   trackEvent('track','InitiateCheckout',{content_ids:[id],value:book.price,currency:'XOF'});
-  const tpl=CONFIG.waMessageDirect||DC.waMessageDirect;
-  const msg=tpl.replace('{titre}',book.title).replace('{auteur}',book.author).replace('{prix}',book.price.toLocaleString('fr-FR'));
+  // Build smart pre-filled message with book link
+  var bookLink = book.slug ? 'https://lamine-livres.vercel.app/?livre='+book.slug : '';
+  var tpl=CONFIG.waMessageDirect||DC.waMessageDirect;
+  var msg=tpl.replace('{titre}',book.title).replace('{auteur}',book.author).replace('{prix}',book.price.toLocaleString('fr-FR'));
+  if(bookLink) msg = msg + String.fromCharCode(10)+String.fromCharCode(10)+'🔗 ' + bookLink;
   window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
   trackStat(id,'orders');try{recordOrder('Un client',book.title);}catch(e){}
 }
@@ -1712,7 +1740,7 @@ function checkAdmin(){
 function switchTab(tab,el){
   if(tab==='stats'){loadStatsFromSupabase();setTimeout(renderStats,600);}
   if(tab==='ventes'){renderVentes();}
-  if(tab==='config'){loadCampaigns();renderCampaigns();updateVentesSelect();}
+  if(tab==='config'){loadCampaigns();renderCampaigns();updateVentesSelect();fillBandeauForm();}
   document.querySelectorAll('.admin-tab').forEach(function(t){t.classList.remove('active');});
   document.querySelectorAll('.admin-tab-content').forEach(function(t){t.classList.remove('active');});
   el.classList.add('active');
@@ -1759,6 +1787,7 @@ function editBook(id){
   document.getElementById('fImage').value=book.image||'';document.getElementById('fOutOfStock').checked=!!book.outOfStock;
   document.getElementById('fSlug').value=book.slug||'';
   document.getElementById('fVideoUrl').value=book.videoUrl||'';
+  document.getElementById('fFeatured').checked=!!book.featured;
   previewImg(book.image||'');selectBadge(book.badge||'none');
   document.getElementById('adminMainScreen').style.display='none';document.getElementById('adminFormScreen').style.display='block';
 }
@@ -1779,15 +1808,16 @@ async function saveBook(){
   const outOfStock=document.getElementById('fOutOfStock').checked;
   const slug=document.getElementById('fSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-')||'';
   const videoUrl=document.getElementById('fVideoUrl').value.trim()||'';
+  const featured=document.getElementById('fFeatured').checked;
   if(!title){showToast('Titre obligatoire');return;}
   if(!author){showToast('Auteur obligatoire');return;}
   if(!price||price<=0){showToast('Prix invalide');return;}
-  const row=bookToRow({title,author,price,oldPrice,category,desc,image,badge,outOfStock,slug,videoUrl});
+  const row=bookToRow({title,author,price,oldPrice,category,desc,image,badge,outOfStock,slug,videoUrl,featured});
   try{
     if(editingId!==null){
       await sbPatch('books',editingId,row);
       const idx=BOOKS.findIndex(b=>b.id===editingId);
-      if(idx!==-1)BOOKS[idx]={...BOOKS[idx],title,author,price,oldPrice,category,desc,image,badge,outOfStock,slug,videoUrl};
+      if(idx!==-1)BOOKS[idx]={...BOOKS[idx],title,author,price,oldPrice,category,desc,image,badge,outOfStock,slug,videoUrl,featured};
       showToast('Titre mis à jour ✓');
     }else{
       const res=await sbPost('books',row);
@@ -2538,6 +2568,49 @@ async function sendImportToMeta(){
   renderVentes();
 }
 
+// ══ BANDEAU OFFRE ══
+function loadBandeau(){
+  var b = ls('sell_bandeau', {active:false, texte:'🎁 Livraison offerte pour 3 livres achetés aujourd’hui'});
+  if(b.active){
+    var bd = document.getElementById('bandeauOffre');
+    var bt = document.getElementById('bandeauTexte');
+    if(bd) bd.style.display='block';
+    if(bt) bt.textContent = b.texte;
+    // Push hero down
+    var hero = document.querySelector('.hero');
+    if(hero) hero.style.paddingTop='108px';
+  }
+}
+
+async function saveBandeau(){
+  var active = document.getElementById('cBandeauActive').checked;
+  var texte = document.getElementById('cBandeauTexte').value.trim() || '🎁 Livraison offerte pour 3 livres achetés aujourd’hui';
+  var b = {active:active, texte:texte};
+  lsSet('sell_bandeau', b);
+  try{await sbUpsertConfig('sell_bandeau', b);}catch(e){}
+  // Apply immediately
+  var bd = document.getElementById('bandeauOffre');
+  var bt = document.getElementById('bandeauTexte');
+  var hero = document.querySelector('.hero');
+  if(active){
+    if(bd) bd.style.display='block';
+    if(bt) bt.textContent = texte;
+    if(hero) hero.style.paddingTop='108px';
+  } else {
+    if(bd) bd.style.display='none';
+    if(hero) hero.style.paddingTop='74px';
+  }
+  showToast('Bandeau mis à jour ✓');
+}
+
+function fillBandeauForm(){
+  var b = ls('sell_bandeau', {active:false, texte:''});
+  var el = document.getElementById('cBandeauActive');
+  var tel = document.getElementById('cBandeauTexte');
+  if(el) el.checked = b.active;
+  if(tel) tel.value = b.texte;
+}
+
 function sortStats(metric){
   window._statSort=metric;
   if(window._lastStatsMap){
@@ -2849,7 +2922,8 @@ function closeBookDirectPage(){
 function renderBestsellers(){
   var grid = document.getElementById('bestsellerGrid');
   if(!grid) return;
-  var bests = BOOKS.filter(function(b){return b.badge==='bestseller'&&!b.outOfStock;}).slice(0,3);
+  var bests = BOOKS.filter(function(b){return b.featured&&!b.outOfStock;}).slice(0,3);
+  if(!bests.length) bests = BOOKS.filter(function(b){return b.badge==='bestseller'&&!b.outOfStock;}).slice(0,3);
   if(!bests.length) bests = BOOKS.slice(0,3);
   grid.innerHTML = bests.map(function(book){
     var cover = book.image
@@ -3016,6 +3090,7 @@ function capiEvent(eventName, eventData) {
 
 // ══════════ INIT ══════════
 loadCampaigns();
+loadBandeau();
 applyShop();
 observeReveal();
 startLiveVisitors();
