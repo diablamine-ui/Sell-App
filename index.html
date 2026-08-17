@@ -176,14 +176,14 @@ a{color:inherit;text-decoration:none}
   letter-spacing:-0.05em;font-style:italic;
 }
 .hero-inner{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 0 32px}
-.hero-inner>*{animation:fadeUp .6s var(--ease-out) both}
-.hero-inner>*:nth-child(1){animation-delay:.1s}
-.hero-inner>*:nth-child(2){animation-delay:.2s}
-.hero-inner>*:nth-child(3){animation-delay:.3s}
-.hero-inner>*:nth-child(4){animation-delay:.38s}
-.hero-inner>*:nth-child(5){animation-delay:.45s}
-.hero-inner>*:nth-child(6){animation-delay:.52s}
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.hero-inner>*{animation:fadeUp .65s cubic-bezier(0,0,.2,1) both}
+.hero-inner>*:nth-child(1){animation-delay:.05s}
+.hero-inner>*:nth-child(2){animation-delay:.15s}
+.hero-inner>*:nth-child(3){animation-delay:.25s}
+.hero-inner>*:nth-child(4){animation-delay:.33s}
+.hero-inner>*:nth-child(5){animation-delay:.4s}
+.hero-inner>*:nth-child(6){animation-delay:.47s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .hero-pill{
   display:inline-flex;align-items:center;gap:7px;
   background:var(--gold-pale);border:1px solid rgba(198,161,91,.25);
@@ -257,6 +257,7 @@ a{color:inherit;text-decoration:none}
   background:linear-gradient(160deg,var(--bg) 0%,var(--bg2) 100%);
   border-bottom:2px solid var(--border);
   position:relative;overflow:hidden;
+  animation:fadeUp .5s cubic-bezier(0,0,.2,1) both;
 }
 .cat-hero::before{
   content:\'\';position:absolute;right:-20px;top:0;bottom:0;
@@ -326,6 +327,10 @@ a{color:inherit;text-decoration:none}
 ════════════════════════════════ */
 .section-objectifs{padding:32px 20px 36px;background:var(--bg)}
 .objectifs-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.obj-card:nth-child(1){animation:fadeUp .5s .1s both}
+.obj-card:nth-child(2){animation:fadeUp .5s .18s both}
+.obj-card:nth-child(3){animation:fadeUp .5s .26s both}
+.obj-card:nth-child(4){animation:fadeUp .5s .34s both}
 .obj-card{
   background:var(--surface);border:1.5px solid var(--border2);
   border-radius:var(--r);padding:16px 14px;
@@ -390,7 +395,7 @@ a{color:inherit;text-decoration:none}
   transition:transform .28s var(--ease),box-shadow .28s var(--ease),border-color .28s;
   box-shadow:var(--sh-sm);cursor:default;
 }
-.book-card:hover{transform:translateY(-4px);box-shadow:var(--sh-lg);border-color:rgba(198,161,91,.3)}
+.book-card:hover{transform:translateY(-5px) scale(1.01);box-shadow:0 20px 60px rgba(23,24,21,.15);border-color:rgba(198,161,91,.4)}
 .book-card::after{
   content:\'\';position:absolute;top:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,var(--green),var(--gold));
@@ -949,7 +954,7 @@ a{color:inherit;text-decoration:none}
 </div>
 
 <!-- ════ OBJECTIFS ════ -->
-<section class="section-objectifs reveal" id="objectifs">
+<section class="section-objectifs" id="objectifs">
   <div class="section-header">
     <div class="eyebrow">Trouve ton livre</div>
     <h2 class="section-title display">Quel est ton objectif ?</h2>
@@ -980,13 +985,31 @@ a{color:inherit;text-decoration:none}
 
 <!-- ════ PROOF STRIP ════ -->
 <div class="proof-strip">
-  <div class="proof-item"><div class="proof-av">AK</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Awa K.</strong> — "Ces livres ont changé ma vision"</div></div>
-  <div class="proof-sep"></div>
-  <div class="proof-item"><div class="proof-av">KD</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Konan D.</strong> — "Livraison rapide, qualité top"</div></div>
-  <div class="proof-sep"></div>
-  <div class="proof-item"><div class="proof-av">MB</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Marie B.</strong> — "Je recommande à tous"</div></div>
-  <div class="proof-sep"></div>
-  <div class="proof-item"><div class="proof-av">SY</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Seydou Y.</strong> — "Meilleur investissement de l\'année"</div></div>
+  <div class="proof-strip-inner">
+    <div class="proof-item"><div class="proof-av">AK</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Awa K.</strong> — "Ces livres ont changé ma vision"</div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div class="proof-av">KD</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Konan D.</strong> — "Livraison rapide, qualité top"</div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div class="proof-av">MB</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Marie B.</strong> — "Je recommande à tous"</div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div class="proof-av">SY</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Seydou Y.</strong> — "Meilleur investissement de l'année"</div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div class="proof-av">BK</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Binta K.</strong> — "Prix imbattables à Abidjan"</div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div class="proof-av">AD</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Amed D.</strong> — "Livré le lendemain, parfait !"</div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div class="proof-av">AK</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Awa K.</strong> — "Ces livres ont changé ma vision"</div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div class="proof-av">KD</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Konan D.</strong> — "Livraison rapide, qualité top"</div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div class="proof-av">MB</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Marie B.</strong> — "Je recommande à tous"</div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div class="proof-av">SY</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Seydou Y.</strong> — "Meilleur investissement de l'année"</div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div class="proof-av">BK</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Binta K.</strong> — "Prix imbattables à Abidjan"</div></div>
+    <div class="proof-sep"></div>
+    <div class="proof-item"><div class="proof-av">AD</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Amed D.</strong> — "Livré le lendemain, parfait !"</div></div>
+  </div>
 </div>
 
 <!-- ════ REASSURANCE ════ -->
@@ -1929,14 +1952,38 @@ function openBook(id){
   trackStat(id,'views');
   capiEvent('ViewContent',{content_ids:[id],content_name:book.title,value:book.price,currency:'XOF'});
   trackEvent('track','ViewContent',{content_ids:[id],value:book.price,currency:'XOF'});
-  // Open
-  var page=document.getElementById('bookDirect');if(page){page.classList.add('open');page.scrollTop=0;}
+  // Open with animation
+  var page=document.getElementById('bookDirect');
+  if(page){
+    page.style.opacity='0';
+    page.style.transform='translateY(12px)';
+    page.classList.add('open');
+    page.scrollTop=0;
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        page.style.transition='opacity .3s ease,transform .35s cubic-bezier(0,0,.2,1)';
+        page.style.opacity='1';
+        page.style.transform='translateY(0)';
+      });
+    });
+  }
   if(stickyBar)stickyBar.classList.remove('show');
   document.body.style.overflow='hidden';
 }
 
 function closeBook(){
-  var page=document.getElementById('bookDirect');if(page)page.classList.remove('open');
+  var page=document.getElementById('bookDirect');
+  if(page){
+    page.style.transition='opacity .22s ease,transform .25s cubic-bezier(.4,0,1,1)';
+    page.style.opacity='0';
+    page.style.transform='translateY(10px)';
+    setTimeout(function(){
+      page.classList.remove('open');
+      page.style.opacity='';
+      page.style.transform='';
+      page.style.transition='';
+    },240);
+  }
   var stickyBar=document.getElementById('stickyBar');if(stickyBar)stickyBar.classList.remove('show');
   document.body.style.overflow='';
   var vidFrame=document.getElementById('bdpVideoFrame');if(vidFrame)vidFrame.src='';
@@ -2027,9 +2074,16 @@ function renderUpsell(){
   el.innerHTML='<div class="upsell-box"><div class="upsell-header"><div class="upsell-h1">🎁 Livraison offerte !</div><div class="upsell-h2">Ajoutez 1 livre de plus et la livraison à Abidjan est offerte.</div></div><div class="upsell-scroll">'+sug.map(function(b){var img=b.image?'<img src="'+b.image+'" alt="'+b.title+'">':"<div class='upsell-img-ph'>"+b.title.substring(0,22)+"</div>";return '<div class="upsell-card" onclick="addToCart('+b.id+');renderUpsell()"><div class="upsell-img">'+img+'</div><div class="upsell-title">'+b.title+'</div><div class="upsell-price">'+b.price.toLocaleString('fr-FR')+' F</div><div class="upsell-add">+ Ajouter</div></div>';}).join('')+'</div></div>';
 }
 function openCart(){
-  document.getElementById('cartPage').classList.add('open');
+  var cp=document.getElementById('cartPage');
+  if(cp){
+    cp.style.opacity='0';cp.style.transform='translateX(20px)';
+    cp.classList.add('open');cp.scrollTop=0;
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      cp.style.transition='opacity .28s ease,transform .32s cubic-bezier(0,0,.2,1)';
+      cp.style.opacity='1';cp.style.transform='translateX(0)';
+    });});
+  }
   document.body.style.overflow='hidden';
-  document.getElementById('cartPage').scrollTop=0;
   renderCartItems();
 }
 function closeCart(){document.getElementById('cartPage').classList.remove('open');document.body.style.overflow='';}
