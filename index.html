@@ -654,14 +654,18 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo" id="navLogo" onclick="scrollTo(0,0)">
+  <div class="nav-logo" id="navLogo" onclick="goHome()">
     <div class="nav-logo-img" id="navLogoWrap"><span class="nav-logo-initials" id="navLogoInitials">DB</span></div>
     <div class="nav-logo-text">
       <div class="nav-logo-name"><span id="navName1">Dilam B'</span><span id="navName2"></span></div>
       <div class="nav-logo-sub" id="navSub">Les livres à p'tits prix</div>
     </div>
   </div>
-  <div class="nav-right">
+  <div class="nav-right" style="display:flex;align-items:center;gap:8px">
+    <button id="btnAccueil" onclick="goHome()" style="display:none;align-items:center;gap:5px;background:none;border:1px solid var(--border);color:var(--ink3);padding:7px 12px;border-radius:var(--r-sm);cursor:pointer;font-family:'Manrope',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:all .2s;-webkit-tap-highlight-color:transparent">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Accueil
+    </button>
     <button class="cart-btn" onclick="openCart()">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
       Panier
@@ -1785,6 +1789,7 @@ function loadRealOrders(){realOrders=ls('sell_orders',[]);}
 
 // ══════════ ADMIN ══════════
 let pressTimer=null;
+// Logo: short click = home, long press = admin
 const navLogo=document.getElementById('navLogo');
 navLogo.addEventListener('mousedown',()=>{pressTimer=setTimeout(openAdminLogin,800);});
 navLogo.addEventListener('mouseup',()=>clearTimeout(pressTimer));
@@ -1989,10 +1994,20 @@ function closeBookPage(){
 window.addEventListener('popstate',function(e){
   if(document.getElementById('bookDirectPage').classList.contains('open')){
     document.getElementById('bookDirectPage').classList.remove('open');
+    document.getElementById('stickyCommander').classList.remove('show');
     document.body.style.overflow='';
   } else if(document.getElementById('bookPage').classList.contains('open')){
     document.getElementById('bookPage').classList.remove('open');
     document.body.style.overflow='';
+  } else {
+    // Back from category to home
+    var params = new URLSearchParams(location.search);
+    var cat = params.get('cat');
+    if(cat){
+      // Still in a category
+    } else {
+      resetCatExperience();
+    }
   }
 });
 
@@ -2651,7 +2666,7 @@ var CAT_HEROES = {};
 
 function showCatExperience(cat){
   // Update URL
-  history.pushState({cat:cat},'',location.pathname+'?cat='+cat);
+  history.replaceState({cat:cat},'',location.pathname+'?cat='+cat);
 
   // Show category hero banner
   var catEyebrows = {finance:'Intelligence Financière',devperso:'Développement Personnel',cheikh:'Cheikh Anta Diop',productivite:'Productivité',pack:'Packs'};
@@ -2679,17 +2694,29 @@ function showCatExperience(cat){
   var objectifsSection = document.getElementById('objectifs');
   if(objectifsSection) objectifsSection.style.display='none';
 
+  // Show Accueil button
+  var btnAccueil = document.getElementById('btnAccueil');
+  if(btnAccueil) btnAccueil.style.display='flex';
+
   // Scroll to top
   window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function goHome(){
+  resetCatExperience();
+  window.scrollTo({top:0, behavior:'smooth'});
+  history.pushState({},'',location.pathname);
 }
 
 function resetCatExperience(){
   var banner = document.getElementById('heroCatBanner');
   var mainHero = document.querySelector('.hero');
   var objectifsSection = document.getElementById('objectifs');
+  var btnAccueil = document.getElementById('btnAccueil');
   if(banner) banner.classList.remove('show');
   if(mainHero) mainHero.style.display='';
   if(objectifsSection) objectifsSection.style.display='';
+  if(btnAccueil) btnAccueil.style.display='none';
   history.pushState({},'',location.pathname);
   renderBestsellers();
 }
