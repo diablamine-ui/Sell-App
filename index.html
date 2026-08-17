@@ -721,22 +721,22 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
     <h2 class="section-title display">Quel est ton objectif ?</h2>
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px" id="objectifsGrid">
-    <div class="objectif-card" onclick="filterBooks('finance',document.querySelector('.pill[onclick*=\'finance\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
+    <div class="objectif-card" onclick="filterBooks('finance',document.querySelector('.pill[onclick*=\'finance\']'));showCatExperience('finance')">
       <div class="objectif-icon">💰</div>
       <div class="objectif-title">Maîtriser mes finances</div>
       <div class="objectif-sub">Tu travailles dur mais ton argent disparaît avant la fin du mois ?</div>
     </div>
-    <div class="objectif-card" onclick="filterBooks('devperso',document.querySelector('.pill[onclick*=\'devperso\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
+    <div class="objectif-card" onclick="filterBooks('devperso',document.querySelector('.pill[onclick*=\'devperso\']'));showCatExperience('devperso')">
       <div class="objectif-icon">🧠</div>
       <div class="objectif-title">Développer mon mental</div>
       <div class="objectif-sub">Tu veux avancer mais quelque chose te bloque intérieurement ?</div>
     </div>
-    <div class="objectif-card" onclick="filterBooks('cheikh',document.querySelector('.pill[onclick*=\'cheikh\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
+    <div class="objectif-card" onclick="filterBooks('cheikh',document.querySelector('.pill[onclick*=\'cheikh\']'));showCatExperience('cheikh')">
       <div class="objectif-icon">📚</div>
       <div class="objectif-title">Connaître mon histoire</div>
       <div class="objectif-sub">Un peuple qui ne connaît pas son histoire laisse les autres la raconter.</div>
     </div>
-    <div class="objectif-card" onclick="filterBooks('productivite',document.querySelector('.pill[onclick*=\'productivite\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
+    <div class="objectif-card" onclick="filterBooks('productivite',document.querySelector('.pill[onclick*=\'productivite\']'));showCatExperience('productivite')">
       <div class="objectif-icon">🚀</div>
       <div class="objectif-title">Booster ma productivité</div>
       <div class="objectif-sub">Tu sais ce que tu dois faire, mais tu n'arrives pas à le faire régulièrement ?</div>
@@ -1647,7 +1647,16 @@ function renderBooks(){
   observeReveal();
 }
 
-function filterBooks(cat,el){activeFilter=cat;document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');renderBooks();}
+function filterBooks(cat,el){
+  activeFilter=cat;
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderBooks();
+  // Reset cat experience when clicking "Tous"
+  if(cat==='all'){
+    resetCatExperience();
+  }
+}
 function handleSearch(){searchQuery=document.getElementById('searchInput').value.trim();renderBooks();}
 
 function shareBook(id,e){
@@ -2640,6 +2649,46 @@ var CAT_HEROES_DEFAULT = {
 };
 var CAT_HEROES = {};
 
+function showCatExperience(cat){
+  // Update URL
+  history.pushState({cat:cat},'',location.pathname+'?cat='+cat);
+
+  // Show category hero banner
+  var catEyebrows = {finance:'Intelligence Financière',devperso:'Développement Personnel',cheikh:'Cheikh Anta Diop',productivite:'Productivité',pack:'Packs'};
+  var hero = CAT_HEROES[cat];
+  if(hero){
+    var banner = document.getElementById('heroCatBanner');
+    var eyebrow = document.getElementById('heroCatEyebrow');
+    var title = document.getElementById('heroCatTitle');
+    var desc = document.getElementById('heroCatDesc');
+    var mainHero = document.querySelector('.hero');
+    if(banner&&eyebrow&&title&&desc){
+      eyebrow.textContent = catEyebrows[cat]||cat;
+      title.textContent = hero.title;
+      desc.textContent = hero.desc||'';
+      banner.classList.add('show');
+      banner.style.paddingTop='74px';
+      if(mainHero) mainHero.style.display='none';
+    }
+  }
+
+  // Show category bestsellers
+  renderCatBestsellers(cat);
+
+  // Scroll to objectifs section
+  var section = document.getElementById('objectifs');
+  if(section) section.scrollIntoView({behavior:'smooth'});
+}
+
+function resetCatExperience(){
+  var banner = document.getElementById('heroCatBanner');
+  var mainHero = document.querySelector('.hero');
+  if(banner) banner.classList.remove('show');
+  if(mainHero) mainHero.style.display='';
+  history.pushState({},'',location.pathname);
+  renderBestsellers();
+}
+
 function renderCatBestsellers(cat){
   var grid = document.getElementById('bestsellerGrid');
   var section = document.getElementById('bestsellers');
@@ -3154,34 +3203,9 @@ function handleDeepLink(){
         var oc = p.getAttribute('onclick')||'';
         if(oc.indexOf("'"+cat+"'")>-1) targetPill = p;
       });
-      if(targetPill){
-        filterBooks(cat, targetPill);
-        var section = document.getElementById('catalogue');
-        if(section) section.scrollIntoView({behavior:'smooth'});
-      }
-
-      // Show category hero banner
-      var catEyebrows = {finance:'Intelligence Financière',devperso:'Développement Personnel',cheikh:'Cheikh Anta Diop',productivite:'Productivité',pack:'Packs'};
-      var hero = CAT_HEROES[cat];
-      if(hero){
-        var banner = document.getElementById('heroCatBanner');
-        var eyebrow = document.getElementById('heroCatEyebrow');
-        var title = document.getElementById('heroCatTitle');
-        var desc = document.getElementById('heroCatDesc');
-        if(banner&&eyebrow&&title&&desc){
-          eyebrow.textContent = catEyebrows[cat]||cat;
-          title.textContent = hero.title;
-          desc.textContent = hero.desc||'';
-          banner.classList.add('show');
-          // Hide main hero
-          var mainHero = document.querySelector('.hero');
-          if(mainHero) mainHero.style.display='none';
-          // Show banner right after nav
-          banner.style.paddingTop='74px';
-          // Show category bestsellers
-          renderCatBestsellers(cat);
-        }
-      }
+      if(targetPill) filterBooks(cat, targetPill);
+      // Show full category experience
+      showCatExperience(cat);
     })();
   }
 
