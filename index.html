@@ -847,7 +847,7 @@ a{color:inherit;text-decoration:none}
 <!-- ════ BANDEAU ════ -->
 <div class="bandeau" id="bandeau">
   <span id="bandeauTxt">🎁 Livraison offerte pour 3 livres achetés aujourd&#x2019;hui</span>
-  <button class="bandeau-close" onclick="document.getElementById(\'bandeau\').classList.remove(\'show\')">✕</button>
+  <button class="bandeau-close" onclick="document.getElementById('bandeau').classList.remove('show')">✕</button>
 </div>
 
 <!-- ════ NAV ════ -->
@@ -895,7 +895,7 @@ a{color:inherit;text-decoration:none}
       <div class="trust-pill"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Partout en CI</div>
     </div>
     <div class="hero-cta">
-      <button class="btn-primary" onclick="document.getElementById(\'objectifs\').scrollIntoView({behavior:\'smooth\'})">
+      <button class="btn-primary" onclick="document.getElementById('objectifs').scrollIntoView({behavior:'smooth'})">
         Trouver mon livre
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
       </button>
@@ -924,22 +924,22 @@ a{color:inherit;text-decoration:none}
     <h2 class="section-title display">Quel est ton objectif ?</h2>
   </div>
   <div class="objectifs-grid" id="objectifsGrid">
-    <div class="obj-card" onclick="activateCat(\'finance\')">
+    <div class="obj-card" onclick="activateCat('finance')">
       <div class="obj-icon">💰</div>
       <div class="obj-title">Maîtriser mes finances</div>
       <div class="obj-desc">Tu travailles dur mais ton argent disparaît avant la fin du mois ?</div>
     </div>
-    <div class="obj-card" onclick="activateCat(\'devperso\')">
+    <div class="obj-card" onclick="activateCat('devperso')">
       <div class="obj-icon">🧠</div>
       <div class="obj-title">Développer mon mental</div>
       <div class="obj-desc">Tu veux avancer mais quelque chose te bloque intérieurement ?</div>
     </div>
-    <div class="obj-card" onclick="activateCat(\'cheikh\')">
+    <div class="obj-card" onclick="activateCat('cheikh')">
       <div class="obj-icon">📚</div>
       <div class="obj-title">Connaître mon histoire</div>
       <div class="obj-desc">Un peuple qui ne connaît pas son histoire laisse les autres la raconter.</div>
     </div>
-    <div class="obj-card" onclick="activateCat(\'productivite\')">
+    <div class="obj-card" onclick="activateCat('productivite')">
       <div class="obj-icon">🚀</div>
       <div class="obj-title">Booster ma productivité</div>
       <div class="obj-desc">Tu sais ce que tu dois faire mais tu n\'arrives pas à le faire régulièrement ?</div>
@@ -990,13 +990,13 @@ a{color:inherit;text-decoration:none}
     <input class="search-input" id="searchInput" type="text" placeholder="Titre, auteur…" oninput="handleSearch()">
   </div>
   <div class="filter-row" id="filterRow">
-    <button class="pill active" onclick="setCat(\'all\',this)">Tous <span id="cAll"></span></button>
-    <button class="pill" onclick="setCat(\'pack\',this)">Packs <span id="cPack"></span></button>
-    <button class="pill" onclick="setCat(\'devperso\',this)">Dév. perso <span id="cDevperso"></span></button>
-    <button class="pill" onclick="setCat(\'cheikh\',this)">Cheikh Anta Diop <span id="cCheikh"></span></button>
-    <button class="pill" onclick="setCat(\'productivite\',this)">Productivité <span id="cProductivite"></span></button>
-    <button class="pill" onclick="setCat(\'finance\',this)">Intelligence fin. <span id="cFinance"></span></button>
-    <button class="pill" onclick="setCat(\'autre\',this)">Autres <span id="cAutre"></span></button>
+    <button class="pill active" onclick="setCat('all',this)">Tous <span id="cAll"></span></button>
+    <button class="pill" onclick="setCat('pack',this)">Packs <span id="cPack"></span></button>
+    <button class="pill" onclick="setCat('devperso',this)">Dév. perso <span id="cDevperso"></span></button>
+    <button class="pill" onclick="setCat('cheikh',this)">Cheikh Anta Diop <span id="cCheikh"></span></button>
+    <button class="pill" onclick="setCat('productivite',this)">Productivité <span id="cProductivite"></span></button>
+    <button class="pill" onclick="setCat('finance',this)">Intelligence fin. <span id="cFinance"></span></button>
+    <button class="pill" onclick="setCat('autre',this)">Autres <span id="cAutre"></span></button>
   </div>
   <div class="results-info" id="resultsInfo"></div>
   <div class="books-grid" id="booksGrid"></div>
@@ -1034,7 +1034,7 @@ a{color:inherit;text-decoration:none}
     <div class="confirm-title display">Commande envoyée !</div>
     <div class="confirm-sub">Votre message WhatsApp a été préparé. Envoyez-le pour finaliser.</div>
     <div class="confirm-recap" id="confirmRecap"></div>
-    <button class="confirm-close" onclick="document.getElementById(\'confirmOverlay\').classList.remove(\'open\')">Parfait, merci !</button>
+    <button class="confirm-close" onclick="document.getElementById('confirmOverlay').classList.remove('open')">Parfait, merci !</button>
   </div>
 </div>
 
@@ -1151,11 +1151,11 @@ a{color:inherit;text-decoration:none}
     <!-- MAIN -->
     <div id="admMain" style="display:none">
       <div class="adm-tabs">
-        <button class="adm-tab active" onclick="switchTab(\'boutique\',this)"><span class="adm-tab-icon">🏪</span>Boutique</button>
-        <button class="adm-tab" onclick="switchTab(\'catalogue\',this)"><span class="adm-tab-icon">📚</span>Catalogue</button>
-        <button class="adm-tab" onclick="switchTab(\'stats\',this)"><span class="adm-tab-icon">📊</span>Stats</button>
-        <button class="adm-tab" onclick="switchTab(\'ventes\',this)"><span class="adm-tab-icon">💰</span>Ventes</button>
-        <button class="adm-tab" onclick="switchTab(\'config\',this)"><span class="adm-tab-icon">⚙️</span>Config</button>
+        <button class="adm-tab active" onclick="switchTab('boutique',this)"><span class="adm-tab-icon">🏪</span>Boutique</button>
+        <button class="adm-tab" onclick="switchTab('catalogue',this)"><span class="adm-tab-icon">📚</span>Catalogue</button>
+        <button class="adm-tab" onclick="switchTab('stats',this)"><span class="adm-tab-icon">📊</span>Stats</button>
+        <button class="adm-tab" onclick="switchTab('ventes',this)"><span class="adm-tab-icon">💰</span>Ventes</button>
+        <button class="adm-tab" onclick="switchTab('config',this)"><span class="adm-tab-icon">⚙️</span>Config</button>
       </div>
       <!-- BOUTIQUE -->
       <div class="adm-tab-content active" id="tab-boutique">
@@ -1215,9 +1215,9 @@ a{color:inherit;text-decoration:none}
       <div class="adm-tab-content" id="tab-stats">
         <div class="adm-lbl">Tableau de bord <span><button onclick="resetStats()" style="background:rgba(179,38,30,.14);border:1px solid rgba(179,38,30,.28);color:#f87171;padding:3px 9px;border-radius:4px;cursor:pointer;font-family:\'Manrope\',sans-serif;font-size:.54rem;font-weight:700;text-transform:uppercase">Réinit.</button></span></div>
         <div class="adm-kpi-grid" id="kpiGrid">
-          <div class="kpi-card active" onclick="sortStats(\'views\')"><div class="kpi-icon">👁</div><div class="kpi-val" id="kpiViews" style="color:#FAF7F2">0</div><div class="kpi-lbl">Vues</div></div>
-          <div class="kpi-card" onclick="sortStats(\'carts\')"><div class="kpi-icon">🛒</div><div class="kpi-val" id="kpiCarts" style="color:var(--gold-lt)">0</div><div class="kpi-lbl">Paniers</div></div>
-          <div class="kpi-card" onclick="sortStats(\'orders\')"><div class="kpi-icon">✅</div><div class="kpi-val" id="kpiOrders" style="color:#4ade80">0</div><div class="kpi-lbl">Commandes</div></div>
+          <div class="kpi-card active" onclick="sortStats('views')"><div class="kpi-icon">👁</div><div class="kpi-val" id="kpiViews" style="color:#FAF7F2">0</div><div class="kpi-lbl">Vues</div></div>
+          <div class="kpi-card" onclick="sortStats('carts')"><div class="kpi-icon">🛒</div><div class="kpi-val" id="kpiCarts" style="color:var(--gold-lt)">0</div><div class="kpi-lbl">Paniers</div></div>
+          <div class="kpi-card" onclick="sortStats('orders')"><div class="kpi-icon">✅</div><div class="kpi-val" id="kpiOrders" style="color:#4ade80">0</div><div class="kpi-lbl">Commandes</div></div>
         </div>
         <div class="adm-lbl" id="statsLabel">Par livre — triés par vues</div>
         <div style="padding:0 22px 22px" id="statsContent"></div>
@@ -1347,13 +1347,13 @@ a{color:inherit;text-decoration:none}
           <div class="adm-field">
             <label class="adm-field-lbl">Badge</label>
             <div class="badge-sel">
-              <button type="button" class="badge-opt sel-none" data-badge="none" onclick="selectBadge(\'none\')">Aucun</button>
-              <button type="button" class="badge-opt" data-badge="bestseller" onclick="selectBadge(\'bestseller\')">🔥 Best Seller</button>
-              <button type="button" class="badge-opt" data-badge="new" onclick="selectBadge(\'new\')">✨ Nouveau</button>
-              <button type="button" class="badge-opt" data-badge="promo" onclick="selectBadge(\'promo\')">💰 Promo</button>
-              <button type="button" class="badge-opt" data-badge="limited" onclick="selectBadge(\'limited\')">⚡ Stock limité</button>
-              <button type="button" class="badge-opt" data-badge="coup" onclick="selectBadge(\'coup\')">❤️ Coup de cœur</button>
-              <button type="button" class="badge-opt" data-badge="recommended" onclick="selectBadge(\'recommended\')">📚 Recommandé</button>
+              <button type="button" class="badge-opt sel-none" data-badge="none" onclick="selectBadge('none')">Aucun</button>
+              <button type="button" class="badge-opt" data-badge="bestseller" onclick="selectBadge('bestseller')">🔥 Best Seller</button>
+              <button type="button" class="badge-opt" data-badge="new" onclick="selectBadge('new')">✨ Nouveau</button>
+              <button type="button" class="badge-opt" data-badge="promo" onclick="selectBadge('promo')">💰 Promo</button>
+              <button type="button" class="badge-opt" data-badge="limited" onclick="selectBadge('limited')">⚡ Stock limité</button>
+              <button type="button" class="badge-opt" data-badge="coup" onclick="selectBadge('coup')">❤️ Coup de cœur</button>
+              <button type="button" class="badge-opt" data-badge="recommended" onclick="selectBadge('recommended')">📚 Recommandé</button>
             </div>
             <input type="hidden" id="fBadge" value="none">
           </div>
@@ -2110,7 +2110,8 @@ function renderCatList(){
   if(ce)ce.textContent=defaultCats.length+(CATEGORIES.length?' + '+CATEGORIES.length+' personnalisées':'');
   if(!CATEGORIES.length){el.innerHTML='<div style="font-size:.64rem;color:rgba(250,247,242,.3);padding:8px 0">Aucune catégorie personnalisée ajoutée</div>';return;}
   el.innerHTML=CATEGORIES.map(function(c){
-    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 9px;background:#1A1713;border:1px solid rgba(198,161,91,.1);border-radius:5px;margin-bottom:4px"><span style="font-size:1rem">'+c.icon+'</span><span style="font-size:.7rem;color:#FAF7F2;flex:1">'+c.name+' <span style="color:rgba(250,247,242,.3)">('+c.slug+')</span></span><button onclick="removeCat(\''+c.slug+'\')" class="adm-btn adm-btn-del" style="padding:3px 7px">✕</button></div>';
+    var btn='<button data-slug="'+c.slug+'" onclick="removeCat(this.dataset.slug)" class="adm-btn adm-btn-del" style="padding:3px 7px">✕</button>';
+    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 9px;background:#1A1713;border:1px solid rgba(198,161,91,.1);border-radius:5px;margin-bottom:4px"><span style="font-size:1rem">'+c.icon+'</span><span style="font-size:.7rem;color:#FAF7F2;flex:1">'+c.name+' <span style="color:rgba(250,247,242,.3)">('+c.slug+')</span></span>'+btn+'</div>';
   }).join('');
 }
 async function addCategory(){
