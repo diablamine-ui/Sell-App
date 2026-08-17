@@ -714,6 +714,36 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
   </div>
 </section>
 
+<!-- PAR OBJECTIF -->
+<section style="background:var(--bg);padding:32px 20px 40px" id="objectifs">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Trouve ton livre</div>
+    <h2 class="section-title display">Quel est ton objectif ?</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px" id="objectifsGrid">
+    <div class="objectif-card" onclick="filterBooks('finance',document.querySelector('.pill[onclick*=\'finance\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
+      <div class="objectif-icon">💰</div>
+      <div class="objectif-title">Maîtriser mes finances</div>
+      <div class="objectif-sub">Tu travailles dur mais ton argent disparaît avant la fin du mois ?</div>
+    </div>
+    <div class="objectif-card" onclick="filterBooks('devperso',document.querySelector('.pill[onclick*=\'devperso\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
+      <div class="objectif-icon">🧠</div>
+      <div class="objectif-title">Développer mon mental</div>
+      <div class="objectif-sub">Tu veux avancer mais quelque chose te bloque intérieurement ?</div>
+    </div>
+    <div class="objectif-card" onclick="filterBooks('cheikh',document.querySelector('.pill[onclick*=\'cheikh\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
+      <div class="objectif-icon">📚</div>
+      <div class="objectif-title">Connaître mon histoire</div>
+      <div class="objectif-sub">Un peuple qui ne connaît pas son histoire laisse les autres la raconter.</div>
+    </div>
+    <div class="objectif-card" onclick="filterBooks('productivite',document.querySelector('.pill[onclick*=\'productivite\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
+      <div class="objectif-icon">🚀</div>
+      <div class="objectif-title">Booster ma productivité</div>
+      <div class="objectif-sub">Tu sais ce que tu dois faire, mais tu n'arrives pas à le faire régulièrement ?</div>
+    </div>
+  </div>
+</section>
+
 <!-- HERO CAT BANNER -->
 <div class="hero-cat-banner" id="heroCatBanner">
   <div class="hero-cat-eyebrow" id="heroCatEyebrow"></div>
@@ -745,36 +775,6 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
     <div class="r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Livraison partout en CI</span></div>
   </div>
 </div>
-
-<!-- PAR OBJECTIF -->
-<section style="background:var(--bg);padding:32px 20px 40px" id="objectifs">
-  <div class="section-header reveal">
-    <div class="section-eyebrow">Trouve ton livre</div>
-    <h2 class="section-title display">Quel est ton objectif ?</h2>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px" id="objectifsGrid">
-    <div class="objectif-card" onclick="filterBooks('finance',document.querySelector('.pill[onclick*=\'finance\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
-      <div class="objectif-icon">💰</div>
-      <div class="objectif-title">Maîtriser mes finances</div>
-      <div class="objectif-sub">Tu travailles dur mais ton argent disparaît avant la fin du mois ?</div>
-    </div>
-    <div class="objectif-card" onclick="filterBooks('devperso',document.querySelector('.pill[onclick*=\'devperso\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
-      <div class="objectif-icon">🧠</div>
-      <div class="objectif-title">Développer mon mental</div>
-      <div class="objectif-sub">Tu veux avancer mais quelque chose te bloque intérieurement ?</div>
-    </div>
-    <div class="objectif-card" onclick="filterBooks('cheikh',document.querySelector('.pill[onclick*=\'cheikh\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
-      <div class="objectif-icon">📚</div>
-      <div class="objectif-title">Connaître mon histoire</div>
-      <div class="objectif-sub">Un peuple qui ne connaît pas son histoire laisse les autres la raconter.</div>
-    </div>
-    <div class="objectif-card" onclick="filterBooks('productivite',document.querySelector('.pill[onclick*=\'productivite\']'));document.getElementById('catalogue').scrollIntoView({behavior:'smooth'})">
-      <div class="objectif-icon">🚀</div>
-      <div class="objectif-title">Booster ma productivité</div>
-      <div class="objectif-sub">Tu sais ce que tu dois faire, mais tu n'arrives pas à le faire régulièrement ?</div>
-    </div>
-  </div>
-</section>
 
 <!-- BEST-SELLERS -->
 <section class="section" id="bestsellers" style="padding-bottom:40px">
@@ -1183,6 +1183,29 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 
       <!-- ═══ CONFIG ═══ -->
       <div class="admin-tab-content" id="tab-config">
+        <div class="adm-section-label">Héros par catégorie <span id="catHeroSaved"></span></div>
+        <div class="config-section">
+          <div class="adm-hint" style="margin-bottom:12px">Ces textes s'affichent quand un visiteur arrive via un lien de catégorie (pub, partage, etc.)</div>
+          <div class="adm-field" style="margin-bottom:6px">
+            <label class="adm-label">Catégorie</label>
+            <select class="adm-select" id="catHeroSelect" onchange="loadCatHeroForm()">
+              <option value="finance">💰 Finance</option>
+              <option value="devperso">🧠 Développement personnel</option>
+              <option value="cheikh">📚 Cheikh Anta Diop</option>
+              <option value="productivite">🚀 Productivité</option>
+              <option value="pack">🎁 Packs</option>
+            </select>
+          </div>
+          <div class="adm-field">
+            <label class="adm-label">Titre hero</label>
+            <textarea class="adm-textarea" id="catHeroTitle" style="min-height:60px" placeholder="Ex: Tu travailles dur… mais ton argent disparaît ?"></textarea>
+          </div>
+          <div class="adm-field">
+            <label class="adm-label">Message PASA</label>
+            <textarea class="adm-textarea" id="catHeroDesc" style="min-height:70px" placeholder="Ex: Ces livres t'ont appris à penser différemment l'argent…"></textarea>
+          </div>
+          <button class="adm-save" onclick="saveCatHero()">Enregistrer ce hero</button>
+        </div>
         <div class="adm-section-label">Bandeau offre du moment</div>
         <div class="config-section">
           <div class="adm-form">
@@ -1438,6 +1461,7 @@ async function loadBooksFromDB(){
             if(row.key==='sell_shop')SHOP={...DS,...row.value};
             if(row.key==='sell_campaigns'&&Array.isArray(row.value))CAMPAIGNS=row.value;
             if(row.key==='sell_bandeau')lsSet('sell_bandeau',row.value);
+            if(row.key==='sell_cat_heroes'){lsSet('sell_cat_heroes',row.value);CAT_HEROES=Object.assign({},CAT_HEROES_DEFAULT,row.value);}
           });
         }
       }catch(e){}
@@ -1774,7 +1798,7 @@ function checkAdmin(){
 function switchTab(tab,el){
   if(tab==='stats'){loadStatsFromSupabase();setTimeout(renderStats,600);}
   if(tab==='ventes'){renderVentes();}
-  if(tab==='config'){loadCampaigns();renderCampaigns();updateVentesSelect();fillBandeauForm();}
+  if(tab==='config'){loadCampaigns();renderCampaigns();updateVentesSelect();fillBandeauForm();loadCatHeroes();loadCatHeroForm();}
   document.querySelectorAll('.admin-tab').forEach(function(t){t.classList.remove('active');});
   document.querySelectorAll('.admin-tab-content').forEach(function(t){t.classList.remove('active');});
   el.classList.add('active');
@@ -2605,6 +2629,91 @@ async function sendImportToMeta(){
   renderVentes();
 }
 
+// ══ HERO PAR CATÉGORIE ══
+var CAT_HEROES_DEFAULT = {
+  finance: {title:'Tu travailles dur… mais ton argent disparaît avant la fin du mois ?', desc:'Ces livres t’ont appris à penser différemment l’argent. Épargne, investissement, liberté financière.'},
+  devperso: {title:'Tu veux avancer… mais quelque chose te bloque intérieurement ?', desc:'Mental, discipline, leadership, relations humaines — les livres qui ont transformé des milliers de vies.'},
+  cheikh: {title:'Un peuple qui ne connaît pas son histoire laisse les autres la raconter à sa place.', desc:'L’œuvre complète de Cheikh Anta Diop — l’histoire africaine telle qu’elle devrait être enseignée.'},
+  productivite: {title:'Tu sais ce que tu dois faire… mais tu n’arrives pas à le faire régulièrement ?', desc:'Focus, organisation, gestion du temps — les méthodes qui transforment l’intention en action.'},
+  pack: {title:'Le meilleur investissement que tu puisses faire — sur toi-même.', desc:'Nos packs sélectionnés pour un maximum d’impact. Plusieurs livres, un seul objectif.'}
+};
+var CAT_HEROES = {};
+
+function renderCatBestsellers(cat){
+  var grid = document.getElementById('bestsellerGrid');
+  var section = document.getElementById('bestsellers');
+  var sectionTitle = document.querySelector('#bestsellers .section-eyebrow');
+  var sectionH2 = document.querySelector('#bestsellers .section-title');
+  if(!grid) return;
+
+  var CAT_LABELS_FR = {finance:'Finance',devperso:'Développement Personnel',cheikh:'Cheikh Anta Diop',productivite:'Productivité',pack:'Packs'};
+  if(sectionTitle) sectionTitle.textContent = 'Sélection ' + (CAT_LABELS_FR[cat]||cat);
+  if(sectionH2) sectionH2.textContent = 'Les incontournables';
+
+  var BADGE_SCORE = {bestseller:4,recommended:3,coup:2,new:1,promo:1,limited:1,none:0};
+  var catBooks = BOOKS.filter(function(b){ return b.category===cat && !b.outOfStock; })
+    .sort(function(a,b){ return (BADGE_SCORE[b.badge]||0)-(BADGE_SCORE[a.badge]||0); })
+    .slice(0,3);
+
+  if(!catBooks.length){
+    if(section) section.style.display='none';
+    return;
+  }
+  if(section) section.style.display='block';
+
+  grid.innerHTML = catBooks.map(function(book){
+    var cover = book.image
+      ? '<img src="'+book.image+'" alt="'+book.title+'" loading="lazy">'
+      : '<div class="cover-ph"><div class="ph-icon">✦</div><div class="ph-title">'+book.title+'</div><div class="ph-sep"></div><div class="ph-author">'+book.author+'</div></div>';
+    var desc = book.desc ? (book.desc.length>80?book.desc.substring(0,80)+'…':book.desc) : '';
+    return '<div class="book-card" onclick="openBookDirectPage('+book.id+')" style="cursor:pointer">'
+      +'<div class="book-cover">'
+      +(book.badge&&book.badge!=='none'?'<div class="book-badge badge-'+book.badge+'">'+BADGE_LABELS[book.badge]+'</div>':'')
+      +cover
+      +'<div class="badge-cat">'+(CAT_LABELS[book.category]||'Livre')+'</div>'
+      +'</div>'
+      +'<div class="book-body">'
+      +'<div class="book-title">'+book.title+'</div>'
+      +'<div class="book-author">'+book.author+'</div>'
+      +(desc?'<div class="book-desc" style="color:var(--green);font-style:italic;font-size:.72rem">'+desc+'</div>':'')
+      +'<div class="book-footer">'
+      +(book.stock!==null&&book.stock<=5?'<div style="font-size:.6rem;font-weight:700;color:var(--red);margin-bottom:4px">⚡ Plus que '+book.stock+' exemplaire'+(book.stock>1?'s':'')+' !</div>':'')
+      +'<div class="book-price display">'+book.price.toLocaleString('fr-FR')+'<sup>FCFA</sup></div>'
+      +'<button class="btn-now" onclick="event.stopPropagation();openBookDirectPage('+book.id+')" style="width:100%;margin-top:6px">Voir le livre →</button>'
+      +'</div></div></div>';
+  }).join('');
+}
+
+function loadCatHeroes(){
+  var saved = ls('sell_cat_heroes', {});
+  CAT_HEROES = Object.assign({}, CAT_HEROES_DEFAULT, saved);
+}
+
+function loadCatHeroForm(){
+  var cat = document.getElementById('catHeroSelect').value;
+  var hero = CAT_HEROES[cat] || CAT_HEROES_DEFAULT[cat] || {};
+  var titleEl = document.getElementById('catHeroTitle');
+  var descEl = document.getElementById('catHeroDesc');
+  if(titleEl) titleEl.value = hero.title || '';
+  if(descEl) descEl.value = hero.desc || '';
+}
+
+async function saveCatHero(){
+  var cat = document.getElementById('catHeroSelect').value;
+  var title = document.getElementById('catHeroTitle').value.trim();
+  var desc = document.getElementById('catHeroDesc').value.trim();
+  if(!title){showToast('Titre obligatoire');return;}
+  CAT_HEROES[cat] = {title:title, desc:desc};
+  var saved = ls('sell_cat_heroes', {});
+  saved[cat] = {title:title, desc:desc};
+  lsSet('sell_cat_heroes', saved);
+  try{await sbUpsertConfig('sell_cat_heroes', saved);}catch(e){}
+  var statusEl = document.getElementById('catHeroSaved');
+  if(statusEl) statusEl.textContent = '✓ Enregistré';
+  setTimeout(function(){if(statusEl)statusEl.textContent='';}, 2000);
+  showToast('Hero ' + cat + ' enregistré ✓');
+}
+
 // ══ BANDEAU OFFRE ══
 function loadBandeau(){
   var b = ls('sell_bandeau', {active:false, texte:'🎁 Livraison offerte pour 3 livres achetés aujourd’hui'});
@@ -3050,29 +3159,25 @@ function handleDeepLink(){
       }
 
       // Show category hero banner
-      var catHeroes = {
-        finance: {eyebrow:'Intelligence Financière',title:'Tu travailles dur… mais ton argent disparaît avant la fin du mois ?',desc:'Ces livres t’ont appris à penser différemment l’argent. Épargne, investissement, liberté financière.'},
-        devperso: {eyebrow:'Développement Personnel',title:'Tu veux avancer… mais quelque chose te bloque intérieurement ?',desc:'Mental, discipline, leadership, relations humaines — les livres qui ont transformé des milliers de vies.'},
-        cheikh: {eyebrow:'Cheikh Anta Diop',title:'Un peuple qui ne connaît pas son histoire laisse les autres la raconter à sa place.',desc:'L’œuvre complète de Cheikh Anta Diop — l’histoire africaine telle qu’elle devrait être enseignée.'},
-        productivite: {eyebrow:'Productivité & Organisation',title:'Tu sais ce que tu dois faire… mais tu n’arrives pas à le faire régulièrement ?',desc:'Focus, organisation, gestion du temps — les méthodes qui transforment l’intention en action.'},
-        pack: {eyebrow:'Packs Économiques',title:'Le meilleur investissement que tu puisses faire — sur toi-même.',desc:'Nos packs sélectionnés pour un maximum d’impact. Plusieurs livres, un seul objectif.'}
-      };
-      var hero = catHeroes[cat];
+      var catEyebrows = {finance:'Intelligence Financière',devperso:'Développement Personnel',cheikh:'Cheikh Anta Diop',productivite:'Productivité',pack:'Packs'};
+      var hero = CAT_HEROES[cat];
       if(hero){
         var banner = document.getElementById('heroCatBanner');
         var eyebrow = document.getElementById('heroCatEyebrow');
         var title = document.getElementById('heroCatTitle');
         var desc = document.getElementById('heroCatDesc');
         if(banner&&eyebrow&&title&&desc){
-          eyebrow.textContent = hero.eyebrow;
+          eyebrow.textContent = catEyebrows[cat]||cat;
           title.textContent = hero.title;
-          desc.textContent = hero.desc;
+          desc.textContent = hero.desc||'';
           banner.classList.add('show');
           // Hide main hero
           var mainHero = document.querySelector('.hero');
           if(mainHero) mainHero.style.display='none';
           // Show banner right after nav
           banner.style.paddingTop='74px';
+          // Show category bestsellers
+          renderCatBestsellers(cat);
         }
       }
     }, 800);
@@ -3197,6 +3302,7 @@ function capiEvent(eventName, eventData) {
 
 // ══════════ INIT ══════════
 loadCampaigns();
+loadCatHeroes();
 loadBandeau();
 applyShop();
 observeReveal();
