@@ -2675,16 +2675,21 @@ function showCatExperience(cat){
   // Show category bestsellers
   renderCatBestsellers(cat);
 
-  // Scroll to objectifs section
-  var section = document.getElementById('objectifs');
-  if(section) section.scrollIntoView({behavior:'smooth'});
+  // Hide objectifs section - user is already in a category
+  var objectifsSection = document.getElementById('objectifs');
+  if(objectifsSection) objectifsSection.style.display='none';
+
+  // Scroll to top
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function resetCatExperience(){
   var banner = document.getElementById('heroCatBanner');
   var mainHero = document.querySelector('.hero');
+  var objectifsSection = document.getElementById('objectifs');
   if(banner) banner.classList.remove('show');
   if(mainHero) mainHero.style.display='';
+  if(objectifsSection) objectifsSection.style.display='';
   history.pushState({},'',location.pathname);
   renderBestsellers();
 }
