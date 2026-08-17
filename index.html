@@ -618,6 +618,20 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
 .bdp-suggestions-title{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--ink);margin-bottom:14px}
 .bdp-suggestions-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 
+/* ── STICKY COMMANDER ── */
+.sticky-commander{display:none;position:fixed;bottom:0;left:0;right:0;z-index:500;padding:10px 16px 20px;background:rgba(248,245,238,0.97);backdrop-filter:blur(12px);border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(23,24,21,.1)}
+.sticky-commander.show{display:flex;gap:10px}
+.sticky-price{font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--ink);line-height:1;align-self:center;flex-shrink:0}
+.sticky-btn{flex:1;background:var(--green);color:#fff;border:none;padding:13px;font-family:'Manrope',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;-webkit-tap-highlight-color:transparent}
+.sticky-btn:active{background:var(--green-dk)}
+
+/* ── HERO CAT ── */
+.hero-cat-banner{display:none;padding:16px 20px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.hero-cat-banner.show{display:block}
+.hero-cat-eyebrow{font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.hero-cat-title{font-family:'DM Serif Display',serif;font-size:clamp(1.4rem,4vw,2rem);color:var(--ink);line-height:1.2;margin-bottom:8px}
+.hero-cat-desc{font-size:.85rem;color:var(--ink3);line-height:1.7}
+
 /* ── RESPONSIVE ── *//* ── RESPONSIVE ── */
 @media(max-width:480px){
   .books-grid{grid-template-columns:1fr 1fr;gap:10px}
@@ -700,6 +714,13 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
   </div>
 </section>
 
+<!-- HERO CAT BANNER -->
+<div class="hero-cat-banner" id="heroCatBanner">
+  <div class="hero-cat-eyebrow" id="heroCatEyebrow"></div>
+  <div class="hero-cat-title display" id="heroCatTitle"></div>
+  <div class="hero-cat-desc" id="heroCatDesc"></div>
+</div>
+
 <!-- PROOF STRIP -->
 <div class="proof-strip">
   <div class="proof-item"><div class="proof-avatar">AK</div><div class="proof-stars">★★★★★</div><div class="proof-quote"><strong>Awa K.</strong> — "Ces livres ont changé ma vision"</div></div>
@@ -724,16 +745,6 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
     <div class="r-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg><span>Livraison partout en CI</span></div>
   </div>
 </div>
-
-<!-- BEST-SELLERS -->
-<section class="section" id="bestsellers" style="padding-bottom:40px">
-  <div class="section-header reveal">
-    <div class="section-eyebrow">Sélection éditoriale</div>
-    <h2 class="section-title display">Nos Best-Sellers</h2>
-    <p style="font-size:.85rem;color:var(--ink3);margin-top:8px;max-width:480px">Les livres les plus commandés par nos lecteurs. Éprouvés, transformateurs.</p>
-  </div>
-  <div id="bestsellerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:16px"></div>
-</section>
 
 <!-- PAR OBJECTIF -->
 <section style="background:var(--bg);padding:32px 20px 40px" id="objectifs">
@@ -763,6 +774,16 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
       <div class="objectif-sub">Tu sais ce que tu dois faire, mais tu n'arrives pas à le faire régulièrement ?</div>
     </div>
   </div>
+</section>
+
+<!-- BEST-SELLERS -->
+<section class="section" id="bestsellers" style="padding-bottom:40px">
+  <div class="section-header reveal">
+    <div class="section-eyebrow">Sélection éditoriale</div>
+    <h2 class="section-title display">Nos Best-Sellers</h2>
+    <p style="font-size:.85rem;color:var(--ink3);margin-top:8px;max-width:480px">Les livres les plus commandés par nos lecteurs. Éprouvés, transformateurs.</p>
+  </div>
+  <div id="bestsellerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:16px"></div>
 </section>
 
 <!-- CATALOGUE -->
@@ -861,7 +882,15 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
   <!-- Suggestions -->
   <div class="bdp-suggestions" id="bdpSuggestions"></div>
 
-  <div style="height:40px"></div>
+  <!-- Sticky Commander -->
+  <div class="sticky-commander" id="stickyCommander">
+    <div class="sticky-price display" id="stickyPrice"></div>
+    <button class="sticky-btn" id="stickyBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Commander
+    </button>
+  </div>
+  <div style="height:80px"></div>
 </div>
 
 <!-- BOOK PAGE -->
@@ -1255,6 +1284,11 @@ footer{padding:36px 20px;background:var(--ink);border-top:2px solid var(--gold);
             <label for="fFeatured">⭐ Afficher en best-seller sur la home (3 max)</label>
           </div>
           <div class="adm-field">
+            <label class="adm-label">Stock disponible (optionnel)</label>
+            <input class="adm-input" id="fStock" type="number" placeholder="Ex: 5 — affiche l'alerte stock limité">
+            <div class="adm-hint" style="margin-top:4px">Laisse vide si stock illimité. En dessous de 5 → affiche "⚡ Plus que X exemplaires"</div>
+          </div>
+          <div class="adm-field">
             <label class="adm-label">Slug URL (lamine-livres.vercel.app/livre/<strong>slug</strong>)</label>
             <input class="adm-input" id="fSlug" placeholder="ex: power-48-lois">
             <div class="adm-hint" style="margin-top:4px">Lettres minuscules et tirets uniquement. Utilisé pour le lien direct du livre.</div>
@@ -1344,11 +1378,11 @@ async function sbUpsertConfig(key, value){
 
 // Map Supabase row → app book object
 function rowToBook(row){
-  return{id:row.id,title:row.title,author:row.author,price:row.price,oldPrice:row.old_price||null,category:row.category||'autre',badge:row.badge||'none',outOfStock:row.out_of_stock||false,image:row.image||null,desc:row.description||'',slug:row.slug||'',videoUrl:row.video_url||'',featured:row.featured||false};
+  return{id:row.id,title:row.title,author:row.author,price:row.price,oldPrice:row.old_price||null,category:row.category||'autre',badge:row.badge||'none',outOfStock:row.out_of_stock||false,image:row.image||null,desc:row.description||'',slug:row.slug||'',videoUrl:row.video_url||'',featured:row.featured||false,stock:row.stock||null};
 }
 // Map app book object → Supabase row
 function bookToRow(book){
-  return{title:book.title,author:book.author,price:book.price,old_price:book.oldPrice||null,category:book.category,badge:book.badge||'none',out_of_stock:book.outOfStock||false,image:book.image||null,description:book.desc||'',slug:book.slug||'',video_url:book.videoUrl||'',featured:book.featured||false};
+  return{title:book.title,author:book.author,price:book.price,old_price:book.oldPrice||null,category:book.category,badge:book.badge||'none',out_of_stock:book.outOfStock||false,image:book.image||null,description:book.desc||'',slug:book.slug||'',video_url:book.videoUrl||'',featured:book.featured||false,stock:book.stock||null};
 }
 
 // ══════════ DEFAULTS ══════════
@@ -1770,7 +1804,7 @@ function renderAdminList(){
 }
 function showAddForm(){
   editingId=null;document.getElementById('adminFormTitle').textContent='Nouveau titre';
-  ['fTitle','fAuthor','fDesc','fImage','fSlug','fVideoUrl'].forEach(id=>document.getElementById(id).value='');
+  ['fTitle','fAuthor','fDesc','fImage','fSlug','fVideoUrl','fStock'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fPrice').value='';document.getElementById('fOldPrice').value='';
   document.getElementById('fCategory').value='devperso';document.getElementById('fOutOfStock').checked=false;
   document.getElementById('imgPreview').innerHTML='<span>Aperçu de la couverture</span>';
@@ -1788,6 +1822,7 @@ function editBook(id){
   document.getElementById('fSlug').value=book.slug||'';
   document.getElementById('fVideoUrl').value=book.videoUrl||'';
   document.getElementById('fFeatured').checked=!!book.featured;
+  document.getElementById('fStock').value=book.stock||'';
   previewImg(book.image||'');selectBadge(book.badge||'none');
   document.getElementById('adminMainScreen').style.display='none';document.getElementById('adminFormScreen').style.display='block';
 }
@@ -1809,15 +1844,17 @@ async function saveBook(){
   const slug=document.getElementById('fSlug').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-')||'';
   const videoUrl=document.getElementById('fVideoUrl').value.trim()||'';
   const featured=document.getElementById('fFeatured').checked;
+  const stockRaw=document.getElementById('fStock').value.trim();
+  const stock=stockRaw?parseInt(stockRaw):null;
   if(!title){showToast('Titre obligatoire');return;}
   if(!author){showToast('Auteur obligatoire');return;}
   if(!price||price<=0){showToast('Prix invalide');return;}
-  const row=bookToRow({title,author,price,oldPrice,category,desc,image,badge,outOfStock,slug,videoUrl,featured});
+  const row=bookToRow({title,author,price,oldPrice,category,desc,image,badge,outOfStock,slug,videoUrl,featured,stock});
   try{
     if(editingId!==null){
       await sbPatch('books',editingId,row);
       const idx=BOOKS.findIndex(b=>b.id===editingId);
-      if(idx!==-1)BOOKS[idx]={...BOOKS[idx],title,author,price,oldPrice,category,desc,image,badge,outOfStock,slug,videoUrl,featured};
+      if(idx!==-1)BOOKS[idx]={...BOOKS[idx],title,author,price,oldPrice,category,desc,image,badge,outOfStock,slug,videoUrl,featured,stock};
       showToast('Titre mis à jour ✓');
     }else{
       const res=await sbPost('books',row);
@@ -2814,6 +2851,11 @@ function openBookDirectPage(id){
   }
 
   var inCart = cart.find(function(i){return i.id===id;});
+  var stockHtml = '';
+  if(book.stock!==null && book.stock<=5){
+    stockHtml = '<div style="font-size:.68rem;font-weight:700;color:var(--red);margin-top:8px;display:flex;align-items:center;gap:5px">⚡ Plus que '+book.stock+' exemplaire'+(book.stock>1?'s':'')+' disponible'+(book.stock>1?'s':'')+' !</div>';
+  }
+
   var heroHtml = '<div class="bdp-cover">'+coverHtml+'</div>'
     +'<div class="bdp-info">'
     +'<div class="bdp-category">'+( CAT_LABELS[book.category]||'Livre')+'</div>'
@@ -2823,6 +2865,7 @@ function openBookDirectPage(id){
     +'<div class="bdp-price-box">'
     +'<div class="bdp-price display">'+book.price.toLocaleString('fr-FR')+' <sup style="font-size:.55rem;font-family:Manrope,sans-serif;font-weight:700;color:var(--ink3)">FCFA</sup></div>'
     +oldPriceHtml
+    +stockHtml
     +'</div>'
     +'</div>';
 
@@ -2895,8 +2938,46 @@ function openBookDirectPage(id){
   }
   document.getElementById('bdpSuggestions').innerHTML = suggestionsHtml;
 
+  // Sticky commander setup
+  var stickyPrice = document.getElementById('stickyPrice');
+  var stickyBtn = document.getElementById('stickyBtn');
+  var stickyBar = document.getElementById('stickyCommander');
+  if(stickyPrice) stickyPrice.textContent = book.price.toLocaleString('fr-FR') + ' FCFA';
+  if(stickyBtn) stickyBtn.onclick = function(){ closeBookDirectPage(); orderNow(id); };
+
+  // Show sticky after scrolling past hero
+  var bdpPage = document.getElementById('bookDirectPage');
+  function handleBdpScroll(){
+    var scrolled = bdpPage.scrollTop > 200;
+    if(stickyBar) stickyBar.classList.toggle('show', scrolled);
+  }
+  bdpPage.removeEventListener('scroll', bdpPage._scrollHandler);
+  bdpPage._scrollHandler = handleBdpScroll;
+  bdpPage.addEventListener('scroll', bdpPage._scrollHandler);
+
   // Open page
   trackStat(id,'views');
+
+  // Update meta tags for sharing
+  document.title = book.title + ' — Dilam B\' | ' + book.price.toLocaleString('fr-FR') + ' FCFA';
+  var metaDesc = document.querySelector('meta[name="description"]');
+  if(!metaDesc){ metaDesc=document.createElement('meta'); metaDesc.name='description'; document.head.appendChild(metaDesc); }
+  metaDesc.content = book.desc ? book.desc.substring(0,150) : book.title + ' — ' + book.price.toLocaleString('fr-FR') + ' FCFA. Livraison 24h à Abidjan.';
+
+  var ogTitle = document.querySelector('meta[property="og:title"]');
+  if(!ogTitle){ ogTitle=document.createElement('meta'); ogTitle.setAttribute('property','og:title'); document.head.appendChild(ogTitle); }
+  ogTitle.content = book.title + ' — ' + book.price.toLocaleString('fr-FR') + ' FCFA';
+
+  var ogDesc = document.querySelector('meta[property="og:description"]');
+  if(!ogDesc){ ogDesc=document.createElement('meta'); ogDesc.setAttribute('property','og:description'); document.head.appendChild(ogDesc); }
+  ogDesc.content = metaDesc.content;
+
+  if(book.image){
+    var ogImg = document.querySelector('meta[property="og:image"]');
+    if(!ogImg){ ogImg=document.createElement('meta'); ogImg.setAttribute('property','og:image'); document.head.appendChild(ogImg); }
+    ogImg.content = book.image;
+  }
+
   document.getElementById('bookDirectPage').classList.add('open');
   document.getElementById('bookDirectPage').scrollTop=0;
   document.body.style.overflow='hidden';
@@ -2910,6 +2991,7 @@ function handleBdpCart(id){
 
 function closeBookDirectPage(){
   document.getElementById('bookDirectPage').classList.remove('open');
+  document.getElementById('stickyCommander').classList.remove('show');
   document.body.style.overflow='';
   history.pushState({},'',location.pathname);
 }
@@ -2965,6 +3047,33 @@ function handleDeepLink(){
         filterBooks(cat, targetPill);
         var section = document.getElementById('catalogue');
         if(section) section.scrollIntoView({behavior:'smooth'});
+      }
+
+      // Show category hero banner
+      var catHeroes = {
+        finance: {eyebrow:'Intelligence Financière',title:'Tu travailles dur… mais ton argent disparaît avant la fin du mois ?',desc:'Ces livres t’ont appris à penser différemment l’argent. Épargne, investissement, liberté financière.'},
+        devperso: {eyebrow:'Développement Personnel',title:'Tu veux avancer… mais quelque chose te bloque intérieurement ?',desc:'Mental, discipline, leadership, relations humaines — les livres qui ont transformé des milliers de vies.'},
+        cheikh: {eyebrow:'Cheikh Anta Diop',title:'Un peuple qui ne connaît pas son histoire laisse les autres la raconter à sa place.',desc:'L’œuvre complète de Cheikh Anta Diop — l’histoire africaine telle qu’elle devrait être enseignée.'},
+        productivite: {eyebrow:'Productivité & Organisation',title:'Tu sais ce que tu dois faire… mais tu n’arrives pas à le faire régulièrement ?',desc:'Focus, organisation, gestion du temps — les méthodes qui transforment l’intention en action.'},
+        pack: {eyebrow:'Packs Économiques',title:'Le meilleur investissement que tu puisses faire — sur toi-même.',desc:'Nos packs sélectionnés pour un maximum d’impact. Plusieurs livres, un seul objectif.'}
+      };
+      var hero = catHeroes[cat];
+      if(hero){
+        var banner = document.getElementById('heroCatBanner');
+        var eyebrow = document.getElementById('heroCatEyebrow');
+        var title = document.getElementById('heroCatTitle');
+        var desc = document.getElementById('heroCatDesc');
+        if(banner&&eyebrow&&title&&desc){
+          eyebrow.textContent = hero.eyebrow;
+          title.textContent = hero.title;
+          desc.textContent = hero.desc;
+          banner.classList.add('show');
+          // Hide main hero
+          var mainHero = document.querySelector('.hero');
+          if(mainHero) mainHero.style.display='none';
+          // Show banner right after nav
+          banner.style.paddingTop='74px';
+        }
       }
     }, 800);
   }
