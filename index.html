@@ -1656,9 +1656,10 @@ function filterBooks(cat,el){
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
   if(el) el.classList.add('active');
   renderBooks();
-  // Reset cat experience when clicking "Tous"
   if(cat==='all'){
     resetCatExperience();
+  } else {
+    showCatExperience(cat);
   }
 }
 function handleSearch(){searchQuery=document.getElementById('searchInput').value.trim();renderBooks();}
