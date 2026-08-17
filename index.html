@@ -1479,6 +1479,7 @@ async function loadBooksFromDB(){
     applyShop();
     renderBooks();
     renderBestsellers();
+    handleDeepLink();
     initPixel();
   }
 }
@@ -3144,7 +3145,8 @@ function handleDeepLink(){
   // Category filter from URL ?cat=devperso
   const cat = params.get('cat');
   if(cat){
-    setTimeout(function(){
+    // Execute after books are loaded
+    (function(){
       // Find the pill button for this category
       var pills = document.querySelectorAll('.pill');
       var targetPill = null;
@@ -3180,7 +3182,7 @@ function handleDeepLink(){
           renderCatBestsellers(cat);
         }
       }
-    }, 800);
+    })();
   }
 
   // Book deep link ?livre=slug-or-id
@@ -3307,7 +3309,6 @@ loadBandeau();
 applyShop();
 observeReveal();
 startLiveVisitors();
-handleDeepLink();
 loadBooksFromDB();
 setTimeout(loadStatsFromSupabase, 3000);
 setTimeout(function(){ capiEvent('PageView', {}); }, 2000);
