@@ -176,6 +176,14 @@ a{color:inherit;text-decoration:none}
   letter-spacing:-0.05em;font-style:italic;
 }
 .hero-inner{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 0 32px}
+.hero-inner>*{animation:fadeUp .6s var(--ease-out) both}
+.hero-inner>*:nth-child(1){animation-delay:.1s}
+.hero-inner>*:nth-child(2){animation-delay:.2s}
+.hero-inner>*:nth-child(3){animation-delay:.3s}
+.hero-inner>*:nth-child(4){animation-delay:.38s}
+.hero-inner>*:nth-child(5){animation-delay:.45s}
+.hero-inner>*:nth-child(6){animation-delay:.52s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 .hero-pill{
   display:inline-flex;align-items:center;gap:7px;
   background:var(--gold-pale);border:1px solid rgba(198,161,91,.25);
@@ -185,6 +193,7 @@ a{color:inherit;text-decoration:none}
 .hero-pill-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .hero-pill span{font-size:.6rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.hero-h1-wrap{overflow:hidden}
 .hero-h1{
   font-size:clamp(1.9rem,6vw,3.8rem);
   color:var(--ink);margin-bottom:16px;
@@ -268,10 +277,21 @@ a{color:inherit;text-decoration:none}
 ════════════════════════════════ */
 .proof-strip{
   background:var(--ink);padding:11px 20px;
-  overflow-x:auto;scrollbar-width:none;
+  overflow:hidden;
   display:flex;gap:18px;align-items:center;white-space:nowrap;
+  position:relative;
 }
 .proof-strip::-webkit-scrollbar{display:none}
+.proof-strip-inner{
+  display:flex;gap:18px;align-items:center;
+  animation:scrollProof 30s linear infinite;
+  will-change:transform;
+}
+.proof-strip-inner:hover{animation-play-state:paused}
+@keyframes scrollProof{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-50%)}
+}
 .proof-item{display:inline-flex;align-items:center;gap:8px;flex-shrink:0}
 .proof-av{
   width:24px;height:24px;border-radius:50%;
@@ -454,7 +474,7 @@ a{color:inherit;text-decoration:none}
 /* ════════════════════════════════
    BOOK DIRECT PAGE
 ════════════════════════════════ */
-.book-direct{display:none;position:fixed;inset:0;z-index:400;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.book-direct{display:none;position:fixed;inset:0;z-index:400;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;transition:transform .32s var(--ease-out),opacity .28s ease}
 .book-direct.open{display:block}
 .bdp-nav{
   position:sticky;top:0;z-index:10;
@@ -819,6 +839,17 @@ a{color:inherit;text-decoration:none}
 .adm-empty-icon{font-size:1.6rem;margin-bottom:7px;opacity:.38}
 
 /* ════════════════════════════════
+   SKELETON LOADING
+════════════════════════════════ */
+.skeleton{background:linear-gradient(90deg,var(--bg2) 25%,var(--bg) 50%,var(--bg2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--r-sm)}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);overflow:hidden}
+.skel-cover{width:100%;aspect-ratio:2/3}
+.skel-body{padding:10px}
+.skel-line{height:10px;margin-bottom:6px;border-radius:4px}
+.skel-line-short{width:60%}
+
+/* ════════════════════════════════
    REVEAL ANIMATION
 ════════════════════════════════ */
 .reveal{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease}
@@ -1043,7 +1074,7 @@ a{color:inherit;text-decoration:none}
 <!-- ════ BOOK DIRECT PAGE ════ -->
 <div class="book-direct" id="bookDirect">
   <nav class="bdp-nav">
-    <button class="bdp-back" onclick="closeBookDirect()">
+    <button class="bdp-back" onclick="closeBook()">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
       Retour
     </button>
@@ -1527,6 +1558,7 @@ function showLoader(show){
   let el=document.getElementById('pageLoader');
   if(!el){el=document.createElement('div');el.id='pageLoader';el.style.cssText='position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--gold));z-index:9999;transition:opacity .3s';document.body.prepend(el);}
   el.style.opacity=show?'1':'0';
+  if(show)showSkeletons();
 }
 
 // ══════════════════════════════════════
@@ -1647,6 +1679,13 @@ function priceHTML(book){
 // ══════════════════════════════════════
 // RENDER BOOKS
 // ══════════════════════════════════════
+function showSkeletons(){
+  var grid=document.getElementById('booksGrid');if(!grid)return;
+  grid.innerHTML=Array(6).fill(0).map(function(){
+    return '<div class="skel-card"><div class="skel-cover skeleton"></div><div class="skel-body"><div class="skel-line skeleton"></div><div class="skel-line skel-line-short skeleton"></div><div class="skel-line skeleton" style="height:8px;margin-top:10px"></div></div></div>';
+  }).join('');
+}
+
 function renderBooks(){
   const grid=document.getElementById('booksGrid');if(!grid)return;
   const filtered=getFiltered();
