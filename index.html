@@ -1935,9 +1935,18 @@ function openBook(id){
     var others=BOOKS.filter(function(b){return b.id!==id&&b.category!==book.category&&!b.outOfStock;}).sort(function(a,b){return(BADGE_SCORE2[b.badge]||0)-(BADGE_SCORE2[a.badge]||0);});
     sug=sug.concat(others.slice(0,3-sug.length));
   }
+  var CAT_FR2={finance:'Finance',devperso:'Développement Personnel',cheikh:'Cheikh Anta Diop',productivite:'Productivité',pack:'Packs',autre:'Livres'};
+  var catLabel2=CAT_FR2[book.category]||'Livres';
+  var catSlug=book.category;
   var sugEl=document.getElementById('bdpSuggestions');
   if(sugEl&&sug.length){
-    sugEl.innerHTML='<div class="bdp-sug-title display">Ces livres pourraient vous intéresser</div><div class="bdp-sug-grid">'+sug.map(function(s){var img=s.image?'<img src="'+s.image+'" alt="'+s.title+'">':"<div class='sug-cover-ph'>"+s.title+"</div>";return '<div class="sug-card" onclick="openBook('+s.id+')"><div class="sug-cover">'+img+'</div><div class="sug-title">'+s.title+'</div><div class="sug-price">'+s.price.toLocaleString('fr-FR')+' FCFA</div></div>';}).join('')+'</div>';
+    sugEl.innerHTML='<div class="bdp-sug-title display">Ces livres pourraient vous intéresser</div><div class="bdp-sug-grid">'+sug.map(function(s){var img=s.image?'<img src="'+s.image+'" alt="'+s.title+'">':"<div class='sug-cover-ph'>"+s.title+"</div>";return '<div class="sug-card" onclick="openBook('+s.id+')"><div class="sug-cover">'+img+'</div><div class="sug-title">'+s.title+'</div><div class="sug-price">'+s.price.toLocaleString('fr-FR')+' FCFA</div></div>';}).join('')+'</div>'
+    +'<button id="bdpSeeAll" data-cat="'+catSlug+'" data-label="'+catLabel2+'" style="width:100%;margin-top:18px;padding:13px;background:none;border:2px solid var(--green);color:var(--green);font-family:Manrope,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;-webkit-tap-highlight-color:transparent">Voir tous les livres '+catLabel2+' →</button>';
+  // Attach click handler
+  setTimeout(function(){
+    var btn=document.getElementById('bdpSeeAll');
+    if(btn){btn.addEventListener('click',function(){var c=this.dataset.cat;closeBook();activateCat(c);});}
+  },50);
   }else{if(sugEl)sugEl.innerHTML='';}
   // Sticky
   var stickyPrice=document.getElementById('stickyPrice');
