@@ -1736,7 +1736,10 @@ function renderBooks(){
       +'<div class="book-author">'+book.author+'</div>'
       +(desc?'<div class="book-excerpt">'+desc+'</div>':'')
       +'<div class="book-footer">'+stockAlert+priceHTML(book)
-      +'<button class="btn-order" onclick="event.stopPropagation();openBook('+book.id+')" style="width:100%;margin-top:6px">Voir le livre →</button>'
+      +'<div class="book-actions" style="display:grid;grid-template-columns:1fr auto;gap:5px;margin-top:6px">'
+      +'<button class="btn-order" onclick="event.stopPropagation();openBook('+book.id+')" style="width:100%">Voir le livre →</button>'
+      +'<button class="btn-add'+(inCart?' added':'')+'" onclick="event.stopPropagation();addToCart('+book.id+')" id="btn-'+book.id+'" style="padding:0 8px;height:30px;font-size:.56rem;white-space:nowrap">'+(inCart?'✓ Ajouté':'+ Panier')+'</button>'
+      +'</div>'
       +'</div></div></div>';
   }).join('');
   observeReveal();
@@ -2041,7 +2044,7 @@ function addToCart(id){
 }
 function removeFromCart(id){
   cart=cart.filter(function(i){return i.id!==id;});
-  var btn=document.getElementById('btn-'+id);if(btn){btn.textContent='Voir le livre →';btn.classList.remove('added');}
+  var btn=document.getElementById('btn-'+id);if(btn){btn.textContent='+ Panier';btn.classList.remove('added');}
   updateCartUI();
 }
 function changeQty(id,delta){
