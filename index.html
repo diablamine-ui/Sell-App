@@ -1737,7 +1737,7 @@ function renderBooks(){
       +(desc?'<div class="book-excerpt">'+desc+'</div>':'')
       +'<div class="book-footer">'+stockAlert+priceHTML(book)
       +'<button class="btn-order" onclick="event.stopPropagation();openBook('+book.id+')" style="width:100%;margin-top:6px">Voir le livre →</button>'
-      +'<button class="btn-add'+(inCart?' added':'')+'" onclick="event.stopPropagation();addToCart('+book.id+')" id="btn-'+book.id+'" style="width:100%;margin-top:5px">'+(inCart?'✓ Ajouté':'+ Panier')+'</button>'
+      +'<button class="btn-add'+(inCart?' added':'')+'" onclick="event.stopPropagation();addToCart('+book.id+')" id="btn-'+book.id+'" style="width:100%;margin-top:5px">'+(inCart?'✓ Ajouté':'Ajouter au panier')+'</button>'
       +'</div></div></div>';
   }).join('');
   observeReveal();
@@ -1761,6 +1761,7 @@ function renderBestsellers(){
       +(desc?'<div class="book-excerpt">'+desc+'</div>':'')
       +'<div class="book-footer">'+priceHTML(book)
       +'<button class="btn-order" onclick="event.stopPropagation();openBook('+book.id+')" style="width:100%;margin-top:5px">Voir le livre →</button>'
+      +'<button class="btn-add" onclick="event.stopPropagation();addToCart('+book.id+')" style="width:100%;margin-top:5px">Ajouter au panier</button>'
       +'</div></div></div>';
   }).join('');
 }
@@ -1785,6 +1786,7 @@ function renderCatBestsellers(cat){
       +(desc?'<div class="book-excerpt">'+desc+'</div>':'')
       +'<div class="book-footer">'+stockAlert+priceHTML(book)
       +'<button class="btn-order" onclick="event.stopPropagation();openBook('+book.id+')" style="width:100%;margin-top:5px">Voir le livre →</button>'
+      +'<button class="btn-add" onclick="event.stopPropagation();addToCart('+book.id+')" style="width:100%;margin-top:5px">Ajouter au panier</button>'
       +'</div></div></div>';
   }).join('');
 }
@@ -2042,7 +2044,7 @@ function addToCart(id){
 }
 function removeFromCart(id){
   cart=cart.filter(function(i){return i.id!==id;});
-  var btn=document.getElementById('btn-'+id);if(btn){btn.textContent='+ Panier';btn.classList.remove('added');}
+  var btn=document.getElementById('btn-'+id);if(btn){btn.textContent='Ajouter au panier';btn.classList.remove('added');}
   updateCartUI();
 }
 function changeQty(id,delta){
