@@ -1736,10 +1736,8 @@ function renderBooks(){
       +'<div class="book-author">'+book.author+'</div>'
       +(desc?'<div class="book-excerpt">'+desc+'</div>':'')
       +'<div class="book-footer">'+stockAlert+priceHTML(book)
-      +'<div class="book-actions" style="display:grid;grid-template-columns:1fr auto;gap:5px;margin-top:6px">'
-      +'<button class="btn-order" onclick="event.stopPropagation();openBook('+book.id+')" style="width:100%">Voir le livre →</button>'
-      +'<button class="btn-add'+(inCart?' added':'')+'" onclick="event.stopPropagation();addToCart('+book.id+')" id="btn-'+book.id+'" style="padding:0 8px;height:30px;font-size:.56rem;white-space:nowrap">'+(inCart?'✓ Ajouté':'+ Panier')+'</button>'
-      +'</div>'
+      +'<button class="btn-order" onclick="event.stopPropagation();openBook('+book.id+')" style="width:100%;margin-top:6px">Voir le livre →</button>'
+      +'<button class="btn-add'+(inCart?' added':'')+'" onclick="event.stopPropagation();addToCart('+book.id+')" id="btn-'+book.id+'" style="width:100%;margin-top:5px">'+(inCart?'✓ Ajouté':'+ Panier')+'</button>'
       +'</div></div></div>';
   }).join('');
   observeReveal();
