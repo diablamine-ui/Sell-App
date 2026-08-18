@@ -276,7 +276,9 @@ a{color:inherit;text-decoration:none}
   overflow:hidden;
   display:flex;gap:18px;align-items:center;white-space:nowrap;
   position:relative;
+  transition:background .4s ease;
 }
+.proof-strip.promo-mode{background:#B3261E}
 .proof-strip::-webkit-scrollbar{display:none}
 .proof-strip-inner{
   display:flex;gap:18px;align-items:center;
@@ -284,10 +286,21 @@ a{color:inherit;text-decoration:none}
   will-change:transform;
 }
 .proof-strip-inner:hover{animation-play-state:paused}
+.promo-strip-inner{
+  display:flex;gap:32px;align-items:center;
+  animation:scrollProof 18s linear infinite;
+  will-change:transform;
+}
 @keyframes scrollProof{
   0%{transform:translateX(0)}
   100%{transform:translateX(-50%)}
 }
+.promo-txt-item{
+  display:flex;align-items:center;gap:8px;
+  font-size:.72rem;font-weight:700;color:#fff;
+  letter-spacing:.06em;white-space:nowrap;
+}
+.promo-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);flex-shrink:0}
 .proof-item{display:inline-flex;align-items:center;gap:8px;flex-shrink:0}
 .proof-av{
   width:24px;height:24px;border-radius:50%;
@@ -876,10 +889,7 @@ a{color:inherit;text-decoration:none}
 <body>
 
 <!-- ════ BANDEAU ════ -->
-<div class="bandeau" id="bandeau">
-  <span id="bandeauTxt">🎁 Livraison offerte pour 3 livres achetés aujourd&#x2019;hui</span>
-  <button class="bandeau-close" onclick="document.getElementById('bandeau').classList.remove('show')">✕</button>
-</div>
+<!-- Promo mode: proof strip turns red with scrolling promo text -->
 
 <!-- ════ NAV ════ -->
 <nav class="nav">
@@ -979,8 +989,8 @@ a{color:inherit;text-decoration:none}
 </section>
 
 <!-- ════ PROOF STRIP ════ -->
-<div class="proof-strip">
-  <div class="proof-strip-inner">
+<div class="proof-strip" id="proofStrip">
+  <div class="proof-strip-inner" id="proofInner">
     <div class="proof-item"><div class="proof-av">AK</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Awa K.</strong> — "Ces livres ont changé ma vision"</div></div>
     <div class="proof-sep"></div>
     <div class="proof-item"><div class="proof-av">KD</div><div class="proof-stars">★★★★★</div><div class="proof-txt"><strong>Konan D.</strong> — "Livraison rapide, qualité top"</div></div>
@@ -2106,13 +2116,21 @@ function sendWhatsApp(){
 // ══════════════════════════════════════
 function loadBandeau(){
   var b=ls('sell_bandeau',{active:false,texte:''});
-  if(b.active){
-    var bd=document.getElementById('bandeau');
-    var bt=document.getElementById('bandeauTxt');
-    if(bd)bd.classList.add('show');
-    if(bt)bt.textContent=b.texte;
-    var hero=document.getElementById('heroSection');
-    if(hero)hero.style.paddingTop='calc(var(--nav-h) + 36px + 48px)';
+  var strip=document.getElementById('proofStrip');
+  var inner=document.getElementById('proofInner');
+  if(b.active&&b.texte){
+    // Switch to promo mode
+    if(strip)strip.classList.add('promo-mode');
+    if(inner){
+      // Build scrolling promo text (duplicated for seamless loop)
+      var txt=b.texte;
+      var item='<div class="promo-txt-item">🔥 '+txt+'</div><div class="promo-dot"></div>';
+      var repeated=Array(8).fill(item).join('');
+      inner.outerHTML='<div class="promo-strip-inner" id="proofInner">'+repeated+repeated+'</div>';
+    }
+  } else {
+    // Normal avis mode
+    if(strip)strip.classList.remove('promo-mode');
   }
 }
 async function saveBandeau(){
@@ -2121,16 +2139,13 @@ async function saveBandeau(){
   var b={active:active,texte:texte};
   lsSet('sell_bandeau',b);
   try{await sbUpsertConfig('sell_bandeau',b);}catch(e){}
-  var bd=document.getElementById('bandeau');var bt=document.getElementById('bandeauTxt');
-  var hero=document.getElementById('heroSection');
-  if(active){if(bd)bd.classList.add('show');if(bt)bt.textContent=texte;if(hero)hero.style.paddingTop='calc(var(--nav-h) + 36px + 48px)';}
-  else{if(bd)bd.classList.remove('show');if(hero)hero.style.paddingTop='';}
+  loadBandeau();
   showToast('Bandeau mis à jour ✓');
 }
 function fillBandeauForm(){
   var b=ls('sell_bandeau',{active:false,texte:''});
   var el=document.getElementById('cBandeauActive');var tel=document.getElementById('cBandeauTexte');
-  if(el)el.checked=b.active;if(tel)tel.value=b.texte;
+  if(el)el.checked=b.active;if(tel)tel.value=b.texte||'';
 }
 
 // ══════════════════════════════════════
