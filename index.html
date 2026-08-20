@@ -1788,6 +1788,7 @@ function renderBestsellers(){
       +(desc?'<div class="book-excerpt">'+desc+'</div>':'')
       +'<div class="book-footer">'+priceHTML(book)
       +'<button class="btn-order" onclick="event.stopPropagation();openBook('+book.id+')" style="width:100%;margin-top:5px">Voir le livre →</button>'
+      +'<button class="btn-add" onclick="event.stopPropagation();addToCart('+book.id+')" style="width:100%;margin-top:5px">Ajouter au panier</button>'
       +'</div></div></div>';
   }).join('');
 }
@@ -1812,6 +1813,7 @@ function renderCatBestsellers(cat){
       +(desc?'<div class="book-excerpt">'+desc+'</div>':'')
       +'<div class="book-footer">'+stockAlert+priceHTML(book)
       +'<button class="btn-order" onclick="event.stopPropagation();openBook('+book.id+')" style="width:100%;margin-top:5px">Voir le livre →</button>'
+      +'<button class="btn-add" onclick="event.stopPropagation();addToCart('+book.id+')" style="width:100%;margin-top:5px">Ajouter au panier</button>'
       +'</div></div></div>';
   }).join('');
 }
