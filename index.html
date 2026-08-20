@@ -689,6 +689,14 @@ a{color:inherit;text-decoration:none}
 ════════════════════════════════ */
 .toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:var(--r-sm);font-size:.7rem;font-weight:500;z-index:700;opacity:0;transition:all .24s;white-space:nowrap;pointer-events:none;border-left:3px solid var(--gold);box-shadow:var(--sh-lg)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ════ ORDER POPUP ════ */
+.order-overlay{position:fixed;inset:0;background:rgba(23,24,21,.65);z-index:600;opacity:0;pointer-events:none;transition:opacity .28s;backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center}
+.order-overlay.open{opacity:1;pointer-events:all}
+.order-popup{background:var(--surface);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:22px 20px 36px;width:100%;max-width:500px;box-shadow:var(--sh-xl);transform:translateY(100%);transition:transform .35s cubic-bezier(0,0,.2,1)}
+.order-overlay.open .order-popup{transform:translateY(0)}
+.order-popup-handle{width:36px;height:4px;background:var(--border2);border-radius:999px;margin:0 auto 18px}
+.order-popup-title{font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--ink);margin-bottom:4px}
+.order-popup-book{font-size:.7rem;color:var(--gold);font-weight:700;margin-bottom:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* ════════════════════════════════
    FOOTER
@@ -1087,6 +1095,25 @@ a{color:inherit;text-decoration:none}
 </div>
 
 <!-- ════ CONFIRM ════ -->
+<!-- ORDER POPUP -->
+<div class="order-overlay" id="orderOverlay" onclick="if(event.target===this)closeOrderPopup()">
+  <div class="order-popup">
+    <div class="order-popup-handle"></div>
+    <div class="order-popup-title display">Vos informations</div>
+    <div class="order-popup-book" id="popupBookTitle"></div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
+      <div><label class="form-lbl">Nom complet *</label><input class="form-input" id="popupName" placeholder="Ex : Kouamé Jean-Paul"></div>
+      <div><label class="form-lbl">Lieu de livraison *</label><input class="form-input" id="popupCity" placeholder="Ex : Cocody, Abidjan"></div>
+      <div><label class="form-lbl">Téléphone</label><input class="form-input" type="tel" id="popupPhone" placeholder="Ex : 07 XX XX XX XX"></div>
+    </div>
+    <button class="btn-wa" onclick="confirmOrder()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Confirmer la commande
+    </button>
+    <button onclick="closeOrderPopup()" style="width:100%;margin-top:9px;background:none;border:none;color:var(--ink3);font-size:.68rem;font-weight:600;cursor:pointer;padding:6px">Annuler</button>
+  </div>
+</div>
+
 <div class="overlay" id="confirmOverlay">
   <div class="confirm-card">
     <div class="confirm-icon">✅</div>
@@ -1737,6 +1764,7 @@ function renderBooks(){
       +(desc?'<div class="book-excerpt">'+desc+'</div>':'')
       +'<div class="book-footer">'+stockAlert+priceHTML(book)
       +'<button class="btn-order" onclick="event.stopPropagation();openBook('+book.id+')" style="width:100%;margin-top:6px">Voir le livre →</button>'
+      +'<button class="btn-add'+(inCart?' added':'')+'" onclick="event.stopPropagation();addToCart('+book.id+')" id="btn-'+book.id+'" style="width:100%;margin-top:5px">'+(inCart?'✓ Ajouté':'Ajouter au panier')+'</button>'
       +'</div></div></div>';
   }).join('');
   observeReveal();
@@ -2009,17 +2037,7 @@ function closeBook(){
 // ORDER NOW
 // ══════════════════════════════════════
 function orderNow(id){
-  var book=BOOKS.find(function(b){return b.id===id;});if(!book)return;
-  var waNum=(CONFIG.waNumber||DC.waNumber).replace(/[^0-9]/g,'');
-  if(!waNum){showToast('Numéro WhatsApp non configuré');return;}
-  capiEvent('InitiateCheckout',{content_ids:[id],content_name:book.title,value:book.price,currency:'XOF'});
-  trackEvent('track','InitiateCheckout',{content_ids:[id],value:book.price,currency:'XOF'});
-  var bookLink=book.slug?'https://www.dilamboutique.com/?livre='+book.slug:'';
-  var tpl=CONFIG.waMessageDirect||DC.waMessageDirect;
-  var msg=tpl.replace('{titre}',book.title).replace('{auteur}',book.author).replace('{prix}',book.price.toLocaleString('fr-FR'));
-  if(bookLink)msg=msg+'\n\n\uD83D\uDD17 '+bookLink;
-  window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
-  trackStat(id,'orders');
+  openOrderPopup(id);
 }
 
 // ══════════════════════════════════════
@@ -2041,7 +2059,7 @@ function addToCart(id){
 }
 function removeFromCart(id){
   cart=cart.filter(function(i){return i.id!==id;});
-  var btn=document.getElementById('btn-'+id);if(btn){btn.textContent='Voir le livre →';btn.classList.remove('added');}
+  var btn=document.getElementById('btn-'+id);if(btn){btn.textContent='Ajouter au panier';btn.classList.remove('added');}
   updateCartUI();
 }
 function changeQty(id,delta){
@@ -2694,6 +2712,42 @@ navLogo.addEventListener('touchstart',function(e){pressTimer2=setTimeout(functio
 navLogo.addEventListener('touchend',function(){clearTimeout(pressTimer2);});
 document.addEventListener('keydown',function(e){if(e.ctrlKey&&e.shiftKey&&e.key==='A'){e.preventDefault();openAdminLogin();}});
 if(location.hash==='#admin')setTimeout(openAdminLogin,500);
+
+// ══════════════════════════════════════
+// ORDER POPUP
+// ══════════════════════════════════════
+var _currentOrderId=null;
+function openOrderPopup(bookId){
+  var book=BOOKS.find(function(b){return b.id===bookId;});if(!book)return;
+  _currentOrderId=bookId;
+  var titleEl=document.getElementById('popupBookTitle');
+  if(titleEl)titleEl.textContent=book.title+' — '+book.price.toLocaleString('fr-FR')+' FCFA';
+  ['popupName','popupCity','popupPhone'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  var ov=document.getElementById('orderOverlay');if(ov)ov.classList.add('open');
+  setTimeout(function(){var n=document.getElementById('popupName');if(n)n.focus();},350);
+}
+function closeOrderPopup(){
+  var ov=document.getElementById('orderOverlay');if(ov)ov.classList.remove('open');
+  _currentOrderId=null;
+}
+function confirmOrder(){
+  var name=((document.getElementById('popupName')||{}).value||'').trim();
+  var city=((document.getElementById('popupCity')||{}).value||'').trim();
+  var phone=((document.getElementById('popupPhone')||{}).value||'').trim();
+  if(!name){var n=document.getElementById('popupName');if(n)n.focus();showToast('Veuillez entrer votre nom');return;}
+  if(!city){var c=document.getElementById('popupCity');if(c)c.focus();showToast('Veuillez entrer votre lieu de livraison');return;}
+  var id=_currentOrderId;if(!id)return;
+  var book=BOOKS.find(function(b){return b.id===id;});if(!book)return;
+  var waNum=(CONFIG.waNumber||DC.waNumber).replace(/[^0-9]/g,'');
+  capiEvent('InitiateCheckout',{content_ids:[id],content_name:book.title,value:book.price,currency:'XOF'});
+  trackEvent('track','InitiateCheckout',{content_ids:[id],value:book.price,currency:'XOF'});
+  var bookLink=book.slug?'https://www.dilamboutique.com/?livre='+book.slug:'';
+  var NL='\n';
+  var msg='*Commande directe*'+NL+NL+'*Livre :* '+book.title+NL+'*Auteur :* '+book.author+NL+'*Prix :* '+book.price.toLocaleString('fr-FR')+' FCFA'+NL+NL+'*Nom :* '+name+NL+'*Lieu de livraison :* '+city+NL+(phone?'*Telephone :* '+phone+NL:'')+'---'+NL+'Bonjour, je souhaite commander ce livre. Merci !'+(bookLink?NL+NL+bookLink:'');
+  var ov=document.getElementById('orderOverlay');if(ov)ov.classList.remove('open');
+  window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
+  trackStat(id,'orders');
+}
 
 // ══════════════════════════════════════
 // INIT
