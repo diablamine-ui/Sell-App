@@ -1723,10 +1723,6 @@ function getFiltered(){
   if(searchQ){const q=searchQ.toLowerCase();b=b.filter(function(x){return x.title.toLowerCase().includes(q)||x.author.toLowerCase().includes(q);});}
   return b;
 }
-function optimImg(url,w){
-  if(!url||url.indexOf('supabase.co/storage/v1/object/public/')===-1)return url;
-  return url.replace('/storage/v1/object/public/','/storage/v1/render/image/public/')+'?width='+w+'&quality=75&format=webp';
-}
 function priceHTML(book){
   var p=book.price.toLocaleString('fr-FR');
   var main='<div class="book-price display">'+p+'<sup>FCFA</sup></div>';
@@ -1756,7 +1752,7 @@ function renderBooks(){
     const inCart=cart.find(function(i){return i.id===book.id;});
     const catLabel=CAT_LABELS[book.category]||'Livre';
     const badgeHTML=book.badge&&book.badge!=='none'?'<div class="book-badge badge-'+book.badge+'">'+BADGE_LABELS[book.badge]+'</div>':'';
-    const coverHTML=book.image?'<img src="'+optimImg(book.image,400)+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
+    const coverHTML=book.image?'<img src="'+book.image+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
     const stockAlert=book.stock!==null&&book.stock<=5?'<div class="stock-alert">⚡ Plus que '+book.stock+' exemplaire'+(book.stock>1?'s':'')+'</div>':'';
     const desc=book.desc?(book.desc.length>70?book.desc.substring(0,70)+'…':book.desc):'';
     const oos=book.outOfStock?'oos':'';
@@ -1784,7 +1780,7 @@ function renderBestsellers(){
   if(!bests.length)bests=BOOKS.filter(function(b){return b.badge==='bestseller'&&!b.outOfStock;}).slice(0,3);
   if(!bests.length)bests=BOOKS.slice(0,3);
   grid.innerHTML=bests.map(function(book){
-    const cover=book.image?'<img src="'+optimImg(book.image,400)+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
+    const cover=book.image?'<img src="'+book.image+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
     const desc=book.desc?(book.desc.length>80?book.desc.substring(0,80)+'…':book.desc):'';
     return '<div class="book-card" onclick="openBook('+book.id+')" style="cursor:pointer">'
       +'<div class="book-cover">'+(book.badge&&book.badge!=='none'?'<div class="book-badge badge-'+book.badge+'">'+BADGE_LABELS[book.badge]+'</div>':'')+cover+'<div class="badge-cat">'+(CAT_LABELS[book.category]||'Livre')+'</div></div>'
@@ -1808,7 +1804,7 @@ function renderCatBestsellers(cat){
   if(!catBooks.length){const bs=document.getElementById('bestsellers');if(bs)bs.style.display='none';return;}
   const bs=document.getElementById('bestsellers');if(bs)bs.style.display='block';
   grid.innerHTML=catBooks.map(function(book){
-    const cover=book.image?'<img src="'+optimImg(book.image,400)+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
+    const cover=book.image?'<img src="'+book.image+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
     const desc=book.desc?(book.desc.length>80?book.desc.substring(0,80)+'…':book.desc):'';
     const stockAlert=book.stock!==null&&book.stock<=5?'<div class="stock-alert">⚡ Plus que '+book.stock+' exemplaire'+(book.stock>1?'s':'')+'</div>':'';
     return '<div class="book-card" onclick="openBook('+book.id+')" style="cursor:pointer">'
@@ -1974,7 +1970,7 @@ function openBook(id){
   var catSlug=book.category;
   var sugEl=document.getElementById('bdpSuggestions');
   if(sugEl&&sug.length){
-    sugEl.innerHTML='<div class="bdp-sug-title display">Ces livres pourraient vous intéresser</div><div class="bdp-sug-grid">'+sug.map(function(s){var img=s.image?'<img src="'+optimImg(s.image,200)+'" alt="'+s.title+'">':"<div class='sug-cover-ph'>"+s.title+"</div>";return '<div class="sug-card" onclick="openBook('+s.id+')"><div class="sug-cover">'+img+'</div><div class="sug-title">'+s.title+'</div><div class="sug-price">'+s.price.toLocaleString('fr-FR')+' FCFA</div></div>';}).join('')+'</div>'
+    sugEl.innerHTML='<div class="bdp-sug-title display">Ces livres pourraient vous intéresser</div><div class="bdp-sug-grid">'+sug.map(function(s){var img=s.image?'<img src="'+s.image+'" alt="'+s.title+'">':"<div class='sug-cover-ph'>"+s.title+"</div>";return '<div class="sug-card" onclick="openBook('+s.id+')"><div class="sug-cover">'+img+'</div><div class="sug-title">'+s.title+'</div><div class="sug-price">'+s.price.toLocaleString('fr-FR')+' FCFA</div></div>';}).join('')+'</div>'
     +'<button id="bdpSeeAll" data-cat="'+catSlug+'" data-label="'+catLabel2+'" style="width:100%;margin-top:18px;padding:13px;background:none;border:2px solid var(--green);color:var(--green);font-family:Manrope,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;-webkit-tap-highlight-color:transparent">Voir tous les livres '+catLabel2+' →</button>';
   // Attach click handler
   setTimeout(function(){
@@ -2107,7 +2103,7 @@ function renderUpsell(){
   var cartIds=cart.map(function(i){return i.id;});
   var sug=BOOKS.filter(function(b){return cartIds.indexOf(b.id)===-1&&!b.outOfStock;}).sort(function(a,b){return(BADGE_SCORE[b.badge]||0)-(BADGE_SCORE[a.badge]||0);}).slice(0,5);
   if(!sug.length){el.innerHTML='';return;}
-  el.innerHTML='<div class="upsell-box"><div class="upsell-header"><div class="upsell-h1">🎁 Livraison offerte !</div><div class="upsell-h2">Ajoutez 1 livre de plus et la livraison à Abidjan est offerte.</div></div><div class="upsell-scroll">'+sug.map(function(b){var img=b.image?'<img src="'+optimImg(b.image,160)+'" alt="'+b.title+'">':"<div class='upsell-img-ph'>"+b.title.substring(0,22)+"</div>";return '<div class="upsell-card" onclick="addToCart('+b.id+');renderUpsell()"><div class="upsell-img">'+img+'</div><div class="upsell-title">'+b.title+'</div><div class="upsell-price">'+b.price.toLocaleString('fr-FR')+' F</div><div class="upsell-add">+ Ajouter</div></div>';}).join('')+'</div></div>';
+  el.innerHTML='<div class="upsell-box"><div class="upsell-header"><div class="upsell-h1">🎁 Livraison offerte !</div><div class="upsell-h2">Ajoutez 1 livre de plus et la livraison à Abidjan est offerte.</div></div><div class="upsell-scroll">'+sug.map(function(b){var img=b.image?'<img src="'+b.image+'" alt="'+b.title+'">':"<div class='upsell-img-ph'>"+b.title.substring(0,22)+"</div>";return '<div class="upsell-card" onclick="addToCart('+b.id+');renderUpsell()"><div class="upsell-img">'+img+'</div><div class="upsell-title">'+b.title+'</div><div class="upsell-price">'+b.price.toLocaleString('fr-FR')+' F</div><div class="upsell-add">+ Ajouter</div></div>';}).join('')+'</div></div>';
 }
 function openCart(){
   var cp=document.getElementById('cartPage');
@@ -2314,7 +2310,7 @@ function renderAdmList(){
   var q=((document.getElementById('admSearch')||{}).value||'').toLowerCase().trim();
   var filtered=q?BOOKS.filter(function(b){return b.title.toLowerCase().includes(q)||b.author.toLowerCase().includes(q);}):BOOKS;
   list.innerHTML=filtered.map(function(book){
-    var t=book.image?'<img src="'+optimImg(book.image,60)+'" alt="'+book.title+'">':"<div class='adm-thumb-ph'>"+book.title.substring(0,10)+"</div>";
+    var t=book.image?'<img src="'+book.image+'" alt="'+book.title+'">':"<div class='adm-thumb-ph'>"+book.title.substring(0,10)+"</div>";
     var b2=book.badge&&book.badge!=='none'?' · '+BADGE_LABELS[book.badge]:'';
     var oos=book.outOfStock?' · ⛔':'';
     var feat=book.featured?' · ⭐':'';
@@ -2749,18 +2745,7 @@ function confirmOrder(){
   trackEvent('track','InitiateCheckout',{content_ids:[id],value:book.price,currency:'XOF'});
   var bookLink=book.slug?'https://www.dilamboutique.com/?livre='+book.slug:'';
   var NL='\n';
-  var SEP='\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501';
-  var msg='\uD83D\uDED2 *Commande directe \u2013 Dilam B\'*'+NL
-    +NL+SEP+NL
-    +NL+'\uD83D\uDCD6 *Livre :* '+book.title
-    +NL+'\u270D *Auteur :* '+book.author
-    +NL+'\uD83D\uDCB0 *Prix :* '+book.price.toLocaleString('fr-FR')+' FCFA'
-    +NL+NL+SEP+NL
-    +NL+'\uD83D\uDC4B Bonjour, je souhaite commander ce livre.'
-    +NL+NL+'\uD83D\uDCCD *Nom :* '+name
-    +NL+'\uD83D\uDE9A *Lieu de livraison :* '+city
-    +(phone?NL+'\uD83D\uDCDE *T\u00e9l\u00e9phone :* '+phone:'')
-    +(bookLink?NL+NL+'\uD83D\uDD17 '+bookLink:'');
+  var msg='*Commande directe*'+NL+NL+'*Livre :* '+book.title+NL+'*Auteur :* '+book.author+NL+'*Prix :* '+book.price.toLocaleString('fr-FR')+' FCFA'+NL+NL+'*Nom :* '+name+NL+'*Lieu de livraison :* '+city+NL+(phone?'*Telephone :* '+phone+NL:'')+'---'+NL+'Bonjour, je souhaite commander ce livre. Merci !'+(bookLink?NL+NL+bookLink:'');
   var ov=document.getElementById('orderOverlay');if(ov)ov.classList.remove('open');
   window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
   trackStat(id,'orders');
