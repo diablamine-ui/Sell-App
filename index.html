@@ -892,6 +892,15 @@ a{color:inherit;text-decoration:none}
   .mobile-bar{display:block}
   .objectifs-grid{grid-template-columns:1fr 1fr}
 }
+
+/* ════ WHATSAPP FLOTTANT ════ */
+.wa-float{position:fixed;bottom:24px;right:16px;z-index:998;width:52px;height:52px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,211,102,.4);cursor:pointer;border:none;transition:transform .22s var(--ease),box-shadow .22s;-webkit-tap-highlight-color:transparent;animation:waPulse 3s ease infinite}
+.wa-float:hover{transform:scale(1.08);box-shadow:0 6px 24px rgba(37,211,102,.55)}
+.wa-float:active{transform:scale(.95)}
+@keyframes waPulse{0%,100%{box-shadow:0 4px 16px rgba(37,211,102,.4)}50%{box-shadow:0 4px 20px rgba(37,211,102,.7),0 0 0 8px rgba(37,211,102,.08)}}
+.wa-float svg{width:28px;height:28px;fill:#fff}
+.wa-float-tooltip{position:absolute;right:60px;top:50%;transform:translateY(-50%);background:var(--ink);color:var(--bg);font-size:.6rem;font-weight:700;white-space:nowrap;padding:5px 10px;border-radius:var(--r-sm);opacity:0;pointer-events:none;transition:opacity .2s}
+.wa-float:hover .wa-float-tooltip{opacity:1}
 </style>
 </head>
 <body>
@@ -1723,10 +1732,6 @@ function getFiltered(){
   if(searchQ){const q=searchQ.toLowerCase();b=b.filter(function(x){return x.title.toLowerCase().includes(q)||x.author.toLowerCase().includes(q);});}
   return b;
 }
-function optimImg(url,w){
-  if(!url||url.indexOf('supabase.co/storage/v1/object/public/')===-1)return url;
-  return url.replace('/storage/v1/object/public/','/storage/v1/render/image/public/')+'?width='+w+'&quality=75&format=webp';
-}
 function priceHTML(book){
   var p=book.price.toLocaleString('fr-FR');
   var main='<div class="book-price display">'+p+'<sup>FCFA</sup></div>';
@@ -1756,7 +1761,7 @@ function renderBooks(){
     const inCart=cart.find(function(i){return i.id===book.id;});
     const catLabel=CAT_LABELS[book.category]||'Livre';
     const badgeHTML=book.badge&&book.badge!=='none'?'<div class="book-badge badge-'+book.badge+'">'+BADGE_LABELS[book.badge]+'</div>':'';
-    const coverHTML=book.image?'<img src="'+optimImg(book.image,400)+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
+    const coverHTML=book.image?'<img src="'+book.image+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
     const stockAlert=book.stock!==null&&book.stock<=5?'<div class="stock-alert">⚡ Plus que '+book.stock+' exemplaire'+(book.stock>1?'s':'')+'</div>':'';
     const desc=book.desc?(book.desc.length>70?book.desc.substring(0,70)+'…':book.desc):'';
     const oos=book.outOfStock?'oos':'';
@@ -1784,7 +1789,7 @@ function renderBestsellers(){
   if(!bests.length)bests=BOOKS.filter(function(b){return b.badge==='bestseller'&&!b.outOfStock;}).slice(0,3);
   if(!bests.length)bests=BOOKS.slice(0,3);
   grid.innerHTML=bests.map(function(book){
-    const cover=book.image?'<img src="'+optimImg(book.image,400)+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
+    const cover=book.image?'<img src="'+book.image+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
     const desc=book.desc?(book.desc.length>80?book.desc.substring(0,80)+'…':book.desc):'';
     return '<div class="book-card" onclick="openBook('+book.id+')" style="cursor:pointer">'
       +'<div class="book-cover">'+(book.badge&&book.badge!=='none'?'<div class="book-badge badge-'+book.badge+'">'+BADGE_LABELS[book.badge]+'</div>':'')+cover+'<div class="badge-cat">'+(CAT_LABELS[book.category]||'Livre')+'</div></div>'
@@ -1808,7 +1813,7 @@ function renderCatBestsellers(cat){
   if(!catBooks.length){const bs=document.getElementById('bestsellers');if(bs)bs.style.display='none';return;}
   const bs=document.getElementById('bestsellers');if(bs)bs.style.display='block';
   grid.innerHTML=catBooks.map(function(book){
-    const cover=book.image?'<img src="'+optimImg(book.image,400)+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
+    const cover=book.image?'<img src="'+book.image+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
     const desc=book.desc?(book.desc.length>80?book.desc.substring(0,80)+'…':book.desc):'';
     const stockAlert=book.stock!==null&&book.stock<=5?'<div class="stock-alert">⚡ Plus que '+book.stock+' exemplaire'+(book.stock>1?'s':'')+'</div>':'';
     return '<div class="book-card" onclick="openBook('+book.id+')" style="cursor:pointer">'
@@ -1974,7 +1979,7 @@ function openBook(id){
   var catSlug=book.category;
   var sugEl=document.getElementById('bdpSuggestions');
   if(sugEl&&sug.length){
-    sugEl.innerHTML='<div class="bdp-sug-title display">Ces livres pourraient vous intéresser</div><div class="bdp-sug-grid">'+sug.map(function(s){var img=s.image?'<img src="'+optimImg(s.image,200)+'" alt="'+s.title+'">':"<div class='sug-cover-ph'>"+s.title+"</div>";return '<div class="sug-card" onclick="openBook('+s.id+')"><div class="sug-cover">'+img+'</div><div class="sug-title">'+s.title+'</div><div class="sug-price">'+s.price.toLocaleString('fr-FR')+' FCFA</div></div>';}).join('')+'</div>'
+    sugEl.innerHTML='<div class="bdp-sug-title display">Ces livres pourraient vous intéresser</div><div class="bdp-sug-grid">'+sug.map(function(s){var img=s.image?'<img src="'+s.image+'" alt="'+s.title+'">':"<div class='sug-cover-ph'>"+s.title+"</div>";return '<div class="sug-card" onclick="openBook('+s.id+')"><div class="sug-cover">'+img+'</div><div class="sug-title">'+s.title+'</div><div class="sug-price">'+s.price.toLocaleString('fr-FR')+' FCFA</div></div>';}).join('')+'</div>'
     +'<button id="bdpSeeAll" data-cat="'+catSlug+'" data-label="'+catLabel2+'" style="width:100%;margin-top:18px;padding:13px;background:none;border:2px solid var(--green);color:var(--green);font-family:Manrope,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;-webkit-tap-highlight-color:transparent">Voir tous les livres '+catLabel2+' →</button>';
   // Attach click handler
   setTimeout(function(){
@@ -2107,7 +2112,7 @@ function renderUpsell(){
   var cartIds=cart.map(function(i){return i.id;});
   var sug=BOOKS.filter(function(b){return cartIds.indexOf(b.id)===-1&&!b.outOfStock;}).sort(function(a,b){return(BADGE_SCORE[b.badge]||0)-(BADGE_SCORE[a.badge]||0);}).slice(0,5);
   if(!sug.length){el.innerHTML='';return;}
-  el.innerHTML='<div class="upsell-box"><div class="upsell-header"><div class="upsell-h1">🎁 Livraison offerte !</div><div class="upsell-h2">Ajoutez 1 livre de plus et la livraison à Abidjan est offerte.</div></div><div class="upsell-scroll">'+sug.map(function(b){var img=b.image?'<img src="'+optimImg(b.image,160)+'" alt="'+b.title+'">':"<div class='upsell-img-ph'>"+b.title.substring(0,22)+"</div>";return '<div class="upsell-card" onclick="addToCart('+b.id+');renderUpsell()"><div class="upsell-img">'+img+'</div><div class="upsell-title">'+b.title+'</div><div class="upsell-price">'+b.price.toLocaleString('fr-FR')+' F</div><div class="upsell-add">+ Ajouter</div></div>';}).join('')+'</div></div>';
+  el.innerHTML='<div class="upsell-box"><div class="upsell-header"><div class="upsell-h1">🎁 Livraison offerte !</div><div class="upsell-h2">Ajoutez 1 livre de plus et la livraison à Abidjan est offerte.</div></div><div class="upsell-scroll">'+sug.map(function(b){var img=b.image?'<img src="'+b.image+'" alt="'+b.title+'">':"<div class='upsell-img-ph'>"+b.title.substring(0,22)+"</div>";return '<div class="upsell-card" onclick="addToCart('+b.id+');renderUpsell()"><div class="upsell-img">'+img+'</div><div class="upsell-title">'+b.title+'</div><div class="upsell-price">'+b.price.toLocaleString('fr-FR')+' F</div><div class="upsell-add">+ Ajouter</div></div>';}).join('')+'</div></div>';
 }
 function openCart(){
   var cp=document.getElementById('cartPage');
@@ -2314,7 +2319,7 @@ function renderAdmList(){
   var q=((document.getElementById('admSearch')||{}).value||'').toLowerCase().trim();
   var filtered=q?BOOKS.filter(function(b){return b.title.toLowerCase().includes(q)||b.author.toLowerCase().includes(q);}):BOOKS;
   list.innerHTML=filtered.map(function(book){
-    var t=book.image?'<img src="'+optimImg(book.image,60)+'" alt="'+book.title+'">':"<div class='adm-thumb-ph'>"+book.title.substring(0,10)+"</div>";
+    var t=book.image?'<img src="'+book.image+'" alt="'+book.title+'">':"<div class='adm-thumb-ph'>"+book.title.substring(0,10)+"</div>";
     var b2=book.badge&&book.badge!=='none'?' · '+BADGE_LABELS[book.badge]:'';
     var oos=book.outOfStock?' · ⛔':'';
     var feat=book.featured?' · ⭐':'';
@@ -2767,6 +2772,15 @@ function confirmOrder(){
 }
 
 // ══════════════════════════════════════
+// WHATSAPP FLOTTANT
+// ══════════════════════════════════════
+function openWaConseil(){
+  var waNum=(CONFIG.waNumber||DC.waNumber).replace(/[^0-9]/g,'');
+  var msg='Bonjour \uD83D\uDC4B, j\u2019ai une question sur un livre Dilam B\u2019\u2026';
+  window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(msg),'_blank','noopener,noreferrer');
+}
+
+// ══════════════════════════════════════
 // INIT
 // ══════════════════════════════════════
 loadCatHeroes();
@@ -2790,5 +2804,8 @@ setTimeout(animateHero,100);
 if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){regs.forEach(function(reg){reg.unregister();});});}
 
 </script>
+
+<!-- WA FLOTTANT -->
+<button class="wa-float" id="waFloat" onclick="openWaConseil()" title="Une question ?"><span class="wa-float-tooltip">Une question ?</span><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></button>
 </body>
 </html>
