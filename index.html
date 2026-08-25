@@ -936,6 +936,42 @@ a{color:inherit;text-decoration:none}
 }
 .wa-conseil-send:hover{background:#1da851;transform:translateY(-1px)}
 .wa-conseil-send:active{transform:scale(.98)}
+
+/* ════ ABANDON PANIER POPUP ════ */
+.abandon-overlay{position:fixed;inset:0;background:rgba(23,24,21,.55);z-index:698;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
+.abandon-overlay.open{opacity:1;pointer-events:all}
+.abandon-popup{
+  position:fixed;bottom:0;left:0;right:0;z-index:699;
+  background:var(--surface);
+  border-radius:var(--r-lg) var(--r-lg) 0 0;
+  padding:22px 20px 36px;
+  max-width:500px;margin:0 auto;
+  box-shadow:var(--sh-xl);
+  transform:translateY(100%);
+  transition:transform .35s cubic-bezier(0,0,.2,1);
+}
+.abandon-overlay.open .abandon-popup{transform:translateY(0)}
+.abandon-handle{width:36px;height:4px;background:var(--border2);border-radius:999px;margin:0 auto 16px}
+.abandon-title{font-size:.95rem;font-weight:700;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.abandon-books{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:16px}
+.abandon-book-item{font-size:.78rem;color:var(--ink2);padding:4px 0;border-bottom:1px solid rgba(23,24,21,.05);display:flex;align-items:center;gap:6px}
+.abandon-book-item:last-child{border:none}
+.abandon-book-item::before{content:'📖';font-size:.7rem}
+.abandon-btn-order{
+  width:100%;background:var(--green);color:#fff;border:none;padding:13px;
+  font-family:'Manrope',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 4px 14px rgba(11,93,59,.25);transition:all .22s;-webkit-tap-highlight-color:transparent;
+  margin-bottom:10px;
+}
+.abandon-btn-order:hover{background:var(--green-dk);transform:translateY(-1px)}
+.abandon-btn-cancel{
+  width:100%;background:none;border:none;
+  color:var(--ink3);font-size:.68rem;font-weight:500;
+  cursor:pointer;padding:6px;text-align:center;
+  -webkit-tap-highlight-color:transparent;
+}
+.abandon-btn-cancel:hover{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -2102,10 +2138,12 @@ function addToCart(id){
   var btn=document.getElementById('btn-'+id);
   if(btn){btn.textContent='✓ Ajouté';btn.classList.add('added');}
   var c=document.getElementById('cartCount');if(c){c.classList.add('bump');setTimeout(function(){c.classList.remove('bump');},300);}
+  resetAbandonTimer();
 }
 function removeFromCart(id){
   cart=cart.filter(function(i){return i.id!==id;});
   var btn=document.getElementById('btn-'+id);if(btn){btn.textContent='Ajouter au panier';btn.classList.remove('added');}
+  if(!cart.length){_abandonShown=false;if(_abandonTimer)clearTimeout(_abandonTimer);}
   updateCartUI();
 }
 function changeQty(id,delta){
@@ -2807,6 +2845,54 @@ function confirmOrder(){
 }
 
 // ══════════════════════════════════════
+// ABANDON PANIER
+// ══════════════════════════════════════
+var _abandonShown=false;
+var _abandonTimer=null;
+
+function showAbandon(){
+  if(_abandonShown||!cart.length)return;
+  // Populate book list
+  var el=document.getElementById('abandonBooks');
+  if(el){
+    el.innerHTML=cart.map(function(item){
+      return '<div class="abandon-book-item">'+item.title+(item.qty>1?' x'+item.qty:'')+'</div>';
+    }).join('');
+  }
+  var ov=document.getElementById('abandonOverlay');
+  if(ov)ov.classList.add('open');
+  _abandonShown=true;
+}
+
+function closeAbandon(){
+  var ov=document.getElementById('abandonOverlay');
+  if(ov)ov.classList.remove('open');
+}
+
+function resetAbandonTimer(){
+  if(_abandonTimer)clearTimeout(_abandonTimer);
+  if(!cart.length||_abandonShown)return;
+  _abandonTimer=setTimeout(showAbandon,45000);
+}
+
+// Detect fast scroll up on mobile
+var _lastScrollY=0;
+window.addEventListener('scroll',function(){
+  var currentY=window.scrollY||window.pageYOffset;
+  var delta=_lastScrollY-currentY;
+  // Fast scroll up = leaving intent
+  if(delta>60&&currentY<200&&cart.length&&!_abandonShown){
+    showAbandon();
+  }
+  _lastScrollY=currentY;
+},{passive:true});
+
+// Reset timer on any interaction
+['touchstart','touchmove','click','keypress'].forEach(function(ev){
+  document.addEventListener(ev,resetAbandonTimer,{passive:true});
+});
+
+// ══════════════════════════════════════
 // WHATSAPP FLOTTANT
 // ══════════════════════════════════════
 function openWaConseil(){
@@ -2851,6 +2937,20 @@ if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then
 
 </script>
 
+
+
+<!-- ABANDON PANIER POPUP -->
+<div class="abandon-overlay" id="abandonOverlay">
+  <div class="abandon-popup">
+    <div class="abandon-handle"></div>
+    <div class="abandon-title">&#x1F6D2; Vous avez des livres dans votre panier !</div>
+    <div class="abandon-books" id="abandonBooks"></div>
+    <button class="abandon-btn-order" onclick="closeAbandon();openCart()">
+      Commander maintenant
+    </button>
+    <button class="abandon-btn-cancel" onclick="closeAbandon()">Non merci</button>
+  </div>
+</div>
 
 <!-- WA CONSEIL POPUP -->
 <div class="wa-conseil-overlay" id="waConseilOverlay" onclick="if(event.target===this)closeWaConseil()">
