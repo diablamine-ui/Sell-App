@@ -1405,11 +1405,11 @@ a{color:inherit;text-decoration:none}
         <div class="adm-lbl" style="margin-top:8px">Import en masse <span id="importStatus"></span></div>
         <div style="padding:11px 22px">
           <div class="adm-hint" style="margin-bottom:9px">Importe ton export MonStockPro (CSV mensuel). Les Purchase sont envoyés à Meta automatiquement.</div>
-          <label class="upload-lbl" style="margin-bottom:7px">
+          <button type="button" class="upload-lbl" style="margin-bottom:7px;border:none;width:100%" onclick="document.getElementById('ventesCSVInput').click()">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             Importer CSV MonStockPro
-            <input type="file" accept=".csv,.txt" style="display:none" onchange="importVentesCSV(event)">
-          </label>
+          </button>
+          <input type="file" id="ventesCSVInput" accept=".csv,.txt,text/csv,text/plain" style="position:absolute;left:-9999px;opacity:0;width:1px;height:1px" onchange="importVentesCSV(event)">
           <div id="importPreview"></div>
         </div>
         <div class="adm-lbl" style="margin-top:8px">Historique</div>
