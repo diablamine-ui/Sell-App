@@ -1696,7 +1696,7 @@ let dragSrcId=null;
 // ══════════════════════════════════════
 // DATA MAPPING
 // ══════════════════════════════════════
-function rowToBook(r){return{id:r.id,title:r.title,author:r.author,price:r.price,oldPrice:r.old_price||null,category:r.category||'autre',badge:r.badge||'none',outOfStock:r.out_of_stock||false,image:r.image||null,desc:r.description||'',slug:r.slug||'',videoUrl:r.video_url||'',featured:r.featured||false,stock:r.stock||null};}
+function rowToBook(r){return{id:r.id,title:r.title,author:r.author,price:parseInt(r.price)||0,oldPrice:r.old_price?parseInt(r.old_price)||null:null,category:r.category||'autre',badge:r.badge||'none',outOfStock:r.out_of_stock||false,image:r.image||null,desc:r.description||'',slug:r.slug||'',videoUrl:r.video_url||'',featured:r.featured||false,stock:r.stock||null};}
 function bookToRow(b){return{title:b.title,author:b.author,price:b.price,old_price:b.oldPrice||null,category:b.category,badge:b.badge||'none',out_of_stock:b.outOfStock||false,image:b.image||null,description:b.desc||'',slug:b.slug||'',video_url:b.videoUrl||'',featured:b.featured||false,stock:b.stock||null};}
 
 // ══════════════════════════════════════
@@ -1878,7 +1878,8 @@ function getFiltered(){
   return b;
 }
 function priceHTML(book){
-  var p=book.price.toLocaleString('fr-FR');
+  if(!book.price&&book.price!==0)return '';
+  var p=(parseInt(book.price)||0).toLocaleString('fr-FR');
   var main='<div class="book-price display">'+p+'<sup>FCFA</sup></div>';
   if(!book.oldPrice||book.oldPrice<=book.price)return main;
   var disc=Math.round((1-book.price/book.oldPrice)*100);
