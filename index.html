@@ -1714,7 +1714,7 @@ async function loadData(){
     // Charger livres depuis Firebase
     var rows=await fbGetAll('books');
     if(rows&&rows.length>0){
-      BOOKS=rows.map(function(r){
+      BOOKS=rows.map(function(r,i){
         return {
           id:r._id||r.id,title:r.title,author:r.author,price:r.price,
           oldPrice:r.old_price||null,category:r.category||'autre',
@@ -2061,7 +2061,7 @@ function handleDeepLink(){
 // BOOK DIRECT PAGE
 // ══════════════════════════════════════
 function openBook(id){
-  var book=BOOKS.find(function(b){return b.id===id;});if(!book)return;
+  id=String(id);var book=BOOKS.find(function(b){return String(b.id)===id;});if(!book)return;
   var urlSlug=book.slug||String(book.id);
   history.pushState({bookId:id},'',location.pathname+'?livre='+urlSlug);
   // Meta tags
@@ -2198,7 +2198,7 @@ function orderNow(id){
 // CART
 // ══════════════════════════════════════
 function addToCart(id){
-  var book=BOOKS.find(function(b){return b.id===id;});if(!book||book.outOfStock)return;
+  id=String(id);var book=BOOKS.find(function(b){return String(b.id)===id;});if(!book||book.outOfStock)return;
   var ex=cart.find(function(i){return i.id===id;});
   if(ex)ex.qty++;else cart.push({...book,qty:1});
   updateCartUI();
@@ -2213,13 +2213,13 @@ function addToCart(id){
   resetAbandonTimer();
 }
 function removeFromCart(id){
-  cart=cart.filter(function(i){return i.id!==id;});
+  id=String(id);cart=cart.filter(function(i){return String(i.id)!==id;});
   var btn=document.getElementById('btn-'+id);if(btn){btn.textContent='Ajouter au panier';btn.classList.remove('added');}
   if(!cart.length){_abandonShown=false;if(_abandonTimer)clearTimeout(_abandonTimer);}
   updateCartUI();
 }
 function changeQty(id,delta){
-  var item=cart.find(function(i){return i.id===id;});if(!item)return;
+  id=String(id);var item=cart.find(function(i){return String(i.id)===id;});if(!item)return;
   item.qty+=delta;if(item.qty<=0)removeFromCart(id);else updateCartUI();
 }
 function getTotal(){return cart.reduce(function(s,i){return s+i.price*i.qty;},0);}
@@ -2489,7 +2489,7 @@ function showAddForm(){
   setTimeout(function(){var t=document.getElementById('fTitle');if(t)t.focus();},100);
 }
 function editBook(id){
-  var book=BOOKS.find(function(b){return b.id===id;});if(!book)return;
+  id=String(id);var book=BOOKS.find(function(b){return String(b.id)===id;});if(!book)return;
   editingId=id;document.getElementById('admFormTitle').textContent='Modifier le titre';
   document.getElementById('fTitle').value=book.title;document.getElementById('fAuthor').value=book.author;
   document.getElementById('fPrice').value=book.price;document.getElementById('fOldPrice').value=book.oldPrice||'';
@@ -2502,7 +2502,7 @@ function editBook(id){
   document.getElementById('admMain').style.display='none';document.getElementById('admForm').style.display='block';
 }
 async function delBook(id){
-  var book=BOOKS.find(function(b){return String(b.id)===String(id);});if(!book||!confirm('Supprimer "'+book.title+'" ?'))return;
+  id=String(id);var book=BOOKS.find(function(b){return String(b.id)===id;});if(!book||!confirm('Supprimer "'+book.title+'" ?'))return;
   try{
     await fbDelete('books',String(id));
     BOOKS=BOOKS.filter(function(b){return String(b.id)!==String(id);});
@@ -2567,7 +2567,7 @@ function previewImg(url){
   else p.innerHTML='<span>Aperçu de la couverture</span>';
 }
 async function dupBook(id){
-  var book=BOOKS.find(function(b){return b.id===id;});if(!book)return;
+  id=String(id);var book=BOOKS.find(function(b){return String(b.id)===id;});if(!book)return;
   var copy={...book,title:'[Copie] '+book.title,id:undefined,slug:book.slug?book.slug+'-copie':''};
   try{var res=await sbPost('books',bookToRow(copy));if(res&&res[0])BOOKS.push(rowToBook(res[0]));renderBooks();renderAdmList();showToast('Livre dupliqué ✓');}
   catch(e){console.warn(e);showToast('Erreur duplication');}
@@ -2594,7 +2594,7 @@ function toggleReorder(){
 // ══════════════════════════════════════
 function trackStat(bookId,type){
   if(ADMIN_OPEN)return;
-  var bid=parseInt(bookId);
+  var bid=bookId;
   var stats=ls('sell_stats',{});if(!stats[bid])stats[bid]={views:0,carts:0,orders:0};
   stats[bid][type]=(stats[bid][type]||0)+1;lsSet('sell_stats',stats);
   var s=stats[bid];
@@ -2921,7 +2921,7 @@ function confirmOrder(){
   if(!name){var n=document.getElementById('popupName');if(n)n.focus();showToast('Veuillez entrer votre nom');return;}
   if(!city){var c=document.getElementById('popupCity');if(c)c.focus();showToast('Veuillez entrer votre lieu de livraison');return;}
   var id=_currentOrderId;if(!id)return;
-  var book=BOOKS.find(function(b){return b.id===id;});if(!book)return;
+  id=String(id);var book=BOOKS.find(function(b){return String(b.id)===id;});if(!book)return;
   var waNum=(CONFIG.waNumber||DC.waNumber).replace(/[^0-9]/g,'');
   capiEvent('InitiateCheckout',{content_ids:[id],content_name:book.title,value:book.price,currency:'XOF'});
   trackEvent('track','InitiateCheckout',{content_ids:[id],value:book.price,currency:'XOF'});
