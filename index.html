@@ -1333,11 +1333,11 @@ a{color:inherit;text-decoration:none}
           </div>
           <div class="adm-field" style="margin-bottom:13px">
             <div style="display:flex;gap:6px;margin-bottom:6px">
-              <label class="upload-lbl">
+              <button type="button" class="upload-lbl" onclick="document.getElementById('adminLogoInput').click()">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 Choisir
-                <input type="file" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
-              </label>
+              </button>
+              <input type="file" id="adminLogoInput" accept="image/*,image/jpeg,image/png,image/webp" style="position:absolute;left:-9999px;opacity:0;width:1px;height:1px" onchange="handleLogoUpload(event)">
               <button type="button" class="del-img-btn" onclick="clearLogo()">Supprimer</button>
             </div>
             <div class="adm-hint" style="margin-bottom:5px">Ou colle une URL ↓</div>
@@ -1530,11 +1530,11 @@ a{color:inherit;text-decoration:none}
           <div class="adm-field">
             <label class="adm-field-lbl">Couverture</label>
             <div style="display:flex;gap:6px;margin-bottom:6px">
-              <label class="upload-lbl">
+              <button type="button" class="upload-lbl" onclick="document.getElementById('adminImgInput').click()">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 Choisir une photo
-                <input type="file" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
-              </label>
+              </button>
+              <input type="file" id="adminImgInput" accept="image/*,image/jpeg,image/png,image/webp" style="position:absolute;left:-9999px;opacity:0;width:1px;height:1px" onchange="handleImageUpload(event)">
               <button type="button" class="del-img-btn" onclick="clearImage()">Supprimer</button>
             </div>
             <div class="adm-hint" style="margin-bottom:5px">Ou colle une URL ↓</div>
