@@ -1716,7 +1716,7 @@ async function loadData(){
     if(rows&&rows.length>0){
       BOOKS=rows.map(function(r,i){
         return {
-          id:r._id||r.id,title:r.title,author:r.author,price:r.price,
+          id:i+1,_fbId:r._id||r.id,title:r.title,author:r.author,price:r.price,
           oldPrice:r.old_price||null,category:r.category||'autre',
           badge:r.badge||'none',outOfStock:r.out_of_stock||false,
           image:r.image||null,desc:r.description||'',slug:r.slug||'',
@@ -1909,13 +1909,13 @@ function renderBooks(){
     const desc=book.desc?(book.desc.length>70?book.desc.substring(0,70)+'…':book.desc):'';
     const oos=book.outOfStock?'oos':'';
     return '<div class="book-card '+oos+'">'
-      +'<div class="book-cover" onclick="data-bid="'+book.id+'" style="cursor:pointer">'+badgeHTML+coverHTML+'<div class="badge-cat">'+catLabel+'</div></div>'
-      +'<div class="book-body" onclick="data-bid="'+book.id+'" style="cursor:pointer">'
+      +'<div class="book-cover" onclick="openBook('+book.id+')" style="cursor:pointer">'+badgeHTML+coverHTML+'<div class="badge-cat">'+catLabel+'</div></div>'
+      +'<div class="book-body" onclick="openBook('+book.id+')" style="cursor:pointer">'
       +'<div class="book-title">'+book.title+'</div>'
       +'<div class="book-author">'+book.author+'</div>'
       +(desc?'<div class="book-excerpt">'+desc+'</div>':'')
       +'<div class="book-footer">'+stockAlert+priceHTML(book)
-      +'<button class="btn-order" onclick="event.stopPropagation();data-bid="'+book.id+'" style="width:100%;margin-top:6px">Voir le livre →</button>'
+      +'<button class="btn-order" onclick="event.stopPropagation();openBook('+book.id+')" style="width:100%;margin-top:6px">Voir le livre →</button>'
       +'<button class="btn-add'+(inCart?' added':'')+'" onclick="event.stopPropagation();addToCart('+book.id+')" id="btn-'+book.id+'" style="width:100%;margin-top:5px">'+(inCart?'✓ Ajouté':'Ajouter au panier')+'</button>'
       +'</div></div></div>';
   }).join('');
@@ -1934,12 +1934,12 @@ function renderBestsellers(){
   grid.innerHTML=bests.map(function(book){
     const cover=book.image?'<img src="'+(book.image||'').replace(/'/g,'%27').replace(/ /g,'%20')+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
     const desc=book.desc?(book.desc.length>80?book.desc.substring(0,80)+'…':book.desc):'';
-    return '<div class="book-card" onclick="data-bid="'+book.id+'" style="cursor:pointer">'
+    return '<div class="book-card" onclick="openBook('+book.id+')" style="cursor:pointer">'
       +'<div class="book-cover">'+(book.badge&&book.badge!=='none'?'<div class="book-badge badge-'+book.badge+'">'+BADGE_LABELS[book.badge]+'</div>':'')+cover+'<div class="badge-cat">'+(CAT_LABELS[book.category]||'Livre')+'</div></div>'
       +'<div class="book-body"><div class="book-title">'+book.title+'</div><div class="book-author">'+book.author+'</div>'
       +(desc?'<div class="book-excerpt">'+desc+'</div>':'')
       +'<div class="book-footer">'+priceHTML(book)
-      +'<button class="btn-order" onclick="event.stopPropagation();data-bid="'+book.id+'" style="width:100%;margin-top:5px">Voir le livre →</button>'
+      +'<button class="btn-order" onclick="event.stopPropagation();openBook('+book.id+')" style="width:100%;margin-top:5px">Voir le livre →</button>'
       +'<button class="btn-add" onclick="event.stopPropagation();addToCart('+book.id+')" style="width:100%;margin-top:5px">Ajouter au panier</button>'
       +'</div></div></div>';
   }).join('');
@@ -1959,12 +1959,12 @@ function renderCatBestsellers(cat){
     const cover=book.image?'<img src="'+(book.image||'').replace(/'/g,'%27').replace(/ /g,'%20')+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
     const desc=book.desc?(book.desc.length>80?book.desc.substring(0,80)+'…':book.desc):'';
     const stockAlert=book.stock!==null&&book.stock<=5?'<div class="stock-alert">⚡ Plus que '+book.stock+' exemplaire'+(book.stock>1?'s':'')+'</div>':'';
-    return '<div class="book-card" onclick="data-bid="'+book.id+'" style="cursor:pointer">'
+    return '<div class="book-card" onclick="openBook('+book.id+')" style="cursor:pointer">'
       +'<div class="book-cover">'+(book.badge&&book.badge!=='none'?'<div class="book-badge badge-'+book.badge+'">'+BADGE_LABELS[book.badge]+'</div>':'')+cover+'<div class="badge-cat">'+(CAT_LABELS[book.category]||'Livre')+'</div></div>'
       +'<div class="book-body"><div class="book-title">'+book.title+'</div><div class="book-author">'+book.author+'</div>'
       +(desc?'<div class="book-excerpt">'+desc+'</div>':'')
       +'<div class="book-footer">'+stockAlert+priceHTML(book)
-      +'<button class="btn-order" onclick="event.stopPropagation();data-bid="'+book.id+'" style="width:100%;margin-top:5px">Voir le livre →</button>'
+      +'<button class="btn-order" onclick="event.stopPropagation();openBook('+book.id+')" style="width:100%;margin-top:5px">Voir le livre →</button>'
       +'<button class="btn-add" onclick="event.stopPropagation();addToCart('+book.id+')" style="width:100%;margin-top:5px">Ajouter au panier</button>'
       +'</div></div></div>';
   }).join('');
@@ -2122,7 +2122,7 @@ function openBook(id){
   var catSlug=book.category;
   var sugEl=document.getElementById('bdpSuggestions');
   if(sugEl&&sug.length){
-    sugEl.innerHTML='<div class="bdp-sug-title display">Ces livres pourraient vous intéresser</div><div class="bdp-sug-grid">'+sug.map(function(s){var img=s.image?'<img src="'+(s.image||'').replace(/'/g,'%27').replace(/ /g,'%20')+'" alt="'+s.title+'">':"<div class='sug-cover-ph'>"+s.title+"</div>";return '<div class="sug-card" onclick="data-bid="'+s.id+'" style="cursor:pointer"><div class="sug-cover">'+img+'</div><div class="sug-title">'+s.title+'</div><div class="sug-price">'+s.price.toLocaleString('fr-FR')+' FCFA</div></div>';}).join('')+'</div>'
+    sugEl.innerHTML='<div class="bdp-sug-title display">Ces livres pourraient vous intéresser</div><div class="bdp-sug-grid">'+sug.map(function(s){var img=s.image?'<img src="'+(s.image||'').replace(/'/g,'%27').replace(/ /g,'%20')+'" alt="'+s.title+'">':"<div class='sug-cover-ph'>"+s.title+"</div>";return '<div class="sug-card" onclick="openBook('+s.id+')"><div class="sug-cover">'+img+'</div><div class="sug-title">'+s.title+'</div><div class="sug-price">'+s.price.toLocaleString('fr-FR')+' FCFA</div></div>';}).join('')+'</div>'
     +'<button id="bdpSeeAll" data-cat="'+catSlug+'" data-label="'+catLabel2+'" style="width:100%;margin-top:18px;padding:13px;background:none;border:2px solid var(--green);color:var(--green);font-family:Manrope,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:var(--r-sm);cursor:pointer;-webkit-tap-highlight-color:transparent">Voir tous les livres '+catLabel2+' →</button>';
   // Attach click handler
   setTimeout(function(){
@@ -2533,7 +2533,7 @@ async function saveBook(){
     if(editingId!==null){
       await fbSet('books',String(editingId),row);
       var idx=BOOKS.findIndex(function(b){return String(b.id)===String(editingId);});
-      if(idx!==-1)BOOKS[idx]={...BOOKS[idx],title,author,price,oldPrice,category,desc,image,badge,outOfStock,featured,slug,videoUrl,stock};
+      if(idx!==-1)BOOKS[idx]={...BOOKS[idx],title:title,author:author,price:price,oldPrice:oldPrice,category:category,desc:desc,image:image,badge:badge,outOfStock:outOfStock,featured:featured,slug:slug,videoUrl:videoUrl,stock:stock};
       showToast('Titre mis à jour ✓');
     }else{
       var res=await fbAdd('books',row);
@@ -2563,7 +2563,7 @@ function previewImg(url){
   var p=document.getElementById('imgPreview');
   if(!p)return;
   if(url&&url.startsWith('http')){
-    p.innerHTML='<img src="'+url+'" style="max-width:100%;max-height:200px;border-radius:8px" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'block\'"><span style="display:none;color:red">Image non trouvee - verifie le nom exact</span>';
+    p.innerHTML='<img src="'+url+'" style="max-width:100%;max-height:200px;border-radius:8px" onerror="this.style.display=\'none\'">';
   }else{
     p.innerHTML='<span>Apercu de la couverture</span>';
   }
@@ -3036,19 +3036,6 @@ setTimeout(animateHero,100);
 
 // SW cleanup
 if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){regs.forEach(function(reg){reg.unregister();});});}
-
-
-// Event delegation — compatible Firebase string IDs
-document.addEventListener('click', function(e){
-  var el = e.target.closest('[data-bid]');
-  if(!el) return;
-  var id = el.getAttribute('data-bid');
-  var action = el.getAttribute('data-action');
-  if(action === 'edit'){ editBook(id); }
-  else if(action === 'dup'){ dupBook(id); }
-  else if(action === 'del'){ delBook(id); }
-  else { openBook(id); }
-});
 
 </script>
 
