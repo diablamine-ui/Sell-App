@@ -1308,7 +1308,7 @@ a{color:inherit;text-decoration:none}
           <div class="adm-login-sub">Entrez votre mot de passe pour accéder au tableau de bord.</div>
           <div class="adm-field" style="margin-bottom:13px">
             <label class="adm-field-lbl">Mot de passe</label>
-            <input class="adm-input" type="password" id="admPwd" placeholder="••••••••" onkeydown="if(event.key===\'Enter\')checkAdmin()">
+            <input class="adm-input" type="password" id="admPwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkAdmin()">
           </div>
           <button class="adm-save" onclick="checkAdmin()">Accéder au tableau de bord</button>
         </div>
@@ -1696,7 +1696,7 @@ let dragSrcId=null;
 // ══════════════════════════════════════
 // DATA MAPPING
 // ══════════════════════════════════════
-function rowToBook(r){return{id:r.id,title:r.title,author:r.author,price:parseInt(r.price)||0,oldPrice:r.old_price?parseInt(r.old_price)||null:null,category:r.category||'autre',badge:r.badge||'none',outOfStock:r.out_of_stock||false,image:r.image||null,desc:r.description||'',slug:r.slug||'',videoUrl:r.video_url||'',featured:r.featured||false,stock:r.stock||null};}
+function rowToBook(r){return{id:r.id,title:r.title||'Sans titre',author:r.author||'',price:parseInt(r.price)||0,oldPrice:r.old_price?parseInt(r.old_price)||null:null,category:r.category||'autre',badge:r.badge||'none',outOfStock:r.out_of_stock||false,image:r.image||null,desc:r.description||'',slug:r.slug||'',videoUrl:r.video_url||'',featured:r.featured||false,stock:r.stock||null};}
 function bookToRow(b){return{title:b.title,author:b.author,price:b.price,old_price:b.oldPrice||null,category:b.category,badge:b.badge||'none',out_of_stock:b.outOfStock||false,image:b.image||null,description:b.desc||'',slug:b.slug||'',video_url:b.videoUrl||'',featured:b.featured||false,stock:b.stock||null};}
 
 // ══════════════════════════════════════
@@ -1716,7 +1716,7 @@ async function loadData(){
     if(rows&&rows.length>0){
       BOOKS=rows.map(function(r,i){
         return {
-          id:i+1,_fbId:r._id||r.id,title:r.title,author:r.author,price:r.price,
+          id:i+1,_fbId:r._id||r.id,title:r.title||'Sans titre',author:r.author||'',price:r.price,
           oldPrice:r.old_price||null,category:r.category||'autre',
           badge:r.badge||'none',outOfStock:r.out_of_stock||false,
           image:r.image||null,desc:r.description||'',slug:r.slug||'',
@@ -1907,7 +1907,7 @@ function renderBooks(){
     const inCart=cart.find(function(i){return i.id===book.id;});
     const catLabel=CAT_LABELS[book.category]||'Livre';
     const badgeHTML=book.badge&&book.badge!=='none'?'<div class="book-badge badge-'+book.badge+'">'+BADGE_LABELS[book.badge]+'</div>':'';
-    const coverHTML=book.image?'<img src="'+(book.image||'').replace(/'/g,'%27').replace(/ /g,'%20')+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
+    const coverHTML=book.image?'<img src="'+(book.image||'').replace(/'/g,'%27').replace(/ /g,'%20')+'" alt="'+(book.title||'')+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
     const stockAlert=book.stock!==null&&book.stock<=5?'<div class="stock-alert">⚡ Plus que '+book.stock+' exemplaire'+(book.stock>1?'s':'')+'</div>':'';
     const desc=book.desc?(book.desc.length>70?book.desc.substring(0,70)+'…':book.desc):'';
     const oos=book.outOfStock?'oos':'';
@@ -1935,7 +1935,7 @@ function renderBestsellers(){
   if(!bests.length)bests=BOOKS.filter(function(b){return b.badge==='bestseller'&&!b.outOfStock;}).slice(0,3);
   if(!bests.length)bests=BOOKS.slice(0,3);
   grid.innerHTML=bests.map(function(book){
-    const cover=book.image?'<img src="'+(book.image||'').replace(/'/g,'%27').replace(/ /g,'%20')+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
+    const cover=book.image?'<img src="'+(book.image||'').replace(/'/g,'%27').replace(/ /g,'%20')+'" alt="'+(book.title||'')+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
     const desc=book.desc?(book.desc.length>80?book.desc.substring(0,80)+'…':book.desc):'';
     return '<div class="book-card" onclick="openBook('+book.id+')" style="cursor:pointer">'
       +'<div class="book-cover">'+(book.badge&&book.badge!=='none'?'<div class="book-badge badge-'+book.badge+'">'+BADGE_LABELS[book.badge]+'</div>':'')+cover+'<div class="badge-cat">'+(CAT_LABELS[book.category]||'Livre')+'</div></div>'
@@ -1959,7 +1959,7 @@ function renderCatBestsellers(cat){
   if(!catBooks.length){const bs=document.getElementById('bestsellers');if(bs)bs.style.display='none';return;}
   const bs=document.getElementById('bestsellers');if(bs)bs.style.display='block';
   grid.innerHTML=catBooks.map(function(book){
-    const cover=book.image?'<img src="'+(book.image||'').replace(/'/g,'%27').replace(/ /g,'%20')+'" alt="'+book.title+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
+    const cover=book.image?'<img src="'+(book.image||'').replace(/'/g,'%27').replace(/ /g,'%20')+'" alt="'+(book.title||'')+'" loading="lazy">':"<div class='cover-ph'><div class='ph-icon'>✦</div><div class='ph-title'>"+book.title+"</div><div class='ph-sep'></div><div class='ph-author'>"+book.author+"</div></div>";
     const desc=book.desc?(book.desc.length>80?book.desc.substring(0,80)+'…':book.desc):'';
     const stockAlert=book.stock!==null&&book.stock<=5?'<div class="stock-alert">⚡ Plus que '+book.stock+' exemplaire'+(book.stock>1?'s':'')+'</div>':'';
     return '<div class="book-card" onclick="openBook('+book.id+')" style="cursor:pointer">'
@@ -2465,9 +2465,9 @@ function renderAdmList(){
   var list=document.getElementById('admBookList');if(!list)return;
   if(!BOOKS.length){list.innerHTML='<div style="text-align:center;padding:20px;color:rgba(250,247,242,.28);font-style:italic;font-size:.76rem">Aucun titre.</div>';return;}
   var q=((document.getElementById('admSearch')||{}).value||'').toLowerCase().trim();
-  var filtered=q?BOOKS.filter(function(b){return b.title.toLowerCase().includes(q)||b.author.toLowerCase().includes(q);}):BOOKS;
+  var filtered=q?BOOKS.filter(function(b){return (b.title||'').toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q);}):BOOKS;
   list.innerHTML=filtered.map(function(book){
-    var t=book.image?'<img src="'+(book.image||'').replace(/'/g,'%27').replace(/ /g,'%20')+'" alt="'+book.title+'">':"<div class='adm-thumb-ph'>"+book.title.substring(0,10)+"</div>";
+    var t=book.image?'<img src="'+(book.image||'').replace(/'/g,'%27').replace(/ /g,'%20')+'" alt="'+(book.title||'')+'">':"<div class='adm-thumb-ph'>"+(book.title||'').substring(0,10)+"</div>";
     var b2=book.badge&&book.badge!=='none'?' · '+BADGE_LABELS[book.badge]:'';
     var oos=book.outOfStock?' · ⛔':'';
     var feat=book.featured?' · ⭐':'';
