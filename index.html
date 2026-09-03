@@ -754,7 +754,7 @@ a{color:inherit;text-decoration:none}
 .kpi-lbl{font-size:.54rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:rgba(250,247,242,.38)}
 .kpi-icon{position:absolute;top:11px;right:11px;font-size:1rem;opacity:.22}
 /* Book list */
-.adm-book-list{padding:0 22px 14px;display:flex;flex-direction:column;gap:5px}
+.adm-book-list{padding:0 22px 80px;display:flex;flex-direction:column;gap:5px}
 .adm-book-row{display:flex;align-items:center;gap:9px;padding:9px 11px;background:#1A1713;border:1px solid rgba(198,161,91,.1);border-radius:7px;transition:all .2s}
 .adm-book-row:hover{border-color:rgba(198,161,91,.28);background:#1F1B16}
 .adm-book-row.dragging{opacity:.4;background:#252015;border-color:var(--gold)}
@@ -1723,6 +1723,10 @@ async function loadData(){
           videoUrl:r.video_url||'',featured:r.featured||false,stock:r.stock||null
         };
       });
+      // Trier par sort_order si disponible
+      BOOKS.sort(function(a,b){return (a.sort_order||a.id)-(b.sort_order||b.id);});
+      // Réassigner IDs numériques après tri
+      BOOKS.forEach(function(b,i){b.id=i+1;});
       lsSet('lamine_books',BOOKS);
     }else{
       BOOKS=ls('lamine_books',DB_DEFAULT);
@@ -2582,7 +2586,22 @@ function dragStart(e){if(!reorderMode)return;dragSrcId=parseInt(e.currentTarget.
 function dragOver(e){e.preventDefault();document.querySelectorAll('.adm-book-row').forEach(function(r){r.classList.remove('drag-over');});e.currentTarget.classList.add('drag-over');}
 function dragDrop(e){e.preventDefault();var tid=parseInt(e.currentTarget.dataset.id);if(dragSrcId!==tid)reorderBooks(dragSrcId,tid);}
 function dragEnd(e){document.querySelectorAll('.adm-book-row').forEach(function(r){r.classList.remove('dragging','drag-over');});}
-function reorderBooks(srcId,targetId){var si=BOOKS.findIndex(function(b){return b.id===srcId;});var ti=BOOKS.findIndex(function(b){return b.id===targetId;});if(si===-1||ti===-1)return;var moved=BOOKS.splice(si,1)[0];BOOKS.splice(ti,0,moved);lsSet('lamine_books',BOOKS);renderAdmList();renderBooks();showToast('Ordre mis à jour ✓');}
+function reorderBooks(srcId,targetId){
+  var si=BOOKS.findIndex(function(b){return b.id===srcId;});
+  var ti=BOOKS.findIndex(function(b){return b.id===targetId;});
+  if(si===-1||ti===-1)return;
+  var moved=BOOKS.splice(si,1)[0];
+  BOOKS.splice(ti,0,moved);
+  // Réassigner les IDs numériques selon le nouvel ordre
+  BOOKS.forEach(function(b,i){b.id=i+1;});
+  lsSet('lamine_books',BOOKS);
+  renderAdmList();renderBooks();
+  // Sauvegarder l'ordre dans Firebase (chaque livre avec son sort_order)
+  BOOKS.forEach(function(b,i){
+    if(b._fbId){fbSet('books',b._fbId,{sort_order:i}).catch(function(){});}
+  });
+  showToast('Ordre mis à jour ✓');
+}
 function toggleReorder(){
   reorderMode=!reorderMode;
   var btn=document.getElementById('reorderBtn');
