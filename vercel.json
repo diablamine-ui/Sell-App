@@ -1,11 +1,6 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "index.html", "use": "@vercel/static" },
-    { "src": "public/images/**", "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "src": "/images/(.*)", "dest": "/public/images/$1" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "outputDirectory": ".",
+  "rewrites": [
+    { "source": "/images/:path*", "destination": "/public/images/:path*" }
   ]
 }
