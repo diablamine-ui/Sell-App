@@ -2474,7 +2474,7 @@ function renderAdmList(){
     return '<div class="adm-book-row" '+(reorderMode?'draggable="true"':'')+' data-id="'+book.id+'" ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event)" ondragend="dragEnd(event)">'
       +'<div class="drag-handle"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1" fill="currentColor"/><circle cx="9" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="19" r="1" fill="currentColor"/><circle cx="15" cy="5" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="15" cy="19" r="1" fill="currentColor"/></svg></div>'
       +'<div class="adm-thumb">'+t+'</div>'
-      +'<div class="adm-book-info"><div class="adm-book-t">'+book.title+'</div><div class="adm-book-m">'+book.price.toLocaleString('fr-FR')+' FCFA · '+(CAT_LABELS[book.category]||book.category)+b2+feat+oos+'</div></div>'
+      +'<div class="adm-book-info"><div class="adm-book-t">'+book.title+'</div><div class="adm-book-m">'+(parseInt(book.price)||0).toLocaleString('fr-FR')+' FCFA · '+(CAT_LABELS[book.category]||book.category)+b2+feat+oos+'</div></div>'
       +'<div class="adm-book-actions"><button class="adm-btn adm-btn-edit" onclick="editBook('+book.id+')">Modifier</button><button class="adm-btn adm-btn-dup" onclick="dupBook('+book.id+')">Copier</button><button class="adm-btn adm-btn-del" onclick="delBook('+book.id+')">✕</button></div>'
       +'</div>';
   }).join('');
