@@ -1624,6 +1624,10 @@ async function fbDelete(col,id){
   var r=await fetch(FB_URL+'/'+col+'/'+encodeURIComponent(id)+'?key='+FB_KEY,{method:'DELETE'});
   if(!r.ok)throw new Error('fbDelete '+r.status);
 }
+function normalizeBooksIds(){
+  BOOKS.forEach(function(b,i){b.id=i+1;if(!b._fbId)b._fbId=b.fbId||null;});
+}
+
 
 async function uploadImg(file){
   const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
@@ -1746,7 +1750,7 @@ async function loadData(){
     }
   }catch(e){
     console.warn('Firebase offline, fallback localStorage:',e.message);
-    BOOKS=ls('lamine_books',DB_DEFAULT);
+    BOOKS=ls('lamine_books',DB_DEFAULT);normalizeBooksIds();
     CONFIG=ls('sell_config',DC);
     SHOP=ls('sell_shop',DS);
   }finally{
@@ -2509,6 +2513,7 @@ async function delBook(id){
   try{
     await fbDelete('books',String(id));
     BOOKS=BOOKS.filter(function(b){return String(b.id)!==String(id);});
+    normalizeBooksIds();
     lsSet('lamine_books',BOOKS);
     renderBooks();renderAdmList();showToast('Titre supprimé');
   }catch(e){console.error(e);lsSet('lamine_books',BOOKS);renderBooks();renderBestsellers();showAdmMain();showToast('Erreur Firebase — sauvé localement');}
@@ -2541,7 +2546,7 @@ async function saveBook(){
     }else{
       var res=await fbAdd('books',row);
       var newBook={id:res._id,title,author,price,oldPrice,category,desc,image,badge,outOfStock,featured,slug,videoUrl,stock};
-      BOOKS.push(newBook);
+      BOOKS.push(newBook);normalizeBooksIds();
       showToast('Titre ajouté ✓');
     }
     lsSet('lamine_books',BOOKS);
@@ -2574,7 +2579,8 @@ function previewImg(url){
 async function dupBook(id){
   id=parseInt(id)||id;var book=BOOKS.find(function(b){return b.id==id;});if(!book)return;
   var copy={...book,title:'[Copie] '+book.title,id:undefined,slug:book.slug?book.slug+'-copie':''};
-  try{var res=await sbPost('books',bookToRow(copy));if(res&&res[0])BOOKS.push(rowToBook(res[0]));renderBooks();renderAdmList();showToast('Livre dupliqué ✓');}
+  try{var res=await sbPost('books',bookToRow(copy));if(res&&res[0])BOOKS.push(rowToBook(res[0]));
+  normalizeBooksIds();renderBooks();renderAdmList();showToast('Livre dupliqué ✓');}
   catch(e){console.warn(e);showToast('Erreur duplication');}
 }
 
@@ -2838,7 +2844,7 @@ function importCSV(e){
       }
       if(!books.length){showToast('Aucun livre valide');return;}
       if(!confirm('Importer '+books.length+' livres ?'))return;
-      BOOKS=books;lsSet('lamine_books',BOOKS);renderBooks();renderAdmList();showToast(books.length+' livres importés !');
+      BOOKS=books;normalizeBooksIds();lsSet('lamine_books',BOOKS);renderBooks();renderAdmList();showToast(books.length+' livres importés !');
     }catch(err){console.error(err);showToast('Erreur CSV');}
   };
   reader.readAsText(file,'UTF-8');e.target.value='';
@@ -2853,7 +2859,7 @@ function importJSON(e){
   var file=e.target.files[0];if(!file)return;
   var reader=new FileReader();
   reader.onload=function(ev){
-    try{var data=JSON.parse(ev.target.result);if(!data.books||!Array.isArray(data.books)){showToast('Fichier invalide');return;}if(!confirm('Importer '+data.books.length+' livres ?'))return;BOOKS=data.books;lsSet('lamine_books',BOOKS);if(data.config){CONFIG={...DC,...data.config};lsSet('sell_config',CONFIG);}if(data.shop){SHOP={...DS,...data.shop};lsSet('sell_shop',SHOP);applyShop();}renderBooks();renderAdmList();showToast(BOOKS.length+' livres importés ✓');}
+    try{var data=JSON.parse(ev.target.result);if(!data.books||!Array.isArray(data.books)){showToast('Fichier invalide');return;}if(!confirm('Importer '+data.books.length+' livres ?'))return;BOOKS=data.books;normalizeBooksIds();lsSet('lamine_books',BOOKS);if(data.config){CONFIG={...DC,...data.config};lsSet('sell_config',CONFIG);}if(data.shop){SHOP={...DS,...data.shop};lsSet('sell_shop',SHOP);applyShop();}renderBooks();renderAdmList();showToast(BOOKS.length+' livres importés ✓');}
     catch(err){showToast('Erreur lecture fichier');}
   };
   reader.readAsText(file);e.target.value='';
