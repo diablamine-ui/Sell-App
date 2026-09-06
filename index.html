@@ -1646,14 +1646,7 @@ async function uploadImg(file){
 async function sbUpsertConfig(key,value){
   try{await fbSet('shop_config',key,{key:key,value:value});}catch(e){console.warn('Firebase config offline:',e);}
 }
-async function sbPost(t,d){
-  var res=await fbAdd(t,d);
-  // Simuler le format Supabase (retourne un tableau)
-  if(res){res.id=res._id||Date.now();}
-  return res?[res]:[];
-}
-async function sbPatch(t,id,d){return fbSet(t,String(id),d);}
-async function sbDelete(t,id){return fbDelete(t,String(id));}
+// Supabase compat removed
 
 // ══════════════════════════════════════
 // DEFAULTS & STATE
@@ -1720,8 +1713,8 @@ async function loadData(){
     if(rows&&rows.length>0){
       BOOKS=rows.map(function(r,i){
         return {
-          id:i+1,_fbId:r._id||r.id,title:r.title||'Sans titre',author:r.author||'',price:r.price,
-          oldPrice:r.old_price||null,category:r.category||'autre',
+          id:i+1,_fbId:r._id||r.id,title:r.title||'Sans titre',author:r.author||'',price:parseInt(r.price)||0,
+          oldPrice:r.old_price?parseInt(r.old_price)||null:null,category:r.category||'autre',
           badge:r.badge||'none',outOfStock:r.out_of_stock||false,
           image:r.image||null,desc:r.description||'',slug:r.slug||'',
           videoUrl:r.video_url||'',featured:r.featured||false,stock:r.stock||null
@@ -2579,9 +2572,14 @@ function previewImg(url){
 async function dupBook(id){
   id=parseInt(id)||id;var book=BOOKS.find(function(b){return b.id==id;});if(!book)return;
   var copy={...book,title:'[Copie] '+book.title,id:undefined,slug:book.slug?book.slug+'-copie':''};
-  try{var res=await sbPost('books',bookToRow(copy));if(res&&res[0])BOOKS.push(rowToBook(res[0]));
-  normalizeBooksIds();renderBooks();renderAdmList();showToast('Livre dupliqué ✓');}
-  catch(e){console.warn(e);showToast('Erreur duplication');}
+  try{
+    var res=await fbAdd('books',{title:copy.title,author:copy.author||'',price:copy.price||0,old_price:copy.oldPrice||null,category:copy.category||'autre',badge:copy.badge||'none',out_of_stock:copy.outOfStock||false,image:copy.image||null,description:copy.desc||'',slug:copy.slug||'',video_url:copy.videoUrl||'',featured:copy.featured||false,stock:copy.stock||null,sort_order:BOOKS.length+1});
+    var newBook={...copy,id:BOOKS.length+1,_fbId:res?res._id:('local_'+Date.now())};
+    BOOKS.push(newBook);
+    normalizeBooksIds();
+    lsSet('lamine_books',BOOKS);
+    renderBooks();renderAdmList();showToast('Livre dupliqué ✓');
+  }catch(e){console.warn(e);showToast('Erreur duplication');}
 }
 
 // ══════════════════════════════════════
