@@ -1,0 +1,19 @@
+{
+  // Dilam B' — configuration Cloudflare. Aucun secret ici : les clés se saisissent dans le tableau de bord.
+  "name": "dilamboutique",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  "assets": {
+    "directory": "./site",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/media/*"]
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "dilamboutique-db", "database_id": "881344fb-7c07-422b-b4fd-960dbff73c73" }
+  ],
+  "kv_namespaces": [
+    { "binding": "FILES", "id": "fd6111635b76429fa548ca2718093496" }
+  ],
+  "observability": { "enabled": true }
+}
