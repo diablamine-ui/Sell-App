@@ -5,6 +5,7 @@
 //   ADMIN_EMAIL      adresse qui reçoit les codes de connexion admin
 //   RESEND_API_KEY   clé d'envoi d'emails (Resend)
 //   META_CAPI_TOKEN  jeton Meta Conversions API
+//   ADMIN_PIN        code PIN personnel exigé en plus du code email
 // Variables facultatives : MAIL_FROM, META_PIXEL_ID, GRAPH_VERSION, FIRESTORE_BASE (tests), DEV (local uniquement)
 
 const PIXEL_DEFAULT = '1671688320192246';
@@ -190,7 +191,15 @@ async function authVerify(req, env) {
     return err(401, 'locked');
   }
   await env.DB.prepare('UPDATE login_codes SET attempts=attempts+1 WHERE id=?').bind(row.id).run();
-  if (!safeEqual(await sha256hex(code + ':' + row.salt), row.code_hash)) return err(401, 'wrong_code');
+  const codeOk = safeEqual(await sha256hex(code + ':' + row.salt), row.code_hash);
+  // Deuxième facteur : code PIN personnel (secret ADMIN_PIN). On compare des empreintes de même longueur.
+  let pinOk = true;
+  if (env.ADMIN_PIN) {
+    const pin = String(body.pin || '');
+    pinOk = safeEqual(await sha256hex('pin:' + pin), await sha256hex('pin:' + String(env.ADMIN_PIN)));
+  }
+  // Message identique dans tous les cas : on ne dit jamais lequel des deux est faux.
+  if (!codeOk || !pinOk) return err(401, 'wrong_code');
 
   const token = randHex(32);
   const t = now();
@@ -431,7 +440,7 @@ async function api(req, env, ctx, url) {
   if (p === '/api/auth/request' && m === 'POST') return authRequest(req, env);
   if (p === '/api/auth/verify' && m === 'POST') return authVerify(req, env);
   if (p === '/api/auth/logout' && m === 'POST') return authLogout(req, env);
-  if (p === '/api/auth/me' && m === 'GET') return json({ admin: await isAdmin(req, env) });
+  if (p === '/api/auth/me' && m === 'GET') return json({ admin: await isAdmin(req, env), pin: !!env.ADMIN_PIN });
 
   if (p === '/api/stats/hit' && m === 'POST') return statsHit(req, env);
   if (p === '/api/capi' && m === 'POST') return capiPublic(req, env, ctx);

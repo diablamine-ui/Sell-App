@@ -1306,7 +1306,11 @@ a{color:inherit;text-decoration:none}
           <button class="adm-save" id="admSendCode" onclick="requestAdminCode()" style="margin-bottom:13px">Recevoir mon code par email</button>
           <div class="adm-field" style="margin-bottom:13px">
             <label class="adm-field-lbl">Code reçu</label>
-            <input class="adm-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" id="admPwd" placeholder="123456" onkeydown="if(event.key==='Enter')checkAdmin()">
+            <input class="adm-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" id="admPwd" placeholder="123456" onkeydown="if(event.key==='Enter')document.getElementById('admPin').focus()">
+          </div>
+          <div class="adm-field" style="margin-bottom:13px">
+            <label class="adm-field-lbl">Code PIN personnel</label>
+            <input class="adm-input" type="password" inputmode="numeric" autocomplete="off" maxlength="12" id="admPin" placeholder="••••••" onkeydown="if(event.key==='Enter')checkAdmin()">
           </div>
           <button class="adm-save" onclick="checkAdmin()">Accéder au tableau de bord</button>
         </div>
@@ -2422,9 +2426,11 @@ async function checkAdmin(){
   var code=((inp||{}).value||'').replace(/\D/g,'');
   if(code.length!==6){showToast('Le code contient 6 chiffres');return;}
   try{
-    var r=await apiFetch('/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code})});
+    var pinEl=document.getElementById('admPin');
+    var r=await apiFetch('/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code,pin:(pinEl||{}).value||''})});
+    if(pinEl)pinEl.value='';
     if(r.ok){adminLoggedIn=true;if(inp)inp.value='';showAdmMain();}
-    else{showToast(r.status===429?'Trop d\'essais. Patiente 15 minutes.':'Code incorrect ou expiré');if(inp)inp.value='';}
+    else{showToast(r.status===429?'Trop d\'essais. Patiente 15 minutes.':'Code ou PIN incorrect (ou code expiré)');}
   }catch(e){showToast('Erreur réseau');}
 }
 async function migrateFromFirebase(){
