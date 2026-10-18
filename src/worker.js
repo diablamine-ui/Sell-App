@@ -14,6 +14,7 @@ const FIRESTORE_DEFAULT = 'https://firestore.googleapis.com/v1/projects/dilam-bo
 // Clé web Firebase : publique par nature (elle figurait dans l'ancien site). Utilisée uniquement pour la migration.
 const FIREBASE_WEB_KEY = 'AIzaSyDyOrVT9Zb2s37unS2ailL05YqH0WDnlks';
 
+const CSP = "default-src 'self'; script-src 'self' 'unsafe-inline' https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://www.facebook.com https://connect.facebook.net; frame-src https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'";
 const COLLECTIONS = new Set(['books', 'shop_config', 'stats', 'ventes']);
 const PUBLIC_READ = new Set(['books', 'shop_config']);
 const STAT_TYPES = new Set(['views', 'carts', 'orders']);
@@ -94,6 +95,7 @@ function withSecurityHeaders(res, req) {
   h.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   h.set('Strict-Transport-Security', 'max-age=31536000');
   if (new URL(req.url).hostname.endsWith('.workers.dev')) h.set('X-Robots-Tag', 'noindex, nofollow');
+  if ((h.get('Content-Type') || '').includes('text/html')) h.set('Content-Security-Policy', CSP);
   return new Response(res.body, { status: res.status, statusText: res.statusText, headers: h });
 }
 
@@ -424,6 +426,37 @@ async function migrate(req, env) {
   return json({ ok: true, col, count: rows.length });
 }
 
+// ───────────────────────── aperçus de partage (WhatsApp, Facebook, Google) ─────────────────────────
+// Une page livre partagée affiche son titre, son prix et sa couverture dans l'aperçu.
+async function bookPage(req, env, url) {
+  const asset = await env.ASSETS.fetch(new Request(new URL('/', url.origin), req));
+  const slug = url.searchParams.get('livre').slice(0, 120);
+  let row = null;
+  try {
+    row = await env.DB.prepare(
+      "SELECT data FROM docs WHERE col='books' AND (json_extract(data,'$.slug')=?1 OR id=?1) LIMIT 1"
+    ).bind(slug).first();
+  } catch {}
+  if (!row) return asset;
+  let b = {};
+  try { b = JSON.parse(row.data); } catch { return asset; }
+  const price = (parseInt(b.price, 10) || 0).toLocaleString('fr-FR').replace(/\u202f/g, ' ');
+  const title = `${b.title || 'Livre'} — ${price} F | Dilam B'`;
+  const desc = String(b.description || '').replace(/\s+/g, ' ').trim().slice(0, 180) ||
+    `${b.title} — paiement à la livraison, livraison en 24 h à Abidjan.`;
+  const img = b.image ? new URL(encodeURI(decodeURISafe(b.image)), url.origin).href : url.origin + '/public/images/logo.png';
+  const set = (sel, val) => ({ element(el) { el.setAttribute('content', val); } });
+  return new HTMLRewriter()
+    .on('title', { element(el) { el.setInnerContent(title); } })
+    .on('meta[name="description"]', set('', desc))
+    .on('meta[property="og:title"]', set('', title))
+    .on('meta[property="og:description"]', set('', desc))
+    .on('meta[property="og:image"]', set('', img))
+    .on('head', { element(el) { el.append(`<link rel="canonical" href="${url.origin}/?livre=${encodeURIComponent(b.slug || slug)}">`, { html: true }); } })
+    .transform(asset);
+}
+function decodeURISafe(u) { try { return decodeURI(u); } catch { return u; } }
+
 // ───────────────────────── routeur ─────────────────────────
 async function api(req, env, ctx, url) {
   const p = url.pathname;
@@ -475,6 +508,8 @@ export default {
         res = await api(req, env, ctx, url);
       } else if (url.pathname.startsWith('/media/')) {
         res = await serveMedia(url.pathname, env);
+      } else if (url.pathname === '/' && url.searchParams.get('livre')) {
+        res = await bookPage(req, env, url);
       } else {
         res = await env.ASSETS.fetch(req);
       }
