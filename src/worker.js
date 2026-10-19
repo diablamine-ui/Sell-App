@@ -668,6 +668,10 @@ function dlPage(title, inner) {
   return new Response(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${title} | Lamine Diabaté</title><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/ebook.css"></head><body class="ebook-page"><header class="eb-top"><div class="eb-top-in"><a class="brand-name" href="/">Dilam B'</a><a class="eb-home" href="/">Retour à la boutique</a></div></header><main class="dl-page">${inner}</main></body></html>`,
     { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
 }
+// Nom de fichier sans accents ni espaces, pour les téléphones qui ignorent le nom complet.
+function asciiName(n) {
+  return String(n).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9.]+/g, '-').replace(/-+/g, '-').replace(/^-|-(?=\.pdf$)/g, '').slice(0, 120) || 'fichier.pdf';
+}
 function escH(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
 async function download(req, env, ctx, url) {
@@ -752,7 +756,7 @@ async function download(req, env, ctx, url) {
     return new Response(readable, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="document-${i + 1}.pdf"; filename*=UTF-8''${encodeURIComponent(name)}`,
+        'Content-Disposition': `attachment; filename="${asciiName(name)}"; filename*=UTF-8''${encodeURIComponent(name)}`,
         'Cache-Control': 'no-store',
         'X-Robots-Tag': 'noindex',
       },
