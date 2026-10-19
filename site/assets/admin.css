@@ -1,0 +1,131 @@
+/* Dilam B' — habillage de l'administration, aligné sur le site public (vert banco, coton, sans doré) */
+
+body.admin-only {
+  --gold: #9FD8B9;
+  --gold-lt: #F4F5F1;
+  --gold-pale: rgba(159, 216, 185, .14);
+  --a-bg: #0D3B2E;
+  --a-head: #0A2C22;
+  --a-card: #124537;
+  --a-card-2: #175142;
+  --a-line: rgba(244, 245, 241, .12);
+  --a-text: #F4F5F1;
+  --a-soft: rgba(244, 245, 241, .66);
+  --a-faint: rgba(244, 245, 241, .42);
+  background: var(--a-head);
+}
+body.admin-only .admin-panel,
+body.admin-only .admin-panel * {
+  font-family: "Onest", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+}
+body.admin-only .adm-title,
+body.admin-only .adm-login-title,
+body.admin-only .kpi-val,
+body.admin-only .vente-amount,
+body.admin-only .logo-ini-prev {
+  font-family: "Literata", Georgia, serif !important;
+}
+
+/* Structure */
+body.admin-only .admin-panel { background: var(--a-bg); }
+body.admin-only .adm-header { background: var(--a-head); border-bottom: 1px solid var(--a-line); padding: 14px 20px; }
+body.admin-only .adm-header-icon { display: none; }
+body.admin-only .adm-title { font-size: 21px; font-weight: 600; color: var(--a-text); }
+body.admin-only .adm-title small { color: var(--a-faint); font-size: 13px; font-weight: 500; letter-spacing: 0; text-transform: none; margin-top: 2px; }
+body.admin-only .adm-close { background: transparent; border: 1px solid var(--a-line); color: var(--a-soft); border-radius: 50%; width: 40px; height: 40px; justify-content: center; }
+body.admin-only .adm-body { background: var(--a-bg); scrollbar-color: rgba(244,245,241,.25) transparent; }
+
+/* Connexion */
+body.admin-only .adm-login-card { background: var(--a-card); border: 1px solid var(--a-line); border-radius: 14px; }
+body.admin-only .adm-login-title { font-size: 26px; font-weight: 500; color: var(--a-text); }
+body.admin-only .adm-login-sub { font-size: 14.5px; color: var(--a-soft); line-height: 1.5; }
+
+/* Onglets : texte simple, sans icônes */
+body.admin-only .adm-tabs { background: var(--a-head); border-bottom: 1px solid var(--a-line); padding: 0 12px; overflow-x: auto; }
+body.admin-only .adm-tab { font-size: 14px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--a-faint); padding: 14px 8px; border-bottom: 2px solid transparent; }
+body.admin-only .adm-tab.active { color: var(--a-text); border-bottom-color: var(--a-text); }
+body.admin-only .adm-tab-icon { display: none; }
+
+/* Titres de rubrique : en clair, sans majuscules espacées */
+body.admin-only .adm-lbl { font-family: "Literata", Georgia, serif !important; font-size: 19px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--a-text); padding: 24px 20px 10px; border-bottom: 1px solid var(--a-line); }
+body.admin-only .adm-lbl span { font-size: 13px; color: var(--a-faint); }
+body.admin-only .config-section { padding: 14px 20px 22px; }
+body.admin-only .config-section + .config-section { border-top: 1px solid var(--a-line); }
+
+/* Champs */
+body.admin-only .adm-field-lbl { font-size: 13.5px; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--a-soft); }
+body.admin-only .adm-input,
+body.admin-only .adm-select,
+body.admin-only .adm-textarea,
+body.admin-only .adm-search-input {
+  background: var(--a-card); border: 1px solid var(--a-line); color: var(--a-text);
+  font-size: 15px; padding: 11px 12px; border-radius: 10px;
+}
+body.admin-only .adm-search-input { padding-left: 34px; }
+body.admin-only .adm-input:focus,
+body.admin-only .adm-select:focus,
+body.admin-only .adm-textarea:focus,
+body.admin-only .adm-search-input:focus { border-color: var(--a-text); box-shadow: none; background: var(--a-card-2); }
+body.admin-only .adm-input::placeholder,
+body.admin-only .adm-textarea::placeholder,
+body.admin-only .adm-search-input::placeholder { color: var(--a-faint); }
+body.admin-only .adm-select option { background: var(--a-card); }
+body.admin-only .adm-check label { font-size: 14.5px; color: var(--a-text); }
+body.admin-only .adm-check input { width: 18px; height: 18px; accent-color: #F4F5F1; }
+body.admin-only .adm-hint { font-size: 13px; color: var(--a-soft); background: rgba(244,245,241,.06); border-left: 2px solid var(--a-line); border-radius: 6px; padding: 9px 11px; }
+
+/* Boutons : même forme que le site */
+body.admin-only .adm-save {
+  background: #F4F5F1; color: #0D3B2E; border: 0; border-radius: 999px;
+  font-size: 15px; font-weight: 600; letter-spacing: 0; text-transform: none;
+  min-height: 46px; padding: 0 20px;
+}
+body.admin-only .adm-save:hover { background: #fff; opacity: 1; transform: none; }
+body.admin-only .adm-save:disabled { opacity: .5; }
+body.admin-only .adm-cancel { border-radius: 999px; font-size: 15px; letter-spacing: 0; text-transform: none; color: var(--a-soft); border-color: var(--a-line); min-height: 46px; }
+body.admin-only .adm-add-btn { border: 1px dashed var(--a-line); color: var(--a-text); border-radius: 12px; font-size: 15px; letter-spacing: 0; text-transform: none; padding: 13px; }
+body.admin-only .adm-add-btn:hover { background: rgba(244,245,241,.06); border-color: var(--a-text); color: var(--a-text); }
+body.admin-only .upload-lbl { background: rgba(244,245,241,.08); color: var(--a-text); border: 1px solid var(--a-line); border-radius: 999px; font-size: 14px; letter-spacing: 0; text-transform: none; }
+body.admin-only .reorder-btn { border-radius: 999px; font-size: 14px; letter-spacing: 0; text-transform: none; color: var(--a-soft); border-color: var(--a-line); }
+body.admin-only .reorder-btn.active { background: rgba(244,245,241,.12); border-color: var(--a-text); color: var(--a-text); }
+
+/* Liste des livres */
+body.admin-only .adm-book-row,
+body.admin-only .stats-book-row,
+body.admin-only .vente-row { background: var(--a-card); border: 1px solid var(--a-line); border-radius: 10px; padding: 10px 12px; }
+body.admin-only .adm-book-row:hover { background: var(--a-card-2); border-color: rgba(244,245,241,.25); }
+body.admin-only .adm-thumb { width: 36px; height: 48px; border: 0; background: var(--a-card-2); }
+body.admin-only .adm-book-t { font-size: 14.5px; color: var(--a-text); }
+body.admin-only .adm-book-m { font-size: 13px; color: var(--a-soft); }
+body.admin-only .adm-btn { font-size: 12.5px; font-weight: 600; letter-spacing: 0; text-transform: none; border-radius: 999px; padding: 6px 11px; }
+body.admin-only .adm-btn-edit { background: rgba(244,245,241,.1); color: var(--a-text); border-color: var(--a-line); }
+body.admin-only .adm-btn-dup { background: transparent; color: var(--a-soft); border-color: var(--a-line); }
+body.admin-only .adm-btn-del { background: transparent; color: #FFB4AB; border-color: rgba(255,180,171,.35); }
+
+/* Statistiques et ventes */
+body.admin-only .kpi-card { background: var(--a-card); border: 1px solid var(--a-line); border-radius: 12px; }
+body.admin-only .kpi-card::before { display: none; }
+body.admin-only .kpi-card.active { border-color: var(--a-text); background: var(--a-card-2); }
+body.admin-only .kpi-lbl { font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--a-soft); }
+body.admin-only .kpi-icon { display: none; }
+body.admin-only .stats-bar-lbl, body.admin-only .vente-title-t { font-size: 14px; color: var(--a-text); }
+body.admin-only .stats-num, body.admin-only .vente-meta { font-size: 12.5px; color: var(--a-soft); }
+body.admin-only .vente-amount { color: #9FD8B9; }
+body.admin-only .logo-wrap { background: var(--a-card); border: 1px solid var(--a-line); border-radius: 12px; }
+body.admin-only .logo-circle { border-color: var(--a-line); background: var(--a-card-2); }
+body.admin-only .logo-info { font-size: 13.5px; color: var(--a-soft); }
+body.admin-only .img-preview { background: var(--a-card); border-color: var(--a-line); }
+body.admin-only .adm-empty { color: var(--a-faint); }
+
+/* Notifications */
+body.admin-only .toast { background: #F4F5F1 !important; color: #0D3B2E !important; border-radius: 999px !important; font-family: "Onest", system-ui, sans-serif !important; }
+
+body.admin-only :focus-visible { outline: 2px solid #F4F5F1; outline-offset: 2px; }
+
+/* Lignes du catalogue : titre lisible sur mobile, actions en dessous */
+body.admin-only .adm-book-row { flex-wrap: wrap; row-gap: 8px; }
+body.admin-only .adm-book-info { flex: 1 1 0; min-width: 0; }
+body.admin-only .adm-book-t { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.3; }
+body.admin-only .adm-book-actions { flex: 1 0 100%; justify-content: flex-end; gap: 6px; }
+body.admin-only .adm-lbl { justify-content: flex-start; gap: 8px; flex-wrap: wrap; }
+body.admin-only .adm-lbl > *:last-child:not(:first-child) { margin-left: auto; }
