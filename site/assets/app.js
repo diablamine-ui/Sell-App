@@ -679,6 +679,22 @@
     openSheet('orderSheet');
   }
 
+  // ───────────── Accès admin caché : appui long sur le nom de la boutique ─────────────
+  (function () {
+    var brand = document.querySelector('.brand'), timer = null, fired = false;
+    function start() { fired = false; timer = setTimeout(function () { fired = true; location.href = '/admin'; }, 800); }
+    function stop() { clearTimeout(timer); }
+    brand.addEventListener('touchstart', start, { passive: true });
+    brand.addEventListener('touchend', stop);
+    brand.addEventListener('touchmove', stop, { passive: true });
+    brand.addEventListener('mousedown', start);
+    brand.addEventListener('mouseup', stop);
+    brand.addEventListener('mouseleave', stop);
+    brand.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    brand.addEventListener('click', function (e) { if (fired) { e.preventDefault(); e.stopPropagation(); } }, true);
+    document.addEventListener('keydown', function (e) { if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) { e.preventDefault(); location.href = '/admin'; } });
+  })();
+
   // ───────────── Démarrage ─────────────
   document.getElementById('year').textContent = new Date().getFullYear();
   load().then(function () {
