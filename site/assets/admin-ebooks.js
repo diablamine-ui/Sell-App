@@ -46,7 +46,7 @@
       (list || []).forEach(function (k) { var m = k.key.match(/\/(\d+)\.pdf$/); if (m) by[m[1]] = k; });
       document.querySelectorAll('[data-slug="' + slug + '"] .row').forEach(function (row) {
         var k = by[row.getAttribute('data-i')];
-        row.querySelector('.st').innerHTML = k ? '<span class="ok">Déposé</span> ' + esc(k.name || '') + ' ' + esc(size(k.size)) : '<span class="ko">Pas encore déposé</span>';
+        row.querySelector('.st').innerHTML = k ? '<span class="ok">Déposé</span> ' + esc(k.name || '') + ' ' + esc(size(k.size)) + (k.watermark ? ', filigrane prêt' : ', <span class="ko">filigrane en attente</span>') : '<span class="ko">Pas encore déposé</span>';
       });
     });
   }

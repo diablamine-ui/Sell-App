@@ -8,6 +8,8 @@
 //   ADMIN_PIN        code PIN personnel exigé en plus du code email
 // Variables facultatives : MAIL_FROM, META_PIXEL_ID, GRAPH_VERSION, FIRESTORE_BASE (tests), DEV (local uniquement)
 
+import { indexPdf, stampTail } from './watermark.js';
+
 const PIXEL_DEFAULT = '1671688320192246';
 const GRAPH_DEFAULT = 'v23.0';
 const FIRESTORE_DEFAULT = 'https://firestore.googleapis.com/v1/projects/dilam-boutique/databases/(default)/documents';
@@ -665,7 +667,7 @@ function dlPage(title, inner) {
 }
 function escH(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
-async function download(req, env, url) {
+async function download(req, env, ctx, url) {
   const m = url.pathname.match(/^\/telecharger\/(LDL-[A-Z0-9-]{6,40})\/([0-9a-f]{32})(?:\/([0-9]{1,2}))?\/?$/);
   if (!m) return dlPage('Lien invalide', '<h1>Ce lien n’est pas valide.</h1><p>Vérifie que tu as copié le lien en entier depuis ton e-mail.</p>');
   const [, ref, sig, idxStr] = m;
@@ -698,7 +700,40 @@ async function download(req, env, url) {
       return dlPage('Fichier indisponible', '<h1>Ce fichier n’est pas disponible pour le moment.</h1>' + help);
     }
     const name = (metadata && metadata.name) || `${String(i + 1).padStart(2, '0')} - ${items[i].name}.pdf`;
-    return new Response(value, {
+    // Filigrane « Exemplaire personnel de <e-mail> » : ajouté à la volée à la fin du fichier.
+    let body = value, length = metadata && metadata.size;
+    try {
+      let idx = await env.FILES.get(`pdfidx/${o.slug}/${i}.json`, { type: 'json' });
+      if (!idx) {
+        // Fichier déposé avant la mise en place du filigrane : on calcule son index une fois pour toutes.
+        await value.cancel();
+        const bytes = new Uint8Array(await env.FILES.get(`pdf/${o.slug}/${i}.pdf`, { type: 'arrayBuffer' }));
+        idx = indexPdf(bytes);
+        idx.len = bytes.length;
+        await env.FILES.put(`pdfidx/${o.slug}/${i}.json`, JSON.stringify(idx));
+        const tail = stampTail(idx, 'Exemplaire personnel de ' + o.email, { skipFirst: true });
+        const all = new Uint8Array(bytes.length + tail.length);
+        all.set(bytes); all.set(tail, bytes.length);
+        body = all; length = all.length;
+      } else if (idx.len === (metadata && metadata.size)) {
+        const tail = stampTail(idx, 'Exemplaire personnel de ' + o.email, { skipFirst: true });
+        const { readable, writable } = new FixedLengthStream(idx.len + tail.length);
+        ctx.waitUntil((async () => {
+          await value.pipeTo(writable, { preventClose: true });
+          const w = writable.getWriter();
+          await w.write(tail);
+          await w.close();
+        })());
+        body = readable; length = idx.len + tail.length;
+      } else {
+        console.error('filigrane absent', o.slug, i);
+      }
+    } catch (e) {
+      console.error('filigrane', e && e.message);
+      try { await value.cancel(); } catch {}
+      body = await env.FILES.get(`pdf/${o.slug}/${i}.pdf`, { type: 'stream' });
+    }
+    return new Response(body, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="document-${i + 1}.pdf"; filename*=UTF-8''${encodeURIComponent(name)}`,
@@ -737,13 +772,23 @@ async function uploadPdf(req, env, url) {
   const head = new Uint8Array(buf.slice(0, 5));
   if (String.fromCharCode(...head) !== '%PDF-') return err(415, 'not_pdf');
   await env.FILES.put(`pdf/${slug}/${i}.pdf`, buf, { metadata: { name: name || `${i + 1}.pdf`, size: buf.byteLength, at: now() } });
-  return json({ ok: true, size: buf.byteLength }, 201);
+  let wm = true;
+  try {
+    await env.FILES.put(`pdfidx/${slug}/${i}.json`, JSON.stringify(indexPdf(new Uint8Array(buf))));
+  } catch (e) {
+    wm = false;
+    await env.FILES.delete(`pdfidx/${slug}/${i}.json`);
+    console.error('index pdf', slug, i, e && e.message);
+  }
+  return json({ ok: true, size: buf.byteLength, watermark: wm }, 201);
 }
 async function listPdf(env, url) {
   const slug = url.searchParams.get('slug') || '';
   if (!/^[a-z0-9-]{1,80}$/.test(slug)) return err(400, 'bad_slug');
   const l = await env.FILES.list({ prefix: `pdf/${slug}/` });
-  return json(l.keys.map((k) => ({ key: k.name, ...(k.metadata || {}) })));
+  const idx = await env.FILES.list({ prefix: `pdfidx/${slug}/` });
+  const ok = new Set(idx.keys.map((k) => k.name.replace('pdfidx/', 'pdf/').replace(/\.json$/, '.pdf')));
+  return json(l.keys.map((k) => ({ key: k.name, watermark: ok.has(k.name), ...(k.metadata || {}) })));
 }
 async function listOrders(env) {
   const { results } = await env.DB.prepare('SELECT reference,slug,email,amount,status,created_at,paid_at,channel,mailed,dl FROM orders ORDER BY created_at DESC LIMIT 200').all();
@@ -812,7 +857,7 @@ export default {
       } else if (url.pathname.startsWith('/media/')) {
         res = await serveMedia(url.pathname, env);
       } else if (url.pathname.startsWith('/telecharger/')) {
-        res = await download(req, env, url);
+        res = await download(req, env, ctx, url);
       } else if (/^\/ebook\/[a-z0-9-]{1,80}\/?$/.test(url.pathname)) {
         res = await ebookPage(req, env, url);
       } else if (url.pathname === '/' && url.searchParams.get('livre')) {
