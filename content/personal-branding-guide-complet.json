@@ -14,8 +14,11 @@
     "Fichiers envoyés par e-mail juste après le paiement",
     "4 PDF à lire sur ton téléphone"
   ],
-  "cover": "/public/ebooks/personal-branding/couverture.jpg",
-  "extra_covers": [],
+  "cover": "/public/ebooks/personal-branding/couv_guide.jpg",
+  "extra_covers": [
+    "/public/ebooks/personal-branding/couv_workbook.jpg",
+    "/public/ebooks/personal-branding/couv_prompts.jpg"
+  ],
   "problem": {
     "title": "Tu es bon dans ce que tu fais. Le problème, c'est que presque personne ne le sait.",
     "paragraphs": [
@@ -88,7 +91,7 @@
         "name": "Le guide complet",
         "pages": 83,
         "content": "14 chapitres en 6 parties, un démarrage en 7 jours, un exemple suivi du début à la fin, un plan de 90 jours",
-        "cover": "",
+        "cover": "/public/ebooks/personal-branding/couv_guide.jpg",
         "previews": [
           "/public/ebooks/personal-branding/apercus/guide_7.jpg",
           "/public/ebooks/personal-branding/apercus/guide_25.jpg",
@@ -99,7 +102,7 @@
         "name": "Le Workbook",
         "pages": 69,
         "content": "Les 14 exercices, 12 bilans de la semaine, une réserve de 50 sujets, à remplir directement sur ton téléphone",
-        "cover": "",
+        "cover": "/public/ebooks/personal-branding/couv_workbook.jpg",
         "previews": [
           "/public/ebooks/personal-branding/apercus/workbook_8.jpg",
           "/public/ebooks/personal-branding/apercus/workbook_21.jpg",
@@ -110,7 +113,7 @@
         "name": "Le Swipe File",
         "pages": 37,
         "content": "50 accroches, 12 modèles de publications, 10 scripts TikTok, des réponses WhatsApp, une campagne de 7 jours",
-        "cover": "",
+        "cover": "/public/ebooks/personal-branding/couv_swipe.jpg",
         "previews": [
           "/public/ebooks/personal-branding/apercus/swipe_7.jpg",
           "/public/ebooks/personal-branding/apercus/swipe_13.jpg",
@@ -121,7 +124,7 @@
         "name": "La Bibliothèque de prompts",
         "pages": 35,
         "content": "Une fiche de contexte, 49 prompts pour ChatGPT ou Claude, et le Prompt Ultime qui crée ton calendrier de 30 jours",
-        "cover": "",
+        "cover": "/public/ebooks/personal-branding/couv_prompts.jpg",
         "previews": [
           "/public/ebooks/personal-branding/apercus/prompts_7.jpg",
           "/public/ebooks/personal-branding/apercus/prompts_15.jpg",
@@ -129,7 +132,8 @@
         ]
       }
     ],
-    "roles": "Le guide t'explique. Le Workbook te fait travailler. Le Swipe File te donne des modèles. La Bibliothèque de prompts t'aide à aller plus vite."
+    "roles": "Le guide t'explique. Le Workbook te fait travailler. Le Swipe File te donne des modèles. La Bibliothèque de prompts t'aide à aller plus vite.",
+    "total_note": "Seul le guide se lit du début à la fin. Le reste se remplit ou se consulte au fil des semaines."
   },
   "audience": {
     "title": "Pour qui",
