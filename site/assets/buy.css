@@ -1,0 +1,29 @@
+/* Fenêtre d'achat ajoutée aux pages de vente déposées en HTML.
+   Tout est préfixé « dlb- » pour ne jamais toucher au style de la page. */
+.dlb-top, .dlb-foot, .dlb-sheet { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; box-sizing: border-box; }
+.dlb-top *, .dlb-foot *, .dlb-sheet * { box-sizing: border-box; }
+.dlb-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 16px; background: #fff; border-bottom: 1px solid #DCDFD8; font-size: 15px; }
+.dlb-top a { text-decoration: none; }
+.dlb-brand { font-family: Georgia, "Times New Roman", serif; font-weight: 600; font-size: 19px; color: #13201A; }
+.dlb-back { color: #127A4B; font-weight: 600; padding: 8px 0; }
+.dlb-foot { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; padding: 22px 16px 28px; background: #F4F5F1; border-top: 1px solid #DCDFD8; font-size: 14px; }
+.dlb-foot a { color: #5B655F; }
+.dlb-sheet { position: fixed; inset: 0; z-index: 2147483000; display: flex; align-items: flex-end; justify-content: center; }
+.dlb-sheet[hidden] { display: none; }
+.dlb-scrim { position: absolute; inset: 0; background: rgba(13,25,20,.5); }
+.dlb-panel { position: relative; width: 100%; max-width: 480px; background: #fff; color: #13201A; border-radius: 18px 18px 0 0; max-height: 92vh; overflow: auto; }
+@media (min-width: 640px) { .dlb-sheet { align-items: center; } .dlb-panel { border-radius: 18px; } }
+.dlb-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 12px 10px 20px; border-bottom: 1px solid #DCDFD8; font-size: 19px; }
+.dlb-x { width: 44px; height: 44px; border: 0; background: none; font-size: 28px; line-height: 1; color: #13201A; cursor: pointer; }
+.dlb-body { padding: 14px 20px calc(22px + env(safe-area-inset-bottom)); font-size: 16px; line-height: 1.5; }
+.dlb-sum { margin: 0 0 12px; }
+.dlb-label { display: block; font-weight: 600; font-size: 14.5px; margin-bottom: 6px; }
+.dlb-input { width: 100%; min-height: 50px; padding: 0 14px; font-size: 16px; border: 1px solid #C9CEC6; border-radius: 10px; background: #fff; color: #13201A; }
+.dlb-input:focus { outline: 2px solid #127A4B; border-color: #127A4B; }
+.dlb-input[aria-invalid="true"] { border-color: #B3261E; }
+.dlb-help { color: #5B655F; font-size: 13.5px; margin: 6px 0 0; }
+.dlb-btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 54px; margin-top: 14px; border: 0; border-radius: 999px; background: #127A4B; color: #fff; font-size: 17px; font-weight: 700; text-decoration: none; cursor: pointer; }
+.dlb-btn[disabled] { opacity: .7; }
+.dlb-btn.alt { background: #fff; color: #13201A; border: 1.5px solid #13201A; }
+.dlb-note { color: #5B655F; font-size: 13.5px; margin: 10px 0 0; text-align: center; }
+.dlb-warn { margin-top: 12px; padding: 12px 14px; border-radius: 10px; background: #FFF6E5; border: 1px solid #F0D9A8; font-size: 15px; }

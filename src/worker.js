@@ -472,6 +472,7 @@ async function ebookPage(req, env, url) {
     const r = dlPage('Page introuvable', '<h1>Cette page n’existe pas ou n’est plus en ligne.</h1><p><a class="btn btn-primary" href="/">Retour à la boutique</a></p>');
     return new Response(r.body, { status: 404, headers: r.headers });
   }
+  if (e.mode === 'html') return ebookHtmlPage(env, url, slug, e);
   const seo = e.seo || {};
   const title = seo.title || e.title || "Dilam B'";
   const desc = seo.description || e.subtitle || '';
@@ -782,6 +783,74 @@ async function download(req, env, ctx, url) {
     `<details class="dl-help"><summary>Un problème ?</summary>${help}</details>`);
 }
 
+
+// ───────────────────────── pages de vente déposées en HTML ─────────────────────────
+// Le fichier de Lamine est servi tel quel, mais : JavaScript retiré (sécurité de l'admin),
+// {{prix}} remplacé par le prix réel, fenêtre de paiement + liens de retour et légaux ajoutés.
+const MAX_HTML_BYTES = 3 * 1024 * 1024;
+function escA(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+async function ebookHtmlPage(env, url, slug, e) {
+  let html = await env.FILES.get(`html/${slug}.html`, { type: 'text' });
+  if (!html) {
+    const r = dlPage('Page en préparation', '<h1>Cette page arrive bientôt.</h1><p><a class="btn btn-primary" href="/">Retour à la boutique</a></p>');
+    return new Response(r.body, { status: 404, headers: r.headers });
+  }
+  const price = parseInt(e.price, 10) || 0;
+  html = html.split('{{prix}}').join(fcfa(price)).split('{{titre}}').join(escA(e.title || ''));
+  const lower = html.slice(0, 20000).toLowerCase();
+  const img = e.cover ? new URL(e.cover, url.origin).href : url.origin + '/public/images/logo.png';
+  let head = `<link rel="stylesheet" href="/assets/buy.css"><link rel="canonical" href="${url.origin}/ebook/${slug}">`;
+  if (!lower.includes('name="viewport"')) head += '<meta name="viewport" content="width=device-width, initial-scale=1">';
+  if (!lower.includes('og:image')) head += `<meta property="og:image" content="${escA(img)}">`;
+  if (!lower.includes('og:title')) head += `<meta property="og:title" content="${escA((e.seo && e.seo.title) || e.title || '')}">`;
+  if (e.hidden) head += '<meta name="robots" content="noindex, nofollow">';
+  const data = JSON.stringify({ ...e, slug }).replace(/</g, '\\u003c');
+  const top = `<div class="dlb-top"><a href="/" class="dlb-brand">Dilam B'</a><a href="/" class="dlb-back">Retour à la boutique</a></div>`;
+  const foot = `<div class="dlb-foot"><a href="/conditions">Conditions de vente</a><a href="/confidentialite">Confidentialité</a><a href="/">La boutique</a></div>` +
+    `<div class="dlb-sheet" id="dlbSheet" hidden><div class="dlb-scrim" data-dlb-close></div><div class="dlb-panel" role="dialog" aria-modal="true" aria-labelledby="dlbTitle"><div class="dlb-head"><strong id="dlbTitle">Recevoir les fichiers</strong><button type="button" class="dlb-x" data-dlb-close aria-label="Fermer">×</button></div><div class="dlb-body" id="dlbBody"></div></div></div>` +
+    `<script type="application/json" id="ebdata">${data}</script><script src="/assets/buy.js" defer></script>`;
+  const strip = {
+    element(el) {
+      for (const [name, value] of [...el.attributes]) {
+        if (/^on/i.test(name) || (/^(href|src|action|formaction|xlink:href)$/i.test(name) && /^\s*javascript:/i.test(value))) el.removeAttribute(name);
+      }
+    },
+  };
+  const res = new HTMLRewriter()
+    .on('script', { element(el) { el.remove(); } })
+    .on('noscript, base, object, embed, meta[http-equiv]', { element(el) { el.remove(); } })
+    .on('*', strip)
+    .on('head', { element(el) { el.append(head, { html: true }); } })
+    .on('body', { element(el) { el.prepend(top, { html: true }); el.append(foot, { html: true }); } })
+    .transform(new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } }));
+  return new Response(res.body, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+}
+
+async function uploadHtml(req, env, url) {
+  const slug = url.searchParams.get('slug') || '';
+  if (!/^[a-z0-9-]{1,80}$/.test(slug)) return err(400, 'bad_slug');
+  const buf = await req.arrayBuffer();
+  if (!buf.byteLength || buf.byteLength > MAX_HTML_BYTES) return err(413, 'too_large');
+  const text = new TextDecoder().decode(buf);
+  if (!/<html|<body|<!doctype/i.test(text.slice(0, 5000))) return err(415, 'not_html');
+  const row = await env.DB.prepare("SELECT data FROM docs WHERE col='ebooks' AND id=?").bind(slug).first();
+  if (!row) return err(404, 'ebook_missing');
+  await env.FILES.put(`html/${slug}.html`, text, { metadata: { size: buf.byteLength, at: now() } });
+  await env.DB.prepare("UPDATE docs SET data=json_set(data,'$.mode','html'), updated_at=? WHERE col='ebooks' AND id=?").bind(now(), slug).run();
+  const warn = [];
+  if (!/#acheter/.test(text)) warn.push('no_buy_link');
+  if (/<script/i.test(text)) warn.push('scripts_removed');
+  return json({ ok: true, size: buf.byteLength, warn }, 201);
+}
+async function htmlInfo(env, url) {
+  const slug = url.searchParams.get('slug') || '';
+  if (!/^[a-z0-9-]{1,80}$/.test(slug)) return err(400, 'bad_slug');
+  const l = await env.FILES.list({ prefix: `html/${slug}.html` });
+  const k = l.keys[0];
+  return json(k ? { exists: true, ...(k.metadata || {}) } : { exists: false });
+}
+
 // ───────────────────────── dépôt des PDF (admin) ─────────────────────────
 async function uploadPdf(req, env, url) {
   const slug = url.searchParams.get('slug') || '';
@@ -865,6 +934,8 @@ async function api(req, env, ctx, url) {
     if (p === '/api/admin/pdf' && m === 'POST') return uploadPdf(req, env, url);
     if (p === '/api/admin/pdf' && m === 'GET') return listPdf(env, url);
     if (p === '/api/admin/orders' && m === 'GET') return listOrders(env);
+    if (p === '/api/admin/ebook-html' && m === 'POST') return uploadHtml(req, env, url);
+    if (p === '/api/admin/ebook-html' && m === 'GET') return htmlInfo(env, url);
   }
   return err(404, 'not_found');
 }
