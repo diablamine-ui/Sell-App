@@ -1,13 +1,13 @@
-/* Dilam B' — habillage de l'administration, aligné sur le site public (vert banco, coton, sans doré) */
+/* Dilam B' — habillage de l'administration : le noir encre du pied de page du site, sans doré */
 
 body.admin-only {
   --gold: #9FD8B9;
   --gold-lt: #F4F5F1;
   --gold-pale: rgba(159, 216, 185, .14);
-  --a-bg: #0D3B2E;
-  --a-head: #0A2C22;
-  --a-card: #124537;
-  --a-card-2: #175142;
+  --a-bg: #161D1A;
+  --a-head: #111714;
+  --a-card: #1E2622;
+  --a-card-2: #252F2A;
   --a-line: rgba(244, 245, 241, .12);
   --a-text: #F4F5F1;
   --a-soft: rgba(244, 245, 241, .66);
