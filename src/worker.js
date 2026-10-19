@@ -660,7 +660,7 @@ async function orderStatus(req, env, ctx, url) {
 
 // ───────────────────────── téléchargement ─────────────────────────
 function dlPage(title, inner) {
-  return new Response(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${title} | Lamine Diabaté</title><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/ebook.css"></head><body class="ebook-page"><main class="dl-page">${inner}</main></body></html>`,
+  return new Response(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${title} | Lamine Diabaté</title><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/ebook.css"></head><body class="ebook-page"><header class="eb-top"><div class="eb-top-in"><a class="brand-name" href="/">Dilam B'</a><a class="eb-home" href="/">Retour à la boutique</a></div></header><main class="dl-page">${inner}</main></body></html>`,
     { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
 }
 function escH(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }

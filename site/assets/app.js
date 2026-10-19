@@ -41,6 +41,10 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
+  // Description : **texte** s'affiche en gras ; les astérisques orphelins disparaissent.
+  function richText(t) {
+    return esc(t).replace(/\*\*([^*\n][^*]*?)\*\*/g, '<strong>$1</strong>').replace(/\*\*/g, '');
+  }
   function money(n) { return (parseInt(n, 10) || 0).toLocaleString('fr-FR').replace(/ | /g, ' ') + ' F'; }
   function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
   function imgSrc(u) {
@@ -361,7 +365,7 @@
             '<ul class="pdp-facts"><li>Paiement à la livraison</li><li>Livré en 24 h à Abidjan</li><li>' + feesLine() + '</li>' + (offerText() ? '<li>' + offerText() + '</li>' : '') + '</ul>' +
           '</div>' +
         '</article>' +
-        (b.desc ? '<section class="pdp-desc"><h2>À propos de ce livre</h2><div class="txt">' + esc(b.desc) + '</div></section>' : '') +
+        (b.desc ? '<section class="pdp-desc"><h2>À propos de ce livre</h2><div class="txt">' + richText(b.desc) + '</div></section>' : '') +
         (related.length ? '<section class="section"><div class="section-head"><h2>Dans la même catégorie</h2></div><div class="rail">' + related.map(card).join('') + '</div></section>' : '') +
       '</div>';
 

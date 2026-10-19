@@ -207,6 +207,7 @@ p { margin: 0; }
   gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
   padding: 2px var(--gutter) 10px; margin: 0 calc(-1 * var(--gutter));
   scrollbar-width: none;
+  contain: paint; /* sinon, sur téléphone, le contenu défilant élargit toute la page */
 }
 .rail::-webkit-scrollbar { display: none; }
 .rail > * { scroll-snap-align: start; }
