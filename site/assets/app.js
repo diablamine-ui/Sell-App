@@ -7,7 +7,12 @@
   // ───────────── Réglages ─────────────
   var DEFAULT_WA = '2250714313052';
   var DEFAULT_PIXEL = '1671688320192246';
-  var FREE_DELIVERY_QTY = 3;
+  var FREE_PACKS = 2; // livraison offerte dès 2 packs achetés
+  var ZONES = [
+    { key: 'abidjan', label: 'Abidjan', sub: 'Livré en 24 h', fee: 1500 },
+    { key: 'peripherie', label: 'Périphérie', sub: 'Anyama, Grand-Bassam, Songon, N’Dotré, Bingerville', fee: 2000 },
+    { key: 'interieur', label: 'Intérieur du pays', sub: 'Expédition dans ta ville', fee: 2500 }
+  ];
   var CATS = [
     { key: 'finance', label: 'Finances', goal: 'Mieux gérer mon argent', sub: 'Épargne, investissement, richesse' },
     { key: 'devperso', label: 'Développement personnel', goal: 'Renforcer mon mental', sub: 'Confiance, discipline, relations' },
@@ -122,7 +127,9 @@
         if (d._id === 'sell_config' && d.value) Object.assign(CONFIG, d.value);
         if (d._id === 'sell_bandeau' && d.value && d.value.active && d.value.texte) {
           var n = document.getElementById('notice');
-          n.textContent = d.value.texte;
+          var item = '<span class="notice-item">' + esc(d.value.texte) + '</span>';
+          var run = new Array(6).join(item);
+          n.innerHTML = '<span class="sr-only">' + esc(d.value.texte) + '</span><div class="notice-track" aria-hidden="true">' + run + run + '</div>';
           n.hidden = false;
         }
       });
@@ -241,7 +248,7 @@
 
       '<section class="section"><div class="wrap faq">' +
         '<div class="section-head"><h2>Questions fréquentes</h2></div>' +
-        faq('Combien coûte la livraison ?', 'À Abidjan, la livraison est offerte dès ' + FREE_DELIVERY_QTY + ' livres commandés. En dessous, ou hors d\'Abidjan, le montant exact t\'est confirmé sur WhatsApp avant l\'envoi.') +
+        faq('Combien coûte la livraison ?', 'Abidjan : 1 500 F. Périphérie (Anyama, Grand-Bassam, Songon, N’Dotré, Bingerville) : 2 000 F. Intérieur du pays, par expédition : 2 500 F. La livraison est offerte dès ' + FREE_PACKS + ' packs achetés.') +
         faq('En combien de temps je reçois mes livres ?', 'En 24 h à Abidjan. Pour les autres villes, le délai dépend de ta localité et t\'est donné au moment de la confirmation.') +
         faq('Comment je paie ?', 'À la livraison, en espèces ou par Wave. Tu ne paies rien avant d\'avoir ton colis entre les mains.') +
         faq('Les livres sont-ils neufs ?', 'Oui. Si un livre n\'est plus disponible, on te prévient avant de confirmer la commande.') +
@@ -327,7 +334,7 @@
                 : '<button class="btn btn-primary btn-block" type="button" id="orderBtn">Commander ce livre</button>' +
                   '<button class="btn btn-secondary btn-block" type="button" id="addBtn">Ajouter au panier</button>') +
             '</div>' +
-            '<ul class="pdp-facts"><li>Paiement à la livraison</li><li>Livré en 24 h à Abidjan</li><li>Livraison offerte à Abidjan dès ' + FREE_DELIVERY_QTY + ' livres</li></ul>' +
+            '<ul class="pdp-facts"><li>Paiement à la livraison</li><li>Livré en 24 h à Abidjan</li><li>Livraison 1 500 F à Abidjan, 2 000 F en périphérie, 2 500 F à l’intérieur</li><li>Livraison offerte dès ' + FREE_PACKS + ' packs achetés</li></ul>' +
           '</div>' +
         '</article>' +
         (b.desc ? '<section class="pdp-desc"><h2>À propos de ce livre</h2><div class="txt">' + esc(b.desc) + '</div></section>' : '') +
@@ -431,17 +438,42 @@
     ['orderSheet', 'cartSheet'].forEach(function (id) { if (!document.getElementById(id).hidden) closeSheet(id); });
   });
 
+  // ───────────── Livraison ─────────────
+  function zoneBy(k) { return ZONES.find(function (z) { return z.key === k; }) || null; }
+  function packQty(items) {
+    return items.reduce(function (s, i) { var b = cartBook(i); return s + (b && b.category === 'pack' ? i.qty : 0); }, 0);
+  }
+  function isFree(items) { return packQty(items) >= FREE_PACKS; }
+  function deliveryFee(items, zone) { return !zone ? null : (isFree(items) ? 0 : zone.fee); }
+
   function customerFields(prefix) {
     var saved = store('dilam_client') || {};
+    var zones = ZONES.map(function (z) {
+      return '<label class="zone"><input type="radio" name="' + prefix + 'Zone" value="' + z.key + '"' + (saved.zone === z.key ? ' checked' : '') + '>' +
+        '<span class="zone-txt"><span class="zone-name">' + esc(z.label) + '</span><span class="zone-sub">' + esc(z.sub) + '</span></span>' +
+        '<span class="zone-fee" data-fee="' + z.fee + '">' + money(z.fee) + '</span></label>';
+    }).join('');
     return '<div class="form">' +
+      '<fieldset class="zones" id="' + prefix + 'Zones"><legend>Où te livrer ?</legend>' + zones + '</fieldset>' +
       '<div class="field"><label for="' + prefix + 'Name">Ton nom</label><input id="' + prefix + 'Name" autocomplete="name" value="' + esc(saved.name || '') + '"></div>' +
-      '<div class="field"><label for="' + prefix + 'Place">Lieu de livraison</label><input id="' + prefix + 'Place" placeholder="Commune, quartier, repère" autocomplete="street-address" value="' + esc(saved.place || '') + '"></div>' +
+      '<div class="field"><label for="' + prefix + 'Place">Adresse de livraison</label><input id="' + prefix + 'Place" placeholder="Ville ou commune, quartier, repère" autocomplete="street-address" value="' + esc(saved.place || '') + '"></div>' +
       '<div class="field"><label for="' + prefix + 'Phone">Téléphone <span class="opt">(facultatif)</span></label><input id="' + prefix + 'Phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="07 00 00 00 00" value="' + esc(saved.phone || '') + '"></div>' +
       '</div>';
   }
+  function selectedZone(prefix) {
+    var r = document.querySelector('input[name="' + prefix + 'Zone"]:checked');
+    return r ? zoneBy(r.value) : null;
+  }
   function readCustomer(prefix) {
     var name = document.getElementById(prefix + 'Name'), place = document.getElementById(prefix + 'Place'), phone = document.getElementById(prefix + 'Phone');
+    var zone = selectedZone(prefix), zbox = document.getElementById(prefix + 'Zones');
     var ok = true;
+    var zerr = zbox.querySelector('.err');
+    if (!zone) {
+      if (!zerr) zbox.insertAdjacentHTML('beforeend', '<p class="err">Choisis ta zone de livraison.</p>');
+      zbox.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      ok = false;
+    } else if (zerr) zerr.remove();
     [name, place].forEach(function (el) {
       var bad = !el.value.trim();
       el.setAttribute('aria-invalid', bad ? 'true' : 'false');
@@ -451,9 +483,35 @@
       if (bad && ok) { el.focus(); ok = false; }
     });
     if (!ok) return null;
-    var c = { name: name.value.trim(), place: place.value.trim(), phone: phone.value.trim() };
+    var c = { name: name.value.trim(), place: place.value.trim(), phone: phone.value.trim(), zone: zone.key };
     store('dilam_client', c);
+    c.zoneObj = zone;
     return c;
+  }
+  // Récapitulatif chiffré (livres + livraison) qui se met à jour quand on change de zone.
+  function summaryHTML(prefix, items, booksTotal) {
+    var zone = selectedZone(prefix) || zoneBy((store('dilam_client') || {}).zone);
+    var fee = deliveryFee(items, zone);
+    var free = isFree(items);
+    var feeTxt = free ? 'Offerte' : (zone ? money(fee) : 'Selon ta zone');
+    var total = zone ? booksTotal + fee : null;
+    return '<div class="sum">' +
+      '<div class="sum-row"><span>Livres</span><span>' + money(booksTotal) + '</span></div>' +
+      '<div class="sum-row"><span>Livraison' + (zone && !free ? ' (' + esc(zone.label) + ')' : '') + '</span><span' + (free ? ' class="free"' : '') + '>' + feeTxt + '</span></div>' +
+      '<div class="sum-row sum-total"><span>Total à payer à la livraison</span><strong>' + (total != null ? money(total) : '—') + '</strong></div>' +
+      '</div>';
+  }
+  function wireSummary(prefix, items, booksTotal) {
+    var box = document.getElementById(prefix + 'Sum');
+    document.querySelectorAll('input[name="' + prefix + 'Zone"]').forEach(function (r) {
+      r.addEventListener('change', function () {
+        box.innerHTML = summaryHTML(prefix, items, booksTotal);
+        var err = document.querySelector('#' + prefix + 'Zones .err'); if (err) err.remove();
+      });
+    });
+    if (isFree(items)) {
+      document.querySelectorAll('#' + prefix + 'Zones .zone-fee').forEach(function (f) { f.innerHTML = '<s>' + f.textContent + '</s> Offerte'; });
+    }
   }
 
   function renderCart() {
@@ -463,7 +521,6 @@
       document.getElementById('emptyGo').addEventListener('click', function () { closeSheet('cartSheet'); });
       return;
     }
-    var qty = cartQty();
     var lines = cart.map(function (i) {
       var b = cartBook(i);
       if (!b) return '';
@@ -472,25 +529,27 @@
         '<div class="qty"><button type="button" data-dec="' + esc(b.fid) + '" aria-label="Retirer un exemplaire">−</button><span>' + i.qty + '</span><button type="button" data-inc="' + esc(b.fid) + '" aria-label="Ajouter un exemplaire">+</button></div>' +
         '</div>';
     }).join('');
-    var offer;
-    if (qty >= FREE_DELIVERY_QTY) {
-      offer = '<div class="offer done"><strong>Livraison offerte à Abidjan</strong><p>Ta commande compte ' + qty + ' livres.</p></div>';
+    var packs = packQty(cart), offer;
+    if (packs >= FREE_PACKS) {
+      offer = '<div class="offer done"><strong>Livraison offerte</strong><p>Ta commande compte ' + packs + ' packs.</p></div>';
     } else {
-      var missing = FREE_DELIVERY_QTY - qty;
+      var missing = FREE_PACKS - packs;
       var ids = cart.map(function (i) { return i.fid; });
-      var sug = ranked(BOOKS.filter(function (b) { return ids.indexOf(b.fid) === -1 && !b.oos && b.category !== 'pack'; })).slice(0, 6);
-      offer = '<div class="offer"><strong>Encore ' + missing + (missing > 1 ? ' livres' : ' livre') + ' et la livraison à Abidjan est offerte</strong>' +
-        '<p>Elle est offerte dès ' + FREE_DELIVERY_QTY + ' livres commandés.</p>' +
+      var sug = ranked(BOOKS.filter(function (b) { return ids.indexOf(b.fid) === -1 && !b.oos && b.category === 'pack'; })).slice(0, 6);
+      offer = '<div class="offer"><strong>' + (packs ? 'Encore 1 pack et la livraison est offerte' : 'Livraison offerte dès ' + FREE_PACKS + ' packs') + '</strong>' +
+        '<p>' + (packs ? 'Ajoute un deuxième pack : tu ne paies pas la livraison.' : 'Chaque pack réunit deux livres à prix réduit.') + '</p>' +
         '<div class="rail">' + sug.map(function (b) {
           return '<button class="mini" type="button" data-add="' + esc(b.fid) + '">' + cover(b, { eager: true }) + '<span class="card-title">' + esc(b.title) + '</span><span class="add">Ajouter, ' + money(b.price) + '</span></button>';
         }).join('') + '</div></div>';
+      if (missing < 1) offer = '';
     }
+    var booksTotal = cartTotal();
     body.innerHTML = lines + offer +
-      '<div class="total"><span>Total des livres</span><strong>' + money(cartTotal()) + '</strong></div>' +
-      '<p class="total-note">' + (qty >= FREE_DELIVERY_QTY ? 'Livraison offerte à Abidjan. Hors Abidjan, frais confirmés sur WhatsApp.' : 'Frais de livraison confirmés sur WhatsApp.') + ' Paiement à la réception.</p>' +
       customerFields('c') +
+      '<div id="cSum">' + summaryHTML('c', cart, booksTotal) + '</div>' +
       '<div class="form"><button class="btn btn-primary btn-block" type="button" id="sendCart">' + ICON.wa + 'Envoyer ma commande sur WhatsApp</button>' +
       '<p class="form-note">WhatsApp s\'ouvre avec ta commande déjà écrite. Il te reste à appuyer sur Envoyer.</p></div>';
+    wireSummary('c', cart, booksTotal);
     document.getElementById('sendCart').addEventListener('click', sendCart);
   }
   document.getElementById('cartBody').addEventListener('click', function (e) {
@@ -509,19 +568,24 @@
   });
   document.getElementById('cartBtn').addEventListener('click', function () { renderCart(); openSheet('cartSheet'); });
 
+  function deliveryLine(items, zone) {
+    return isFree(items) ? '🎁 Livraison offerte (' + FREE_PACKS + ' packs) — ' + zone.label
+      : '🚚 Livraison ' + zone.label + ' : ' + zone.fee.toLocaleString('fr-FR') + ' FCFA';
+  }
   function sendCart() {
     var c = readCustomer('c');
     if (!c || !cart.length) return;
-    var qty = cartQty(), total = cartTotal();
+    var qty = cartQty(), booksTotal = cartTotal();
+    var fee = deliveryFee(cart, c.zoneObj), total = booksTotal + fee;
     var articles = cart.map(function (i) { var b = cartBook(i); return '• ' + b.title + ' × ' + i.qty + ' — ' + (b.price * i.qty).toLocaleString('fr-FR') + ' FCFA'; }).join('\n');
-    if (qty >= FREE_DELIVERY_QTY) articles += '\n🎁 Livraison offerte (Abidjan)';
+    articles += '\n' + deliveryLine(cart, c.zoneObj);
     var tpl = CONFIG.waMessage || "🛒 *Nouvelle commande*\n\n*Nom :* {nom}\n*Ville :* {ville}\n*Téléphone :* {telephone}\n\n{articles}\n\n*Total : {total} FCFA*\n\n---\nBonjour, je souhaite confirmer ma commande. Merci !";
-    var msg = tpl.replace('{nom}', c.name).replace('{ville}', c.place).replace('{telephone}', c.phone || 'Non renseigné').replace('{articles}', articles).replace('{total}', total.toLocaleString('fr-FR'));
+    var msg = tpl.replace('{nom}', c.name).replace('{ville}', c.place + ' (' + c.zoneObj.label + ')').replace('{telephone}', c.phone || 'Non renseigné').replace('{articles}', articles).replace('{total}', total.toLocaleString('fr-FR'));
     window.open(waLink(msg), '_blank', 'noopener');
     var ids = cart.map(function (i) { return i.fid; });
     cart.forEach(function (i) { var b = cartBook(i); if (b) stat(b, 'orders'); });
-    track('InitiateCheckout', { content_ids: ids, value: total, currency: 'XOF', num_items: qty });
-    track('Lead', { content_ids: ids, value: total, currency: 'XOF', num_items: qty });
+    track('InitiateCheckout', { content_ids: ids, value: booksTotal, currency: 'XOF', num_items: qty });
+    track('Lead', { content_ids: ids, value: booksTotal, currency: 'XOF', num_items: qty });
     cart = []; saveCart(); updateBadge();
     document.getElementById('cartBody').innerHTML = doneBox();
   }
@@ -533,22 +597,28 @@
 
   function openOrder(b) {
     var body = document.getElementById('orderBody');
-    body.innerHTML = '<div class="order-book">' + cover(b, { eager: true }) + '<div><p class="line-title">' + esc(b.title) + '</p><p class="line-price">' + money(b.price) + ' · paiement à la livraison</p></div></div>' +
+    var items = [{ fid: b.fid, qty: 1 }];
+    body.innerHTML = '<div class="order-book">' + cover(b, { eager: true }) + '<div><p class="line-title">' + esc(b.title) + '</p><p class="line-price">' + money(b.price) + '</p></div></div>' +
       customerFields('o') +
+      '<div id="oSum">' + summaryHTML('o', items, b.price) + '</div>' +
       '<div class="form"><button class="btn btn-primary btn-block" type="button" id="sendOrder">' + ICON.wa + 'Envoyer ma commande sur WhatsApp</button>' +
       '<p class="form-note">WhatsApp s\'ouvre avec ta commande déjà écrite. Il te reste à appuyer sur Envoyer.</p></div>';
+    wireSummary('o', items, b.price);
     document.getElementById('sendOrder').addEventListener('click', function () {
       var c = readCustomer('o');
       if (!c) return;
+      var fee = deliveryFee(items, c.zoneObj);
       var NL = '\n', SEP = '━━━━━━━━━━━━━━';
       var msg = "🛒 *Commande directe – Dilam B'*" + NL + NL + SEP + NL +
         NL + '📖 *Livre :* ' + b.title +
         (b.category === 'pack' ? '' : NL + '✍ *Auteur :* ' + b.author) +
         NL + '💰 *Prix :* ' + b.price.toLocaleString('fr-FR') + ' FCFA' +
+        NL + '🚚 *Livraison (' + c.zoneObj.label + ') :* ' + fee.toLocaleString('fr-FR') + ' FCFA' +
+        NL + '💵 *Total à payer :* ' + (b.price + fee).toLocaleString('fr-FR') + ' FCFA' +
         NL + NL + SEP + NL +
         NL + '👋 Bonjour, je souhaite commander ce livre.' +
         NL + NL + '📍 *Nom :* ' + c.name +
-        NL + '🚚 *Lieu de livraison :* ' + c.place +
+        NL + '🏠 *Adresse :* ' + c.place +
         (c.phone ? NL + '📞 *Téléphone :* ' + c.phone : '') +
         NL + NL + '🔗 ' + location.origin + bookUrl(b);
       window.open(waLink(msg), '_blank', 'noopener');
@@ -558,8 +628,6 @@
       body.innerHTML = doneBox();
     });
     openSheet('orderSheet');
-    var first = document.getElementById('oName');
-    if (first && !first.value) setTimeout(function () { first.focus(); }, 50);
   }
 
   // ───────────── Démarrage ─────────────

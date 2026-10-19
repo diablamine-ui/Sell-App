@@ -47,13 +47,20 @@ p { margin: 0; }
 
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); }
 
-/* ── Bandeau d'annonce ── */
+/* ── Bandeau d'annonce (défilant, rouge) ── */
 .notice {
-  background: var(--encre);
-  color: #F4F5F1;
-  font-size: 13.5px;
-  text-align: center;
-  padding: 8px var(--gutter);
+  background: #C21F1F;
+  color: #fff;
+  font-size: 14px; font-weight: 600;
+  overflow: hidden; white-space: nowrap;
+  padding: 9px 0;
+}
+.notice-track { display: inline-flex; width: max-content; }
+.notice-item { padding: 0 28px; position: relative; }
+.notice-item::after { content: ""; position: absolute; right: -3px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: rgba(255,255,255,.6); }
+@media (prefers-reduced-motion: no-preference) {
+  .notice-track { animation: marquee 28s linear infinite; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 }
 
 /* ── En-tête ── */
@@ -422,3 +429,23 @@ body.has-buybar .foot { padding-bottom: 90px; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 body.has-buybar .toast { bottom: 90px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ── Zones de livraison et récapitulatif ── */
+.zones { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; }
+.zones legend { font-size: 14.5px; font-weight: 600; margin-bottom: 6px; padding: 0; }
+.zone {
+  display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center;
+  background: var(--blanc); border: 1px solid #C9CEC6; border-radius: 10px;
+  padding: 12px 14px; cursor: pointer;
+}
+.zone input { width: 18px; height: 18px; margin: 0; accent-color: var(--action); }
+.zone:has(input:checked) { border-color: var(--action); box-shadow: 0 0 0 1px var(--action) inset; }
+.zone-name { display: block; font-weight: 600; font-size: 15.5px; }
+.zone-sub { display: block; color: var(--gris); font-size: 13px; line-height: 1.35; }
+.zone-fee { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 15px; }
+.zone-fee s { color: var(--gris); font-weight: 400; margin-right: 4px; }
+.sum { margin-top: 16px; padding: 14px 16px; background: var(--blanc); border: 1px solid var(--trait); border-radius: var(--r-m); }
+.sum-row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 15px; font-variant-numeric: tabular-nums; }
+.sum-row .free { color: var(--action); font-weight: 600; }
+.sum-total { border-top: 1px solid var(--trait); margin-top: 6px; padding-top: 10px; font-size: 16px; }
+.sum-total strong { font-size: 20px; }
