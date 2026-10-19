@@ -457,8 +457,16 @@
       '<fieldset class="zones" id="' + prefix + 'Zones"><legend>Où te livrer ?</legend>' + zones + '</fieldset>' +
       '<div class="field"><label for="' + prefix + 'Name">Ton nom</label><input id="' + prefix + 'Name" autocomplete="name" value="' + esc(saved.name || '') + '"></div>' +
       '<div class="field"><label for="' + prefix + 'Place">Adresse de livraison</label><input id="' + prefix + 'Place" placeholder="Ville ou commune, quartier, repère" autocomplete="street-address" value="' + esc(saved.place || '') + '"></div>' +
-      '<div class="field"><label for="' + prefix + 'Phone">Téléphone <span class="opt">(facultatif)</span></label><input id="' + prefix + 'Phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="07 00 00 00 00" value="' + esc(saved.phone || '') + '"></div>' +
+      '<div class="field"><label for="' + prefix + 'Phone">Ton numéro</label><input id="' + prefix + 'Phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="07 00 00 00 00" aria-describedby="' + prefix + 'PhoneHelp" value="' + esc(saved.phone || '') + '"><p class="field-help" id="' + prefix + 'PhoneHelp">Le livreur t’appelle sur ce numéro.</p></div>' +
       '</div>';
+  }
+  // Numéro ivoirien : 10 chiffres commençant par 0 (01, 05, 07, 25, 27…), avec ou sans +225.
+  function cleanPhone(v) {
+    var d = String(v || '').replace(/[^0-9]/g, '');
+    if (d.indexOf('00225') === 0) d = d.slice(5);
+    else if (d.indexOf('225') === 0 && d.length === 13) d = d.slice(3);
+    if (!/^0[0-9]{9}$/.test(d)) return '';
+    return d.replace(/(\d{2})(?=\d)/g, '$1 ').trim();
   }
   function selectedZone(prefix) {
     var r = document.querySelector('input[name="' + prefix + 'Zone"]:checked');
@@ -474,16 +482,22 @@
       zbox.scrollIntoView({ block: 'center', behavior: 'smooth' });
       ok = false;
     } else if (zerr) zerr.remove();
-    [name, place].forEach(function (el) {
-      var bad = !el.value.trim();
+    var tel = cleanPhone(phone.value);
+    var checks = [
+      [name, !name.value.trim(), 'Indique ton nom.'],
+      [place, !place.value.trim(), 'Indique où te livrer.'],
+      [phone, !tel, phone.value.trim() ? 'Ce numéro semble incomplet. Il faut 10 chiffres, par exemple 07 00 00 00 00.' : 'Indique ton numéro pour que le livreur puisse t\'appeler.']
+    ];
+    checks.forEach(function (c) {
+      var el = c[0], bad = c[1];
       el.setAttribute('aria-invalid', bad ? 'true' : 'false');
       var next = el.nextElementSibling;
-      if (bad && !(next && next.classList.contains('err'))) el.insertAdjacentHTML('afterend', '<p class="err">' + (el === name ? 'Indique ton nom.' : 'Indique où te livrer.') + '</p>');
-      if (!bad && next && next.classList.contains('err')) next.remove();
+      if (next && next.classList.contains('err')) next.remove();
+      if (bad) el.insertAdjacentHTML('afterend', '<p class="err">' + c[2] + '</p>');
       if (bad && ok) { el.focus(); ok = false; }
     });
     if (!ok) return null;
-    var c = { name: name.value.trim(), place: place.value.trim(), phone: phone.value.trim(), zone: zone.key };
+    var c = { name: name.value.trim(), place: place.value.trim(), phone: tel, zone: zone.key };
     store('dilam_client', c);
     c.zoneObj = zone;
     return c;
@@ -580,7 +594,7 @@
     var articles = cart.map(function (i) { var b = cartBook(i); return '• ' + b.title + ' × ' + i.qty + ' — ' + (b.price * i.qty).toLocaleString('fr-FR') + ' FCFA'; }).join('\n');
     articles += '\n' + deliveryLine(cart, c.zoneObj);
     var tpl = CONFIG.waMessage || "🛒 *Nouvelle commande*\n\n*Nom :* {nom}\n*Ville :* {ville}\n*Téléphone :* {telephone}\n\n{articles}\n\n*Total : {total} FCFA*\n\n---\nBonjour, je souhaite confirmer ma commande. Merci !";
-    var msg = tpl.replace('{nom}', c.name).replace('{ville}', c.place + ' (' + c.zoneObj.label + ')').replace('{telephone}', c.phone || 'Non renseigné').replace('{articles}', articles).replace('{total}', total.toLocaleString('fr-FR'));
+    var msg = tpl.replace('{nom}', c.name).replace('{ville}', c.place + ' (' + c.zoneObj.label + ')').replace('{telephone}', c.phone).replace('{articles}', articles).replace('{total}', total.toLocaleString('fr-FR'));
     window.open(waLink(msg), '_blank', 'noopener');
     var ids = cart.map(function (i) { return i.fid; });
     cart.forEach(function (i) { var b = cartBook(i); if (b) stat(b, 'orders'); });
@@ -619,7 +633,7 @@
         NL + '👋 Bonjour, je souhaite commander ce livre.' +
         NL + NL + '📍 *Nom :* ' + c.name +
         NL + '🏠 *Adresse :* ' + c.place +
-        (c.phone ? NL + '📞 *Téléphone :* ' + c.phone : '') +
+        NL + '📞 *Téléphone :* ' + c.phone +
         NL + NL + '🔗 ' + location.origin + bookUrl(b);
       window.open(waLink(msg), '_blank', 'noopener');
       stat(b, 'orders');

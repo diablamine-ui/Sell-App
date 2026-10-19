@@ -405,6 +405,7 @@ body.has-buybar .foot { padding-bottom: 90px; }
 }
 .field input:focus { outline: 2px solid var(--action); outline-offset: 0; border-color: var(--action); }
 .field input[aria-invalid="true"] { border-color: #B3261E; }
+.field-help { color: var(--gris); font-size: 13px; margin-top: 4px; }
 .err { color: #B3261E; font-size: 13.5px; margin-top: 4px; }
 .form-note { color: var(--gris); font-size: 13.5px; text-align: center; }
 
