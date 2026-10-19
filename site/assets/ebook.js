@@ -238,16 +238,22 @@
     try { localStorage.setItem('eb_email', email); } catch (e) {}
     var btn = document.getElementById('buyGo');
     btn.disabled = true; btn.textContent = 'Un instant…';
-    api('/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: E.slug, email: email }) })
+    api('/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: E.slug, email: email, fbp: readCookie('_fbp'), fbc: readCookie('_fbc') }) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, status: r.status, d: d }; }); })
       .then(function (res) {
         if (res.ok && res.d && res.d.url) { location.href = res.d.url; return; }
         if (res.status === 429) { fail('Trop de tentatives. Réessaie dans quelques minutes.'); return; }
         if (res.status === 400) { fail('Vérifie ton adresse e-mail puis réessaie.'); return; }
-        pending(email);
+        if (res.status === 503) { pending(email); return; }
+        fail('Le paiement n’a pas pu démarrer. Réessaie dans un instant, ou commande sur WhatsApp.');
+        showWa(email);
       })
-      .catch(function () { pending(email); });
+      .catch(function () { fail('Connexion impossible. Vérifie ton réseau puis réessaie.'); });
     function fail(msg) { btn.disabled = false; btn.textContent = 'Payer ' + money(E.price); help.textContent = msg; }
+  }
+  function showWa(email) {
+    var msg = (E.whatsapp_buy || ('Bonjour, je veux acheter « ' + E.title + ' ».')) + '\nMon adresse e-mail : ' + email;
+    document.getElementById('buyMsg').innerHTML = '<a class="btn btn-secondary btn-block" style="margin-top:12px" href="' + esc(waLink(msg)) + '" target="_blank" rel="noopener" data-lead>Commander sur WhatsApp</a>';
   }
   // Paiement en ligne pas encore ouvert : on bascule sur WhatsApp, avec l'e-mail déjà dans le message.
   function pending(email) {

@@ -35,3 +35,19 @@ CREATE TABLE IF NOT EXISTS rl (
   exp INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS rl_exp ON rl(exp);
+
+-- Commandes d'ebooks payées en ligne (Paystack).
+CREATE TABLE IF NOT EXISTS orders (
+  reference  TEXT    PRIMARY KEY,
+  slug       TEXT    NOT NULL,
+  email      TEXT    NOT NULL,
+  amount     INTEGER NOT NULL,          -- en FCFA
+  status     TEXT    NOT NULL DEFAULT 'pending',  -- pending | paid | mismatch
+  created_at INTEGER NOT NULL,
+  paid_at    INTEGER,
+  channel    TEXT,
+  mailed     INTEGER NOT NULL DEFAULT 0,
+  dl         TEXT    NOT NULL DEFAULT '{}', -- nombre de téléchargements par fichier
+  meta       TEXT    NOT NULL DEFAULT '{}'  -- fbp, fbc, navigateur : pour l'événement Purchase de Meta
+);
+CREATE INDEX IF NOT EXISTS orders_email ON orders(email);

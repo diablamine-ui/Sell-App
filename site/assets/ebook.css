@@ -130,3 +130,27 @@ body.has-buybar .eb-foot { padding-bottom: 96px; }
 
 .eb-foot-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; }
 .eb-foot-links a { color: var(--gris); }
+
+/* Page de téléchargement et page merci */
+.dl-page, .merci { max-width: 560px; margin: 0 auto; padding: 36px var(--gutter) 56px; }
+.dl-page h1, .merci h1 { font-size: 28px; line-height: 1.2; }
+.dl-lead { font-family: var(--serif); font-size: 19px; margin-top: 6px; }
+.dl-warn { margin-top: 16px; padding: 12px 14px; border-radius: 10px; background: #FFF6E5; border: 1px solid #F0D9A8; font-size: 15px; line-height: 1.5; }
+.dl-list { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 10px; }
+.dl-item { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 12px; border: 1px solid var(--trait); border-radius: 12px; background: var(--blanc); }
+.dl-item img { width: 44px; aspect-ratio: 720 / 1018; object-fit: cover; border-radius: 2px; }
+.dl-txt { display: flex; flex-direction: column; min-width: 0; }
+.dl-txt strong { font-size: 15.5px; line-height: 1.3; }
+.dl-txt span { font-size: 13.5px; color: var(--gris); }
+.dl-item .btn { min-height: 42px; padding: 0 14px; font-size: 15px; }
+.dl-item.done { opacity: .7; }
+.dl-done { font-size: 14px; color: var(--action); font-weight: 600; }
+.dl-tip { color: var(--gris); font-size: 14.5px; margin-top: 16px; line-height: 1.5; }
+.dl-help { margin-top: 18px; border-top: 1px solid var(--trait); padding-top: 12px; }
+.dl-help summary { cursor: pointer; font-weight: 600; }
+.dl-help p { margin-top: 10px; font-size: 15px; }
+.dl-page > p, .merci > p { margin-top: 10px; font-size: 16.5px; line-height: 1.6; }
+.merci .btn { margin-top: 18px; min-height: 54px; width: 100%; font-size: 17px; }
+.merci .spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--trait); border-top-color: var(--action); animation: spin 1s linear infinite; margin-bottom: 18px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .merci .spinner { animation-duration: 3s; } }

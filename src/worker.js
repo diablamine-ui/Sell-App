@@ -484,7 +484,39 @@ async function ebookPage(req, env, url) {
     .transform(asset);
 }
 
-// Paiement : branché sur Paystack dès que la clé secrète est enregistrée dans Cloudflare.
+// ───────────────────────── paiement des ebooks (Paystack) ─────────────────────────
+const PAYSTACK_DEFAULT = 'https://api.paystack.co';
+const DL_HOURS = 24;          // durée de validité du lien de téléchargement
+const DL_PER_FILE = 1;        // téléchargements autorisés par fichier
+const MAX_PDF_BYTES = 25 * 1024 * 1024;
+const WA_DEFAULT = '2250546494484';
+
+async function hmacHex(alg, key, msg) {
+  const k = await crypto.subtle.importKey('raw', enc.encode(key), { name: 'HMAC', hash: alg }, false, ['sign']);
+  return hex(await crypto.subtle.sign('HMAC', k, enc.encode(msg)));
+}
+// Signature du lien de téléchargement : rien à stocker, impossible à deviner sans la clé.
+async function dlSig(env, ref) {
+  return (await hmacHex('SHA-256', (env.DL_SECRET || env.PAYSTACK_SECRET_KEY) + ':dl', ref)).slice(0, 32);
+}
+async function dlLink(env, origin, ref) {
+  return `${origin}/telecharger/${ref}/${await dlSig(env, ref)}`;
+}
+async function getEbook(env, slug) {
+  const row = await env.DB.prepare("SELECT data FROM docs WHERE col='ebooks' AND id=?").bind(slug).first();
+  if (!row) return null;
+  try { return JSON.parse(row.data); } catch { return null; }
+}
+async function waNumberOf(env) {
+  try {
+    const row = await env.DB.prepare("SELECT data FROM docs WHERE col='shop_config' AND id='sell_config'").first();
+    const n = row && JSON.parse(row.data).value.waNumber;
+    if (n) return String(n).replace(/[^0-9]/g, '');
+  } catch {}
+  return WA_DEFAULT;
+}
+function fcfa(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' FCFA'; }
+
 async function checkout(req, env) {
   if (!(await rateOk(env, 'checkout:' + clientIp(req), 20, 3600))) return err(429, 'too_many');
   const b = await readJson(req, 2048);
@@ -492,10 +524,230 @@ async function checkout(req, env) {
   const email = String(b.email || '').trim().toLowerCase();
   if (!/^[a-z0-9-]{1,80}$/.test(slug)) return err(400, 'bad_product');
   if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(email) || email.length > 200) return err(400, 'bad_email');
-  const row = await env.DB.prepare("SELECT data FROM docs WHERE col='ebooks' AND id=?").bind(slug).first();
-  if (!row) return err(404, 'not_found');
+  const e = await getEbook(env, slug);
+  if (!e || e.active === false) return err(404, 'not_found');
+  const price = parseInt(e.price, 10);
+  if (!(price > 0)) return err(400, 'bad_price');
   if (!env.PAYSTACK_SECRET_KEY) return err(503, 'payment_not_ready');
-  return err(501, 'not_implemented');
+
+  const origin = new URL(req.url).origin;
+  const ref = 'LDL-' + Date.now().toString(36).toUpperCase() + '-' + randHex(5).toUpperCase();
+  const meta = {
+    fbp: typeof b.fbp === 'string' ? b.fbp.slice(0, 200) : '',
+    fbc: typeof b.fbc === 'string' ? b.fbc.slice(0, 400) : '',
+    ua: (req.headers.get('User-Agent') || '').slice(0, 300),
+    ip: clientIp(req),
+    url: origin + '/ebook/' + slug,
+  };
+  await env.DB.prepare('INSERT INTO orders(reference,slug,email,amount,created_at,meta) VALUES(?,?,?,?,?,?)')
+    .bind(ref, slug, email, price, now(), JSON.stringify(meta)).run();
+
+  const r = await fetch((env.PAYSTACK_BASE || PAYSTACK_DEFAULT) + '/transaction/initialize', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${env.PAYSTACK_SECRET_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email,
+      amount: String(price * 100), // XOF : Paystack demande le montant multiplié par 100
+      currency: 'XOF',
+      reference: ref,
+      callback_url: origin + '/merci',
+      channels: ['mobile_money', 'card'],
+      metadata: JSON.stringify({ slug, produit: e.title }),
+    }),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.status || !j.data || !j.data.authorization_url) {
+    console.error('paystack init', r.status, JSON.stringify(j).slice(0, 300));
+    return err(502, 'payment_error');
+  }
+  return json({ url: j.data.authorization_url, reference: ref });
+}
+
+// Vérifie le paiement auprès de Paystack, puis livre une seule fois (e-mail + événement Purchase).
+async function fulfill(env, ctx, ref, origin) {
+  const o = await env.DB.prepare('SELECT * FROM orders WHERE reference=?').bind(ref).first();
+  if (!o || o.status !== 'pending' || !env.PAYSTACK_SECRET_KEY) return o;
+  const r = await fetch((env.PAYSTACK_BASE || PAYSTACK_DEFAULT) + '/transaction/verify/' + encodeURIComponent(ref), {
+    headers: { Authorization: `Bearer ${env.PAYSTACK_SECRET_KEY}` },
+  });
+  const j = await r.json().catch(() => ({}));
+  const d = j && j.data;
+  if (!r.ok || !j.status || !d || d.status !== 'success') return o;
+  if (d.currency !== 'XOF' || Number(d.amount) !== o.amount * 100 || d.reference !== ref) {
+    console.error('paystack mismatch', ref, d.currency, d.amount);
+    await env.DB.prepare("UPDATE orders SET status='mismatch' WHERE reference=? AND status='pending'").bind(ref).run();
+    return { ...o, status: 'mismatch' };
+  }
+  const t = now();
+  const upd = await env.DB.prepare("UPDATE orders SET status='paid', paid_at=?, channel=? WHERE reference=? AND status='pending'")
+    .bind(t, String(d.channel || ''), ref).run();
+  const paid = { ...o, status: 'paid', paid_at: t, channel: d.channel };
+  if (upd.meta.changes !== 1) return paid; // déjà livré par un autre appel
+
+  const e = (await getEbook(env, o.slug)) || { title: o.slug, files: { items: [] } };
+  const link = await dlLink(env, origin, ref);
+  const wa = await waNumberOf(env);
+  const files = ((e.files && e.files.items) || []).map((f) => `- ${f.name}${f.pages ? ` (${f.pages} pages)` : ''}`).join('\n');
+  const body =
+`Bonjour,
+
+Merci pour ton achat. Voici ton lien de téléchargement personnel :
+${link}
+
+Il est valable ${DL_HOURS} heures et chaque fichier se télécharge une seule fois : enregistre-les sur ton téléphone dès maintenant.
+
+Ce que tu reçois :
+${files}
+
+Pour remplir le Workbook directement dans le PDF, ouvre-le avec Adobe Acrobat Reader (gratuit sur Android et iPhone).
+
+Un souci avec tes fichiers ? Écris-moi sur WhatsApp en indiquant cette adresse e-mail : https://wa.me/${wa}
+
+Lamine Diabaté
+Référence de commande : ${ref}`;
+  const ok = await sendMail(env, o.email, `Tes fichiers : ${e.title}`, body);
+  if (ok) await env.DB.prepare('UPDATE orders SET mailed=1 WHERE reference=?').bind(ref).run();
+  paid.mailed = ok ? 1 : 0;
+  if (env.ADMIN_EMAIL) {
+    ctx.waitUntil(sendMail(env, env.ADMIN_EMAIL, `Nouvelle vente : ${e.title} (${fcfa(o.amount)})`,
+      `${e.title}\n${fcfa(o.amount)} par ${d.channel || 'paiement en ligne'}\nAcheteur : ${o.email}\nRéférence : ${ref}\nE-mail de livraison : ${ok ? 'envoyé' : 'ÉCHEC, à renvoyer'}`).catch(() => {}));
+  }
+  if (env.META_CAPI_TOKEN) {
+    let m = {};
+    try { m = JSON.parse(o.meta || '{}'); } catch {}
+    const ud = { em: [await sha256hex(o.email)], client_ip_address: m.ip || undefined, client_user_agent: m.ua || undefined };
+    if (m.fbp) ud.fbp = m.fbp;
+    if (m.fbc) ud.fbc = m.fbc;
+    ctx.waitUntil(sendToMeta(env, [{
+      event_name: 'Purchase', event_time: t, event_id: ref, action_source: 'website',
+      event_source_url: m.url || origin, user_data: ud,
+      custom_data: { value: o.amount, currency: 'XOF', content_ids: [o.slug], content_type: 'product', content_name: e.title },
+    }]).catch(() => {}));
+  }
+  return paid;
+}
+
+async function paystackWebhook(req, env, ctx) {
+  if (!env.PAYSTACK_SECRET_KEY) return err(503, 'not_ready');
+  const raw = await req.text();
+  if (raw.length > 64 * 1024) return err(413, 'too_large');
+  const sig = req.headers.get('x-paystack-signature') || '';
+  const expected = await hmacHex('SHA-512', env.PAYSTACK_SECRET_KEY, raw);
+  if (!safeEqual(sig, expected)) return err(401, 'bad_signature');
+  let ev = {};
+  try { ev = JSON.parse(raw); } catch { return err(400, 'bad_body'); }
+  if (ev.event === 'charge.success' && ev.data && typeof ev.data.reference === 'string') {
+    await fulfill(env, ctx, ev.data.reference, new URL(req.url).origin);
+  }
+  return json({ ok: true });
+}
+
+// Page « merci » : l'acheteur revient de Paystack et attend la confirmation.
+async function orderStatus(req, env, ctx, url) {
+  if (!(await rateOk(env, 'order:' + clientIp(req), 120, 3600))) return err(429, 'too_many');
+  const ref = url.searchParams.get('ref') || '';
+  if (!/^LDL-[A-Z0-9-]{6,40}$/.test(ref)) return err(400, 'bad_ref');
+  const o = await fulfill(env, ctx, ref, url.origin);
+  if (!o) return err(404, 'not_found');
+  const e = await getEbook(env, o.slug);
+  const out = { status: o.status, email: maskEmail(o.email), title: e ? e.title : o.slug, amount: o.amount, slug: o.slug };
+  if (o.status === 'paid') {
+    out.download = await dlLink(env, url.origin, ref);
+    out.mailed = !!o.mailed;
+  }
+  return json(out);
+}
+
+// ───────────────────────── téléchargement ─────────────────────────
+function dlPage(title, inner) {
+  return new Response(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${title} | Lamine Diabaté</title><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/ebook.css"></head><body class="ebook-page"><main class="dl-page">${inner}</main></body></html>`,
+    { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
+}
+function escH(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+async function download(req, env, url) {
+  const m = url.pathname.match(/^\/telecharger\/(LDL-[A-Z0-9-]{6,40})\/([0-9a-f]{32})(?:\/([0-9]{1,2}))?\/?$/);
+  if (!m) return dlPage('Lien invalide', '<h1>Ce lien n’est pas valide.</h1><p>Vérifie que tu as copié le lien en entier depuis ton e-mail.</p>');
+  const [, ref, sig, idxStr] = m;
+  if (!env.PAYSTACK_SECRET_KEY || !safeEqual(sig, await dlSig(env, ref))) {
+    return dlPage('Lien invalide', '<h1>Ce lien n’est pas valide.</h1><p>Vérifie que tu as copié le lien en entier depuis ton e-mail.</p>');
+  }
+  const o = await env.DB.prepare('SELECT * FROM orders WHERE reference=?').bind(ref).first();
+  const wa = await waNumberOf(env);
+  const help = `<p>Écris-moi sur WhatsApp avec l’adresse e-mail utilisée pour l’achat, je te renvoie tes fichiers.</p><p><a class="btn btn-primary" href="https://wa.me/${wa}?text=${encodeURIComponent('Bonjour, j’ai besoin d’aide pour télécharger mes fichiers. Référence : ' + ref)}">Écrire sur WhatsApp</a></p>`;
+  if (!o || o.status !== 'paid') return dlPage('Paiement non confirmé', '<h1>Ce paiement n’est pas encore confirmé.</h1>' + help);
+  const e = (await getEbook(env, o.slug)) || { title: o.slug, files: { items: [] } };
+  const items = (e.files && e.files.items) || [];
+  const expires = (o.paid_at || 0) + DL_HOURS * 3600;
+  if (now() > expires) return dlPage('Lien expiré', '<h1>Ce lien a expiré.</h1><p>Il était valable ' + DL_HOURS + ' heures après ton achat.</p>' + help);
+  let used = {};
+  try { used = JSON.parse(o.dl || '{}'); } catch {}
+
+  if (idxStr !== undefined) {
+    if (req.method !== 'POST') return Response.redirect(`${url.origin}/telecharger/${ref}/${sig}`, 303);
+    const i = parseInt(idxStr, 10);
+    if (!items[i]) return err(404, 'not_found');
+    // On réserve le téléchargement avant d'envoyer le fichier (pas de double comptage possible).
+    const res = await env.DB.prepare(
+      "UPDATE orders SET dl=json_set(dl, ?1, COALESCE(json_extract(dl, ?1), 0) + 1) WHERE reference=?2 AND COALESCE(json_extract(dl, ?1), 0) < ?3"
+    ).bind('$."' + i + '"', ref, DL_PER_FILE).run();
+    if (res.meta.changes !== 1) return dlPage('Déjà téléchargé', '<h1>Ce fichier a déjà été téléchargé.</h1>' + help);
+    const { value, metadata } = await env.FILES.getWithMetadata(`pdf/${o.slug}/${i}.pdf`, { type: 'stream' });
+    if (!value) {
+      await env.DB.prepare("UPDATE orders SET dl=json_set(dl, ?1, json_extract(dl, ?1) - 1) WHERE reference=?2").bind('$."' + i + '"', ref).run();
+      return dlPage('Fichier indisponible', '<h1>Ce fichier n’est pas disponible pour le moment.</h1>' + help);
+    }
+    const name = (metadata && metadata.name) || `${String(i + 1).padStart(2, '0')} - ${items[i].name}.pdf`;
+    return new Response(value, {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="document-${i + 1}.pdf"; filename*=UTF-8''${encodeURIComponent(name)}`,
+        'Cache-Control': 'no-store',
+        'X-Robots-Tag': 'noindex',
+      },
+    });
+  }
+
+  const left = Math.max(0, Math.round((expires - now()) / 3600));
+  const rows = items.map((f, i) => {
+    const n = used[String(i)] || 0;
+    const done = n >= DL_PER_FILE;
+    return `<li class="dl-item${done ? ' done' : ''}">${f.cover ? `<img src="${escH(f.cover)}" alt="">` : ''}<div class="dl-txt"><strong>${escH(f.name)}</strong>${f.pages ? `<span>${f.pages}&nbsp;pages</span>` : ''}</div>` +
+      (done ? '<span class="dl-done">Téléchargé</span>'
+            : `<form method="post" action="/telecharger/${ref}/${sig}/${i}"><button class="btn btn-primary" type="submit">Télécharger</button></form>`) + '</li>';
+  }).join('');
+  return dlPage('Tes fichiers',
+    `<h1>Tes fichiers</h1><p class="dl-lead">${escH(e.title)}</p>` +
+    `<p class="dl-warn">Chaque fichier se télécharge une seule fois. Enregistre-le sur ton téléphone dès qu’il est téléchargé. Ce lien expire dans environ ${left}&nbsp;h.</p>` +
+    `<ul class="dl-list">${rows}</ul>` +
+    `<p class="dl-tip">Pour remplir le Workbook directement dans le PDF, ouvre-le avec Adobe Acrobat Reader, gratuit sur Android et iPhone.</p>` +
+    `<details class="dl-help"><summary>Un problème ?</summary>${help}</details>`);
+}
+
+// ───────────────────────── dépôt des PDF (admin) ─────────────────────────
+async function uploadPdf(req, env, url) {
+  const slug = url.searchParams.get('slug') || '';
+  const i = parseInt(url.searchParams.get('i') || '', 10);
+  const name = (url.searchParams.get('name') || '').slice(0, 150);
+  if (!/^[a-z0-9-]{1,80}$/.test(slug) || !(i >= 0 && i < 20)) return err(400, 'bad_target');
+  const ct = (req.headers.get('Content-Type') || '').split(';')[0].trim().toLowerCase();
+  if (ct !== 'application/pdf') return err(415, 'bad_type');
+  const buf = await req.arrayBuffer();
+  if (!buf.byteLength || buf.byteLength > MAX_PDF_BYTES) return err(413, 'too_large');
+  const head = new Uint8Array(buf.slice(0, 5));
+  if (String.fromCharCode(...head) !== '%PDF-') return err(415, 'not_pdf');
+  await env.FILES.put(`pdf/${slug}/${i}.pdf`, buf, { metadata: { name: name || `${i + 1}.pdf`, size: buf.byteLength, at: now() } });
+  return json({ ok: true, size: buf.byteLength }, 201);
+}
+async function listPdf(env, url) {
+  const slug = url.searchParams.get('slug') || '';
+  if (!/^[a-z0-9-]{1,80}$/.test(slug)) return err(400, 'bad_slug');
+  const l = await env.FILES.list({ prefix: `pdf/${slug}/` });
+  return json(l.keys.map((k) => ({ key: k.name, ...(k.metadata || {}) })));
+}
+async function listOrders(env) {
+  const { results } = await env.DB.prepare('SELECT reference,slug,email,amount,status,created_at,paid_at,channel,mailed,dl FROM orders ORDER BY created_at DESC LIMIT 200').all();
+  return json(results);
 }
 
 function decodeURISafe(u) { try { return decodeURI(u); } catch { return u; } }
@@ -507,6 +759,9 @@ async function api(req, env, ctx, url) {
 
   // Toute écriture doit venir du site lui-même (protection CSRF) :
   // en-tête personnalisé obligatoire + origine identique si le navigateur l'annonce.
+  // Le webhook vient des serveurs de Paystack : il est authentifié par sa signature, pas par l'origine.
+  if (p === '/api/paystack/webhook' && m === 'POST') return paystackWebhook(req, env, ctx);
+
   if (m !== 'GET' && m !== 'HEAD') {
     if (req.headers.get('X-Dilam') !== '1') return err(403, 'forbidden');
     const origin = req.headers.get('Origin');
@@ -521,6 +776,7 @@ async function api(req, env, ctx, url) {
   if (p === '/api/stats/hit' && m === 'POST') return statsHit(req, env);
   if (p === '/api/capi' && m === 'POST') return capiPublic(req, env, ctx);
   if (p === '/api/checkout' && m === 'POST') return checkout(req, env);
+  if (p === '/api/order' && m === 'GET') return orderStatus(req, env, ctx, url);
 
   const dbm = p.match(/^\/api\/db\/([a-z_]+)(?:\/([^/]+))?$/);
   if (dbm) {
@@ -538,6 +794,9 @@ async function api(req, env, ctx, url) {
     if (p === '/api/admin/upload' && m === 'POST') return uploadImage(req, env);
     if (p === '/api/admin/capi' && m === 'POST') return capiAdmin(req, env);
     if (p === '/api/admin/migrate' && m === 'POST') return migrate(req, env);
+    if (p === '/api/admin/pdf' && m === 'POST') return uploadPdf(req, env, url);
+    if (p === '/api/admin/pdf' && m === 'GET') return listPdf(env, url);
+    if (p === '/api/admin/orders' && m === 'GET') return listOrders(env);
   }
   return err(404, 'not_found');
 }
@@ -552,6 +811,8 @@ export default {
         res = await api(req, env, ctx, url);
       } else if (url.pathname.startsWith('/media/')) {
         res = await serveMedia(url.pathname, env);
+      } else if (url.pathname.startsWith('/telecharger/')) {
+        res = await download(req, env, url);
       } else if (/^\/ebook\/[a-z0-9-]{1,80}\/?$/.test(url.pathname)) {
         res = await ebookPage(req, env, url);
       } else if (url.pathname === '/' && url.searchParams.get('livre')) {
