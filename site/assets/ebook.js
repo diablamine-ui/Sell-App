@@ -20,6 +20,7 @@
   function fr(s) {
     return esc(String(s == null ? '' : s)
       .replace(/'/g, '’')
+      .replace(/(\S)-(ce|je|tu|il|elle|on|nous|vous|ils|elles|t-il|t-elle|t-on)\b/g, '$1\u2011$2')
       .replace(/\s*([;!?])/g, ' $1')
       .replace(/\s*:(?=\s)/g, ' :')
       .replace(/«\s*/g, '« ')
@@ -110,7 +111,11 @@
         '<h2>' + fr(E.solution.title) + '</h2>' + paras(E.solution.paragraphs) +
         (lad.steps ? '<h3>' + fr(lad.title) + '</h3>' + (lad.intro ? '<p>' + fr(lad.intro) + '</p>' : '') +
           '<ol class="ladder" aria-label="Les cinq marches, de la première à la dernière">' +
-          lad.steps.map(function (s) { return '<li><span class="st">' + fr(s.name) + '</span><span class="tx">' + fr(s.text) + '</span></li>'; }).join('') +
+          lad.steps.map(function (s, k, all) {
+            // Escalier : chaque marche se décale d'un cran, quel que soit le nombre de marches.
+            var n = all.length, unit = n > 1 ? 32 / (n - 1) : 0;
+            return '<li class="' + (k === n - 1 ? 'top' : '') + '" style="margin-left:' + (k * unit).toFixed(1) + '%;margin-right:' + ((n - 1 - k) * unit).toFixed(1) + '%"><span class="st">' + fr(s.name) + '</span><span class="tx">' + fr(s.text) + '</span></li>';
+          }).join('') +
           '</ol>' : ''));
     }
 

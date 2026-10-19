@@ -1,0 +1,168 @@
+{
+  "slug": "lire-autrement",
+  "active": true,
+  "hidden": true,
+  "title": "Lire Autrement",
+  "author_name": "Lamine Diabaté",
+  "headline": "Tu lis beaucoup… Mais est-ce que tu lis de la bonne manière ?",
+  "subtitle": "Une méthode en trois temps pour choisir le bon livre, retenir l'essentiel et transformer chaque lecture en décision. Appliquée sous tes yeux à un vrai livre.",
+  "price": 3000,
+  "price_label": "Paiement unique",
+  "cta": "Je veux le livre",
+  "cta_final": "Je commence à lire autrement",
+  "reassure": [
+    "Wave, Orange Money, MTN ou carte bancaire",
+    "Fichier envoyé par e-mail juste après le paiement",
+    "Un PDF de 60 pages, fiches pratiques comprises"
+  ],
+  "cover": "/public/ebooks/lire-autrement/couverture.jpg",
+  "extra_covers": [],
+  "problem": {
+    "title": "Tu lis. Mais rien ne change.",
+    "paragraphs": [
+      "Tu viens de terminer un livre. Un bon livre, de ceux qui donnent l'impression, le temps de quelques heures, d'avoir touché quelque chose d'essentiel. Tu le refermes, sûr que cette fois quelque chose va bouger.",
+      "Puis la vie reprend : le travail, le téléphone, les habitudes.",
+      "Trois semaines plus tard, quelqu'un te demande ce que ce livre a changé dans ta vie. Pas ce que tu en as retenu, ce qu'il a changé. Et tu marques une pause."
+    ]
+  },
+  "agitation": {
+    "title": "Un livre oublié te coûte deux fois.",
+    "paragraphs": [
+      "Il te coûte le prix que tu l'as payé, et les heures que tu lui as données. Un livre papier coûte souvent plus de 8 000 F. S'il ne reste rien trois semaines plus tard, c'est de l'argent et du temps partis sans laisser de trace.",
+      "Alors on accumule. Des livres, des passages surlignés, des citations partagées un soir avec un ami. On comprend beaucoup, on applique peu, et l'écart entre les deux finit par peser.",
+      "Le problème n'est pas que tu lis trop peu. C'est que personne ne t'a appris quoi faire entre la dernière page et le lendemain matin."
+    ]
+  },
+  "solution": {
+    "title": "Lire Autrement va jusqu'au bout du trajet.",
+    "paragraphs": [
+      "La plupart des méthodes de lecture s'arrêtent à la compréhension. Celle-ci va jusqu'à la décision que tu prendras en refermant le livre, puis jusqu'au jour où, trente jours plus tard, tu vérifieras ce qu'elle a produit.",
+      "Il ne s'agit pas de lire plus vite. Il s'agit de tirer davantage de chaque livre que tu ouvres."
+    ]
+  },
+  "ladder": {
+    "title": "La méthode : trois temps",
+    "intro": "Chaque geste est appliqué sous tes yeux à « De la brièveté de la vie » de Sénèque, un livre court et libre de droits que tu peux lire en même temps.",
+    "steps": [
+      {
+        "name": "Avant de lire",
+        "text": "choisir le bon livre, poser ton intention, cartographier le livre avant d'y entrer."
+      },
+      {
+        "name": "Pendant la lecture",
+        "text": "lire avec un stylo, retenir ce qui doit rester, adapter ta vitesse à chaque passage."
+      },
+      {
+        "name": "Après la lecture",
+        "text": "décider, expérimenter, revenir au livre trente jours plus tard."
+      }
+    ]
+  },
+  "skills": {
+    "title": "Ce que tu vas savoir faire",
+    "items": [
+      "Choisir le bon livre pour le bon besoin, et poser sans culpabilité celui qui ne te sert pas",
+      "Entrer dans un livre avec une question précise, en deux minutes",
+      "Repérer l'essentiel d'un livre avant de le lire, grâce à sa carte",
+      "Annoter avec un code simple qui garde tes notes utiles des mois plus tard",
+      "Retenir ce qui compte, avec les rendez-vous à J+1, J+7 et J+30",
+      "Ralentir là où ça compte, survoler le reste",
+      "Transformer chaque lecture en décision : trois idées, une action",
+      "Protéger ton attention face au téléphone et aux notifications"
+    ]
+  },
+  "files": {
+    "title": "Ce que tu reçois",
+    "items": [
+      {
+        "name": "Lire Autrement",
+        "pages": 60,
+        "content": "Dix chapitres en trois temps, le fil rouge appliqué à Sénèque, et le kit du lecteur stratégique : onze fiches à imprimer ou à recopier.",
+        "cover": "/public/ebooks/lire-autrement/couverture.jpg",
+        "previews": [
+          "/public/ebooks/lire-autrement/apercus/page_7.jpg",
+          "/public/ebooks/lire-autrement/apercus/page_33.jpg",
+          "/public/ebooks/lire-autrement/apercus/page_48.jpg"
+        ]
+      }
+    ]
+  },
+  "audience": {
+    "title": "Pour qui",
+    "yes_title": "C'est pour toi si :",
+    "yes": [
+      "Tu lis régulièrement, mais tu as l'impression d'oublier presque tout.",
+      "Des livres t'ont marqué sans rien changer à ta vie.",
+      "Tu veux que chaque livre acheté te rapporte quelque chose de concret."
+    ],
+    "no_title": "Ce n'est pas pour toi si :",
+    "no": [
+      "Tu cherches une technique de lecture rapide.",
+      "Tu veux finir plus de livres pour le plaisir du chiffre.",
+      "Tu n'es pas prêt à prendre un stylo et à écrire quelques lignes par livre."
+    ]
+  },
+  "author": {
+    "title": "Qui est derrière ce livre",
+    "text": "Je n'ai pas toujours lu comme je lis aujourd'hui. Pendant des années, j'accumulais des livres, des notes, des citations. Puis j'ai fait un constat inconfortable : malgré toutes ces lectures, peu de choses avaient changé dans ma façon de décider et d'agir. C'est de ce constat qu'est née cette méthode. Je travaille depuis neuf ans dans l'industrie pharmaceutique, sur le terrain, où la théorie ne vaut que ce que l'exécution confirme.",
+    "photo": "/public/ebooks/personal-branding/lamine.jpg"
+  },
+  "action": {
+    "title": "Commence par ton prochain livre.",
+    "price_line": "Lire Autrement : 3 000 FCFA, paiement unique.",
+    "items": [
+      "Le livre complet, 60 pages",
+      "Le fil rouge appliqué à « De la brièveté de la vie » de Sénèque",
+      "Le kit du lecteur stratégique : onze fiches prêtes à l'emploi"
+    ],
+    "value": "Un seul livre de ma boutique coûte plus du double. Celui-ci s'applique à tous ceux que tu liras ensuite.",
+    "payment": "Wave, Orange Money, MTN ou carte Visa et Mastercard, depuis la Côte d'Ivoire comme depuis l'étranger.",
+    "delivery": "Dès que ton paiement est confirmé, tu reçois par e-mail un lien de téléchargement personnel, valable 24 heures. Enregistre ton fichier dès que tu le reçois."
+  },
+  "final": "Le problème n'était pas que tu lisais trop peu. Tu lisais sans stratégie. La prochaine lecture que tu vas transformer, c'est la tienne.",
+  "faq": [
+    {
+      "q": "Qu'est-ce que je reçois ?",
+      "a": "Un PDF de 60 pages : les dix chapitres de la méthode, le fil rouge appliqué à Sénèque et le kit du lecteur stratégique, onze fiches."
+    },
+    {
+      "q": "Comment je reçois le livre ?",
+      "a": "Dès que ton paiement est confirmé, un e-mail t'envoie un lien de téléchargement personnel, valable 24 heures. Enregistre ton fichier dès réception."
+    },
+    {
+      "q": "Je n'ai pas reçu l'e-mail.",
+      "a": "Regarde dans tes courriers indésirables. Si tu ne le trouves pas, écris-moi sur WhatsApp avec l'adresse e-mail utilisée, je te renvoie ton lien.",
+      "whatsapp": true
+    },
+    {
+      "q": "Puis-je être remboursé ?",
+      "a": "Le livre est un fichier numérique : une fois téléchargé, il ne peut pas être rendu, donc l'achat n'est pas remboursable. En cas de problème technique (lien qui ne fonctionne pas, fichier qui ne s'ouvre pas), écris-moi sur WhatsApp : je te renvoie ton fichier.",
+      "whatsapp": true
+    },
+    {
+      "q": "C'est une méthode de lecture rapide ?",
+      "a": "Non. Tu apprends à adapter ta vitesse, mais le but est que chaque livre produise une décision, pas que tu en lises davantage."
+    },
+    {
+      "q": "Faut-il lire Sénèque en même temps ?",
+      "a": "Non. Le fil rouge te montre chaque geste sur ce livre. Tu peux le trouver gratuitement en ligne si tu veux suivre en même temps."
+    },
+    {
+      "q": "Les fiches se remplissent dans le PDF ?",
+      "a": "Non. Imprime-les ou recopie-les dans un carnet : chacune tient sur une page."
+    },
+    {
+      "q": "Ça marche avec un livre que j'ai déjà lu ?",
+      "a": "Oui. Reprends-le avec la fiche « Après la dernière page : 3 idées → 1 décision »."
+    },
+    {
+      "q": "Je peux partager le livre ?",
+      "a": "Le fichier est personnel et porte l'adresse e-mail de l'acheteur. Si un ami en a besoin, il peut l'acheter à son tour."
+    }
+  ],
+  "seo": {
+    "title": "Lire Autrement : tirer une décision de chaque livre | Lamine Diabaté",
+    "description": "La méthode pour choisir le bon livre, retenir l'essentiel et transformer chaque lecture en décision. 60 pages et 11 fiches pratiques. 3 000 FCFA, envoi immédiat par e-mail."
+  },
+  "whatsapp_buy": "Bonjour, je veux acheter « Lire Autrement » (3 000 FCFA)."
+}

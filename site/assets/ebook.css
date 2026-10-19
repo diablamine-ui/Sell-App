@@ -56,16 +56,12 @@
 /* L'échelle de la référence */
 .ladder { list-style: none; margin: 22px 0 0; padding: 0; display: flex; flex-direction: column-reverse; gap: 8px; counter-reset: step; }
 .ladder li { counter-increment: step; border-radius: 10px; padding: 14px 16px; background: var(--coton); border: 1px solid var(--trait); }
-.ladder li:nth-child(1) { margin-right: 32%; }
-.ladder li:nth-child(2) { margin-left: 8%; margin-right: 24%; }
-.ladder li:nth-child(3) { margin-left: 16%; margin-right: 16%; }
-.ladder li:nth-child(4) { margin-left: 24%; margin-right: 8%; }
-.ladder li:nth-child(5) { margin-left: 32%; background: var(--banco); border-color: var(--banco); color: #fff; }
+.ladder li.top { background: var(--banco); border-color: var(--banco); color: #fff; }
 .ladder .st { font-weight: 700; font-size: 16px; display: block; }
 .ladder .st::before { content: counter(step) ". "; color: var(--action); }
-.ladder li:nth-child(5) .st::before { color: #9FD8B9; }
+.ladder li.top .st::before { color: #9FD8B9; }
 .ladder .tx { font-size: 14.5px; line-height: 1.45; display: block; margin-top: 2px; color: var(--gris); }
-.ladder li:nth-child(5) .tx { color: rgba(255,255,255,.8); }
+.ladder li.top .tx { color: rgba(255,255,255,.8); }
 @media (max-width: 380px) { .ladder li { margin-left: 0 !important; margin-right: 0 !important; } }
 
 /* Listes */
