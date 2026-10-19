@@ -975,6 +975,13 @@ a{color:inherit;text-decoration:none}
 }
 .abandon-btn-cancel:hover{color:var(--ink)}
 </style>
+<style>
+/* /admin : seule l'administration est visible */
+body.admin-only{background:#0F0D0A}
+body.admin-only>*:not(.admin-panel):not(.toast):not(script):not(style){display:none!important}
+body.admin-only .admin-panel{width:100vw;max-width:none;transform:none!important;box-shadow:none}
+@media(min-width:760px){body.admin-only .admin-panel{left:50%;width:720px;margin-left:-360px}}
+</style>
 </head>
 <body>
 
@@ -3099,8 +3106,10 @@ function animateHero(){
 }
 setTimeout(animateHero,100);
 
-// Page d'administration : le panneau s'ouvre directement.
-setTimeout(function(){openAdminLogin();},600);
+// Page d'administration : on n'affiche que le panneau admin, jamais l'ancienne vitrine.
+document.body.classList.add('admin-only');
+openAdminLogin();
+closeAdmin=function(){location.href='/';};
 
 // SW cleanup
 if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){regs.forEach(function(reg){reg.unregister();});});}
