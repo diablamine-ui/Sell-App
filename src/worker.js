@@ -134,7 +134,11 @@ function sessionCookie(token, maxAge) {
   return `dsess=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${maxAge}`;
 }
 
-async function sendMail(env, to, subject, text) {
+// Expéditeurs : le domaine dilamboutique.com est vérifié chez Resend.
+const MAIL_SHOP = "Dilam B' <boutique@dilamboutique.com>";
+const MAIL_AUTHOR = 'Lamine Diabaté <livraison@dilamboutique.com>';
+
+async function sendMail(env, to, subject, text, from) {
   if (!env.RESEND_API_KEY) {
     if (env.DEV === '1') {
       console.log(`[DEV] email à ${to} : ${subject} — ${text}`);
@@ -142,15 +146,13 @@ async function sendMail(env, to, subject, text) {
     }
     return false;
   }
+  const payload = { from: from || env.MAIL_FROM || MAIL_SHOP, to: [to], subject, text };
+  // Les réponses des clients arrivent dans ta boîte Gmail.
+  if (env.ADMIN_EMAIL && to !== env.ADMIN_EMAIL) payload.reply_to = env.ADMIN_EMAIL;
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from: env.MAIL_FROM || "Dilam B' <onboarding@resend.dev>",
-      to: [to],
-      subject,
-      text,
-    }),
+    body: JSON.stringify(payload),
   });
   if (!r.ok) console.error('resend', r.status, await r.text());
   return r.ok;
@@ -608,7 +610,7 @@ Un souci avec tes fichiers ? Écris-moi sur WhatsApp en indiquant cette adresse 
 
 Lamine Diabaté
 Référence de commande : ${ref}`;
-  const ok = await sendMail(env, o.email, `Tes fichiers : ${e.title}`, body);
+  const ok = await sendMail(env, o.email, `Tes fichiers : ${e.title}`, body, MAIL_AUTHOR);
   if (ok) await env.DB.prepare('UPDATE orders SET mailed=1 WHERE reference=?').bind(ref).run();
   paid.mailed = ok ? 1 : 0;
   if (env.ADMIN_EMAIL) {
