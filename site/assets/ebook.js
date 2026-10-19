@@ -3,7 +3,7 @@
 (function () {
   'use strict';
 
-  var DEFAULT_WA = '2250714313052';
+  var DEFAULT_WA = '2250546494484';
   var CONFIG = { waNumber: DEFAULT_WA, pixelId: '1671688320192246' };
   var E = null;
   var root = document.getElementById('eb');

@@ -1406,7 +1406,7 @@ body.admin-only .admin-panel{width:100vw;max-width:none;transform:none!important
         <div class="adm-form-wrap">
           <div class="adm-hint" style="margin-bottom:13px">Enregistrez chaque vente confirmée. Meta reçoit automatiquement un événement <strong style="color:var(--gold-lt)">Purchase</strong>.</div>
           <div class="adm-form">
-            <div class="adm-field"><label class="adm-field-lbl">Téléphone client (sans +)</label><input class="adm-input" id="vPhone" type="tel" placeholder="Ex : 2250714313052"></div>
+            <div class="adm-field"><label class="adm-field-lbl">Téléphone client (sans +)</label><input class="adm-input" id="vPhone" type="tel" placeholder="Ex : 2250546494484"></div>
             <div class="adm-row">
               <div class="adm-field"><label class="adm-field-lbl">Montant (FCFA)</label><input class="adm-input" id="vAmount" type="number" placeholder="Ex : 61000"></div>
               <div class="adm-field"><label class="adm-field-lbl">Pub source</label><select class="adm-select" id="vCampaign"></select></div>
@@ -1498,7 +1498,7 @@ body.admin-only .admin-panel{width:100vw;max-width:none;transform:none!important
         <div class="adm-lbl">WhatsApp</div>
         <div class="config-section">
           <div class="adm-form">
-            <div class="adm-field"><label class="adm-field-lbl">Numéro (sans +)</label><input class="adm-input" id="cWaNumber" placeholder="2250714313052"></div>
+            <div class="adm-field"><label class="adm-field-lbl">Numéro (sans +)</label><input class="adm-input" id="cWaNumber" placeholder="2250546494484"></div>
             <div class="adm-field"><label class="adm-field-lbl">Message panier</label><div class="adm-hint">Variables : {nom} {ville} {telephone} {articles} {total}</div><textarea class="adm-textarea" id="cWaMessage" style="min-height:75px"></textarea></div>
             <div class="adm-field"><label class="adm-field-lbl">Message commande directe</label><div class="adm-hint">Variables : {titre} {auteur} {prix}</div><textarea class="adm-textarea" id="cWaMessageDirect" style="min-height:65px"></textarea></div>
             <button class="adm-save" onclick="saveConfig()">Enregistrer</button>
@@ -1665,7 +1665,7 @@ async function sbUpsertConfig(key,value){
 const CAPI_PIXEL='1671688320192246';
 // Le jeton Meta (CAPI) est désormais uniquement sur le serveur.
 
-const DC={waNumber:'2250714313052',waMessage:"🛒 *Nouvelle commande*\n\n*Nom :* {nom}\n*Ville :* {ville}\n*Téléphone :* {telephone}\n\n{articles}\n\n*Total : {total} FCFA*\n\n---\nBonjour, je souhaite confirmer ma commande. Merci !",waMessageDirect:"🛒 *Commande directe*\n\n*Livre :* {titre}\n*Auteur :* {auteur}\n*Prix :* {prix} FCFA\n\n---\nBonjour, je souhaite commander ce livre. Merci !",pixelId:'1671688320192246'};
+const DC={waNumber:'2250546494484',waMessage:"🛒 *Nouvelle commande*\n\n*Nom :* {nom}\n*Ville :* {ville}\n*Téléphone :* {telephone}\n\n{articles}\n\n*Total : {total} FCFA*\n\n---\nBonjour, je souhaite confirmer ma commande. Merci !",waMessageDirect:"🛒 *Commande directe*\n\n*Livre :* {titre}\n*Auteur :* {auteur}\n*Prix :* {prix} FCFA\n\n---\nBonjour, je souhaite commander ce livre. Merci !",pixelId:'1671688320192246'};
 const DS={logoUrl:'',name1:"Dilam B'",navSub:"Les livres à p'tits prix",tagline:"Bibliothèque · Abidjan, Côte d\'Ivoire",heroTitle:"⛔ Et si ton avenir dépendait simplement des livres que tu décides de lire aujourd'hui ?",heroSub:"Chaque jour sans les bonnes clés, c\'est un jour de plus à tourner en rond. Car ceux qui avancent ne sont pas plus intelligents. Ils lisent juste les bons livres.",footerCopy:"© 2026 · Livraison Côte d\'Ivoire"};
 
 const CAT_HEROES_DEF={

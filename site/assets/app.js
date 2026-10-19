@@ -5,7 +5,7 @@
   'use strict';
 
   // ───────────── Réglages ─────────────
-  var DEFAULT_WA = '2250714313052';
+  var DEFAULT_WA = '2250546494484';
   var DEFAULT_PIXEL = '1671688320192246';
   // Réglages de livraison : valeurs par défaut, remplacées par celles de l'admin (shop_config / sell_delivery).
   var OFFER = { active: true, packs: 2, zones: ['abidjan'] };
