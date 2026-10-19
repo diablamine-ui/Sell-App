@@ -450,3 +450,35 @@ body.has-buybar .toast { bottom: 90px; }
 .sum-row .free { color: var(--action); font-weight: 600; }
 .sum-total { border-top: 1px solid var(--trait); margin-top: 6px; padding-top: 10px; font-size: 16px; }
 .sum-total strong { font-size: 20px; }
+
+/* Ebooks de Lamine Diabaté (accueil) */
+.ebooks { padding: 34px 0 6px; }
+.ebooks-head h2 { font-size: 25px; }
+.ebooks-head p { color: var(--gris); margin-top: 6px; max-width: 52ch; }
+.ebooks-list { display: grid; gap: 12px; margin-top: 16px; }
+@media (min-width: 760px) { .ebooks-list { grid-template-columns: repeat(2, 1fr); } }
+.ebook { display: grid; grid-template-columns: 92px 1fr; gap: 16px; align-items: center; padding: 14px; border-radius: var(--r-m); background: var(--banco); color: #fff; text-decoration: none; }
+.ebook:hover { background: #0F4535; }
+.ebook-cv img { width: 92px; aspect-ratio: 720 / 1018; object-fit: cover; border-radius: 3px; box-shadow: 0 8px 18px -8px rgba(0,0,0,.6); }
+.ebook-txt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ebook-title { font-family: var(--serif); font-size: 19px; line-height: 1.25; }
+.ebook-line { font-size: 14.5px; line-height: 1.4; color: rgba(255,255,255,.78); }
+.ebook-price { font-weight: 700; font-size: 16px; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.ebook-price span { font-weight: 400; color: rgba(255,255,255,.7); font-size: 14px; }
+.ebook-go { display: inline-flex; align-items: center; gap: 2px; font-weight: 600; font-size: 14.5px; color: #9FD8B9; }
+.ebook-go svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+/* Liens légaux du pied de page */
+.foot-links { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 14px; }
+.foot-links a { color: inherit; }
+
+/* Pages de texte (conditions, confidentialité) */
+.legal { max-width: 680px; margin: 0 auto; padding: 28px var(--gutter) 56px; }
+.legal h1 { font-size: 30px; line-height: 1.15; }
+.legal .legal-date { color: var(--gris); font-size: 14px; margin-top: 8px; }
+.legal h2 { font-size: 21px; margin: 30px 0 8px; }
+.legal p, .legal li { font-size: 16.5px; line-height: 1.65; }
+.legal p + p { margin-top: 10px; }
+.legal ul { padding-left: 20px; margin: 8px 0 0; display: grid; gap: 6px; }
+.legal a { color: var(--action); }
+.legal .back { display: inline-block; margin-bottom: 18px; font-size: 15px; }

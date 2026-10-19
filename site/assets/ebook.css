@@ -116,3 +116,6 @@ body.has-buybar .eb-foot { padding-bottom: 96px; }
 .pending { margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: #FFF6E5; border: 1px solid #F0D9A8; }
 .pending strong { display: block; }
 .pending p { font-size: 15px; margin-top: 4px; color: #4A3B1A; }
+
+.eb-foot-links { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; }
+.eb-foot-links a { color: var(--gris); }

@@ -30,6 +30,7 @@
   var NO_CROP = ['rien-changer.png', 'pensee-positive.jpg', 'pere-psychologie.jpg'];
 
   var BOOKS = [];
+  var EBOOKS = [];
   var CONFIG = { waNumber: DEFAULT_WA, pixelId: DEFAULT_PIXEL, waMessage: '' };
   var cart = [];
   var view = document.getElementById('view');
@@ -113,8 +114,10 @@
   function load() {
     return Promise.all([
       api('/db/books').then(function (r) { if (!r.ok) throw new Error('books ' + r.status); return r.json(); }),
-      api('/db/shop_config').then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
+      api('/db/shop_config').then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }),
+      api('/db/ebooks').then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
     ]).then(function (res) {
+      EBOOKS = (res[2] || []).filter(function (e) { return e && e.active !== false && e.title; });
       var rows = res[0].map(mapBook);
       // Même ordre que l'administration, pour que les statistiques correspondent aux bons livres.
       rows.forEach(function (b, i) { b._i = i + 1; });
@@ -223,6 +226,8 @@
         fact('<path d="M4.5 19.5l1.1-3.6A8 8 0 1 1 8.4 18.6z"/>', 'Commande simple', 'Panier ou WhatsApp, on confirme avec toi.') +
       '</ul></div></section>' +
 
+      ebooksSection() +
+
       '<section class="section"><div class="wrap">' +
         '<div class="section-head"><h2>Que veux-tu améliorer ?</h2></div>' +
         '<ul class="goals">' + goals + '</ul>' +
@@ -262,6 +267,23 @@
         '<a class="btn btn-light" href="' + esc(waLink("Bonjour Dilam B', je viens du site. J'aimerais un conseil pour choisir un livre.")) + '" target="_blank" rel="noopener">' + ICON.wa + 'Écrire sur WhatsApp</a>' +
       '</section></div>';
 
+    // Les ebooks de Lamine Diabaté : PDF payés en ligne, chacun avec sa page de vente.
+    function ebooksSection() {
+      if (!EBOOKS.length) return '';
+      return '<section class="ebooks"><div class="wrap">' +
+        '<div class="ebooks-head"><h2>Les ebooks de Lamine Diabaté</h2>' +
+        '<p>Des guides pratiques en PDF. Tu paies en ligne et tu reçois tes fichiers par e-mail, à lire sur ton téléphone.</p></div>' +
+        '<div class="ebooks-list">' + EBOOKS.map(function (e) {
+          var slug = e.slug || e._id;
+          return '<a class="ebook" href="/ebook/' + encodeURIComponent(slug) + '">' +
+            '<span class="ebook-cv"><img src="' + esc(imgSrc(e.cover)) + '" alt="" loading="lazy" decoding="async"></span>' +
+            '<span class="ebook-txt"><span class="ebook-title">' + esc(e.title) + '</span>' +
+            (e.headline ? '<span class="ebook-line">' + esc(e.headline) + '</span>' : '') +
+            '<span class="ebook-price">' + money(e.price) + '<span> en PDF</span></span>' +
+            '<span class="ebook-go">Découvrir' + ICON.chevron + '</span></span></a>';
+        }).join('') + '</div>' +
+      '</div></section>';
+    }
     function fact(path, t, s) {
       return '<li class="fact"><svg viewBox="0 0 24 24" aria-hidden="true">' + path + '</svg><div><strong>' + t + '</strong><span>' + s + '</span></div></li>';
     }
