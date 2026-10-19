@@ -692,17 +692,29 @@ async function download(req, env, ctx, url) {
   const findTip = '<p>Ton fichier est sur ton téléphone : ouvre l’application <strong>Fichiers</strong> (ou <strong>Mes fichiers</strong> sur Android), puis le dossier <strong>Téléchargements</strong>. Sur iPhone, regarde dans <strong>Fichiers</strong>, puis <strong>Téléchargements</strong> ou <strong>Sur mon iPhone</strong>.</p>';
 
   if (idxStr !== undefined) {
-    if (req.method !== 'POST') return Response.redirect(`${url.origin}/telecharger/${ref}/${sig}`, 303);
     const i = parseInt(idxStr, 10);
     if (!items[i]) return err(404, 'not_found');
     const key = '$."' + i + '"';
     const release = () => env.DB.prepare("UPDATE orders SET dl=json_set(dl, ?1, MAX(0, json_extract(dl, ?1) - 1)) WHERE reference=?2").bind(key, ref).run();
-    // On réserve le téléchargement avant d'envoyer le fichier (pas de double comptage possible).
-    const res = await env.DB.prepare(
-      "UPDATE orders SET dl=json_set(dl, ?1, COALESCE(json_extract(dl, ?1), 0) + 1) WHERE reference=?2 AND COALESCE(json_extract(dl, ?1), 0) < ?3"
-    ).bind(key, ref, DL_PER_FILE).run();
-    if (res.meta.changes !== 1) {
-      return dlPage('Fichier déjà téléchargé', '<h1>Ce fichier a déjà été téléchargé.</h1>' + findTip + '<p>Tu ne le trouves pas ?</p>' + help);
+    const ticketFor = async (exp) => exp + '.' + (await hmacHex('SHA-256', (env.DL_SECRET || env.PAYSTACK_SECRET_KEY) + ':t', `${ref}|${i}|${exp}`)).slice(0, 24);
+
+    if (req.method === 'POST') {
+      // Le clic sur « Télécharger » est compté ici, une seule fois.
+      const res = await env.DB.prepare(
+        "UPDATE orders SET dl=json_set(dl, ?1, COALESCE(json_extract(dl, ?1), 0) + 1) WHERE reference=?2 AND COALESCE(json_extract(dl, ?1), 0) < ?3"
+      ).bind(key, ref, DL_PER_FILE).run();
+      if (res.meta.changes !== 1) {
+        return dlPage('Fichier déjà téléchargé', '<h1>Ce fichier a déjà été téléchargé.</h1>' + findTip + '<p>Tu ne le trouves pas ?</p>' + help);
+      }
+      // Puis on renvoie vers une adresse temporaire (10 min) : certains téléphones Android
+      // redemandent le fichier eux-mêmes, sans le clic d'origine ; cette adresse le leur permet.
+      const t = await ticketFor(now() + 600);
+      return Response.redirect(`${url.origin}/telecharger/${ref}/${sig}/${i}?t=${t}`, 303);
+    }
+    const t = url.searchParams.get('t') || '';
+    const tm = t.match(/^(\d{10})\.([0-9a-f]{24})$/);
+    if (!tm || +tm[1] < now() || !safeEqual(t, await ticketFor(tm[1]))) {
+      return Response.redirect(`${url.origin}/telecharger/${ref}/${sig}`, 303);
     }
     const file = await env.FILES.getWithMetadata(`pdf/${pdfSlug}/${i}.pdf`, { type: 'arrayBuffer' });
     if (!file.value) {
@@ -723,7 +735,7 @@ async function download(req, env, ctx, url) {
     } catch (err2) {
       console.error('filigrane', pdfSlug, i, err2 && err2.message);
     }
-    // Envoi par morceaux : si la connexion coupe avant la fin, le téléchargement n'est pas compté.
+    // Envoi par morceaux, avec la taille annoncée (le téléphone sait quand le fichier est complet).
     const total = bytes.length + tail.length;
     const { readable, writable } = new FixedLengthStream(total);
     ctx.waitUntil((async () => {
@@ -734,7 +746,6 @@ async function download(req, env, ctx, url) {
         if (tail.length) await w.write(tail);
         await w.close();
       } catch (e3) {
-        await release().catch(() => {});
         try { await w.abort(); } catch {}
       }
     })());
