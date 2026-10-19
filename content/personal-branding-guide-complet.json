@@ -1,0 +1,118 @@
+{
+  "slug": "personal-branding-guide-complet",
+  "active": true,
+  "title": "Personal Branding, le guide complet",
+  "author_name": "Lamine Diabaté",
+  "surtitle": "Le guide complet",
+  "headline": "Deviens la référence dans ton domaine sur Facebook et TikTok",
+  "subtitle": "La méthode complète, pas à pas, pour te faire connaître, inspirer confiance et transformer ta visibilité en clients. Même si tu pars de zéro.",
+  "price": 4000,
+  "cta": "Je veux le pack",
+  "cta_final": "Je commence maintenant",
+  "reassure": [
+    "Wave, Orange Money, MTN ou carte bancaire",
+    "Fichiers envoyés par e-mail juste après le paiement",
+    "4 PDF à lire sur ton téléphone"
+  ],
+  "cover": "/public/ebooks/personal-branding/couverture.jpg",
+  "extra_covers": [],
+  "problem": {
+    "title": "Tu es bon dans ce que tu fais. Le problème, c'est que presque personne ne le sait.",
+    "paragraphs": [
+      "Tu es coiffeuse, couturière, comptable, coach, vendeur en ligne ou prestataire. Tu travailles bien. Tes clients reviennent, et ceux qui te connaissent te recommandent.",
+      "Mais en dehors de ce petit cercle, tu n'existes pas.",
+      "Tu publies de temps en temps sur Facebook. Quelques réactions, presque toujours des mêmes personnes. Tu as ouvert un compte TikTok, posté trois vidéos, puis tu as laissé tomber. Et chaque fois que tu prends ton téléphone pour publier, la même question revient : « Je dis quoi ? »",
+      "Autour de toi, tout le monde parle de personal branding. On te conseille de « travailler ton image », de « te positionner », d'être « régulier ». Mais personne ne t'explique concrètement ce que c'est, ni par où commencer."
+    ]
+  },
+  "agitation": {
+    "title": "Rester invisible te coûte plus cher que tu ne le penses.",
+    "paragraphs": [
+      "Quelqu'un parle de toi à une amie. Elle va voir ton profil. Elle trouve une photo floue, une bio vide et un dernier post qui date de plusieurs mois. Elle n'insiste pas, elle va chez quelqu'un d'autre. Et toi, tu ne sauras jamais que tu as perdu cette cliente.",
+      "Pendant ce temps, des gens moins compétents que toi remplissent leur agenda. Pas parce qu'ils travaillent mieux. Parce qu'on les voit, qu'on comprend ce qu'ils font et qu'on sait comment les joindre.",
+      "Quand on ne te connaît pas, on te compare au moins cher. On négocie tes prix. On te fait attendre. Et ton activité dépend du bouche-à-oreille : les bonnes semaines arrivent sans que tu saches pourquoi, et les semaines creuses aussi.",
+      "Le plus dur, c'est le temps qui passe. Dans un an, si rien ne change dans ta façon de te montrer, tu seras exactement au même point. Avec le même talent, et les mêmes clients."
+    ]
+  },
+  "solution": {
+    "title": "Le personal branding, enfin expliqué et appliqué.",
+    "paragraphs": [
+      "Ton personal branding, c'est ce que les gens pensent et disent de toi quand ils pensent à ton domaine. Tu en as déjà un, que tu le travailles ou non. La vraie question est de savoir s'il travaille pour toi.",
+      "« Personal Branding, le guide complet » t'apprend à le construire, étape par étape, sur Facebook et TikTok. Pas besoin d'être influenceur, d'aimer la caméra ou d'avoir un gros budget."
+    ]
+  },
+  "ladder": {
+    "title": "La méthode : l'échelle de la référence",
+    "intro": "On devient une référence en montant cinq marches, dans l'ordre. Le pack te fait monter chacune d'elles.",
+    "steps": [
+      { "name": "Inconnu", "text": "personne ne t'associe à ton domaine." },
+      { "name": "Visible", "text": "des inconnus voient tes contenus et y réagissent." },
+      { "name": "Crédible", "text": "on t'écrit en privé pour te poser des questions." },
+      { "name": "Recommandé", "text": "des clients arrivent en disant « on m'a parlé de toi »." },
+      { "name": "Référence", "text": "quand on pense à ton sujet, on pense à toi." }
+    ]
+  },
+  "skills": {
+    "title": "Ce que tu vas savoir faire",
+    "items": [
+      "Choisir ton territoire et le client que tu veux servir",
+      "Dire en une phrase, compréhensible en cinq secondes, ce que tu fais et pour qui",
+      "Transformer tes profils Facebook et TikTok en vitrines qui inspirent confiance",
+      "Comprendre comment Facebook et TikTok décident qui voit tes contenus",
+      "Ne plus manquer d'idées, grâce à ta réserve de sujets",
+      "Filmer des vidéos propres avec ton seul téléphone, même si tu es timide",
+      "Transformer les « c'est combien ? » en conversations, puis en clients sur WhatsApp",
+      "Suivre un plan de 90 jours, semaine après semaine"
+    ]
+  },
+  "files": {
+    "title": "Ce que tu reçois",
+    "items": [
+      { "name": "Le guide complet", "pages": 83, "content": "14 chapitres en 6 parties, un démarrage en 7 jours, un exemple suivi du début à la fin, un plan de 90 jours", "cover": "", "previews": [] },
+      { "name": "Le Workbook", "pages": 69, "content": "Les 14 exercices, 12 bilans de la semaine, une réserve de 50 sujets, à remplir directement sur ton téléphone", "cover": "", "previews": [] },
+      { "name": "Le Swipe File", "pages": 37, "content": "50 accroches, 12 modèles de publications, 10 scripts TikTok, des réponses WhatsApp, une campagne de 7 jours", "cover": "", "previews": [] },
+      { "name": "La Bibliothèque de prompts", "pages": 35, "content": "Une fiche de contexte, 49 prompts pour ChatGPT ou Claude, et le Prompt Ultime qui crée ton calendrier de 30 jours", "cover": "", "previews": [] }
+    ]
+  },
+  "audience": {
+    "title": "Pour qui",
+    "yes": "C'est pour toi si tu vends un service, un savoir-faire ou des produits et veux être connu au-delà de ton entourage. Si tu pars de zéro, ou si tu publies déjà sans résultat. Si tu peux y consacrer trente à quarante-cinq minutes par jour.",
+    "no": "Ce n'est pas pour toi si tu cherches à devenir riche en une semaine, si tu veux des résultats sans publier, ou si tu n'es pas prêt à tenir un rythme pendant trois mois."
+  },
+  "author": {
+    "title": "Qui est derrière ce guide",
+    "text": "Je m'appelle Lamine Diabaté. Pendant des années, j'ai vendu sur le terrain, dans l'industrie pharmaceutique. J'y ai appris une règle que rien n'a jamais démentie : on achète à quelqu'un qu'on connaît et à qui on fait confiance. Ce guide applique cette règle aux réseaux sociaux.",
+    "photo": "/public/ebooks/personal-branding/lamine.jpg"
+  },
+  "action": {
+    "title": "Commence aujourd'hui.",
+    "price_line": "Le pack complet : 4 000 FCFA, payé une seule fois.",
+    "items": [
+      "Le guide complet, 83 pages",
+      "Le Workbook à remplir sur ton téléphone, 69 pages",
+      "Le Swipe File, 37 pages",
+      "La Bibliothèque de prompts, 35 pages"
+    ],
+    "value": "Un seul client gagné grâce à ce que tu vas mettre en place rembourse ce pack plusieurs fois.",
+    "payment": "Wave, Orange Money, MTN ou carte Visa et Mastercard, depuis la Côte d'Ivoire comme depuis l'étranger.",
+    "delivery": "Dès que ton paiement est confirmé, tu reçois par e-mail un lien de téléchargement personnel, valable 24 heures et utilisable une seule fois. Enregistre tes fichiers dès que tu les reçois."
+  },
+  "final": "Dans un an, quand quelqu'un pensera à ton domaine, tu veux que ce soit ton nom qui lui vienne. Ça commence par une décision simple, aujourd'hui.",
+  "faq": [
+    { "q": "Qu'est-ce que je reçois exactement ?", "a": "Quatre fichiers PDF : le guide complet, le Workbook, le Swipe File et la Bibliothèque de prompts. Rien à recevoir par la poste." },
+    { "q": "Comment je reçois le pack ?", "a": "Dès que ton paiement est confirmé, un e-mail t'envoie un lien de téléchargement personnel, valable 24 heures et utilisable une seule fois. Enregistre tes fichiers dès réception." },
+    { "q": "Je n'ai pas reçu l'e-mail.", "a": "Regarde dans tes courriers indésirables. Si tu ne le trouves pas, écris-moi sur WhatsApp avec l'adresse e-mail utilisée, je te renvoie ton lien.", "whatsapp": true },
+    { "q": "Je peux tout lire sur mon téléphone ?", "a": "Oui. Les fichiers sont mis en page pour se lire confortablement sur un téléphone. Pour remplir le Workbook directement dans le PDF, ouvre-le avec Adobe Acrobat Reader, gratuit sur Android et iPhone." },
+    { "q": "Je pars de zéro, sans abonnés. Ça marche quand même ?", "a": "C'est pour ça que le guide a été écrit. Il commence par les fondations, et TikTok montre tes vidéos à des gens qui ne te suivent pas encore." },
+    { "q": "Je n'aime pas me filmer.", "a": "Le guide te propose une progression : d'abord tes mains au travail et ta voix, puis ton visage quand tu es prêt. Le texte et la photo fonctionnent aussi." },
+    { "q": "Est-ce adapté à mon métier ?", "a": "Si tu vends un service, un savoir-faire ou des produits, oui. Les exemples viennent de métiers variés : coiffure, couture, comptabilité, pâtisserie, réparation, coaching." },
+    { "q": "En combien de temps je verrai des résultats ?", "a": "En sept jours, tu as des profils clairs et tes premiers contenus en ligne. Le plan complet dure 90 jours. La suite dépend de ta régularité : le guide te donne la méthode, c'est toi qui l'appliques." },
+    { "q": "Faut-il payer ChatGPT ou Claude pour les prompts ?", "a": "Non. Les versions gratuites suffisent." },
+    { "q": "Je peux partager le pack avec un ami ?", "a": "Les fichiers sont personnels et portent l'adresse e-mail de l'acheteur. Si ton ami en a besoin, il peut l'acheter à son tour." }
+  ],
+  "seo": {
+    "title": "Personal Branding : le guide complet | Lamine Diabaté",
+    "description": "Deviens la référence dans ton domaine sur Facebook et TikTok. Guide, Workbook, Swipe File et 50 prompts IA. 4 000 FCFA, envoi immédiat par e-mail."
+  },
+  "whatsapp_buy": "Bonjour, je veux acheter le pack « Personal Branding, le guide complet » (4 000 FCFA)."
+}

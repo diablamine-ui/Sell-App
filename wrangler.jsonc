@@ -7,7 +7,7 @@
   "assets": {
     "directory": "./site",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*", "/media/*", "/"]
+    "run_worker_first": ["/api/*", "/media/*", "/", "/ebook/*"]
   },
   "d1_databases": [
     { "binding": "DB", "database_name": "dilamboutique-db", "database_id": "881344fb-7c07-422b-b4fd-960dbff73c73" }

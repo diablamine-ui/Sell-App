@@ -1,0 +1,282 @@
+/* Dilam B' — page de vente d'un ebook : /ebook/<adresse>
+   Le contenu vient du document D1 ebooks/<adresse>, injecté par le serveur dans #ebdata. */
+(function () {
+  'use strict';
+
+  var DEFAULT_WA = '2250714313052';
+  var CONFIG = { waNumber: DEFAULT_WA, pixelId: '1671688320192246' };
+  var E = null;
+  var root = document.getElementById('eb');
+  var slug = (location.pathname.split('/')[2] || '').toLowerCase();
+
+  // ───────────── Utilitaires ─────────────
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  // Typographie française : apostrophe courbe, espaces fines insécables avant ; ! ? et dans les guillemets,
+  // espace insécable avant les deux-points.
+  function fr(s) {
+    return esc(String(s == null ? '' : s)
+      .replace(/'/g, '’')
+      .replace(/\s*([;!?])/g, ' $1')
+      .replace(/\s*:(?=\s)/g, ' :')
+      .replace(/«\s*/g, '« ')
+      .replace(/\s*»/g, ' »')
+      .replace(/(\d)\s(\d{3})\b/g, '$1 $2')
+      .replace(/(\d)\s(FCFA|F|pages|jours|heures|minutes)\b/g, '$1 $2'));
+  }
+  function money(n) { return (parseInt(n, 10) || 0).toLocaleString('fr-FR').replace(/[\s  ]/g, ' ') + ' FCFA'; }
+  function waNumber() { return String(CONFIG.waNumber || DEFAULT_WA).replace(/[^0-9]/g, ''); }
+  function waLink(text) { return 'https://wa.me/' + waNumber() + '?text=' + encodeURIComponent(text); }
+  function paras(list) { return (list || []).map(function (p) { return '<p>' + fr(p) + '</p>'; }).join(''); }
+  var toastTimer;
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2800);
+  }
+  function api(path, opt) {
+    opt = opt || {};
+    opt.headers = Object.assign({ 'X-Dilam': '1' }, opt.headers || {});
+    opt.credentials = 'same-origin';
+    return fetch('/api' + path, opt);
+  }
+
+  // ───────────── Mesure Meta ─────────────
+  function readCookie(n) { var m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)')); return m ? decodeURIComponent(m[1]) : ''; }
+  function initPixel() {
+    if (!CONFIG.pixelId || window.fbq) return;
+    /* eslint-disable */
+    !function (f, b, e, v, n, t, s) { if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments) }; if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = []; t = b.createElement(e); t.async = !0; t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s) }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+    /* eslint-enable */
+    window.fbq('init', CONFIG.pixelId);
+  }
+  function track(name, data) {
+    var id = 'ev_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    try { if (window.fbq) window.fbq('track', name, data || {}, { eventID: id }); } catch (e) {}
+    api('/capi', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_name: name, event_id: id, event_source_url: location.href, custom_data: data || {}, fbp: readCookie('_fbp'), fbc: readCookie('_fbc') })
+    }).catch(function () {});
+  }
+  function product() { return { content_ids: [E.slug], content_type: 'product', content_name: E.title, value: E.price, currency: 'XOF' }; }
+
+  // ───────────── Rendu ─────────────
+  function buyBlock(label, id) {
+    return '<div class="eb-buy"' + (id ? ' id="' + id + '"' : '') + '>' +
+      '<p class="eb-price"><strong>' + money(E.price) + '</strong>payé une seule fois</p>' +
+      '<button class="btn btn-primary" type="button" data-buy>' + fr(label) + '</button>' +
+      '</div>';
+  }
+  function payPills() {
+    return '<div class="paylogos" aria-label="Moyens de paiement acceptés">' +
+      ['Wave', 'Orange Money', 'MTN MoMo', 'Visa', 'Mastercard'].map(function (p) { return '<span>' + p + '</span>'; }).join('') +
+      '</div>';
+  }
+  function section(cls, inner) { return '<section class="eb-sec ' + (cls || '') + '"><div class="eb-col">' + inner + '</div></section>'; }
+
+  function render() {
+    var files = (E.files && E.files.items) || [];
+    var totalPages = files.reduce(function (s, f) { return s + (parseInt(f.pages, 10) || 0); }, 0);
+    var extra = (E.extra_covers || []).slice(0, 2);
+    var h = '';
+
+    // Haut de page
+    h += '<section class="eb-hero"><div class="eb-col">' +
+      '<div class="eb-hero-txt">' +
+        '<p class="eb-sur">' + fr(E.title) + (E.author_name ? ', par ' + fr(E.author_name) : '') + '</p>' +
+        '<h1>' + fr(E.headline || E.title) + '</h1>' +
+        (E.subtitle ? '<p class="eb-sub">' + fr(E.subtitle) + '</p>' : '') +
+      '</div>' +
+      '<div class="eb-visual">' +
+        (extra[0] ? '<img class="fan l" src="' + esc(extra[0]) + '" alt="" loading="lazy">' : '') +
+        (extra[1] ? '<img class="fan r" src="' + esc(extra[1]) + '" alt="" loading="lazy">' : '') +
+        '<img class="main" src="' + esc(E.cover) + '" alt="Couverture : ' + esc(E.title) + '" width="600" height="800" fetchpriority="high">' +
+      '</div>' +
+      '<div class="eb-buy-wrap">' + buyBlock(E.cta || 'Acheter', 'heroBuy') +
+        '<ul class="eb-assure">' + (E.reassure || []).map(function (r) { return '<li>' + fr(r) + '</li>'; }).join('') + '</ul>' +
+      '</div>' +
+    '</div></section>';
+
+    // Problème, agitation, solution
+    if (E.problem) h += section('', '<h2>' + fr(E.problem.title) + '</h2>' + paras(E.problem.paragraphs));
+    if (E.agitation) h += section('', '<h2>' + fr(E.agitation.title) + '</h2>' + paras(E.agitation.paragraphs));
+    if (E.solution) {
+      var lad = E.ladder || {};
+      h += section('tint',
+        '<h2>' + fr(E.solution.title) + '</h2>' + paras(E.solution.paragraphs) +
+        (lad.steps ? '<h3>' + fr(lad.title) + '</h3>' + (lad.intro ? '<p>' + fr(lad.intro) + '</p>' : '') +
+          '<ol class="ladder" aria-label="Les cinq marches, de la première à la dernière">' +
+          lad.steps.map(function (s) { return '<li><span class="st">' + fr(s.name) + '</span><span class="tx">' + fr(s.text) + '</span></li>'; }).join('') +
+          '</ol>' : ''));
+    }
+
+    // Compétences
+    if (E.skills) h += section('', '<h2>' + fr(E.skills.title) + '</h2><ul class="checks">' +
+      E.skills.items.map(function (s) { return '<li>' + fr(s) + '</li>'; }).join('') + '</ul>');
+
+    // Fichiers
+    if (files.length) h += section('', '<h2>' + fr(E.files.title) + '</h2><div class="files">' +
+      files.map(function (f) {
+        var prev = (f.previews || []).length ? '<div class="file-prev">' + f.previews.map(function (p) { return '<img src="' + esc(p) + '" alt="Page intérieure : ' + esc(f.name) + '" loading="lazy">'; }).join('') + '</div>' : '';
+        return '<div class="file"><div class="file-head"><span class="file-name">' + fr(f.name) + '</span>' +
+          (f.pages ? '<span class="file-pages">' + f.pages + ' pages</span>' : '') + '</div>' +
+          (f.content ? '<p>' + fr(f.content) + '</p>' : '') + prev + '</div>';
+      }).join('') + '</div>' +
+      (files.length > 1 && totalPages ? '<p class="files-total">' + files.length + ' fichiers PDF, ' + totalPages + ' pages au total.</p>' : '') +
+      buyBlock(E.cta || 'Acheter'));
+
+    // Pour qui
+    if (E.audience) h += section('', '<h2>' + fr(E.audience.title) + '</h2><div class="fit">' +
+      '<div class="yes"><p>' + fr(E.audience.yes) + '</p></div>' +
+      '<div class="no"><p>' + fr(E.audience.no) + '</p></div></div>');
+
+    // Auteur
+    if (E.author) h += section('tint', '<h2>' + fr(E.author.title) + '</h2><div class="author">' +
+      (E.author.photo ? '<img src="' + esc(E.author.photo) + '" alt="' + esc(E.author_name || '') + '" loading="lazy">' : '') +
+      '<p>' + fr(E.author.text) + '</p></div>');
+
+    // Action
+    var A = E.action || {};
+    h += section('', '<h2>' + fr(A.title || 'Commence aujourd’hui.') + '</h2>' +
+      (A.price_line ? '<p class="price-big">' + fr(A.price_line) + '</p>' : '') +
+      (A.items ? '<ul class="checks">' + A.items.map(function (s) { return '<li>' + fr(s) + '</li>'; }).join('') + '</ul>' : '') +
+      (A.value ? '<p class="value-line">' + fr(A.value) + '</p>' : '') +
+      (A.payment ? '<p>' + fr(A.payment) + '</p>' : '') + payPills() +
+      (A.delivery ? '<p>' + fr(A.delivery) + '</p>' : '') +
+      '<div class="cta-block">' + buyBlock(E.cta_final || E.cta || 'Acheter', 'finalBuy') + '</div>');
+
+    // FAQ
+    if ((E.faq || []).length) h += section('', '<h2>Questions fréquentes</h2><div class="faq">' +
+      E.faq.map(function (f) {
+        return '<details><summary>' + fr(f.q) + '</summary><p>' + fr(f.a) +
+          (f.whatsapp ? ' <a href="' + esc(waLink('Bonjour, je n’ai pas reçu mon lien pour « ' + E.title + ' ». Mon adresse e-mail : ')) + '" target="_blank" rel="noopener" data-lead>Écrire sur WhatsApp</a>' : '') +
+          '</p></details>';
+      }).join('') + '</div>');
+
+    // Dernier mot
+    if (E.final) h += section('tint final', '<p>' + fr(E.final) + '</p>' + buyBlock(E.cta_final || E.cta || 'Acheter'));
+
+    root.innerHTML = h;
+    document.getElementById('buybarPrice').textContent = money(E.price);
+    setupBuybar();
+  }
+
+  // Barre d'achat fixe : visible une fois le bouton du haut dépassé, masquée quand le dernier bouton est à l'écran.
+  function setupBuybar() {
+    var bar = document.getElementById('buybar');
+    var hero = document.getElementById('heroBuy');
+    var fin = document.getElementById('finalBuy');
+    if (!hero) return;
+    var ticking = false;
+    function upd() {
+      ticking = false;
+      var h = hero.getBoundingClientRect();
+      var f = fin ? fin.getBoundingClientRect() : null;
+      var finVisible = f && f.top < innerHeight && f.bottom > 0;
+      var show = h.bottom < 0 && !finVisible;
+      if (bar.hidden === show) { bar.hidden = !show; document.body.classList.toggle('has-buybar', show); }
+    }
+    window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(upd); } }, { passive: true });
+    window.addEventListener('resize', upd);
+    upd();
+  }
+
+  // ───────────── Achat ─────────────
+  var sheet = document.getElementById('buySheet');
+  var lastFocus = null;
+  function openBuy() {
+    lastFocus = document.activeElement;
+    var saved = '';
+    try { saved = localStorage.getItem('eb_email') || ''; } catch (e) {}
+    document.getElementById('buyBody').innerHTML =
+      '<p class="buy-sum"><strong>' + fr(E.title) + '</strong><br>' + money(E.price) + '</p>' +
+      '<form id="buyForm" novalidate>' +
+        '<div class="field"><label for="buyEmail">Ton adresse e-mail</label>' +
+        '<input id="buyEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" required value="' + esc(saved) + '" aria-describedby="buyHelp">' +
+        '<p class="field-help" id="buyHelp">Ton lien de téléchargement sera envoyé à cette adresse. Vérifie-la bien.</p></div>' +
+        '<button class="btn btn-primary btn-block" type="submit" id="buyGo">Payer ' + money(E.price) + '</button>' +
+        '<p class="buy-note">Wave, Orange Money, MTN ou carte bancaire. Paiement sécurisé par Paystack.</p>' +
+      '</form><div id="buyMsg"></div>';
+    sheet.hidden = false;
+    document.body.style.overflow = 'hidden';
+    setTimeout(function () { var i = document.getElementById('buyEmail'); if (i) i.focus(); }, 60);
+    document.getElementById('buyForm').addEventListener('submit', submitBuy);
+    track('InitiateCheckout', product());
+  }
+  function closeBuy() {
+    sheet.hidden = true;
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v); }
+
+  function submitBuy(ev) {
+    ev.preventDefault();
+    var input = document.getElementById('buyEmail');
+    var email = input.value.trim().toLowerCase();
+    var help = document.getElementById('buyHelp');
+    if (!validEmail(email)) {
+      input.setAttribute('aria-invalid', 'true');
+      help.textContent = 'Cette adresse ne semble pas complète. Exemple : prenom@gmail.com';
+      input.focus();
+      return;
+    }
+    input.removeAttribute('aria-invalid');
+    try { localStorage.setItem('eb_email', email); } catch (e) {}
+    var btn = document.getElementById('buyGo');
+    btn.disabled = true; btn.textContent = 'Un instant…';
+    api('/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: E.slug, email: email }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, status: r.status, d: d }; }); })
+      .then(function (res) {
+        if (res.ok && res.d && res.d.url) { location.href = res.d.url; return; }
+        if (res.status === 429) { fail('Trop de tentatives. Réessaie dans quelques minutes.'); return; }
+        if (res.status === 400) { fail('Vérifie ton adresse e-mail puis réessaie.'); return; }
+        pending(email);
+      })
+      .catch(function () { pending(email); });
+    function fail(msg) { btn.disabled = false; btn.textContent = 'Payer ' + money(E.price); help.textContent = msg; }
+  }
+  // Paiement en ligne pas encore ouvert : on bascule sur WhatsApp, avec l'e-mail déjà dans le message.
+  function pending(email) {
+    var msg = (E.whatsapp_buy || ('Bonjour, je veux acheter « ' + E.title + ' ».')) + '\nMon adresse e-mail : ' + email;
+    document.getElementById('buyForm').hidden = true;
+    document.getElementById('buyMsg').innerHTML =
+      '<div class="pending"><strong>Le paiement en ligne ouvre très bientôt.</strong>' +
+      '<p>En attendant, commande sur WhatsApp : ton adresse e-mail est déjà dans le message. Tu reçois les moyens de paiement, puis tes fichiers.</p></div>' +
+      '<a class="btn btn-primary btn-block" style="margin-top:14px" href="' + esc(waLink(msg)) + '" target="_blank" rel="noopener" data-lead>Commander sur WhatsApp</a>';
+  }
+
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('[data-buy]')) { e.preventDefault(); openBuy(); return; }
+    if (e.target.closest('[data-close]')) { closeBuy(); return; }
+    if (e.target.closest('[data-lead]')) track('Lead', product());
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !sheet.hidden) closeBuy(); });
+
+  // ───────────── Démarrage ─────────────
+  function start(data) {
+    E = data;
+    if (!E || E.active === false) { root.innerHTML = '<div class="loading">Cette page n’est plus en ligne.</div>'; return; }
+    E.slug = E.slug || slug;
+    render();
+  }
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  var cfgP = api('/db/shop_config').then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
+    .then(function (docs) {
+      (docs || []).forEach(function (d) { if (d._id === 'sell_config' && d.value) Object.assign(CONFIG, d.value); });
+      initPixel();
+    });
+
+  var inline = document.getElementById('ebdata');
+  var data = null;
+  if (inline) { try { data = JSON.parse(inline.textContent); } catch (e) {} }
+  var dataP = data ? Promise.resolve(data)
+    : api('/db/ebooks/' + encodeURIComponent(slug)).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+  dataP.then(start);
+  Promise.all([dataP, cfgP]).then(function () { if (E && E.title) track('ViewContent', product()); });
+})();

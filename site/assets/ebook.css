@@ -1,0 +1,114 @@
+/* Dilam B' — pages de vente des ebooks (s'appuie sur app.css) */
+
+.ebook-page { background: var(--blanc); }
+.eb-top { border-bottom: 1px solid var(--trait); background: var(--blanc); }
+.eb-top-in { max-width: 720px; margin: 0 auto; padding: 14px var(--gutter); }
+.eb-top .brand-name { font-family: var(--serif); font-size: 20px; font-weight: 600; }
+
+.eb-col { max-width: 640px; margin: 0 auto; padding: 0 var(--gutter); }
+.eb-sec { padding: 48px 0; }
+.eb-sec + .eb-sec { border-top: 1px solid var(--trait); }
+.eb-sec.tint { background: var(--coton); border-top: 0; }
+.eb-sec.tint + .eb-sec { border-top: 0; }
+.eb-sec h2 { font-size: 27px; letter-spacing: -.01em; margin-bottom: 18px; line-height: 1.22; }
+.eb-sec h3 { font-family: var(--serif); font-weight: 500; font-size: 22px; margin: 34px 0 12px; }
+.eb-sec p { font-size: 17.5px; line-height: 1.7; margin-top: 14px; }
+.eb-sec p:first-of-type { margin-top: 0; }
+.eb-sec p.lead-line { font-family: var(--serif); font-size: 21px; line-height: 1.45; }
+
+/* Haut de page */
+.eb-hero { padding: 26px 0 36px; background: var(--coton); }
+.eb-sur { color: var(--gris); font-size: 15px; font-weight: 500; }
+.eb-hero h1 { font-size: clamp(30px, 8.4vw, 46px); line-height: 1.1; letter-spacing: -.015em; margin-top: 8px; }
+.eb-hero .eb-sub { font-size: 17.5px; color: #2B3631; margin-top: 14px; line-height: 1.55; }
+.eb-visual { margin: 22px auto 0; position: relative; width: max-content; max-width: 70%; }
+.eb-visual img.main { position: relative; z-index: 2; display: block; height: 40vh; min-height: 260px; max-height: 420px; width: auto; max-width: 100%; object-fit: contain; border-radius: 4px; box-shadow: 0 18px 40px -18px rgba(19,32,26,.45); }
+.eb-visual img.fan { position: absolute; top: 4%; width: 78%; border-radius: 4px; z-index: 1; opacity: .95; }
+.eb-visual img.fan.l { left: -24%; transform: rotate(-7deg); }
+.eb-visual img.fan.r { right: -24%; transform: rotate(7deg); }
+.eb-buy { margin-top: 26px; }
+.eb-price { font-size: 15px; color: var(--gris); margin-bottom: 8px; }
+.eb-price strong { color: var(--encre); font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; margin-right: 6px; }
+.eb-buy .btn { width: 100%; min-height: 56px; font-size: 17px; }
+.eb-assure { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 6px; }
+.eb-assure li { position: relative; padding-left: 22px; font-size: 14.5px; color: #2B3631; }
+.eb-assure li::before { content: ""; position: absolute; left: 3px; top: 7px; width: 9px; height: 5px; border-left: 1.8px solid var(--action); border-bottom: 1.8px solid var(--action); transform: rotate(-45deg); }
+.paylogos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.paylogos span { font-size: 12.5px; font-weight: 600; padding: 5px 10px; border-radius: 6px; background: var(--blanc); border: 1px solid var(--trait); color: var(--encre); }
+@media (min-width: 820px) {
+  .eb-top-in { max-width: 1000px; }
+  .eb-hero { padding: 56px 0 64px; }
+  .eb-hero .eb-col { max-width: 1000px; display: grid; grid-template-columns: 1.15fr .85fr; grid-template-rows: 1fr 1fr; column-gap: 56px; row-gap: 28px; }
+  .eb-hero-txt { grid-column: 1; grid-row: 1; align-self: end; }
+  .eb-buy-wrap { grid-column: 1; grid-row: 2; align-self: start; max-width: 460px; }
+  .eb-buy-wrap .eb-buy { margin-top: 0; }
+  .eb-visual { grid-column: 2; grid-row: 1 / span 2; align-self: center; margin: 0 auto; max-width: 100%; }
+  .eb-visual img.main { height: 72vh; max-height: 620px; }
+}
+
+
+/* L'échelle de la référence */
+.ladder { list-style: none; margin: 22px 0 0; padding: 0; display: flex; flex-direction: column-reverse; gap: 8px; counter-reset: step; }
+.ladder li { counter-increment: step; border-radius: 10px; padding: 14px 16px; background: var(--coton); border: 1px solid var(--trait); }
+.ladder li:nth-child(1) { margin-right: 32%; }
+.ladder li:nth-child(2) { margin-left: 8%; margin-right: 24%; }
+.ladder li:nth-child(3) { margin-left: 16%; margin-right: 16%; }
+.ladder li:nth-child(4) { margin-left: 24%; margin-right: 8%; }
+.ladder li:nth-child(5) { margin-left: 32%; background: var(--banco); border-color: var(--banco); color: #fff; }
+.ladder .st { font-weight: 700; font-size: 16px; display: block; }
+.ladder .st::before { content: counter(step) ". "; color: var(--action); }
+.ladder li:nth-child(5) .st::before { color: #9FD8B9; }
+.ladder .tx { font-size: 14.5px; line-height: 1.45; display: block; margin-top: 2px; color: var(--gris); }
+.ladder li:nth-child(5) .tx { color: rgba(255,255,255,.8); }
+@media (max-width: 380px) { .ladder li { margin-left: 0 !important; margin-right: 0 !important; } }
+
+/* Listes */
+.checks { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 12px; }
+.checks li { position: relative; padding-left: 30px; font-size: 17px; line-height: 1.5; }
+.checks li::before { content: ""; position: absolute; left: 2px; top: 4px; width: 18px; height: 18px; border-radius: 50%; background: var(--action); }
+.checks li::after { content: ""; position: absolute; left: 7px; top: 9px; width: 8px; height: 4px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg); }
+
+/* Fichiers */
+.files { display: grid; gap: 12px; margin-top: 18px; }
+.file { border: 1px solid var(--trait); border-radius: 12px; padding: 16px; background: var(--blanc); }
+.file-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.file-name { font-family: var(--serif); font-size: 19px; }
+.file-pages { color: var(--gris); font-size: 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.file p { font-size: 15.5px !important; color: #2B3631; margin-top: 6px !important; line-height: 1.55 !important; }
+.file-prev { display: grid; grid-auto-flow: column; grid-auto-columns: 40%; gap: 10px; overflow-x: auto; margin-top: 12px; scrollbar-width: none; }
+.file-prev img { border-radius: 6px; border: 1px solid var(--trait); }
+.files-total { margin-top: 12px; color: var(--gris); font-size: 15px; }
+
+/* Pour qui */
+.fit { display: grid; gap: 12px; margin-top: 16px; }
+.fit div { border-radius: 12px; padding: 16px 18px; }
+.fit .yes { background: #E7F2EC; }
+.fit .no { background: #F6ECEA; }
+.fit p { font-size: 16.5px !important; margin: 0 !important; }
+
+/* Auteur */
+.author { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: start; margin-top: 6px; }
+.author img { width: 96px; height: 96px; object-fit: cover; border-radius: 50%; }
+.author p { margin-top: 0 !important; }
+
+/* Action */
+.price-big { font-family: var(--serif); font-size: 24px; margin: 6px 0 4px; }
+.value-line { font-style: italic; }
+.cta-block { margin-top: 26px; }
+.cta-block .btn { width: 100%; min-height: 56px; font-size: 17px; }
+
+/* Dernier mot */
+.final { text-align: left; }
+.final .eb-col > p { font-family: var(--serif); font-size: 22px; line-height: 1.45; }
+.final .eb-buy { margin-top: 26px; }
+.final .eb-buy .btn, .files + .files-total + .eb-buy .btn { width: 100%; min-height: 56px; font-size: 17px; }
+.files-total + .eb-buy { margin-top: 22px; }
+
+.eb-foot { text-align: center; color: var(--gris); font-size: 13.5px; padding: 26px var(--gutter) 30px; border-top: 1px solid var(--trait); }
+body.has-buybar .eb-foot { padding-bottom: 96px; }
+
+/* Achat */
+.buy-note { color: var(--gris); font-size: 14px; margin-top: 6px; }
+.pending { margin-top: 14px; padding: 14px 16px; border-radius: 12px; background: #FFF6E5; border: 1px solid #F0D9A8; }
+.pending strong { display: block; }
+.pending p { font-size: 15px; margin-top: 4px; color: #4A3B1A; }

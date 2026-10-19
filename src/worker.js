@@ -15,8 +15,8 @@ const FIRESTORE_DEFAULT = 'https://firestore.googleapis.com/v1/projects/dilam-bo
 const FIREBASE_WEB_KEY = 'AIzaSyDyOrVT9Zb2s37unS2ailL05YqH0WDnlks';
 
 const CSP = "default-src 'self'; script-src 'self' 'unsafe-inline' https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://www.facebook.com https://connect.facebook.net; frame-src https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'";
-const COLLECTIONS = new Set(['books', 'shop_config', 'stats', 'ventes']);
-const PUBLIC_READ = new Set(['books', 'shop_config']);
+const COLLECTIONS = new Set(['books', 'shop_config', 'stats', 'ventes', 'ebooks']);
+const PUBLIC_READ = new Set(['books', 'shop_config', 'ebooks']);
 const STAT_TYPES = new Set(['views', 'carts', 'orders']);
 const PUBLIC_EVENTS = new Set(['PageView', 'ViewContent', 'AddToCart', 'InitiateCheckout', 'Lead', 'Contact', 'Search']);
 const IMG_TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
@@ -455,6 +455,49 @@ async function bookPage(req, env, url) {
     .on('head', { element(el) { el.append(`<link rel="canonical" href="${url.origin}/?livre=${encodeURIComponent(b.slug || slug)}">`, { html: true }); } })
     .transform(asset);
 }
+// Pages de vente des ebooks : /ebook/<adresse>
+async function ebookPage(req, env, url) {
+  const slug = url.pathname.split('/')[2];
+  const asset = await env.ASSETS.fetch(new Request(new URL('/ebook', url.origin), req));
+  let e = null;
+  try {
+    const row = await env.DB.prepare("SELECT data FROM docs WHERE col='ebooks' AND id=?").bind(slug).first();
+    if (row) e = JSON.parse(row.data);
+  } catch {}
+  if (!e || e.active === false) {
+    return new Response('Cette page n\'existe pas ou n\'est plus en ligne.', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+  }
+  const seo = e.seo || {};
+  const title = seo.title || e.title || "Dilam B'";
+  const desc = seo.description || e.subtitle || '';
+  const img = e.cover ? new URL(e.cover, url.origin).href : url.origin + '/public/images/logo.png';
+  const set = (val) => ({ element(el) { el.setAttribute('content', val); } });
+  return new HTMLRewriter()
+    .on('title', { element(el) { el.setInnerContent(title); } })
+    .on('meta[name="description"]', set(desc))
+    .on('meta[property="og:title"]', set(title))
+    .on('meta[property="og:description"]', set(desc))
+    .on('meta[property="og:image"]', set(img))
+    .on('head', { element(el) { el.append(`<link rel="canonical" href="${url.origin}/ebook/${slug}">`, { html: true }); } })
+    // Contenu injecté dans la page : un aller-retour réseau de moins au chargement.
+    .on('body', { element(el) { el.append(`<script type="application/json" id="ebdata">${JSON.stringify({ ...e, slug }).replace(/</g, '\\u003c')}</script>`, { html: true }); } })
+    .transform(asset);
+}
+
+// Paiement : branché sur Paystack dès que la clé secrète est enregistrée dans Cloudflare.
+async function checkout(req, env) {
+  if (!(await rateOk(env, 'checkout:' + clientIp(req), 20, 3600))) return err(429, 'too_many');
+  const b = await readJson(req, 2048);
+  const slug = String(b.slug || '');
+  const email = String(b.email || '').trim().toLowerCase();
+  if (!/^[a-z0-9-]{1,80}$/.test(slug)) return err(400, 'bad_product');
+  if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(email) || email.length > 200) return err(400, 'bad_email');
+  const row = await env.DB.prepare("SELECT data FROM docs WHERE col='ebooks' AND id=?").bind(slug).first();
+  if (!row) return err(404, 'not_found');
+  if (!env.PAYSTACK_SECRET_KEY) return err(503, 'payment_not_ready');
+  return err(501, 'not_implemented');
+}
+
 function decodeURISafe(u) { try { return decodeURI(u); } catch { return u; } }
 
 // ───────────────────────── routeur ─────────────────────────
@@ -477,6 +520,7 @@ async function api(req, env, ctx, url) {
 
   if (p === '/api/stats/hit' && m === 'POST') return statsHit(req, env);
   if (p === '/api/capi' && m === 'POST') return capiPublic(req, env, ctx);
+  if (p === '/api/checkout' && m === 'POST') return checkout(req, env);
 
   const dbm = p.match(/^\/api\/db\/([a-z_]+)(?:\/([^/]+))?$/);
   if (dbm) {
@@ -508,6 +552,8 @@ export default {
         res = await api(req, env, ctx, url);
       } else if (url.pathname.startsWith('/media/')) {
         res = await serveMedia(url.pathname, env);
+      } else if (/^\/ebook\/[a-z0-9-]{1,80}\/?$/.test(url.pathname)) {
+        res = await ebookPage(req, env, url);
       } else if (url.pathname === '/' && url.searchParams.get('livre')) {
         res = await bookPage(req, env, url);
       } else {

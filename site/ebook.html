@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dilam B'</title>
+<meta name="description" content="">
+<meta name="theme-color" content="#F4F5F1">
+<meta property="og:type" content="product">
+<meta property="og:site_name" content="Dilam B'">
+<meta property="og:title" content="">
+<meta property="og:description" content="">
+<meta property="og:image" content="">
+<link rel="icon" href="/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/app.css">
+<link rel="stylesheet" href="/assets/ebook.css">
+</head>
+<body class="ebook-page">
+<a class="skip" href="#main">Aller au contenu</a>
+<header class="eb-top"><div class="eb-top-in"><span class="brand-name">Dilam B'</span></div></header>
+<main id="main" tabindex="-1"><div id="eb"><div class="loading" aria-live="polite">Chargement…</div></div></main>
+<footer class="eb-foot"><p>© <span id="year"></span> Dilam B' · Abidjan</p></footer>
+
+<div class="buybar" id="buybar" hidden>
+  <div class="buybar-in">
+    <div class="buybar-price" id="buybarPrice"></div>
+    <button class="btn btn-primary" type="button" data-buy>Acheter</button>
+  </div>
+</div>
+
+<div class="sheet" id="buySheet" role="dialog" aria-modal="true" aria-labelledby="buyTitle" hidden>
+  <div class="sheet-scrim" data-close></div>
+  <div class="sheet-panel">
+    <div class="sheet-head">
+      <h2 id="buyTitle">Recevoir le pack</h2>
+      <button class="icon-btn" type="button" data-close aria-label="Fermer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body" id="buyBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="/assets/ebook.js" defer></script>
+</body>
+</html>
