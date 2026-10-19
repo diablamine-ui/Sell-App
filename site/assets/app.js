@@ -307,6 +307,7 @@
       }).join('');
     view.innerHTML =
       '<div class="wrap">' +
+        '<nav class="crumbs" aria-label="Tu es ici"><a href="/" data-nav="home">Accueil</a><span class="crumbs-sep" aria-hidden="true">›</span><span id="crumbCur" aria-current="page">' + esc(title) + '</span></nav>' +
         '<div class="cat-head"><h1 id="catTitle">' + esc(title) + '</h1><p id="catIntro">' + esc(intro) + '</p></div>' +
         '<div class="filters"><label class="search">' + ICON.search + '<span class="sr-only">Rechercher</span><input id="q" type="search" placeholder="Titre ou auteur" autocomplete="off" value="' + esc(catState.q) + '"></label>' +
         '<div class="chips" role="group" aria-label="Catégories">' + chips + '</div></div>' +
@@ -322,6 +323,7 @@
         catState.cat = k;
         var cc = CAT_BY_KEY[k];
         document.getElementById('catTitle').textContent = cc ? cc.label : 'Tous les livres';
+        document.getElementById('crumbCur').textContent = cc ? cc.label : 'Tous les livres';
         document.getElementById('catIntro').textContent = cc && cc.sub ? cc.sub + '.' : 'Paiement à la livraison. Livraison en 24 h à Abidjan.';
         drawGrid();
       });
@@ -348,7 +350,7 @@
     var related = ranked(inCat(b.category).filter(function (x) { return x !== b && !x.oos; })).slice(0, 8);
     view.innerHTML =
       '<div class="wrap">' +
-        '<a class="back" href="/?cat=' + b.category + '" data-nav="cat">' + ICON.back + esc(cat ? cat.label : 'Catalogue') + '</a>' +
+        '<nav class="crumbs" aria-label="Tu es ici"><a href="/" data-nav="home">Accueil</a><span class="crumbs-sep" aria-hidden="true">›</span><a href="/?cat=' + b.category + '" data-nav="cat">' + esc(cat ? cat.label : 'Catalogue') + '</a></nav>' +
         '<article class="pdp">' +
           '<div class="pdp-cover">' + (b.image ? '<img src="' + esc(imgSrc(b.image)) + '" alt="Couverture : ' + esc(b.title) + '">' : cover(b)) + '</div>' +
           '<div>' +

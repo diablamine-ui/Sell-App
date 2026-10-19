@@ -467,7 +467,8 @@ async function ebookPage(req, env, url) {
     if (row) e = JSON.parse(row.data);
   } catch {}
   if (!e || e.active === false) {
-    return new Response('Cette page n\'existe pas ou n\'est plus en ligne.', { status: 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    const r = dlPage('Page introuvable', '<h1>Cette page n’existe pas ou n’est plus en ligne.</h1><p><a class="btn btn-primary" href="/">Retour à la boutique</a></p>');
+    return new Response(r.body, { status: 404, headers: r.headers });
   }
   const seo = e.seo || {};
   const title = seo.title || e.title || "Dilam B'";
