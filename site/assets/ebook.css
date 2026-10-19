@@ -75,8 +75,14 @@
 .file-name { font-family: var(--serif); font-size: 19px; }
 .file-pages { color: var(--gris); font-size: 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .file p { font-size: 15.5px !important; color: #2B3631; margin-top: 6px !important; line-height: 1.55 !important; }
-.file-prev { display: grid; grid-auto-flow: column; grid-auto-columns: 40%; gap: 10px; overflow-x: auto; margin-top: 12px; scrollbar-width: none; }
-.file-prev img { border-radius: 6px; border: 1px solid var(--trait); }
+.file-prev { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+.prev-btn { padding: 0; border: 1px solid var(--trait); border-radius: 4px; background: #fff; cursor: zoom-in; overflow: hidden; box-shadow: 0 6px 14px -10px rgba(19,32,26,.5); }
+.prev-btn img { display: block; width: 100%; height: auto; }
+.prev-btn:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
+.prev-hint { font-size: 14px !important; color: var(--gris); margin-top: 12px !important; }
+.zoom { position: fixed; inset: 0; z-index: 80; background: rgba(13,25,20,.92); display: flex; align-items: center; justify-content: center; padding: 56px 12px 16px; cursor: zoom-out; }
+.zoom img { max-width: 100%; max-height: 100%; width: auto; height: auto; border-radius: 4px; background: #fff; }
+.zoom-close { position: absolute; top: 10px; right: 12px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.14); color: #fff; font-size: 28px; line-height: 1; cursor: pointer; }
 .files-total { margin-top: 12px; color: var(--gris); font-size: 15px; }
 
 /* Pour qui */

@@ -121,11 +121,12 @@
     // Fichiers
     if (files.length) h += section('', '<h2>' + fr(E.files.title) + '</h2><div class="files">' +
       files.map(function (f) {
-        var prev = (f.previews || []).length ? '<div class="file-prev">' + f.previews.map(function (p) { return '<img src="' + esc(p) + '" alt="Page intérieure : ' + esc(f.name) + '" loading="lazy">'; }).join('') + '</div>' : '';
+        var prev = (f.previews || []).length ? '<div class="file-prev" role="list" aria-label="Pages intérieures : ' + esc(f.name) + '">' + f.previews.map(function (p, k) { return '<button type="button" class="prev-btn" role="listitem" data-zoom="' + esc(p) + '" aria-label="Agrandir la page ' + (k + 1) + ' : ' + esc(f.name) + '"><img src="' + esc(p) + '" alt="" loading="lazy" decoding="async" width="640" height="907"></button>'; }).join('') + '</div>' : '';
         return '<div class="file"><div class="file-head"><span class="file-name">' + fr(f.name) + '</span>' +
           (f.pages ? '<span class="file-pages">' + f.pages + ' pages</span>' : '') + '</div>' +
           (f.content ? '<p>' + fr(f.content) + '</p>' : '') + prev + '</div>';
       }).join('') + '</div>' +
+      (files.some(function (f) { return (f.previews || []).length; }) ? '<p class="prev-hint">Touche une page pour l’agrandir.</p>' : '') +
       (files.length > 1 && totalPages ? '<p class="files-total">' + files.length + ' fichiers PDF, ' + totalPages + ' pages au total.</p>' : '') +
       (E.files.roles ? '<p class="files-roles">' + fr(E.files.roles) + '</p>' : '') +
       buyBlock(E.cta || 'Acheter'));
@@ -255,12 +256,37 @@
       '<a class="btn btn-primary btn-block" style="margin-top:14px" href="' + esc(waLink(msg)) + '" target="_blank" rel="noopener" data-lead>Commander sur WhatsApp</a>';
   }
 
+  // Visionneuse des pages intérieures
+  var zoom = null;
+  function openZoom(src) {
+    zoom = document.createElement('div');
+    zoom.className = 'zoom';
+    zoom.setAttribute('role', 'dialog');
+    zoom.setAttribute('aria-modal', 'true');
+    zoom.setAttribute('aria-label', 'Page intérieure');
+    zoom.innerHTML = '<button type="button" class="zoom-close" aria-label="Fermer">×</button><img src="' + esc(src) + '" alt="">';
+    document.body.appendChild(zoom);
+    document.body.style.overflow = 'hidden';
+    zoom.querySelector('.zoom-close').focus();
+  }
+  function closeZoom() {
+    if (!zoom) return;
+    zoom.remove(); zoom = null;
+    if (sheet.hidden) document.body.style.overflow = '';
+  }
+
   document.addEventListener('click', function (e) {
+    var z = e.target.closest('[data-zoom]');
+    if (z) { openZoom(z.getAttribute('data-zoom')); return; }
+    if (zoom && e.target.closest('.zoom')) { closeZoom(); return; }
     if (e.target.closest('[data-buy]')) { e.preventDefault(); openBuy(); return; }
     if (e.target.closest('[data-close]')) { closeBuy(); return; }
     if (e.target.closest('[data-lead]')) track('Lead', product());
   });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !sheet.hidden) closeBuy(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (zoom) closeZoom(); else if (!sheet.hidden) closeBuy();
+  });
 
   // ───────────── Démarrage ─────────────
   function start(data) {
