@@ -205,7 +205,6 @@
         '<p class="field-help" id="buyHelp">Ton lien de téléchargement sera envoyé à cette adresse. Vérifie-la bien.</p></div>' +
         '<button class="btn btn-primary btn-block" type="submit" id="buyGo">Payer ' + money(E.price) + '</button>' +
         '<p class="buy-note">Wave, Orange Money, MTN ou carte bancaire. Paiement sécurisé par Paystack.</p>' +
-        (E.refund_note ? '<p class="buy-note">' + fr(E.refund_note) + '</p>' : '') +
       '</form><div id="buyMsg"></div>';
     sheet.hidden = false;
     document.body.style.overflow = 'hidden';
