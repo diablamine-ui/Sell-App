@@ -121,7 +121,7 @@
       api('/db/shop_config').then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }),
       api('/db/ebooks').then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
     ]).then(function (res) {
-      EBOOKS = (res[2] || []).filter(function (e) { return e && e.active !== false && e.title; });
+      EBOOKS = (res[2] || []).filter(function (e) { return e && e.active !== false && !e.hidden && e.title; });
       var rows = res[0].map(mapBook);
       // Même ordre que l'administration, pour que les statistiques correspondent aux bons livres.
       rows.forEach(function (b, i) { b._i = i + 1; });

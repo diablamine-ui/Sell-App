@@ -157,3 +157,8 @@ body.has-buybar .eb-foot { padding-bottom: 96px; }
 .merci .spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--trait); border-top-color: var(--action); animation: spin 1s linear infinite; margin-bottom: 18px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .merci .spinner { animation-duration: 3s; } }
+
+.dl-retry { grid-column: 1 / -1; font-size: 13.5px; color: var(--gris); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.dl-retry form { display: inline; }
+.linkbtn { background: none; border: 0; padding: 0; color: var(--action); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
+.dl-find { margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: #E7F2EC; font-size: 15px; line-height: 1.55; }

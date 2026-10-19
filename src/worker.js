@@ -480,7 +480,7 @@ async function ebookPage(req, env, url) {
     .on('meta[property="og:title"]', set(title))
     .on('meta[property="og:description"]', set(desc))
     .on('meta[property="og:image"]', set(img))
-    .on('head', { element(el) { el.append(`<link rel="canonical" href="${url.origin}/ebook/${slug}">`, { html: true }); } })
+    .on('head', { element(el) { el.append(`<link rel="canonical" href="${url.origin}/ebook/${slug}">` + (e.hidden ? '<meta name="robots" content="noindex, nofollow">' : ''), { html: true }); } })
     // Contenu injecté dans la page : un aller-retour réseau de moins au chargement.
     .on('body', { element(el) { el.append(`<script type="application/json" id="ebdata">${JSON.stringify({ ...e, slug }).replace(/</g, '\\u003c')}</script>`, { html: true }); } })
     .transform(asset);
@@ -489,7 +489,7 @@ async function ebookPage(req, env, url) {
 // ───────────────────────── paiement des ebooks (Paystack) ─────────────────────────
 const PAYSTACK_DEFAULT = 'https://api.paystack.co';
 const DL_HOURS = 24;          // durée de validité du lien de téléchargement
-const DL_PER_FILE = 1;        // téléchargements autorisés par fichier
+const DL_PER_FILE = 2;        // téléchargements autorisés par fichier (le 2e n'est proposé qu'en cas d'échec)
 const MAX_PDF_BYTES = 25 * 1024 * 1024;
 const WA_DEFAULT = '2250546494484';
 
@@ -685,55 +685,57 @@ async function download(req, env, ctx, url) {
   let used = {};
   try { used = JSON.parse(o.dl || '{}'); } catch {}
 
+  const pdfSlug = e.pdf_slug || o.slug; // la page de test réutilise les fichiers du vrai produit
+  const findTip = '<p>Ton fichier est sur ton téléphone : ouvre l’application <strong>Fichiers</strong> (ou <strong>Mes fichiers</strong> sur Android), puis le dossier <strong>Téléchargements</strong>. Sur iPhone, regarde dans <strong>Fichiers</strong>, puis <strong>Téléchargements</strong> ou <strong>Sur mon iPhone</strong>.</p>';
+
   if (idxStr !== undefined) {
     if (req.method !== 'POST') return Response.redirect(`${url.origin}/telecharger/${ref}/${sig}`, 303);
     const i = parseInt(idxStr, 10);
     if (!items[i]) return err(404, 'not_found');
+    const key = '$."' + i + '"';
+    const release = () => env.DB.prepare("UPDATE orders SET dl=json_set(dl, ?1, MAX(0, json_extract(dl, ?1) - 1)) WHERE reference=?2").bind(key, ref).run();
     // On réserve le téléchargement avant d'envoyer le fichier (pas de double comptage possible).
     const res = await env.DB.prepare(
       "UPDATE orders SET dl=json_set(dl, ?1, COALESCE(json_extract(dl, ?1), 0) + 1) WHERE reference=?2 AND COALESCE(json_extract(dl, ?1), 0) < ?3"
-    ).bind('$."' + i + '"', ref, DL_PER_FILE).run();
-    if (res.meta.changes !== 1) return dlPage('Déjà téléchargé', '<h1>Ce fichier a déjà été téléchargé.</h1>' + help);
-    const { value, metadata } = await env.FILES.getWithMetadata(`pdf/${o.slug}/${i}.pdf`, { type: 'stream' });
-    if (!value) {
-      await env.DB.prepare("UPDATE orders SET dl=json_set(dl, ?1, json_extract(dl, ?1) - 1) WHERE reference=?2").bind('$."' + i + '"', ref).run();
+    ).bind(key, ref, DL_PER_FILE).run();
+    if (res.meta.changes !== 1) {
+      return dlPage('Fichier déjà téléchargé', '<h1>Ce fichier a déjà été téléchargé.</h1>' + findTip + '<p>Tu ne le trouves pas ?</p>' + help);
+    }
+    const file = await env.FILES.getWithMetadata(`pdf/${pdfSlug}/${i}.pdf`, { type: 'arrayBuffer' });
+    if (!file.value) {
+      await release();
       return dlPage('Fichier indisponible', '<h1>Ce fichier n’est pas disponible pour le moment.</h1>' + help);
     }
-    const name = (metadata && metadata.name) || `${String(i + 1).padStart(2, '0')} - ${items[i].name}.pdf`;
-    // Filigrane « Exemplaire personnel de <e-mail> » : ajouté à la volée à la fin du fichier.
-    let body = value, length = metadata && metadata.size;
+    const bytes = new Uint8Array(file.value);
+    const name = (file.metadata && file.metadata.name) || `${String(i + 1).padStart(2, '0')} - ${items[i].name}.pdf`;
+    // Filigrane « Exemplaire personnel de <e-mail> » : ajouté à la fin du fichier, sans le réécrire.
+    let tail = new Uint8Array(0);
     try {
-      let idx = await env.FILES.get(`pdfidx/${o.slug}/${i}.json`, { type: 'json' });
-      if (!idx) {
-        // Fichier déposé avant la mise en place du filigrane : on calcule son index une fois pour toutes.
-        await value.cancel();
-        const bytes = new Uint8Array(await env.FILES.get(`pdf/${o.slug}/${i}.pdf`, { type: 'arrayBuffer' }));
+      let idx = await env.FILES.get(`pdfidx/${pdfSlug}/${i}.json`, { type: 'json' });
+      if (!idx || idx.len !== bytes.length) {
         idx = indexPdf(bytes);
-        idx.len = bytes.length;
-        await env.FILES.put(`pdfidx/${o.slug}/${i}.json`, JSON.stringify(idx));
-        const tail = stampTail(idx, 'Exemplaire personnel de ' + o.email, { skipFirst: true });
-        const all = new Uint8Array(bytes.length + tail.length);
-        all.set(bytes); all.set(tail, bytes.length);
-        body = all; length = all.length;
-      } else if (idx.len === (metadata && metadata.size)) {
-        const tail = stampTail(idx, 'Exemplaire personnel de ' + o.email, { skipFirst: true });
-        const { readable, writable } = new FixedLengthStream(idx.len + tail.length);
-        ctx.waitUntil((async () => {
-          await value.pipeTo(writable, { preventClose: true });
-          const w = writable.getWriter();
-          await w.write(tail);
-          await w.close();
-        })());
-        body = readable; length = idx.len + tail.length;
-      } else {
-        console.error('filigrane absent', o.slug, i);
+        await env.FILES.put(`pdfidx/${pdfSlug}/${i}.json`, JSON.stringify(idx));
       }
-    } catch (e) {
-      console.error('filigrane', e && e.message);
-      try { await value.cancel(); } catch {}
-      body = await env.FILES.get(`pdf/${o.slug}/${i}.pdf`, { type: 'stream' });
+      tail = stampTail(idx, 'Exemplaire personnel de ' + o.email, { skipFirst: true });
+    } catch (err2) {
+      console.error('filigrane', pdfSlug, i, err2 && err2.message);
     }
-    return new Response(body, {
+    // Envoi par morceaux : si la connexion coupe avant la fin, le téléchargement n'est pas compté.
+    const total = bytes.length + tail.length;
+    const { readable, writable } = new FixedLengthStream(total);
+    ctx.waitUntil((async () => {
+      const w = writable.getWriter();
+      try {
+        const CH = 64 * 1024;
+        for (let at = 0; at < bytes.length; at += CH) await w.write(bytes.subarray(at, Math.min(bytes.length, at + CH)));
+        if (tail.length) await w.write(tail);
+        await w.close();
+      } catch (e3) {
+        await release().catch(() => {});
+        try { await w.abort(); } catch {}
+      }
+    })());
+    return new Response(readable, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="document-${i + 1}.pdf"; filename*=UTF-8''${encodeURIComponent(name)}`,
@@ -746,15 +748,18 @@ async function download(req, env, ctx, url) {
   const left = Math.max(0, Math.round((expires - now()) / 3600));
   const rows = items.map((f, i) => {
     const n = used[String(i)] || 0;
-    const done = n >= DL_PER_FILE;
-    return `<li class="dl-item${done ? ' done' : ''}">${f.cover ? `<img src="${escH(f.cover)}" alt="">` : ''}<div class="dl-txt"><strong>${escH(f.name)}</strong>${f.pages ? `<span>${f.pages}&nbsp;pages</span>` : ''}</div>` +
-      (done ? '<span class="dl-done">Téléchargé</span>'
-            : `<form method="post" action="/telecharger/${ref}/${sig}/${i}"><button class="btn btn-primary" type="submit">Télécharger</button></form>`) + '</li>';
+    const form = (label, cls) => `<form method="post" action="/telecharger/${ref}/${sig}/${i}"><button class="${cls}" type="submit">${label}</button></form>`;
+    const head = `${f.cover ? `<img src="${escH(f.cover)}" alt="">` : ''}<div class="dl-txt"><strong>${escH(f.name)}</strong>${f.pages ? `<span>${f.pages}&nbsp;pages</span>` : ''}</div>`;
+    if (n === 0) return `<li class="dl-item">${head}${form('Télécharger', 'btn btn-primary')}</li>`;
+    return `<li class="dl-item done">${head}<span class="dl-done">Téléchargé</span>` +
+      (n < DL_PER_FILE ? `<div class="dl-retry">Le téléchargement a échoué ? ${form('Réessayer', 'linkbtn')}</div>` : '') + '</li>';
   }).join('');
+  const anyDone = Object.values(used).some((n) => n > 0);
   return dlPage('Tes fichiers',
     `<h1>Tes fichiers</h1><p class="dl-lead">${escH(e.title)}</p>` +
     `<p class="dl-warn">Chaque fichier se télécharge une seule fois. Enregistre-le sur ton téléphone dès qu’il est téléchargé. Ce lien expire dans environ ${left}&nbsp;h.</p>` +
     `<ul class="dl-list">${rows}</ul>` +
+    (anyDone ? `<div class="dl-find">${findTip}</div>` : '') +
     `<p class="dl-tip">Pour remplir le Workbook directement dans le PDF, ouvre-le avec Adobe Acrobat Reader, gratuit sur Android et iPhone.</p>` +
     `<details class="dl-help"><summary>Un problème ?</summary>${help}</details>`);
 }
