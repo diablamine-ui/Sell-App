@@ -67,7 +67,7 @@
   // ───────────── Rendu ─────────────
   function buyBlock(label, id) {
     return '<div class="eb-buy"' + (id ? ' id="' + id + '"' : '') + '>' +
-      '<p class="eb-price"><strong>' + money(E.price) + '</strong>payé une seule fois</p>' +
+      '<p class="eb-price"><strong>' + money(E.price) + '</strong>' + fr(E.price_label || 'Paiement unique') + '</p>' +
       '<button class="btn btn-primary" type="button" data-buy>' + fr(label) + '</button>' +
       '</div>';
   }
@@ -127,12 +127,17 @@
           (f.content ? '<p>' + fr(f.content) + '</p>' : '') + prev + '</div>';
       }).join('') + '</div>' +
       (files.length > 1 && totalPages ? '<p class="files-total">' + files.length + ' fichiers PDF, ' + totalPages + ' pages au total.</p>' : '') +
+      (E.files.roles ? '<p class="files-roles">' + fr(E.files.roles) + '</p>' : '') +
       buyBlock(E.cta || 'Acheter'));
 
-    // Pour qui
+    // Pour qui : deux listes courtes (un texte simple reste accepté)
+    function fitList(v) {
+      if (Array.isArray(v)) return '<ul>' + v.map(function (x) { return '<li>' + fr(x) + '</li>'; }).join('') + '</ul>';
+      return '<p>' + fr(v) + '</p>';
+    }
     if (E.audience) h += section('', '<h2>' + fr(E.audience.title) + '</h2><div class="fit">' +
-      '<div class="yes"><p>' + fr(E.audience.yes) + '</p></div>' +
-      '<div class="no"><p>' + fr(E.audience.no) + '</p></div></div>');
+      '<div class="yes">' + (E.audience.yes_title ? '<p class="fit-t">' + fr(E.audience.yes_title) + '</p>' : '') + fitList(E.audience.yes) + '</div>' +
+      '<div class="no">' + (E.audience.no_title ? '<p class="fit-t">' + fr(E.audience.no_title) + '</p>' : '') + fitList(E.audience.no) + '</div></div>');
 
     // Auteur
     if (E.author) h += section('tint', '<h2>' + fr(E.author.title) + '</h2><div class="author">' +
@@ -153,7 +158,7 @@
     if ((E.faq || []).length) h += section('', '<h2>Questions fréquentes</h2><div class="faq">' +
       E.faq.map(function (f) {
         return '<details><summary>' + fr(f.q) + '</summary><p>' + fr(f.a) +
-          (f.whatsapp ? ' <a href="' + esc(waLink('Bonjour, je n’ai pas reçu mon lien pour « ' + E.title + ' ». Mon adresse e-mail : ')) + '" target="_blank" rel="noopener" data-lead>Écrire sur WhatsApp</a>' : '') +
+          (f.whatsapp ? ' <a href="' + esc(waLink('Bonjour, j’ai un souci avec mes fichiers « ' + E.title + ' ». Mon adresse e-mail : ')) + '" target="_blank" rel="noopener" data-lead>Écrire sur WhatsApp</a>' : '') +
           '</p></details>';
       }).join('') + '</div>');
 
@@ -200,6 +205,7 @@
         '<p class="field-help" id="buyHelp">Ton lien de téléchargement sera envoyé à cette adresse. Vérifie-la bien.</p></div>' +
         '<button class="btn btn-primary btn-block" type="submit" id="buyGo">Payer ' + money(E.price) + '</button>' +
         '<p class="buy-note">Wave, Orange Money, MTN ou carte bancaire. Paiement sécurisé par Paystack.</p>' +
+        (E.refund_note ? '<p class="buy-note">' + fr(E.refund_note) + '</p>' : '') +
       '</form><div id="buyMsg"></div>';
     sheet.hidden = false;
     document.body.style.overflow = 'hidden';

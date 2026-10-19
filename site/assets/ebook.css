@@ -85,6 +85,10 @@
 .fit .yes { background: #E7F2EC; }
 .fit .no { background: #F6ECEA; }
 .fit p { font-size: 16.5px !important; margin: 0 !important; }
+.fit .fit-t { font-weight: 700; margin-bottom: 8px !important; }
+.fit ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.fit li { font-size: 16.5px; line-height: 1.5; }
+.files-roles { font-family: var(--serif); font-size: 19px !important; line-height: 1.5 !important; margin-top: 16px !important; }
 
 /* Auteur */
 .author { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: start; margin-top: 6px; }

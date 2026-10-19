@@ -45,11 +45,26 @@
     "title": "La méthode : l'échelle de la référence",
     "intro": "On devient une référence en montant cinq marches, dans l'ordre. Le pack te fait monter chacune d'elles.",
     "steps": [
-      { "name": "Inconnu", "text": "personne ne t'associe à ton domaine." },
-      { "name": "Visible", "text": "des inconnus voient tes contenus et y réagissent." },
-      { "name": "Crédible", "text": "on t'écrit en privé pour te poser des questions." },
-      { "name": "Recommandé", "text": "des clients arrivent en disant « on m'a parlé de toi »." },
-      { "name": "Référence", "text": "quand on pense à ton sujet, on pense à toi." }
+      {
+        "name": "Inconnu",
+        "text": "personne ne t'associe à ton domaine."
+      },
+      {
+        "name": "Visible",
+        "text": "des inconnus voient tes contenus et y réagissent."
+      },
+      {
+        "name": "Crédible",
+        "text": "on t'écrit en privé pour te poser des questions."
+      },
+      {
+        "name": "Recommandé",
+        "text": "des clients arrivent en disant « on m'a parlé de toi »."
+      },
+      {
+        "name": "Référence",
+        "text": "quand on pense à ton sujet, on pense à toi."
+      }
     ]
   },
   "skills": {
@@ -68,16 +83,51 @@
   "files": {
     "title": "Ce que tu reçois",
     "items": [
-      { "name": "Le guide complet", "pages": 83, "content": "14 chapitres en 6 parties, un démarrage en 7 jours, un exemple suivi du début à la fin, un plan de 90 jours", "cover": "", "previews": [] },
-      { "name": "Le Workbook", "pages": 69, "content": "Les 14 exercices, 12 bilans de la semaine, une réserve de 50 sujets, à remplir directement sur ton téléphone", "cover": "", "previews": [] },
-      { "name": "Le Swipe File", "pages": 37, "content": "50 accroches, 12 modèles de publications, 10 scripts TikTok, des réponses WhatsApp, une campagne de 7 jours", "cover": "", "previews": [] },
-      { "name": "La Bibliothèque de prompts", "pages": 35, "content": "Une fiche de contexte, 49 prompts pour ChatGPT ou Claude, et le Prompt Ultime qui crée ton calendrier de 30 jours", "cover": "", "previews": [] }
-    ]
+      {
+        "name": "Le guide complet",
+        "pages": 83,
+        "content": "14 chapitres en 6 parties, un démarrage en 7 jours, un exemple suivi du début à la fin, un plan de 90 jours",
+        "cover": "",
+        "previews": []
+      },
+      {
+        "name": "Le Workbook",
+        "pages": 69,
+        "content": "Les 14 exercices, 12 bilans de la semaine, une réserve de 50 sujets, à remplir directement sur ton téléphone",
+        "cover": "",
+        "previews": []
+      },
+      {
+        "name": "Le Swipe File",
+        "pages": 37,
+        "content": "50 accroches, 12 modèles de publications, 10 scripts TikTok, des réponses WhatsApp, une campagne de 7 jours",
+        "cover": "",
+        "previews": []
+      },
+      {
+        "name": "La Bibliothèque de prompts",
+        "pages": 35,
+        "content": "Une fiche de contexte, 49 prompts pour ChatGPT ou Claude, et le Prompt Ultime qui crée ton calendrier de 30 jours",
+        "cover": "",
+        "previews": []
+      }
+    ],
+    "roles": "Le guide t'explique. Le Workbook te fait travailler. Le Swipe File te donne des modèles. La Bibliothèque de prompts t'aide à aller plus vite."
   },
   "audience": {
     "title": "Pour qui",
-    "yes": "C'est pour toi si tu vends un service, un savoir-faire ou des produits et veux être connu au-delà de ton entourage. Si tu pars de zéro, ou si tu publies déjà sans résultat. Si tu peux y consacrer trente à quarante-cinq minutes par jour.",
-    "no": "Ce n'est pas pour toi si tu cherches à devenir riche en une semaine, si tu veux des résultats sans publier, ou si tu n'es pas prêt à tenir un rythme pendant trois mois."
+    "yes_title": "C'est pour toi si :",
+    "yes": [
+      "Tu vends un service, un savoir-faire ou des produits et veux être connu au-delà de ton entourage.",
+      "Tu pars de zéro, ou tu publies déjà sans résultat.",
+      "Tu peux y consacrer trente à quarante-cinq minutes par jour."
+    ],
+    "no_title": "Ce n'est pas pour toi si :",
+    "no": [
+      "Tu cherches à devenir riche en une semaine.",
+      "Tu veux des résultats sans publier.",
+      "Tu n'es pas prêt à tenir un rythme pendant trois mois."
+    ]
   },
   "author": {
     "title": "Qui est derrière ce guide",
@@ -86,7 +136,7 @@
   },
   "action": {
     "title": "Commence aujourd'hui.",
-    "price_line": "Le pack complet : 4 000 FCFA, payé une seule fois.",
+    "price_line": "Le pack complet : 4 000 FCFA, paiement unique.",
     "items": [
       "Le guide complet, 83 pages",
       "Le Workbook à remplir sur ton téléphone, 69 pages",
@@ -99,20 +149,58 @@
   },
   "final": "Dans un an, quand quelqu'un pensera à ton domaine, tu veux que ce soit ton nom qui lui vienne. Ça commence par une décision simple, aujourd'hui.",
   "faq": [
-    { "q": "Qu'est-ce que je reçois exactement ?", "a": "Quatre fichiers PDF : le guide complet, le Workbook, le Swipe File et la Bibliothèque de prompts. Rien à recevoir par la poste." },
-    { "q": "Comment je reçois le pack ?", "a": "Dès que ton paiement est confirmé, un e-mail t'envoie un lien de téléchargement personnel, valable 24 heures et utilisable une seule fois. Enregistre tes fichiers dès réception." },
-    { "q": "Je n'ai pas reçu l'e-mail.", "a": "Regarde dans tes courriers indésirables. Si tu ne le trouves pas, écris-moi sur WhatsApp avec l'adresse e-mail utilisée, je te renvoie ton lien.", "whatsapp": true },
-    { "q": "Je peux tout lire sur mon téléphone ?", "a": "Oui. Les fichiers sont mis en page pour se lire confortablement sur un téléphone. Pour remplir le Workbook directement dans le PDF, ouvre-le avec Adobe Acrobat Reader, gratuit sur Android et iPhone." },
-    { "q": "Je pars de zéro, sans abonnés. Ça marche quand même ?", "a": "C'est pour ça que le guide a été écrit. Il commence par les fondations, et TikTok montre tes vidéos à des gens qui ne te suivent pas encore." },
-    { "q": "Je n'aime pas me filmer.", "a": "Le guide te propose une progression : d'abord tes mains au travail et ta voix, puis ton visage quand tu es prêt. Le texte et la photo fonctionnent aussi." },
-    { "q": "Est-ce adapté à mon métier ?", "a": "Si tu vends un service, un savoir-faire ou des produits, oui. Les exemples viennent de métiers variés : coiffure, couture, comptabilité, pâtisserie, réparation, coaching." },
-    { "q": "En combien de temps je verrai des résultats ?", "a": "En sept jours, tu as des profils clairs et tes premiers contenus en ligne. Le plan complet dure 90 jours. La suite dépend de ta régularité : le guide te donne la méthode, c'est toi qui l'appliques." },
-    { "q": "Faut-il payer ChatGPT ou Claude pour les prompts ?", "a": "Non. Les versions gratuites suffisent." },
-    { "q": "Je peux partager le pack avec un ami ?", "a": "Les fichiers sont personnels et portent l'adresse e-mail de l'acheteur. Si ton ami en a besoin, il peut l'acheter à son tour." }
+    {
+      "q": "Qu'est-ce que je reçois exactement ?",
+      "a": "Quatre fichiers PDF : le guide complet, le Workbook, le Swipe File et la Bibliothèque de prompts. Rien à recevoir par la poste."
+    },
+    {
+      "q": "Comment je reçois le pack ?",
+      "a": "Dès que ton paiement est confirmé, un e-mail t'envoie un lien de téléchargement personnel, valable 24 heures et utilisable une seule fois. Enregistre tes fichiers dès réception."
+    },
+    {
+      "q": "Je n'ai pas reçu l'e-mail.",
+      "a": "Regarde dans tes courriers indésirables. Si tu ne le trouves pas, écris-moi sur WhatsApp avec l'adresse e-mail utilisée, je te renvoie ton lien.",
+      "whatsapp": true
+    },
+    {
+      "q": "Puis-je être remboursé ?",
+      "a": "Le pack est un ensemble de fichiers numériques : une fois téléchargés, ils ne peuvent pas être rendus, donc l'achat n'est pas remboursable. En cas de problème technique (lien qui ne fonctionne pas, fichier qui ne s'ouvre pas), écris-moi sur WhatsApp : je te renvoie tes fichiers.",
+      "whatsapp": true
+    },
+    {
+      "q": "Je peux tout lire sur mon téléphone ?",
+      "a": "Oui. Les fichiers sont mis en page pour se lire confortablement sur un téléphone. Pour remplir le Workbook directement dans le PDF, ouvre-le avec Adobe Acrobat Reader, gratuit sur Android et iPhone."
+    },
+    {
+      "q": "Je pars de zéro, sans abonnés. Ça marche quand même ?",
+      "a": "C'est pour ça que le guide a été écrit. Il commence par les fondations, et TikTok montre tes vidéos à des gens qui ne te suivent pas encore."
+    },
+    {
+      "q": "Je n'aime pas me filmer.",
+      "a": "Le guide te propose une progression : d'abord tes mains au travail et ta voix, puis ton visage quand tu es prêt. Le texte et la photo fonctionnent aussi."
+    },
+    {
+      "q": "Est-ce adapté à mon métier ?",
+      "a": "Si tu vends un service, un savoir-faire ou des produits, oui. Les exemples viennent de métiers variés : coiffure, couture, comptabilité, pâtisserie, réparation, coaching."
+    },
+    {
+      "q": "En combien de temps je verrai des résultats ?",
+      "a": "En sept jours, tu as des profils clairs et tes premiers contenus en ligne. Le plan complet dure 90 jours. La suite dépend de ta régularité : le guide te donne la méthode, c'est toi qui l'appliques."
+    },
+    {
+      "q": "Faut-il payer ChatGPT ou Claude pour les prompts ?",
+      "a": "Non. Les versions gratuites suffisent."
+    },
+    {
+      "q": "Je peux partager le pack avec un ami ?",
+      "a": "Les fichiers sont personnels et portent l'adresse e-mail de l'acheteur. Si ton ami en a besoin, il peut l'acheter à son tour."
+    }
   ],
   "seo": {
     "title": "Personal Branding : le guide complet | Lamine Diabaté",
     "description": "Deviens la référence dans ton domaine sur Facebook et TikTok. Guide, Workbook, Swipe File et 50 prompts IA. 4 000 FCFA, envoi immédiat par e-mail."
   },
-  "whatsapp_buy": "Bonjour, je veux acheter le pack « Personal Branding, le guide complet » (4 000 FCFA)."
+  "whatsapp_buy": "Bonjour, je veux acheter le pack « Personal Branding, le guide complet » (4 000 FCFA).",
+  "price_label": "Paiement unique",
+  "refund_note": "Fichiers numériques : pas de remboursement une fois les fichiers téléchargés."
 }
