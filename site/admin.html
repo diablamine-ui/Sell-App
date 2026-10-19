@@ -1467,6 +1467,24 @@ a{color:inherit;text-decoration:none}
             <button class="adm-save" onclick="saveBandeau()">Enregistrer</button>
           </div>
         </div>
+        <!-- Livraison -->
+        <div class="adm-lbl">Livraison</div>
+        <div class="config-section">
+          <div class="adm-form">
+            <div class="adm-field"><label class="adm-field-lbl">Abidjan (FCFA)</label><input class="adm-input" id="dAbj" type="number" min="0" step="100" inputmode="numeric"></div>
+            <div class="adm-field"><label class="adm-field-lbl">Périphérie : Anyama, Grand-Bassam, Songon, N’Dotré, Bingerville (FCFA)</label><input class="adm-input" id="dPeri" type="number" min="0" step="100" inputmode="numeric"></div>
+            <div class="adm-field"><label class="adm-field-lbl">Intérieur du pays, expédition (FCFA)</label><input class="adm-input" id="dInt" type="number" min="0" step="100" inputmode="numeric"></div>
+            <div class="adm-check"><input type="checkbox" id="dOfferActive"><label for="dOfferActive">Offrir la livraison à partir d’un nombre de packs</label></div>
+            <div class="adm-field"><label class="adm-field-lbl">Nombre de packs pour la livraison offerte</label><input class="adm-input" id="dPacks" type="number" min="1" max="20" inputmode="numeric"></div>
+            <div class="adm-field"><label class="adm-field-lbl">Zones où la livraison est offerte</label>
+              <div class="adm-check"><input type="checkbox" id="dZoneAbj"><label for="dZoneAbj">Abidjan</label></div>
+              <div class="adm-check"><input type="checkbox" id="dZonePeri"><label for="dZonePeri">Périphérie</label></div>
+              <div class="adm-check"><input type="checkbox" id="dZoneInt"><label for="dZoneInt">Intérieur du pays</label></div>
+            </div>
+            <div class="adm-hint">Si tu changes l’offre, pense à modifier aussi le texte du bandeau.</div>
+            <button class="adm-save" onclick="saveLivraison()">Enregistrer</button>
+          </div>
+        </div>
         <!-- WhatsApp -->
         <div class="adm-lbl">WhatsApp</div>
         <div class="config-section">
@@ -2287,6 +2305,31 @@ function loadBandeau(){
     if(strip)strip.classList.remove('promo-mode');
   }
 }
+var DELIVERY_DEFAULT={fees:{abidjan:1500,peripherie:2000,interieur:2500},offer:{active:true,packs:2,zones:['abidjan']}};
+async function fillLivraisonForm(){
+  var v=DELIVERY_DEFAULT;
+  try{var d=await fbGetDoc('shop_config','sell_delivery');if(d&&d.value)v=d.value;}catch(e){}
+  var f=v.fees||{},o=v.offer||{},z=o.zones||[];
+  function set(id,val){var el=document.getElementById(id);if(el)el.value=val;}
+  function chk(id,val){var el=document.getElementById(id);if(el)el.checked=!!val;}
+  set('dAbj',f.abidjan);set('dPeri',f.peripherie);set('dInt',f.interieur);set('dPacks',o.packs||2);
+  chk('dOfferActive',o.active);chk('dZoneAbj',z.indexOf('abidjan')>-1);chk('dZonePeri',z.indexOf('peripherie')>-1);chk('dZoneInt',z.indexOf('interieur')>-1);
+}
+async function saveLivraison(){
+  function num(id,min,max){var n=parseInt((document.getElementById(id)||{}).value,10);return (isNaN(n)||n<min||n>max)?null:n;}
+  var abj=num('dAbj',0,100000),peri=num('dPeri',0,100000),inter=num('dInt',0,100000),packs=num('dPacks',1,20);
+  if(abj===null||peri===null||inter===null){showToast('Indique un tarif valide pour chaque zone');return;}
+  if(packs===null){showToast('Nombre de packs invalide (1 à 20)');return;}
+  var zones=[];
+  if(document.getElementById('dZoneAbj').checked)zones.push('abidjan');
+  if(document.getElementById('dZonePeri').checked)zones.push('peripherie');
+  if(document.getElementById('dZoneInt').checked)zones.push('interieur');
+  var active=document.getElementById('dOfferActive').checked;
+  if(active&&!zones.length){showToast('Coche au moins une zone pour l’offre');return;}
+  var value={fees:{abidjan:abj,peripherie:peri,interieur:inter},offer:{active:active,packs:packs,zones:zones}};
+  try{await fbSet('shop_config','sell_delivery',{key:'sell_delivery',value:value});showToast('Livraison mise à jour ✓');}
+  catch(e){showToast('Enregistrement impossible');}
+}
 async function saveBandeau(){
   var active=(document.getElementById('cBandeauActive')||{}).checked;
   var texte=((document.getElementById('cBandeauTexte')||{}).value||'').trim()||'\uD83C\uDF81 Livraison offerte pour 3 livres achet\u00e9s aujourd\u2019hui';
@@ -2464,7 +2507,7 @@ function showAdmMain(){
 function switchTab(tab,el){
   if(tab==='stats'){loadStatsFromSupabase();setTimeout(renderStats,600);}
   if(tab==='ventes'){renderVentes();}
-  if(tab==='config'){renderCampaigns();renderCatList();updateVentesSelect();fillBandeauForm();loadCatHeroes();loadCatHeroForm();}
+  if(tab==='config'){fillLivraisonForm();renderCampaigns();renderCatList();updateVentesSelect();fillBandeauForm();loadCatHeroes();loadCatHeroForm();}
   document.querySelectorAll('.adm-tab').forEach(function(t){t.classList.remove('active');});
   document.querySelectorAll('.adm-tab-content').forEach(function(t){t.classList.remove('active');});
   el.classList.add('active');

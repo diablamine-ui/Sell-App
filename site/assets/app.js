@@ -7,7 +7,8 @@
   // ───────────── Réglages ─────────────
   var DEFAULT_WA = '2250714313052';
   var DEFAULT_PIXEL = '1671688320192246';
-  var FREE_PACKS = 2; // livraison offerte dès 2 packs achetés
+  // Réglages de livraison : valeurs par défaut, remplacées par celles de l'admin (shop_config / sell_delivery).
+  var OFFER = { active: true, packs: 2, zones: ['abidjan'] };
   var ZONES = [
     { key: 'abidjan', label: 'Abidjan', sub: 'Livré en 24 h', fee: 1500 },
     { key: 'peripherie', label: 'Périphérie', sub: 'Anyama, Grand-Bassam, Songon, N’Dotré, Bingerville', fee: 2000 },
@@ -125,6 +126,7 @@
       BOOKS = rows;
       res[1].forEach(function (d) {
         if (d._id === 'sell_config' && d.value) Object.assign(CONFIG, d.value);
+        if (d._id === 'sell_delivery' && d.value) applyDelivery(d.value);
         if (d._id === 'sell_bandeau' && d.value && d.value.active && d.value.texte) {
           var n = document.getElementById('notice');
           var item = '<span class="notice-item">' + esc(d.value.texte) + '</span>';
@@ -248,7 +250,7 @@
 
       '<section class="section"><div class="wrap faq">' +
         '<div class="section-head"><h2>Questions fréquentes</h2></div>' +
-        faq('Combien coûte la livraison ?', 'Abidjan : 1 500 F. Périphérie (Anyama, Grand-Bassam, Songon, N’Dotré, Bingerville) : 2 000 F. Intérieur du pays, par expédition : 2 500 F. La livraison est offerte dès ' + FREE_PACKS + ' packs achetés.') +
+        faq('Combien coûte la livraison ?', deliveryFaq()) +
         faq('En combien de temps je reçois mes livres ?', 'En 24 h à Abidjan. Pour les autres villes, le délai dépend de ta localité et t\'est donné au moment de la confirmation.') +
         faq('Comment je paie ?', 'À la livraison, en espèces ou par Wave. Tu ne paies rien avant d\'avoir ton colis entre les mains.') +
         faq('Les livres sont-ils neufs ?', 'Oui. Si un livre n\'est plus disponible, on te prévient avant de confirmer la commande.') +
@@ -334,7 +336,7 @@
                 : '<button class="btn btn-primary btn-block" type="button" id="orderBtn">Commander ce livre</button>' +
                   '<button class="btn btn-secondary btn-block" type="button" id="addBtn">Ajouter au panier</button>') +
             '</div>' +
-            '<ul class="pdp-facts"><li>Paiement à la livraison</li><li>Livré en 24 h à Abidjan</li><li>Livraison 1 500 F à Abidjan, 2 000 F en périphérie, 2 500 F à l’intérieur</li><li>Livraison offerte dès ' + FREE_PACKS + ' packs achetés</li></ul>' +
+            '<ul class="pdp-facts"><li>Paiement à la livraison</li><li>Livré en 24 h à Abidjan</li><li>' + feesLine() + '</li>' + (offerText() ? '<li>' + offerText() + '</li>' : '') + '</ul>' +
           '</div>' +
         '</article>' +
         (b.desc ? '<section class="pdp-desc"><h2>À propos de ce livre</h2><div class="txt">' + esc(b.desc) + '</div></section>' : '') +
@@ -439,12 +441,39 @@
   });
 
   // ───────────── Livraison ─────────────
+  function applyDelivery(v) {
+    var fees = v.fees || {};
+    ZONES.forEach(function (z) { var f = parseInt(fees[z.key], 10); if (f >= 0 && f <= 100000) z.fee = f; });
+    if (v.offer) {
+      OFFER.active = !!v.offer.active;
+      var n = parseInt(v.offer.packs, 10); if (n >= 1 && n <= 20) OFFER.packs = n;
+      if (Array.isArray(v.offer.zones)) OFFER.zones = v.offer.zones.filter(function (k) { return !!zoneBy(k); });
+    }
+  }
+  function offerZonesLabel() {
+    var names = OFFER.zones.map(function (k) { return zoneBy(k).label; });
+    if (names.length === ZONES.length) return '';
+    return names.length > 1 ? names.slice(0, -1).join(', ') + ' et ' + names[names.length - 1] : names[0];
+  }
+  function offerText() {
+    if (!OFFER.active || !OFFER.zones.length) return '';
+    var where = offerZonesLabel();
+    return 'Livraison offerte' + (where ? ' (' + where + ')' : '') + ' dès ' + OFFER.packs + ' packs achetés';
+  }
+  function feesLine() {
+    return 'Livraison ' + money(zoneBy('abidjan').fee) + ' à Abidjan, ' + money(zoneBy('peripherie').fee) + ' en périphérie, ' + money(zoneBy('interieur').fee) + ' à l’intérieur';
+  }
+  function deliveryFaq() {
+    return 'Abidjan\u00a0: ' + money(zoneBy('abidjan').fee) + '. Périphérie (Anyama, Grand-Bassam, Songon, N’Dotré, Bingerville)\u00a0: ' + money(zoneBy('peripherie').fee) +
+      '. Intérieur du pays, par expédition\u00a0: ' + money(zoneBy('interieur').fee) + '.' + (offerText() ? ' ' + offerText() + '.' : '');
+  }
   function zoneBy(k) { return ZONES.find(function (z) { return z.key === k; }) || null; }
   function packQty(items) {
     return items.reduce(function (s, i) { var b = cartBook(i); return s + (b && b.category === 'pack' ? i.qty : 0); }, 0);
   }
-  function isFree(items) { return packQty(items) >= FREE_PACKS; }
-  function deliveryFee(items, zone) { return !zone ? null : (isFree(items) ? 0 : zone.fee); }
+  function packsOk(items) { return OFFER.active && packQty(items) >= OFFER.packs; }
+  function isFree(items, zone) { return !!zone && packsOk(items) && OFFER.zones.indexOf(zone.key) > -1; }
+  function deliveryFee(items, zone) { return !zone ? null : (isFree(items, zone) ? 0 : zone.fee); }
 
   function customerFields(prefix) {
     var saved = store('dilam_client') || {};
@@ -506,7 +535,7 @@
   function summaryHTML(prefix, items, booksTotal) {
     var zone = selectedZone(prefix) || zoneBy((store('dilam_client') || {}).zone);
     var fee = deliveryFee(items, zone);
-    var free = isFree(items);
+    var free = isFree(items, zone);
     var feeTxt = free ? 'Offerte' : (zone ? money(fee) : 'Selon ta zone');
     var total = zone ? booksTotal + fee : null;
     return '<div class="sum">' +
@@ -523,8 +552,12 @@
         var err = document.querySelector('#' + prefix + 'Zones .err'); if (err) err.remove();
       });
     });
-    if (isFree(items)) {
-      document.querySelectorAll('#' + prefix + 'Zones .zone-fee').forEach(function (f) { f.innerHTML = '<s>' + f.textContent + '</s> Offerte'; });
+    if (packsOk(items)) {
+      OFFER.zones.forEach(function (k) {
+        var f = document.querySelector('#' + prefix + 'Zones input[value="' + k + '"]');
+        f = f && f.closest('.zone').querySelector('.zone-fee');
+        if (f) f.innerHTML = '<s>' + f.textContent + '</s> Offerte';
+      });
     }
   }
 
@@ -543,19 +576,21 @@
         '<div class="qty"><button type="button" data-dec="' + esc(b.fid) + '" aria-label="Retirer un exemplaire">−</button><span>' + i.qty + '</span><button type="button" data-inc="' + esc(b.fid) + '" aria-label="Ajouter un exemplaire">+</button></div>' +
         '</div>';
     }).join('');
-    var packs = packQty(cart), offer;
-    if (packs >= FREE_PACKS) {
-      offer = '<div class="offer done"><strong>Livraison offerte</strong><p>Ta commande compte ' + packs + ' packs.</p></div>';
-    } else {
-      var missing = FREE_PACKS - packs;
-      var ids = cart.map(function (i) { return i.fid; });
-      var sug = ranked(BOOKS.filter(function (b) { return ids.indexOf(b.fid) === -1 && !b.oos && b.category === 'pack'; })).slice(0, 6);
-      offer = '<div class="offer"><strong>' + (packs ? 'Encore 1 pack et la livraison est offerte' : 'Livraison offerte dès ' + FREE_PACKS + ' packs') + '</strong>' +
-        '<p>' + (packs ? 'Ajoute un deuxième pack : tu ne paies pas la livraison.' : 'Chaque pack réunit deux livres à prix réduit.') + '</p>' +
-        '<div class="rail">' + sug.map(function (b) {
-          return '<button class="mini" type="button" data-add="' + esc(b.fid) + '">' + cover(b, { eager: true }) + '<span class="card-title">' + esc(b.title) + '</span><span class="add">Ajouter, ' + money(b.price) + '</span></button>';
-        }).join('') + '</div></div>';
-      if (missing < 1) offer = '';
+    var packs = packQty(cart), offer = '';
+    var where = offerZonesLabel() ? ' à ' + offerZonesLabel() : '';
+    if (OFFER.active && OFFER.zones.length) {
+      if (packs >= OFFER.packs) {
+        offer = '<div class="offer done"><strong>Livraison offerte' + where + '</strong><p>Ta commande compte ' + packs + ' packs.</p></div>';
+      } else {
+        var missing = OFFER.packs - packs;
+        var ids = cart.map(function (i) { return i.fid; });
+        var sug = ranked(BOOKS.filter(function (b) { return ids.indexOf(b.fid) === -1 && !b.oos && b.category === 'pack'; })).slice(0, 6);
+        offer = '<div class="offer"><strong>' + (packs ? 'Encore ' + missing + ' pack' + (missing > 1 ? 's' : '') + ' et la livraison' + where + ' est offerte' : 'Livraison offerte' + where + ' dès ' + OFFER.packs + ' packs') + '</strong>' +
+          '<p>Chaque pack réunit deux livres à prix réduit.</p>' +
+          '<div class="rail">' + sug.map(function (b) {
+            return '<button class="mini" type="button" data-add="' + esc(b.fid) + '">' + cover(b, { eager: true }) + '<span class="card-title">' + esc(b.title) + '</span><span class="add">Ajouter, ' + money(b.price) + '</span></button>';
+          }).join('') + '</div></div>';
+      }
     }
     var booksTotal = cartTotal();
     body.innerHTML = lines + offer +
@@ -583,7 +618,7 @@
   document.getElementById('cartBtn').addEventListener('click', function () { renderCart(); openSheet('cartSheet'); });
 
   function deliveryLine(items, zone) {
-    return isFree(items) ? '🎁 Livraison offerte (' + FREE_PACKS + ' packs) — ' + zone.label
+    return isFree(items, zone) ? '🎁 Livraison offerte (' + OFFER.packs + ' packs) — ' + zone.label
       : '🚚 Livraison ' + zone.label + ' : ' + zone.fee.toLocaleString('fr-FR') + ' FCFA';
   }
   function sendCart() {
