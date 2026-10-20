@@ -5,7 +5,7 @@
   "title": "Lire Autrement",
   "author_name": "Lamine Diabaté",
   "headline": "Tu lis beaucoup… Mais est-ce que tu lis de la bonne manière ?",
-  "subtitle": "Une méthode en trois temps pour choisir le bon livre, retenir l'essentiel et transformer chaque lecture en décision. Appliquée sous tes yeux à un vrai livre.",
+  "subtitle": "Le problème n'est pas le nombre de livres que tu lis. C'est ce que fait ton cerveau avec ce que tu lis. Lire Autrement te donne une méthode en trois temps pour retenir l'essentiel et transformer chaque lecture en décision.",
   "price": 3000,
   "price_label": "Paiement unique",
   "cta": "Je veux le livre",
@@ -18,7 +18,7 @@
   "cover": "/public/ebooks/lire-autrement/couverture.jpg",
   "extra_covers": [],
   "problem": {
-    "title": "Tu lis. Mais rien ne change.",
+    "title": "Tu refermes le livre. Et rien ne bouge.",
     "paragraphs": [
       "Tu viens de terminer un livre. Un bon livre, de ceux qui donnent l'impression, le temps de quelques heures, d'avoir touché quelque chose d'essentiel. Tu le refermes, sûr que cette fois quelque chose va bouger.",
       "Puis la vie reprend : le travail, le téléphone, les habitudes.",
@@ -30,7 +30,7 @@
     "paragraphs": [
       "Il te coûte le prix que tu l'as payé, et les heures que tu lui as données. Un livre papier coûte souvent plus de 8 000 F. S'il ne reste rien trois semaines plus tard, c'est de l'argent et du temps partis sans laisser de trace.",
       "Alors on accumule. Des livres, des passages surlignés, des citations partagées un soir avec un ami. On comprend beaucoup, on applique peu, et l'écart entre les deux finit par peser.",
-      "Le problème n'est pas que tu lis trop peu. C'est que personne ne t'a appris quoi faire entre la dernière page et le lendemain matin."
+      "Personne ne t'a appris quoi faire entre la dernière page et le lendemain matin."
     ]
   },
   "solution": {
@@ -119,7 +119,7 @@
     "payment": "Wave, Orange Money, MTN ou carte Visa et Mastercard, depuis la Côte d'Ivoire comme depuis l'étranger.",
     "delivery": "Dès que ton paiement est confirmé, tu reçois par e-mail un lien de téléchargement personnel, valable 24 heures. Enregistre ton fichier dès que tu le reçois."
   },
-  "final": "Le problème n'était pas que tu lisais trop peu. Tu lisais sans stratégie. La prochaine lecture que tu vas transformer, c'est la tienne.",
+  "final": "Le problème n'a jamais été le nombre de livres. Tu lisais sans stratégie. La prochaine lecture que tu vas transformer, c'est la tienne.",
   "faq": [
     {
       "q": "Qu'est-ce que je reçois ?",
