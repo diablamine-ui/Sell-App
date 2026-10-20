@@ -126,7 +126,8 @@
     // Haut de page
     // Bannière tout en haut, avant les premières lignes ; la couverture reste à sa place dans le haut de page.
     h += '<section class="eb-hero">' +
-      (E.banner ? '<div class="eb-ban-top"><img src="' + esc(E.banner) + '" alt="' + esc(E.title) + ' : aperçu du guide" width="1600" height="900" fetchpriority="high"></div>' : '') +
+      // Un appui sur la bannière ouvre directement la fenêtre d'achat.
+      (E.banner ? '<div class="eb-ban-top"><button type="button" class="eb-ban-btn" data-buy aria-label="Acheter ' + esc(E.title) + '"><img src="' + esc(E.banner) + '" alt="' + esc(E.title) + ' : aperçu du guide" width="1600" height="900" fetchpriority="high"></button></div>' : '') +
       '<div class="eb-col">' +
       '<div class="eb-hero-txt">' +
         '<p class="eb-sur">' + fr(E.title) + (E.author_name ? ', par ' + fr(E.author_name) : '') + '</p>' +
