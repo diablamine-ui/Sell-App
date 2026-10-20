@@ -323,7 +323,7 @@
             (cardLine(star) ? '<span class="ebook-feat-line">' + esc(cardLine(star)) + '</span>' : '') +
             '<span class="ebook-feat-price">' + money(star.price) + '<span> en PDF, reçu tout de suite</span></span>' +
             '<span class="btn ebook-feat-btn">Découvrir le guide</span></span></a>' : '';
-      var many = rest.length >= 3;
+      var many = rest.length >= 2; // dès deux ebooks, ils défilent en ligne au lieu de s'empiler
       return '<section class="ebooks"><div class="wrap">' +
         '<div class="section-head ebooks-head"><h2>Ebooks</h2>' + (EBOOKS.length > 1 ? '<a href="/?vue=ebooks" data-nav="ebooks">Tout voir</a>' : '') + '</div>' +
         '<p class="ebooks-intro">Des livres et des guides pratiques en PDF. Tu paies en ligne et tu reçois tes fichiers par e-mail, à lire sur ton téléphone.</p>' +
@@ -371,17 +371,27 @@
     view.querySelectorAll('.rail[data-auto]').forEach(function (el) {
       var items = [].slice.call(el.children);
       if (items.length < 2) return;
-      items.forEach(function (it) {
-        var c = it.cloneNode(true);
-        c.setAttribute('aria-hidden', 'true');
-        c.setAttribute('tabindex', '-1');
-        c.querySelectorAll('a,button').forEach(function (x) { x.setAttribute('tabindex', '-1'); });
-        el.appendChild(c);
-      });
+      function addCopy() {
+        var first = null;
+        items.forEach(function (it) {
+          var c = it.cloneNode(true);
+          c.setAttribute('aria-hidden', 'true');
+          c.setAttribute('tabindex', '-1');
+          c.querySelectorAll('a,button').forEach(function (x) { x.setAttribute('tabindex', '-1'); });
+          el.appendChild(c);
+          if (!first) first = c;
+        });
+        return first;
+      }
+      var firstCopy = addCopy();
       el.classList.add('is-auto');
+      // Une période = la largeur de la série d'origine. Avec peu de cartes, on ajoute des copies
+      // pour qu'il reste toujours de quoi remplir l'écran : le défilement ne cale jamais.
+      var period = firstCopy.offsetLeft - items[0].offsetLeft;
+      for (var n = 0; period > 0 && n < 6 && el.scrollWidth - period < el.clientWidth + 2; n++) addCopy();
       if (calm) return;
       var pos = 0, last = 0, paused = false, visible = true, raf = 0, timer = 0, speed = 32; // pixels par seconde
-      function half() { return el.scrollWidth / 2; }
+      function half() { return period > 0 ? period : el.scrollWidth / 2; }
       function frame(t) {
         raf = requestAnimationFrame(frame);
         if (!last) { last = t; return; }
