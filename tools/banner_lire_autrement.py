@@ -2,14 +2,14 @@
 import sys
 from PIL import Image, ImageDraw, ImageFilter
 S=2  # suréchantillonnage
-W,H=1200*S,900*S
+W,H=1600*S,900*S
 EB='/home/claude/sell-app/site/public/ebooks/lire-autrement/'
 out=sys.argv[1]
 
 # Fond : vert très sombre, léger halo clair au centre
 bg=Image.new('RGB',(W,H),(12,22,18))
 glow=Image.new('L',(W,H),0); g=ImageDraw.Draw(glow)
-g.ellipse([W*0.18,H*0.02,W*0.86,H*1.02],fill=255)
+g.ellipse([W*0.22,H*0.0,W*0.78,H*1.0],fill=255)
 glow=glow.filter(ImageFilter.GaussianBlur(220*S))
 light=Image.new('RGB',(W,H),(38,60,51))
 bg=Image.composite(light,bg,glow)
@@ -29,8 +29,8 @@ def sheet(path,w,angle,cx,cy):
     bg.paste(cr,(int(cx-cr.width/2),int(cy-cr.height/2)),cr)
 
 # Pages intérieures en éventail
-sheet(EB+'apercus/page_33.jpg',330*S,9,W*0.70,H*0.50)
-sheet(EB+'apercus/page_7.jpg',330*S,-9,W*0.31,H*0.50)
+sheet(EB+'apercus/page_33.jpg',340*S,9,W/2+270*S,H*0.50)
+sheet(EB+'apercus/page_7.jpg',340*S,-9,W/2-270*S,H*0.50)
 
 # Téléphone
 pw,ph=360*S,740*S; px,py=int(W/2-pw/2),int(H/2-ph/2)+10*S
@@ -56,6 +56,6 @@ body.paste(cv,(sx,sy),mask)
 d.rounded_rectangle([pw/2-48*S,26*S,pw/2+48*S,48*S],radius=11*S,fill=(10,10,10,255))  # caméra
 bg.paste(body,(px,py),body)
 
-bg=bg.resize((1200,900),Image.LANCZOS)
+bg=bg.resize((W//S,H//S),Image.LANCZOS)
 bg.save(out,quality=86,optimize=True,progressive=True)
 print('ok',out)

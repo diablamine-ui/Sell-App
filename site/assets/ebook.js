@@ -124,19 +124,20 @@
     var h = '';
 
     // Haut de page
-    h += '<section class="eb-hero"><div class="eb-col">' +
+    // Bannière tout en haut, avant les premières lignes ; la couverture reste à sa place dans le haut de page.
+    h += '<section class="eb-hero">' +
+      (E.banner ? '<div class="eb-ban-top"><img src="' + esc(E.banner) + '" alt="' + esc(E.title) + ' : aperçu du guide" width="1600" height="900" fetchpriority="high"></div>' : '') +
+      '<div class="eb-col">' +
       '<div class="eb-hero-txt">' +
         '<p class="eb-sur">' + fr(E.title) + (E.author_name ? ', par ' + fr(E.author_name) : '') + '</p>' +
         '<h1>' + fr(E.headline || E.title) + '</h1>' +
         (E.subtitle ? '<p class="eb-sub">' + fr(E.subtitle) + '</p>' : '') +
       '</div>' +
-      (E.banner
-        ? '<div class="eb-visual eb-banner"><img src="' + esc(E.banner) + '" alt="' + esc(E.title) + ' : aperçu du guide" width="1200" height="900" fetchpriority="high"></div>'
-        : '<div class="eb-visual">' +
-          (extra[0] ? '<img class="fan l" src="' + esc(extra[0]) + '" alt="" loading="lazy">' : '') +
-          (extra[1] ? '<img class="fan r" src="' + esc(extra[1]) + '" alt="" loading="lazy">' : '') +
-          '<img class="main" src="' + esc(E.cover) + '" alt="Couverture : ' + esc(E.title) + '" width="600" height="800" fetchpriority="high">' +
-        '</div>') +
+      '<div class="eb-visual">' +
+        (extra[0] ? '<img class="fan l" src="' + esc(extra[0]) + '" alt="" loading="lazy">' : '') +
+        (extra[1] ? '<img class="fan r" src="' + esc(extra[1]) + '" alt="" loading="lazy">' : '') +
+        '<img class="main" src="' + esc(E.cover) + '" alt="Couverture : ' + esc(E.title) + '" width="600" height="800"' + (E.banner ? ' loading="lazy"' : ' fetchpriority="high"') + '>' +
+      '</div>' +
       '<div class="eb-buy-wrap">' + buyBlock(E.cta || 'Acheter', 'heroBuy') +
         (PAGES.length ? '<button type="button" class="eb-peek" data-peek>Voir un extrait (' + PAGES.length + ' pages)</button>' : '') +
         payPills() +

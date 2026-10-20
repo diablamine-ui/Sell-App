@@ -179,13 +179,10 @@ body.has-buybar .eb-foot { padding-bottom: 96px; }
 .media-sec .eb-media:first-child { margin-top: 0; }
 .final .eb-media figcaption { font-family: inherit; }
 
-/* Bannière produit (remplace la couverture en haut de page) */
-.eb-visual.eb-banner { width: 100%; max-width: 100%; margin: 22px 0 0; }
-.eb-banner img { display: block; width: 100%; height: auto; border-radius: 10px; box-shadow: 0 18px 40px -20px rgba(19,32,26,.55); }
-@media (min-width: 820px) {
-  .eb-visual.eb-banner { align-self: center; margin: 0; }
-  .eb-hero .eb-col:has(.eb-banner) { grid-template-columns: 1fr 1fr; column-gap: 64px; }
-}
+/* Bannière produit, tout en haut de la page */
+.eb-ban-top { max-width: 640px; margin: 0 auto 22px; padding: 0 var(--gutter); }
+.eb-ban-top img { display: block; width: 100%; height: auto; border-radius: 10px; box-shadow: 0 18px 40px -22px rgba(19,32,26,.55); }
+@media (min-width: 820px) { .eb-ban-top { max-width: 1000px; margin-bottom: 44px; } }
 
 /* Voir un extrait, moyens de paiement sous le bouton du haut */
 .eb-peek { display: block; width: 100%; margin-top: 10px; min-height: 46px; border-radius: 999px; border: 1px solid var(--encre); background: transparent; color: var(--encre); font: inherit; font-weight: 600; font-size: 15.5px; cursor: pointer; }
