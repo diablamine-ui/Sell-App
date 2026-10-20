@@ -38,7 +38,7 @@
       '<input class="dlb-input" id="dlbEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" value="' + esc(saved) + '">' +
       '<p class="dlb-help" id="dlbHelp">Ton lien de téléchargement sera envoyé à cette adresse. Vérifie-la bien.</p>' +
       '<button class="dlb-btn" type="submit" id="dlbGo">Payer ' + money(E.price) + '</button>' +
-      '<p class="dlb-note">Wave, Orange Money, MTN ou carte bancaire. Paiement sécurisé par Paystack.</p></form><div id="dlbMsg"></div>';
+      '<p class="dlb-note">Wave, Orange Money, MTN ou carte bancaire. Paiement sécurisé par Paystack. Wave ne s’ouvre pas ? Ouvre cette page dans Chrome, puis relance le paiement.</p></form><div id="dlbMsg"></div>';
     sheet.hidden = false;
     document.documentElement.style.overflow = 'hidden';
     setTimeout(function () { var i = document.getElementById('dlbEmail'); if (i) i.focus(); }, 60);

@@ -271,7 +271,7 @@
         '<input id="buyEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" required value="' + esc(saved) + '" aria-describedby="buyHelp">' +
         '<p class="field-help" id="buyHelp">Ton lien de téléchargement sera envoyé à cette adresse. Vérifie-la bien.</p></div>' +
         '<button class="btn btn-primary btn-block" type="submit" id="buyGo">Payer ' + money(E.price) + '</button>' +
-        payPills() + '<p class="buy-note">Paiement sécurisé par Paystack.</p>' +
+        payPills() + '<p class="buy-note">Paiement sécurisé par Paystack. Wave ne s’ouvre pas ? Ouvre cette page dans Chrome, puis relance le paiement.</p>' +
       '</form><div id="buyMsg"></div>';
     sheet.hidden = false;
     document.body.style.overflow = 'hidden';
