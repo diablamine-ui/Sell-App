@@ -1,42 +1,40 @@
 {
-  "name": "Dilam B' — Les livres à p'tits prix",
+  "id": "/",
+  "name": "Dilam B'",
   "short_name": "Dilam B'",
-  "description": "La bibliothèque premium des entrepreneurs africains. Livres de développement personnel, finance et histoire africaine.",
+  "description": "Les livres à p'tits prix : finances, développement personnel, productivité et histoire africaine, livrés à Abidjan et partout en Côte d'Ivoire.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#FAF7F2",
-  "theme_color": "#A9771C",
-  "orientation": "portrait",
+  "background_color": "#F4F5F1",
+  "theme_color": "#0D3B2E",
   "lang": "fr",
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshot.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow"
+      "purpose": "any"
     }
   ],
   "categories": ["shopping", "books", "education"],
   "shortcuts": [
     {
-      "name": "Catalogue",
+      "name": "Tous les livres",
       "short_name": "Livres",
-      "description": "Voir tous les livres disponibles",
-      "url": "/#catalogue",
+      "url": "/?vue=livres",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Ebooks Lamine Diabaté",
+      "short_name": "Ebooks",
+      "url": "/?vue=ebooks",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
