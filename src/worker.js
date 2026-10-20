@@ -489,9 +489,9 @@ async function bookPage(req, env, url) {
   let b = {};
   try { b = JSON.parse(row.data); } catch { return asset; }
   const price = (parseInt(b.price, 10) || 0).toLocaleString('fr-FR').replace(/\u202f/g, ' ');
-  const title = `${b.title || 'Livre'} — ${price} F | Dilam B'`;
-  const desc = String(b.description || '').replace(/\s+/g, ' ').trim().slice(0, 180) ||
-    `${b.title} — paiement à la livraison, livraison en 24 h à Abidjan.`;
+  const title = `${b.title || 'Livre'} | ${price} F | Dilam B'`;
+  const desc = plainText(b.description).slice(0, 180) ||
+    `${b.title} : paiement à la livraison, livraison en 24 h à Abidjan.`;
   const img = b.image ? new URL(encodeURI(decodeURISafe(b.image)), url.origin).href : url.origin + '/public/images/logo.png';
   const set = (sel, val) => ({ element(el) { el.setAttribute('content', val); } });
   return new HTMLRewriter()
@@ -500,8 +500,59 @@ async function bookPage(req, env, url) {
     .on('meta[property="og:title"]', set('', title))
     .on('meta[property="og:description"]', set('', desc))
     .on('meta[property="og:image"]', set('', img))
-    .on('head', { element(el) { el.append(`<link rel="canonical" href="${url.origin}/?livre=${encodeURIComponent(b.slug || slug)}">`, { html: true }); } })
+    .on('head', {
+      element(el) {
+        const canon = `${url.origin}/?livre=${encodeURIComponent(b.slug || slug)}`;
+        const ld = {
+          '@context': 'https://schema.org', '@type': ['Book', 'Product'],
+          name: b.title, image: [img], description: desc, sku: b.slug || slug, url: canon,
+          ...(b.author ? { author: { '@type': 'Person', name: b.author } } : {}),
+          offers: {
+            '@type': 'Offer', price: parseInt(b.price, 10) || 0, priceCurrency: 'XOF', url: canon,
+            availability: b.out_of_stock ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+            itemCondition: 'https://schema.org/NewCondition', seller: { '@type': 'Organization', name: "Dilam B'" },
+          },
+        };
+        el.append(`<link rel="canonical" href="${canon}">` + jsonLd(ld), { html: true });
+      },
+    })
     .transform(asset);
+}
+
+// Données structurées : Google peut afficher le prix et la disponibilité dans ses résultats.
+function jsonLd(o) { return `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, '\\u003c')}</script>`; }
+function plainText(t) { return String(t || '').replace(/\*\*/g, '').replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/\s+/g, ' ').trim(); }
+
+// Accueil : image de partage en adresse complète, données de la boutique.
+async function homePage(req, env, url) {
+  const asset = await env.ASSETS.fetch(req);
+  if (url.search) return asset; // catalogue, catégories : rendus par le navigateur
+  const logo = url.origin + '/public/images/logo.png';
+  const ld = [
+    { '@context': 'https://schema.org', '@type': 'Organization', name: "Dilam B'", url: url.origin + '/', logo,
+      address: { '@type': 'PostalAddress', addressLocality: 'Abidjan', addressCountry: 'CI' } },
+    { '@context': 'https://schema.org', '@type': 'WebSite', name: "Dilam B'", url: url.origin + '/', inLanguage: 'fr' },
+  ];
+  return new HTMLRewriter()
+    .on('meta[property="og:image"]', { element(el) { el.setAttribute('content', logo); } })
+    .on('head', { element(el) { el.append(`<link rel="canonical" href="${url.origin}/"><meta property="og:url" content="${url.origin}/">` + jsonLd(ld), { html: true }); } })
+    .transform(asset);
+}
+
+// Plan du site pour les moteurs de recherche.
+async function sitemap(env, url) {
+  const o = url.origin;
+  const ts = (t) => { const n = Number(t) || 0; const d = new Date(n > 1e12 ? n : n * 1000); return isNaN(d) || !n ? '' : `<lastmod>${d.toISOString().slice(0, 10)}</lastmod>`; };
+  const u = (loc, t) => `<url><loc>${escH(loc)}</loc>${ts(t)}</url>`;
+  const { results: books } = await env.DB.prepare("SELECT id, json_extract(data,'$.slug') slug, json_extract(data,'$.category') cat, updated_at t FROM docs WHERE col='books'").all();
+  const { results: ebooks } = await env.DB.prepare("SELECT id, updated_at t FROM docs WHERE col='ebooks' AND COALESCE(json_extract(data,'$.hidden'),0)=0 AND COALESCE(json_extract(data,'$.active'),1)=1").all();
+  const cats = [...new Set(books.map((b) => b.cat).filter(Boolean))];
+  const lines = [u(o + '/'), u(o + '/?vue=livres'), ...cats.map((c) => u(`${o}/?cat=${encodeURIComponent(c)}`)),
+    ...ebooks.map((e) => u(`${o}/ebook/${e.id}`, e.t)),
+    ...books.map((b) => u(`${o}/?livre=${encodeURIComponent(b.slug || b.id)}`, b.t)),
+    u(o + '/conditions'), u(o + '/confidentialite')];
+  return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${lines.join('')}</urlset>`,
+    { headers: { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'public, max-age=3600' } });
 }
 // Pages de vente des ebooks : /ebook/<adresse>
 async function ebookPage(req, env, url) {
@@ -528,7 +579,17 @@ async function ebookPage(req, env, url) {
     .on('meta[property="og:title"]', set(title))
     .on('meta[property="og:description"]', set(desc))
     .on('meta[property="og:image"]', set(img))
-    .on('head', { element(el) { el.append(`<link rel="canonical" href="${url.origin}/ebook/${slug}">` + (e.hidden ? '<meta name="robots" content="noindex, nofollow">' : ''), { html: true }); } })
+    .on('head', {
+      element(el) {
+        const canon = `${url.origin}/ebook/${slug}`;
+        const ld = {
+          '@context': 'https://schema.org', '@type': ['Book', 'Product'], name: e.title, image: [img], description: desc, sku: slug, url: canon,
+          bookFormat: 'https://schema.org/EBook', inLanguage: 'fr', author: { '@type': 'Person', name: e.author_name || 'Lamine Diabaté' },
+          offers: { '@type': 'Offer', price: parseInt(e.price, 10) || 0, priceCurrency: 'XOF', availability: 'https://schema.org/InStock', url: canon },
+        };
+        el.append(`<link rel="canonical" href="${canon}">` + (e.hidden ? '<meta name="robots" content="noindex, nofollow">' : jsonLd(ld)), { html: true });
+      },
+    })
     // Contenu injecté dans la page : un aller-retour réseau de moins au chargement.
     .on('body', { element(el) { el.append(`<script type="application/json" id="ebdata">${JSON.stringify({ ...e, slug }).replace(/</g, '\\u003c')}</script>`, { html: true }); } })
     .transform(asset);
@@ -1002,6 +1063,10 @@ export default {
         res = await ebookPage(req, env, url);
       } else if (url.pathname === '/' && url.searchParams.get('livre')) {
         res = await bookPage(req, env, url);
+      } else if (url.pathname === '/') {
+        res = await homePage(req, env, url);
+      } else if (url.pathname === '/sitemap.xml') {
+        res = await sitemap(env, url);
       } else {
         res = await env.ASSETS.fetch(req);
       }

@@ -108,12 +108,11 @@
     box.querySelector('[data-cover]').onchange = function () {
       var f = this.files[0]; if (!f) return;
       msg.textContent = 'Envoi de l’image…';
-      api('/admin/upload', { method: 'POST', headers: { 'Content-Type': f.type }, body: f }).then(jsonOf).then(function (d) {
-        if (!d.url) { msg.textContent = 'Échec de l’envoi de l’image.'; return; }
-        cover = d.url;
+      compressImage(f).then(function (r) { return upImage(r.blob); }).then(function (url) {
+        cover = url;
         box.querySelector('.cover-row').firstChild.outerHTML = '<img class="cov" src="' + esc(cover) + '" alt="">';
         msg.textContent = 'Image prête. Pense à enregistrer.';
-      });
+      }).catch(function () { msg.textContent = 'Échec de l’envoi de l’image.'; });
     };
 
     box.querySelector('[data-save]').onclick = function () {

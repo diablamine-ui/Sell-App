@@ -53,6 +53,14 @@
     try { raw = decodeURI(u); } catch (e) {}
     return encodeURI(raw);
   }
+  // Images du catalogue : versions WebP légères (tools/optimize_images.py), l'original sert au partage.
+  function picAttrs(u, sizes) {
+    var m = /^\/public\/images\/([^/]+)\.(jpe?g|png)$/i.exec((function () { try { return decodeURI(u || ''); } catch (e) { return u || ''; } })());
+    if (!m) return 'src="' + esc(imgSrc(u)) + '"';
+    var base = '/public/images/opt/' + m[1];
+    return 'src="' + esc(encodeURI(base + '-400.webp')) + '" srcset="' + esc(encodeURI(base + '-400.webp')) + ' 400w, ' +
+      esc(encodeURI(base + '-800.webp')) + ' 800w" sizes="' + sizes + '"';
+  }
   function store(key, val) {
     try {
       if (val === undefined) return JSON.parse(localStorage.getItem(key) || 'null');
@@ -176,7 +184,7 @@
       return '<div class="cv"><div class="cv-ph">' + esc(b.title) + '</div>' + tag + '</div>';
     }
     var crop = opts.full ? false : canCrop(b);
-    return '<div class="cv ' + (crop ? 'cv-crop' : 'cv-full') + '"><img src="' + esc(imgSrc(b.image)) + '" alt="" loading="' + (opts.eager ? 'eager' : 'lazy') + '" decoding="async">' + tag + '</div>';
+    return '<div class="cv ' + (crop ? 'cv-crop' : 'cv-full') + '"><img ' + picAttrs(b.image, crop ? '(min-width: 820px) 280px, 56vw' : '(min-width: 820px) 220px, 45vw') + ' alt="" loading="' + (opts.eager ? 'eager' : 'lazy') + '" decoding="async">' + tag + '</div>';
   }
   function priceHTML(b) {
     if (isPromo(b)) {
@@ -292,7 +300,7 @@
       return '<li class="fact"><svg viewBox="0 0 24 24" aria-hidden="true">' + path + '</svg><div><strong>' + t + '</strong><span>' + s + '</span></div></li>';
     }
     function faq(q, a) { return '<details><summary>' + q + '</summary><p>' + a + '</p></details>'; }
-    document.title = "Dilam B' — Les livres à p'tits prix, livrés à Abidjan";
+    document.title = "Dilam B' | Les livres à p'tits prix, livrés à Abidjan";
   }
 
   var catState = { cat: 'all', q: '' };
@@ -329,7 +337,7 @@
       });
     });
     drawGrid();
-    document.title = title + " — Dilam B'";
+    document.title = title + " | Dilam B'";
   }
   function drawGrid() {
     var list = catState.cat === 'all' ? BOOKS.slice() : inCat(catState.cat);
@@ -352,7 +360,7 @@
       '<div class="wrap">' +
         '<nav class="crumbs" aria-label="Tu es ici"><a href="/" data-nav="home">Accueil</a><span class="crumbs-sep" aria-hidden="true">›</span><a href="/?cat=' + b.category + '" data-nav="cat">' + esc(cat ? cat.label : 'Catalogue') + '</a></nav>' +
         '<article class="pdp">' +
-          '<div class="pdp-cover">' + (b.image ? '<img src="' + esc(imgSrc(b.image)) + '" alt="Couverture : ' + esc(b.title) + '">' : cover(b)) + '</div>' +
+          '<div class="pdp-cover">' + (b.image ? '<img ' + picAttrs(b.image, '(min-width: 820px) 360px, 70vw') + ' alt="Couverture : ' + esc(b.title) + '">' : cover(b)) + '</div>' +
           '<div>' +
             '<h1>' + esc(b.title) + '</h1>' +
             '<p class="pdp-author">' + esc(b.category === 'pack' ? 'Pack de deux livres' : b.author) + '</p>' +
@@ -371,7 +379,7 @@
         (related.length ? '<section class="section"><div class="section-head"><h2>Dans la même catégorie</h2></div><div class="rail">' + related.map(card).join('') + '</div></section>' : '') +
       '</div>';
 
-    document.title = b.title + " — Dilam B'";
+    document.title = b.title + " | Dilam B'";
     if (!b.oos) {
       document.getElementById('orderBtn').addEventListener('click', function () { openOrder(b); });
       document.getElementById('addBtn').addEventListener('click', function () { addToCart(b); });

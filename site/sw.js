@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dilam-b-v5';
+const CACHE_NAME = 'dilam-b-v6';
 
 self.addEventListener('install', function () { self.skipWaiting(); });
 
@@ -16,6 +16,8 @@ self.addEventListener('fetch', function (e) {
   var url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/') || url.pathname.endsWith('.html') || url.pathname.endsWith('/') || url.pathname === '/sw.js') return;
+  // Les vidéos se lisent par morceaux (Range) : on laisse le navigateur gérer.
+  if (url.pathname.startsWith('/media/vid/')) return;
   if (!/\.(png|jpe?g|webp|gif|svg|woff2?)$/i.test(url.pathname) && !url.pathname.startsWith('/media/')) return;
   e.respondWith(
     caches.match(e.request).then(function (cached) {

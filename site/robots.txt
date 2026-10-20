@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin
+Disallow: /admin-ebooks
+Disallow: /api/
+Disallow: /telecharger/
+Disallow: /merci
+
+Sitemap: https://dilamboutique.com/sitemap.xml

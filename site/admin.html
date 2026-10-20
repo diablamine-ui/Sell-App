@@ -1641,11 +1641,32 @@ function normalizeBooksIds(){
 }
 
 
+// Image allégée avant l'envoi : 900 px de large au plus, WebP (JPEG si le navigateur ne sait pas). Les GIF restent tels quels.
+function shrinkImg(file){
+  return new Promise(function(ok){
+    if(file.type==='image/gif'){ok(file);return;}
+    var img=new Image();
+    img.onload=function(){
+      var w=img.naturalWidth,h=img.naturalHeight,max=900;
+      if(w>max){h=Math.round(h*max/w);w=max;}
+      var c=document.createElement('canvas');c.width=w;c.height=h;
+      var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(img.src);
+      c.toBlob(function(b){
+        if(b&&b.type==='image/webp'&&b.size<file.size){ok(b);return;}
+        c.toBlob(function(j){ok(j&&j.size<file.size?j:file);},'image/jpeg',0.82);
+      },'image/webp',0.8);
+    };
+    img.onerror=function(){ok(file);};
+    img.src=URL.createObjectURL(file);
+  });
+}
 async function uploadImg(file){
   var types={'image/jpeg':1,'image/png':1,'image/webp':1,'image/gif':1};
   if(!types[file.type]){showToast('Format non supporté (JPG, PNG, WEBP, GIF)');return null;}
   if(file.size>10*1024*1024){showToast('Max 10 Mo');return null;}
   showToast('Upload en cours…');
+  file=await shrinkImg(file);
   try{
     var r=await apiFetch('/admin/upload',{method:'POST',headers:{'Content-Type':file.type},body:file});
     if(!r.ok){_apiAuthFail(r);showToast('Erreur upload ('+r.status+')');return null;}
