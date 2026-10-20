@@ -73,8 +73,19 @@
       '</div>';
   }
   function payPills() {
+    // Logos officiels quand on les a (assets/pay), sinon le nom seul.
+    var PAY = [
+      { n: 'Wave' },
+      { n: 'Orange Money', i: 'orange.svg' },
+      { n: 'MTN MoMo' },
+      { n: 'Visa', i: 'visa.svg', only: true },
+      { n: 'Mastercard', i: 'mastercard.svg', only: true }
+    ];
     return '<div class="paylogos" aria-label="Moyens de paiement acceptés">' +
-      ['Wave', 'Orange Money', 'MTN MoMo', 'Visa', 'Mastercard'].map(function (p) { return '<span>' + p + '</span>'; }).join('') +
+      PAY.map(function (p) {
+        var img = p.i ? '<img src="/assets/pay/' + p.i + '" alt="' + (p.only ? p.n : '') + '" height="18" loading="lazy" decoding="async">' : '';
+        return '<span class="pay' + (p.only ? ' pay-logo' : '') + '">' + img + (p.only ? '' : p.n) + '</span>';
+      }).join('') +
       '</div>';
   }
   // Images et vidéos ajoutées depuis l'admin, chacune à un emplacement de la structure.

@@ -37,7 +37,10 @@
 .eb-assure li { position: relative; padding-left: 22px; font-size: 14.5px; color: #2B3631; }
 .eb-assure li::before { content: ""; position: absolute; left: 3px; top: 7px; width: 9px; height: 5px; border-left: 1.8px solid var(--action); border-bottom: 1.8px solid var(--action); transform: rotate(-45deg); }
 .paylogos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
-.paylogos span { font-size: 12.5px; font-weight: 600; padding: 5px 10px; border-radius: 6px; background: var(--blanc); border: 1px solid var(--trait); color: var(--encre); }
+.paylogos span { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; font-size: 12.5px; font-weight: 600; padding: 4px 10px; border-radius: 6px; background: var(--blanc); border: 1px solid var(--trait); color: var(--encre); }
+.paylogos img { display: block; height: 16px; width: auto; }
+.paylogos .pay-logo img { height: 15px; }
+.paylogos .pay-logo img[src$="mastercard.svg"] { height: 20px; }
 @media (min-width: 820px) {
   .eb-top-in { max-width: 1000px; }
   .eb-hero { padding: 56px 0 64px; }
