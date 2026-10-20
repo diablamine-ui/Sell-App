@@ -113,7 +113,7 @@
       '<label class="chk"><input type="checkbox" name="hidden"' + (e.hidden ? ' checked' : '') + '> Cachée (absente de l’accueil, lien direct seulement)</label>' +
       '<label class="lab">Couverture</label><div class="cover-row">' + (e.cover ? '<img class="cov" src="' + esc(e.cover) + '" alt="">' : '<span class="muted">Aucune</span>') +
       '<label class="up">Choisir une image<input type="file" accept="image/*" data-cover></label></div>' +
-      (isNew ? '' : '<label class="lab">Bannière (image large en haut de la page de vente, idéalement 1200 × 900)</label><div class="cover-row ban-row">' +
+      (isNew ? '' : '<label class="lab">Bannière (tout en haut de la page de vente, format large : idéalement 1600 × 900)</label><div class="cover-row ban-row">' +
         (e.banner ? '<img class="ban" src="' + esc(e.banner) + '" alt="">' : '<span class="muted">Aucune : la couverture est affichée</span>') +
         '<label class="up">Choisir une image<input type="file" accept="image/*" data-banner></label>' +
         (e.banner ? '<button class="mini-b" type="button" data-noban style="margin-top:0">Retirer</button>' : '') + '</div><small class="bmsg"></small>') +
