@@ -113,6 +113,10 @@
       '<label class="chk"><input type="checkbox" name="hidden"' + (e.hidden ? ' checked' : '') + '> Cachée (absente de l’accueil, lien direct seulement)</label>' +
       '<label class="lab">Couverture</label><div class="cover-row">' + (e.cover ? '<img class="cov" src="' + esc(e.cover) + '" alt="">' : '<span class="muted">Aucune</span>') +
       '<label class="up">Choisir une image<input type="file" accept="image/*" data-cover></label></div>' +
+      (isNew ? '' : '<label class="lab">Bannière (image large en haut de la page de vente, idéalement 1200 × 900)</label><div class="cover-row ban-row">' +
+        (e.banner ? '<img class="ban" src="' + esc(e.banner) + '" alt="">' : '<span class="muted">Aucune : la couverture est affichée</span>') +
+        '<label class="up">Choisir une image<input type="file" accept="image/*" data-banner></label>' +
+        (e.banner ? '<button class="mini-b" type="button" data-noban style="margin-top:0">Retirer</button>' : '') + '</div><small class="bmsg"></small>') +
       '<label class="lab">Fichiers PDF livrés</label><div class="files">' + items.map(fileRow).join('') + '</div>' +
       '<button class="mini-b" type="button" data-addfile>+ Ajouter un fichier</button>' +
       (isNew ? '' : '<label class="lab">Page de vente</label><div class="page-row"><small class="hst">' + (e.mode === 'html' ? 'Page HTML déposée' : 'Modèle intégré') + '</small>' +
@@ -174,6 +178,36 @@
         .then(function (r) { if (!r.ok) throw new Error(r.status); msg.textContent = 'Enregistré.'; setTimeout(load, 500); })
         .catch(function (x) { msg.textContent = 'Échec de l’enregistrement (' + x.message + ').'; });
     };
+
+    // Bannière : enregistrée aussitôt, comme les images et vidéos.
+    function setBanner(v, note) {
+      var bm = box.querySelector('.bmsg'); bm.textContent = 'Enregistrement…';
+      return api('/db/ebooks/' + encodeURIComponent(slug), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ banner: v }) })
+        .then(function (r) {
+          if (!r.ok) throw new Error(r.status);
+          e.banner = v;
+          var row = box.querySelector('.ban-row');
+          row.querySelector('img.ban, span.muted').outerHTML = v ? '<img class="ban" src="' + esc(v) + '" alt="">' : '<span class="muted">Aucune : la couverture est affichée</span>';
+          var rm = row.querySelector('[data-noban]');
+          if (v && !rm) row.insertAdjacentHTML('beforeend', '<button class="mini-b" type="button" data-noban style="margin-top:0">Retirer</button>');
+          if (!v && rm) rm.remove();
+          bm.innerHTML = '<span class="ok">' + esc(note) + '</span>';
+        })
+        .catch(function (x) { bm.innerHTML = '<span class="ko">Échec (' + esc(x.message) + ').</span>'; });
+    }
+    var banIn = box.querySelector('[data-banner]');
+    if (banIn) {
+      banIn.onchange = function () {
+        var f = this.files[0]; this.value = ''; if (!f) return;
+        box.querySelector('.bmsg').textContent = 'Envoi de la bannière…';
+        compressImage(f).then(function (r) { return upImage(r.blob); })
+          .then(function (url) { return setBanner(url, 'Bannière en ligne.'); })
+          .catch(function () { box.querySelector('.bmsg').innerHTML = '<span class="ko">Cette image n’a pas pu être envoyée.</span>'; });
+      };
+      box.querySelector('.ban-row').addEventListener('click', function (ev) {
+        if (ev.target.closest('[data-noban]')) setBanner('', 'Bannière retirée : la couverture est de nouveau affichée.');
+      });
+    }
 
     var html = box.querySelector('[data-html]');
     if (html) html.onchange = function () {

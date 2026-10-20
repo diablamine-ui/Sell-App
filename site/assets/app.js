@@ -308,8 +308,10 @@
       // Un ebook mis en avant en grand, les autres en cartes en dessous.
       var star = promoEbook('home');
       var rest = EBOOKS.filter(function (e) { return e !== star; });
-      var feat = star ? '<a class="ebook-feat" href="/ebook/' + encodeURIComponent(star.slug || star._id) + '?depuis=accueil">' +
-          '<span class="ebook-feat-cv"><img src="' + esc(imgSrc(star.cover)) + '" alt="" width="360" height="509" decoding="async"></span>' +
+      var feat = star ? '<a class="ebook-feat' + (star.banner ? ' has-ban' : '') + '" href="/ebook/' + encodeURIComponent(star.slug || star._id) + '?depuis=accueil">' +
+          (star.banner
+            ? '<span class="ebook-feat-ban"><img src="' + esc(imgSrc(star.banner)) + '" alt="" width="1200" height="900" loading="lazy" decoding="async"></span>'
+            : '<span class="ebook-feat-cv"><img src="' + esc(imgSrc(star.cover)) + '" alt="" width="360" height="509" decoding="async"></span>') +
           '<span class="ebook-feat-txt">' +
             '<span class="ebook-feat-title">' + esc(star.title) + '</span>' +
             (star.headline ? '<span class="ebook-feat-line">' + esc(star.headline) + '</span>' : '') +

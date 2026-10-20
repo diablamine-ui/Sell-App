@@ -536,3 +536,15 @@ body.has-buybar .toast { bottom: 90px; }
 .pdp-promo-price { font-weight: 700; color: var(--encre) !important; font-variant-numeric: tabular-nums; margin-top: 2px; }
 .pdp-promo-go { display: inline-flex; align-items: center; gap: 2px; margin-top: 4px; font-weight: 600; font-size: 14.5px; color: var(--action) !important; }
 .pdp-promo-go svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+/* Encart de l'accueil avec bannière : l'image en haut, le texte dessous (côte à côte sur ordinateur) */
+.ebook-feat.has-ban { grid-template-columns: 1fr; padding: 0; overflow: hidden; gap: 0; }
+.ebook-feat.has-ban .ebook-feat-ban img { display: block; width: 100%; height: auto; }
+.ebook-feat.has-ban .ebook-feat-txt { display: flex; padding: 18px; }
+.ebook-feat.has-ban .ebook-feat-btn { width: 100%; }
+@media (min-width: 820px) {
+  .ebook-feat.has-ban { grid-template-columns: 1.05fr 1fr; align-items: center; }
+  .ebook-feat.has-ban .ebook-feat-ban img { height: 100%; object-fit: cover; }
+  .ebook-feat.has-ban .ebook-feat-txt { padding: 28px 32px; }
+  .ebook-feat.has-ban .ebook-feat-btn { width: auto; }
+}

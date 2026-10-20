@@ -114,8 +114,11 @@
 
   function section(cls, inner) { return '<section class="eb-sec ' + (cls || '') + '"><div class="eb-col">' + inner + '</div></section>'; }
 
+  var PAGES = [];
   function render() {
     var files = (E.files && E.files.items) || [];
+    PAGES = [];
+    files.forEach(function (f) { (f.previews || []).forEach(function (p) { PAGES.push(p); }); });
     var totalPages = files.reduce(function (s, f) { return s + (parseInt(f.pages, 10) || 0); }, 0);
     var extra = (E.extra_covers || []).slice(0, 2);
     var h = '';
@@ -127,13 +130,18 @@
         '<h1>' + fr(E.headline || E.title) + '</h1>' +
         (E.subtitle ? '<p class="eb-sub">' + fr(E.subtitle) + '</p>' : '') +
       '</div>' +
-      '<div class="eb-visual">' +
-        (extra[0] ? '<img class="fan l" src="' + esc(extra[0]) + '" alt="" loading="lazy">' : '') +
-        (extra[1] ? '<img class="fan r" src="' + esc(extra[1]) + '" alt="" loading="lazy">' : '') +
-        '<img class="main" src="' + esc(E.cover) + '" alt="Couverture : ' + esc(E.title) + '" width="600" height="800" fetchpriority="high">' +
-      '</div>' +
+      (E.banner
+        ? '<div class="eb-visual eb-banner"><img src="' + esc(E.banner) + '" alt="' + esc(E.title) + ' : aperçu du guide" width="1200" height="900" fetchpriority="high"></div>'
+        : '<div class="eb-visual">' +
+          (extra[0] ? '<img class="fan l" src="' + esc(extra[0]) + '" alt="" loading="lazy">' : '') +
+          (extra[1] ? '<img class="fan r" src="' + esc(extra[1]) + '" alt="" loading="lazy">' : '') +
+          '<img class="main" src="' + esc(E.cover) + '" alt="Couverture : ' + esc(E.title) + '" width="600" height="800" fetchpriority="high">' +
+        '</div>') +
       '<div class="eb-buy-wrap">' + buyBlock(E.cta || 'Acheter', 'heroBuy') +
-        '<ul class="eb-assure">' + (E.reassure || []).map(function (r) { return '<li>' + fr(r) + '</li>'; }).join('') + '</ul>' +
+        (PAGES.length ? '<button type="button" class="eb-peek" data-peek>Voir un extrait (' + PAGES.length + ' pages)</button>' : '') +
+        payPills() +
+        // Les moyens de paiement sont déjà affichés juste au-dessus : on ne les répète pas dans la liste.
+        '<ul class="eb-assure">' + (E.reassure || []).filter(function (r) { return !/wave|orange money/i.test(r); }).map(function (r) { return '<li>' + fr(r) + '</li>'; }).join('') + '</ul>' +
       '</div>' +
     '</div></section>';
     var mh = mediaFor('hero');
@@ -307,19 +315,37 @@
       '<a class="btn btn-primary btn-block" style="margin-top:14px" href="' + esc(waLink(msg)) + '" target="_blank" rel="noopener" data-lead>Commander sur WhatsApp</a>';
   }
 
-  // Visionneuse des pages intérieures
-  var zoom = null;
-  function openZoom(src) {
+  // Visionneuse : une image, ou plusieurs pages à feuilleter (boutons, flèches du clavier, glisser du doigt).
+  var zoom = null, zList = [], zIdx = 0;
+  function openZoom(src, list) {
+    zList = list && list.length ? list : [src];
+    zIdx = Math.max(0, zList.indexOf(src));
+    var multi = zList.length > 1;
     zoom = document.createElement('div');
     zoom.className = 'zoom';
     zoom.setAttribute('role', 'dialog');
     zoom.setAttribute('aria-modal', 'true');
-    zoom.setAttribute('aria-label', 'Page intérieure');
-    zoom.innerHTML = '<button type="button" class="zoom-close" aria-label="Fermer">×</button><img src="' + esc(src) + '" alt="">';
+    zoom.setAttribute('aria-label', multi ? 'Extrait du guide' : 'Image agrandie');
+    zoom.innerHTML = '<button type="button" class="zoom-close" aria-label="Fermer">×</button><img alt="">' +
+      (multi ? '<button type="button" class="zoom-nav prev" aria-label="Page précédente">‹</button><button type="button" class="zoom-nav next" aria-label="Page suivante">›</button><p class="zoom-count" aria-live="polite"></p>' : '');
     document.body.appendChild(zoom);
     document.body.style.overflow = 'hidden';
+    showZoom();
+    var x0 = null;
+    zoom.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    zoom.addEventListener('touchend', function (e) {
+      if (x0 === null || !multi) return;
+      var dx = e.changedTouches[0].clientX - x0; x0 = null;
+      if (Math.abs(dx) > 50) { e.preventDefault(); step(dx < 0 ? 1 : -1); }
+    });
     zoom.querySelector('.zoom-close').focus();
   }
+  function showZoom() {
+    zoom.querySelector('img').src = zList[zIdx];
+    var c = zoom.querySelector('.zoom-count');
+    if (c) c.textContent = 'Page ' + (zIdx + 1) + ' sur ' + zList.length;
+  }
+  function step(d) { zIdx = (zIdx + d + zList.length) % zList.length; showZoom(); }
   function closeZoom() {
     if (!zoom) return;
     zoom.remove(); zoom = null;
@@ -329,8 +355,15 @@
   document.addEventListener('click', function (e) {
     var y = e.target.closest('[data-yt]');
     if (y) { playYt(y); return; }
+    if (e.target.closest('[data-peek]')) { openZoom(PAGES[0], PAGES); return; }
     var z = e.target.closest('[data-zoom]');
-    if (z) { openZoom(z.getAttribute('data-zoom')); return; }
+    if (z) {
+      var src = z.getAttribute('data-zoom');
+      openZoom(src, PAGES.indexOf(src) > -1 ? PAGES : null);
+      return;
+    }
+    var nav = e.target.closest('.zoom-nav');
+    if (zoom && nav) { step(nav.classList.contains('next') ? 1 : -1); return; }
     if (zoom && e.target.closest('.zoom')) { closeZoom(); return; }
     if (e.target.closest('[data-buy]')) { e.preventDefault(); openBuy(); return; }
     if (e.target.closest('[data-close]')) { closeBuy(); return; }
@@ -341,6 +374,7 @@
     [].forEach.call(document.querySelectorAll('video'), function (v) { if (v !== e.target) v.pause(); });
   }, true);
   document.addEventListener('keydown', function (e) {
+    if (zoom && zList.length > 1 && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { step(e.key === 'ArrowRight' ? 1 : -1); return; }
     if (e.key !== 'Escape') return;
     if (zoom) closeZoom(); else if (!sheet.hidden) closeBuy();
   });

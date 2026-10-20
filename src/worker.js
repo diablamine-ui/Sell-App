@@ -572,13 +572,15 @@ async function ebookPage(req, env, url) {
   const title = seo.title || e.title || "Dilam B'";
   const desc = seo.description || e.subtitle || '';
   const img = e.cover ? new URL(e.cover, url.origin).href : url.origin + '/public/images/logo.png';
+  // Aperçu WhatsApp et Facebook : la bannière si elle existe, plus parlante que la couverture seule.
+  const share = e.banner ? new URL(e.banner, url.origin).href : img;
   const set = (val) => ({ element(el) { el.setAttribute('content', val); } });
   return new HTMLRewriter()
     .on('title', { element(el) { el.setInnerContent(title); } })
     .on('meta[name="description"]', set(desc))
     .on('meta[property="og:title"]', set(title))
     .on('meta[property="og:description"]', set(desc))
-    .on('meta[property="og:image"]', set(img))
+    .on('meta[property="og:image"]', set(share))
     .on('head', {
       element(el) {
         const canon = `${url.origin}/ebook/${slug}`;
