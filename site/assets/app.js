@@ -312,23 +312,15 @@
     // Un ebook mis en avant en grand ; les autres défilent seuls dès qu'il y en a assez.
     function ebooksSection() {
       if (!EBOOKS.length) return '';
+      // Une seule ligne pour tous les ebooks ; celui mis en avant passe en premier.
       var star = promoEbook('home');
-      var rest = EBOOKS.filter(function (e) { return e !== star; });
-      var feat = star ? '<a class="ebook-feat' + (star.banner ? ' has-ban' : '') + '" href="/ebook/' + encodeURIComponent(star.slug || star._id) + '?depuis=accueil">' +
-          (star.banner
-            ? '<span class="ebook-feat-ban"><img src="' + esc(imgSrc(star.banner)) + '" alt="" width="1600" height="900" loading="lazy" decoding="async"></span>'
-            : '<span class="ebook-feat-cv"><img src="' + esc(imgSrc(star.cover)) + '" alt="" width="360" height="509" decoding="async"></span>') +
-          '<span class="ebook-feat-txt">' +
-            '<span class="ebook-feat-title">' + esc(star.title) + '</span>' +
-            (cardLine(star) ? '<span class="ebook-feat-line">' + esc(cardLine(star)) + '</span>' : '') +
-            '<span class="ebook-feat-price">' + money(star.price) + '<span> en PDF, reçu tout de suite</span></span>' +
-            '<span class="btn ebook-feat-btn">Découvrir le guide</span></span></a>' : '';
-      var many = rest.length >= 2; // dès deux ebooks, ils défilent en ligne au lieu de s'empiler
+      var list = star ? [star].concat(EBOOKS.filter(function (e) { return e !== star; })) : EBOOKS.slice();
+      var many = list.length >= 2;
       return '<section class="ebooks"><div class="wrap">' +
         '<div class="section-head ebooks-head"><h2>Ebooks</h2>' + (EBOOKS.length > 1 ? '<a href="/?vue=ebooks" data-nav="ebooks">Tout voir</a>' : '') + '</div>' +
         '<p class="ebooks-intro">Des livres et des guides pratiques en PDF. Tu paies en ligne et tu reçois tes fichiers par e-mail, à lire sur ton téléphone.</p>' +
-        feat +
-        (rest.length ? '<div class="' + (many ? 'rail ebooks-rail' : 'ebooks-list') + '"' + (many ? ' data-auto' : '') + '>' + rest.map(ebookCard).join('') + '</div>' : '') +
+        '<div class="' + (many ? 'rail ebooks-rail' : 'ebooks-list') + '"' + (many ? ' data-auto' : '') + '>' +
+          list.map(function (e) { return ebookCard(e, 'accueil'); }).join('') + '</div>' +
       '</div></section>';
     }
     function fact(path, t, s) {
@@ -341,9 +333,9 @@
   // Phrase courte pour les cartes : l'accroche de la page de vente peut tenir sur plusieurs lignes.
   function cardLine(e) { return e.card_line || String(e.headline || '').replace(/\s*\n\s*/g, ' '); }
 
-  function ebookCard(e) {
+  function ebookCard(e, from) {
     var slug = e.slug || e._id;
-    return '<a class="ebook" href="/ebook/' + encodeURIComponent(slug) + '">' +
+    return '<a class="ebook" href="/ebook/' + encodeURIComponent(slug) + (from ? '?depuis=' + from : '') + '">' +
       '<span class="ebook-cv"><img src="' + esc(imgSrc(e.cover)) + '" alt="" loading="lazy" decoding="async"></span>' +
       '<span class="ebook-txt"><span class="ebook-title">' + esc(e.title) + '</span>' +
       (cardLine(e) ? '<span class="ebook-line">' + esc(cardLine(e)) + '</span>' : '') +
@@ -364,6 +356,45 @@
   // Le contenu est doublé pour boucler sans fin ; tout s'arrête dès qu'on touche, survole ou utilise le clavier,
   // et reprend quelques secondes après. Rien ne bouge si l'appareil demande à réduire les animations.
   var autoRails = [];
+  // La ligne glisse lentement jusqu'au bout, marque une pause, puis revient.
+  function pingPong(el, calm) {
+    // Le fondu sur les bords n'apparaît que si la ligne dépasse de l'écran.
+    function fits() { var over = el.scrollWidth - el.clientWidth > 2; el.classList.toggle('is-auto', over); return !over; }
+    fits();
+    window.addEventListener('resize', fits);
+    if (calm) return;
+    var pos = el.scrollLeft, dir = 1, last = 0, paused = false, visible = true, raf = 0, timer = 0, rest = 0, speed = 32;
+    function frame(t) {
+      raf = requestAnimationFrame(frame);
+      if (!last) { last = t; return; }
+      var dt = Math.min(0.05, (t - last) / 1000); last = t;
+      if (paused || !visible || document.hidden) return;
+      var max = el.scrollWidth - el.clientWidth;
+      if (max <= 2) return;                       // tout tient à l'écran : rien à faire défiler
+      if (rest > 0) { rest -= dt; return; }       // pause au bout de la ligne
+      pos += speed * dt * dir;
+      if (pos >= max) { pos = max; dir = -1; rest = 1.8; }
+      else if (pos <= 0) { pos = 0; dir = 1; rest = 1.8; }
+      el.scrollLeft = pos;
+    }
+    function hold() { paused = true; clearTimeout(timer); }
+    function release() {
+      clearTimeout(timer);
+      timer = setTimeout(function () { pos = el.scrollLeft; last = 0; paused = false; }, 2500);
+    }
+    el.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') hold(); });
+    el.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') release(); });
+    el.addEventListener('touchstart', hold, { passive: true });
+    el.addEventListener('touchend', release, { passive: true });
+    el.addEventListener('wheel', function () { hold(); release(); }, { passive: true });
+    el.addEventListener('focusin', hold);
+    el.addEventListener('focusout', release);
+    var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (en) { visible = en[0].isIntersecting; }) : null;
+    if (io) io.observe(el);
+    raf = requestAnimationFrame(frame);
+    autoRails.push({ stop: function () { cancelAnimationFrame(raf); clearTimeout(timer); if (io) io.disconnect(); } });
+  }
+
   function startAutoRails() {
     autoRails.forEach(function (r) { r.stop(); });
     autoRails = [];
@@ -371,6 +402,8 @@
     view.querySelectorAll('.rail[data-auto]').forEach(function (el) {
       var items = [].slice.call(el.children);
       if (items.length < 2) return;
+      // Peu de cartes : aller-retour, sans aucune copie. Beaucoup de cartes : boucle continue.
+      if (items.length <= 6) { pingPong(el, calm); return; }
       function addCopy() {
         var first = null;
         items.forEach(function (it) {

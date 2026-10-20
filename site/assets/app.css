@@ -664,4 +664,5 @@ html .pdp-promo-price, html .pdp-promo-go { color: var(--nuit) !important; }
 
 /* Gros bouton « Découvrir le guide » sur chaque carte d'ebook, comme sur l'ebook mis en avant */
 .ebook { grid-template-columns: 92px 1fr; align-items: start; }
-.ebook-btn { grid-column: 1 / -1; width: 100%; margin-top: 4px; min-height: 48px; background: var(--nuit); color: var(--ivoire); border-color: var(--nuit); pointer-events: none; }
+.ebooks-rail .ebook { grid-template-rows: 1fr auto; }
+.ebook-btn { grid-column: 1 / -1; align-self: end; width: 100%; margin-top: 4px; min-height: 48px; background: var(--nuit); color: var(--ivoire); border-color: var(--nuit); pointer-events: none; }
