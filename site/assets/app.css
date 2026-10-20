@@ -7,6 +7,9 @@
 /* Dilam B' — feuille de style du site public */
 
 :root {
+  --nuit: #16130F;         /* collection Lamine Diabaté : le noir de ses couvertures */
+  --nuit-2: #221E18;
+  --ivoire: #F2ECE1;
   --coton: #F4F5F1;        /* fond */
   --blanc: #FFFFFF;
   --banco: #0D3B2E;        /* vert profond : grandes surfaces */
@@ -53,21 +56,15 @@ p { margin: 0; }
 
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); }
 
-/* ── Bandeau d'annonce (défilant, rouge) ── */
+/* ── Bandeau d'annonce : fixe, sobre ── */
 .notice {
-  background: #C21F1F;
-  color: #fff;
-  font-size: 14px; font-weight: 600;
-  overflow: hidden; white-space: nowrap;
-  padding: 9px 0;
+  background: var(--banco);
+  color: rgba(255,255,255,.92);
+  font-size: 13.5px; font-weight: 500; line-height: 1.35;
+  text-align: center;
+  padding: 8px var(--gutter);
 }
-.notice-track { display: inline-flex; width: max-content; }
-.notice-item { padding: 0 28px; position: relative; }
-.notice-item::after { content: ""; position: absolute; right: -3px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: rgba(255,255,255,.6); }
-@media (prefers-reduced-motion: no-preference) {
-  .notice-track { animation: marquee 28s linear infinite; }
-  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-}
+.notice strong { font-weight: 600; color: #fff; }
 
 /* ── En-tête ── */
 .top {
@@ -548,3 +545,91 @@ body.has-buybar .toast { bottom: 90px; }
   .ebook-feat.has-ban .ebook-feat-txt { padding: 28px 32px; }
   .ebook-feat.has-ban .ebook-feat-btn { width: auto; }
 }
+
+
+/* ═════════════ Refonte visuelle (octobre 2026) ═════════════ */
+
+/* Haut de page : texte à gauche, étagère à droite sur ordinateur */
+.hero-in { max-width: var(--maxw); margin: 0 auto; }
+.hero-txt { padding: 0 var(--gutter); }
+.hero .shelf-row { max-width: none; }
+@media (min-width: 960px) {
+  .hero { padding-top: 0; }
+  .hero-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); column-gap: 48px; align-items: end; }
+  .hero-txt { padding: 72px var(--gutter) 76px; align-self: center; }
+  .hero h1 { font-size: 56px; }
+  .hero .shelf { margin-top: 0; padding-top: 56px; }
+  .hero .shelf-row { padding: 0 var(--gutter) 0 12px; gap: 18px; justify-content: center; }
+  .hero .shelf-book, .hero .shelf-book:nth-child(2) { width: auto; max-width: 168px; flex: 1 1 0; }
+  .hero .shelf-book:nth-child(n+4) { display: none; }
+  .hero .shelf-book:nth-child(2) { max-width: 196px; }
+  .hero .shelf-plank { margin-right: var(--gutter); }
+}
+
+/* Rangées qui défilent seules */
+.rail.is-auto { scroll-snap-type: none; }
+.rail.is-auto > * { scroll-snap-align: none; }
+@media (min-width: 640px) {
+  .rail.is-auto { -webkit-mask-image: linear-gradient(to right, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%); mask-image: linear-gradient(to right, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%); }
+}
+
+/* La collection Lamine Diabaté : l'univers noir et ivoire de ses couvertures */
+.ebooks { background: var(--nuit); color: var(--ivoire); padding: 44px 0 48px; margin-top: 0; }
+.ebooks + .section { padding-top: 40px; }
+.ebooks .section-head { margin-bottom: 6px; }
+.ebooks-head h2 { color: var(--ivoire); font-size: 27px; }
+.ebooks .section-head a { color: var(--ivoire); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(242,236,225,.4); }
+.ebooks-intro { color: rgba(242,236,225,.68); max-width: 52ch; margin-bottom: 20px; }
+.ebook-feat, .ebook { background: var(--nuit-2); border: 1px solid rgba(242,236,225,.09); color: var(--ivoire); }
+.ebook-feat:hover, .ebook:hover { background: #2A251E; }
+.ebook-feat-line, .ebook-line { color: rgba(242,236,225,.74); }
+.ebook-feat-price span, .ebook-price span { color: rgba(242,236,225,.6); }
+.ebook-go { color: var(--ivoire); }
+.ebook-feat-btn { background: var(--ivoire); color: var(--nuit); border-color: var(--ivoire); }
+.ebooks-rail { grid-auto-columns: 86%; margin-top: 12px; }
+@media (min-width: 640px) { .ebooks-rail { grid-auto-columns: 46%; } }
+@media (min-width: 960px) { .ebooks-rail { grid-auto-columns: 32%; } }
+.ebooks-page { margin-top: 0; min-height: 60vh; }
+.ebooks-page .crumbs a, .ebooks-page .crumbs span { color: var(--ivoire); }
+.ebooks-page .cat-head h1 { color: var(--ivoire); }
+.ebooks-page .cat-head p { color: rgba(242,236,225,.68); }
+.ebooks-page .ebooks-list { margin-top: 22px; }
+
+/* Encart de la collection sur la fiche d'un livre papier */
+.pdp-promo { background: var(--nuit); border-color: var(--nuit); color: var(--ivoire); }
+.pdp-promo:hover { border-color: var(--nuit); background: var(--nuit-2); }
+.pdp-promo-txt > span { color: rgba(242,236,225,.72); }
+.pdp-promo-price { color: var(--ivoire) !important; }
+.pdp-promo-go { color: var(--ivoire) !important; }
+
+/* Description d'un livre : paragraphes resserrés, repliée au-delà de quelques lignes */
+.pdp-desc .txt { white-space: normal; }
+.pdp-desc .txt p { margin: 0 0 10px; }
+.pdp-desc .txt.is-clamped { max-height: 15.5em; overflow: hidden; -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }
+.desc-more { margin-top: 6px; padding: 8px 0; border: 0; background: none; color: var(--action); font: inherit; font-weight: 600; font-size: 15.5px; cursor: pointer; text-decoration: underline; text-underline-offset: 4px; }
+
+/* Moyens de paiement à la livraison (récapitulatif) */
+.sum-pay { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; font-size: 13.5px; color: var(--gris); }
+.pay-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 3px 10px; border: 1px solid var(--trait); border-radius: 6px; background: var(--blanc); color: var(--encre); font-weight: 600; font-size: 12.5px; }
+.pay-chip img { width: 16px; height: 16px; border-radius: 50%; }
+
+/* Message bref : en haut, il ne cache plus les boutons */
+.toast { bottom: auto; top: 76px; transform: translate(-50%, -12px); }
+.toast.show { transform: translate(-50%, 0); }
+body.has-buybar .toast { bottom: auto; }
+
+/* Pied de page */
+.foot { background: var(--encre); }
+.foot-grid { display: grid; gap: 28px; }
+.foot-col h2 { font-family: var(--sans); font-size: 13.5px; font-weight: 600; color: rgba(244,245,241,.55); margin: 0 0 10px; }
+.foot-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.foot-col a { color: rgba(244,245,241,.9); text-decoration: none; font-size: 15px; }
+.foot-col a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.foot-pay { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 26px; padding-top: 22px; border-top: 1px solid rgba(244,245,241,.12); }
+.foot-pay .pay-chip { background: #fff; border-color: #fff; }
+.foot-pay .pay-chip img { width: auto; height: 16px; border-radius: 0; }
+.foot-pay .pay-chip img[src$="wave.png"], .foot-pay .pay-chip img[src$="mtn.png"] { width: 16px; border-radius: 50%; }
+.foot-pay .pay-chip img[src$="mtn.png"] { border-radius: 3px; }
+.foot-pay .pay-logo img { height: 14px; }
+.foot-pay .pay-logo img[src$="mastercard.svg"] { height: 18px; }
+@media (min-width: 760px) { .foot-grid { grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 32px; } }

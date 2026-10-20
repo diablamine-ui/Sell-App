@@ -206,3 +206,28 @@ body.has-buybar .eb-foot { padding-bottom: 96px; }
 .zoom-nav:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .zoom-count { position: absolute; left: 0; right: 0; bottom: 22px; margin: 0 !important; text-align: center; color: rgba(255,255,255,.9); font-size: 14.5px !important; pointer-events: none; }
 .zoom:has(.zoom-nav) { padding-bottom: 66px; }
+
+
+/* ═════ Collection Lamine Diabaté : en-tête et haut de page dans le noir et l'ivoire de ses couvertures ═════ */
+.eb-top { background: var(--nuit); border-bottom-color: rgba(242,236,225,.1); }
+.eb-top .brand-name.eb-brand { color: var(--ivoire); display: flex; flex-direction: column; line-height: 1.1; font-size: 19px; }
+.eb-brand span { font-family: var(--sans); font-size: 12px; font-weight: 500; color: rgba(242,236,225,.6); margin-top: 2px; }
+.eb-home { color: var(--ivoire); }
+.eb-hero { background: var(--nuit); color: var(--ivoire); padding-top: 22px; padding-bottom: 44px; }
+.eb-hero h1 { color: var(--ivoire); }
+.eb-sur { color: rgba(242,236,225,.62); }
+.eb-hero .eb-sub { color: rgba(242,236,225,.8); }
+.eb-hero .eb-price { color: rgba(242,236,225,.62); }
+.eb-hero .eb-price strong { color: var(--ivoire); }
+.eb-hero .eb-peek { border-color: rgba(242,236,225,.55); color: var(--ivoire); }
+.eb-hero .eb-peek:hover { background: rgba(242,236,225,.08); }
+.eb-hero .eb-assure li { color: rgba(242,236,225,.78); }
+.eb-hero .eb-assure li::before { border-color: #9FD8B9; }
+.eb-hero .paylogos span { border-color: transparent; }
+.eb-hero .eb-visual img.main { box-shadow: 0 24px 50px -18px rgba(0,0,0,.8); }
+.eb-ban-top img { box-shadow: 0 22px 50px -24px rgba(0,0,0,.9); }
+.eb-sec.final { background: var(--nuit); color: var(--ivoire); }
+.eb-sec.final .eb-col > p { color: var(--ivoire); }
+.eb-sec.final .eb-price { color: rgba(242,236,225,.62); }
+.eb-sec.final .eb-price strong { color: var(--ivoire); }
+.buy-sheet .paylogos, #buyBody .paylogos { margin-top: 12px; }

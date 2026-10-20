@@ -47,7 +47,12 @@
   function richText(t) {
     return esc(t).replace(/\*\*([^*\n][^*]*?)\*\*/g, '<strong>$1</strong>').replace(/\*\*/g, '');
   }
-  function money(n) { return (parseInt(n, 10) || 0).toLocaleString('fr-FR').replace(/ | /g, ' ') + ' F'; }
+  // Description d'un livre : des paragraphes courts, sans les grands blancs des textes publicitaires.
+  function descHTML(t) {
+    return String(t || '').split(/\n\s*\n+/).map(function (p) { return p.trim(); }).filter(Boolean)
+      .map(function (p) { return '<p>' + richText(p).replace(/\n/g, '<br>') + '</p>'; }).join('');
+  }
+  function money(n) { return (parseInt(n, 10) || 0).toLocaleString('fr-FR').replace(/ | /g, ' ') + ' FCFA'; }
   function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
   function imgSrc(u) {
     if (!u) return '';
@@ -146,10 +151,9 @@
         if (d._id === 'sell_delivery' && d.value) applyDelivery(d.value);
         if (d._id === 'sell_promo' && d.value) PROMO = d.value;
         if (d._id === 'sell_bandeau' && d.value && d.value.active && d.value.texte) {
+          // Bandeau fixe et sobre : une phrase, sans emoji.
           var n = document.getElementById('notice');
-          var item = '<span class="notice-item">' + esc(d.value.texte) + '</span>';
-          var run = new Array(6).join(item);
-          n.innerHTML = '<span class="sr-only">' + esc(d.value.texte) + '</span><div class="notice-track" aria-hidden="true">' + run + run + '</div>';
+          n.textContent = String(d.value.texte).replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/\s+/g, ' ').trim();
           n.hidden = false;
         }
       });
@@ -244,7 +248,7 @@
     }).join('');
 
     view.innerHTML =
-      '<section class="hero"><div class="wrap">' +
+      '<section class="hero"><div class="hero-in"><div class="hero-txt">' +
         '<h1>Les bons livres pour avancer, livrés chez toi.</h1>' +
         '<p class="hero-lead">Finances, mental, productivité et histoire africaine. Tu paies seulement à la réception de ton colis.</p>' +
         '<div class="hero-cta"><a class="btn btn-light" href="/?vue=livres" data-nav="livres">Voir les ' + BOOKS.length + ' livres</a>' +
@@ -253,7 +257,7 @@
         '<div class="shelf" aria-hidden="true"><div class="shelf-row">' +
           shelf.map(function (b) { return '<a class="shelf-book" href="' + bookUrl(b) + '" data-nav="livre" tabindex="-1">' + cover(b, { eager: true }) + '</a>'; }).join('') +
         '</div><div class="shelf-plank"></div></div>' +
-      '</section>' +
+      '</div></section>' +
 
       '<section class="facts"><div class="wrap"><ul class="facts-list">' +
         fact('<path d="M3 7h18v10H3z"/><path d="M3 10h18"/><path d="M7 14h3"/>', 'Paiement à la livraison', 'Espèces ou Wave, quand tu reçois tes livres.') +
@@ -271,12 +275,12 @@
       (packs.length ? '<section class="section"><div class="wrap">' +
         '<div class="section-head"><h2>Les packs</h2><a href="/?cat=pack" data-nav="cat">Tout voir</a></div>' +
         '<p class="section-intro">Deux livres qui se répondent sur un même sujet, moins cher qu\'achetés séparément.</p>' +
-        '<div class="rail rail-wide">' + packs.map(card).join('') + '</div>' +
+        '<div class="rail rail-wide" data-auto>' + packs.map(card).join('') + '</div>' +
       '</div></section>' : '') +
 
       '<section class="section"><div class="wrap">' +
         '<div class="section-head"><h2>Les plus demandés</h2><a href="/?vue=livres" data-nav="livres">Tout voir</a></div>' +
-        '<div class="rail">' + best.map(card).join('') + '</div>' +
+        '<div class="rail" data-auto>' + best.map(card).join('') + '</div>' +
       '</div></section>' +
 
       '<section class="section"><div class="wrap">' +
@@ -302,34 +306,27 @@
         '<a class="btn btn-light" href="' + esc(waLink("Bonjour Dilam B', je viens du site. J'aimerais un conseil pour choisir un livre.")) + '" target="_blank" rel="noopener">' + ICON.wa + 'Écrire sur WhatsApp</a>' +
       '</section></div>';
 
-    // Les ebooks de Lamine Diabaté : PDF payés en ligne, chacun avec sa page de vente.
+    // La collection Lamine Diabaté : PDF payés en ligne, chacun avec sa page de vente.
+    // Un ebook mis en avant en grand ; les autres défilent seuls dès qu'il y en a assez.
     function ebooksSection() {
       if (!EBOOKS.length) return '';
-      // Un ebook mis en avant en grand, les autres en cartes en dessous.
       var star = promoEbook('home');
       var rest = EBOOKS.filter(function (e) { return e !== star; });
       var feat = star ? '<a class="ebook-feat' + (star.banner ? ' has-ban' : '') + '" href="/ebook/' + encodeURIComponent(star.slug || star._id) + '?depuis=accueil">' +
           (star.banner
-            ? '<span class="ebook-feat-ban"><img src="' + esc(imgSrc(star.banner)) + '" alt="" width="1200" height="900" loading="lazy" decoding="async"></span>'
+            ? '<span class="ebook-feat-ban"><img src="' + esc(imgSrc(star.banner)) + '" alt="" width="1600" height="900" loading="lazy" decoding="async"></span>'
             : '<span class="ebook-feat-cv"><img src="' + esc(imgSrc(star.cover)) + '" alt="" width="360" height="509" decoding="async"></span>') +
           '<span class="ebook-feat-txt">' +
             '<span class="ebook-feat-title">' + esc(star.title) + '</span>' +
             (star.headline ? '<span class="ebook-feat-line">' + esc(star.headline) + '</span>' : '') +
             '<span class="ebook-feat-price">' + money(star.price) + '<span> en PDF, reçu tout de suite</span></span>' +
-            '<span class="btn btn-light ebook-feat-btn">Découvrir le guide</span></span></a>' : '';
+            '<span class="btn ebook-feat-btn">Découvrir le guide</span></span></a>' : '';
+      var many = rest.length >= 3;
       return '<section class="ebooks"><div class="wrap">' +
-        '<div class="ebooks-head"><h2>Les ebooks de Lamine Diabaté</h2>' +
-        '<p>Des guides pratiques en PDF. Tu paies en ligne et tu reçois tes fichiers par e-mail, à lire sur ton téléphone.</p></div>' +
+        '<div class="section-head ebooks-head"><h2>La collection Lamine Diabaté</h2>' + (EBOOKS.length > 1 ? '<a href="/?vue=ebooks" data-nav="ebooks">Tout voir</a>' : '') + '</div>' +
+        '<p class="ebooks-intro">Des guides pratiques en PDF. Tu paies en ligne et tu reçois tes fichiers par e-mail, à lire sur ton téléphone.</p>' +
         feat +
-        (rest.length ? '<div class="ebooks-list">' + rest.map(function (e) {
-          var slug = e.slug || e._id;
-          return '<a class="ebook" href="/ebook/' + encodeURIComponent(slug) + '">' +
-            '<span class="ebook-cv"><img src="' + esc(imgSrc(e.cover)) + '" alt="" loading="lazy" decoding="async"></span>' +
-            '<span class="ebook-txt"><span class="ebook-title">' + esc(e.title) + '</span>' +
-            (e.headline ? '<span class="ebook-line">' + esc(e.headline) + '</span>' : '') +
-            '<span class="ebook-price">' + money(e.price) + '<span> en PDF</span></span>' +
-            '<span class="ebook-go">Découvrir' + ICON.chevron + '</span></span></a>';
-        }).join('') + '</div>' : '') +
+        (rest.length ? '<div class="' + (many ? 'rail ebooks-rail' : 'ebooks-list') + '"' + (many ? ' data-auto' : '') + '>' + rest.map(ebookCard).join('') + '</div>' : '') +
       '</div></section>';
     }
     function fact(path, t, s) {
@@ -337,6 +334,78 @@
     }
     function faq(q, a) { return '<details><summary>' + q + '</summary><p>' + a + '</p></details>'; }
     document.title = "Dilam B' | Les livres à p'tits prix, livrés à Abidjan";
+  }
+
+  function ebookCard(e) {
+    var slug = e.slug || e._id;
+    return '<a class="ebook" href="/ebook/' + encodeURIComponent(slug) + '">' +
+      '<span class="ebook-cv"><img src="' + esc(imgSrc(e.cover)) + '" alt="" loading="lazy" decoding="async"></span>' +
+      '<span class="ebook-txt"><span class="ebook-title">' + esc(e.title) + '</span>' +
+      (e.headline ? '<span class="ebook-line">' + esc(e.headline) + '</span>' : '') +
+      '<span class="ebook-price">' + money(e.price) + '<span> en PDF</span></span>' +
+      '<span class="ebook-go">Découvrir' + ICON.chevron + '</span></span></a>';
+  }
+  function renderEbooks() {
+    view.innerHTML =
+      '<section class="ebooks ebooks-page"><div class="wrap">' +
+        '<nav class="crumbs" aria-label="Tu es ici"><a href="/" data-nav="home">Accueil</a><span class="crumbs-sep" aria-hidden="true">›</span><span aria-current="page">La collection Lamine Diabaté</span></nav>' +
+        '<div class="cat-head"><h1>La collection Lamine Diabaté</h1><p>Des guides pratiques en PDF. Tu paies en ligne et tu reçois tes fichiers par e-mail, juste après le paiement.</p></div>' +
+        (EBOOKS.length ? '<div class="ebooks-list">' + EBOOKS.map(ebookCard).join('') + '</div>' : '<p class="empty">Aucun guide en ligne pour le moment.</p>') +
+      '</div></section>';
+    document.title = "La collection Lamine Diabaté | Dilam B'";
+  }
+
+  // Rangées de l'accueil qui défilent seules, de droite à gauche.
+  // Le contenu est doublé pour boucler sans fin ; tout s'arrête dès qu'on touche, survole ou utilise le clavier,
+  // et reprend quelques secondes après. Rien ne bouge si l'appareil demande à réduire les animations.
+  var autoRails = [];
+  function startAutoRails() {
+    autoRails.forEach(function (r) { r.stop(); });
+    autoRails = [];
+    var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    view.querySelectorAll('.rail[data-auto]').forEach(function (el) {
+      var items = [].slice.call(el.children);
+      if (items.length < 2) return;
+      items.forEach(function (it) {
+        var c = it.cloneNode(true);
+        c.setAttribute('aria-hidden', 'true');
+        c.setAttribute('tabindex', '-1');
+        c.querySelectorAll('a,button').forEach(function (x) { x.setAttribute('tabindex', '-1'); });
+        el.appendChild(c);
+      });
+      el.classList.add('is-auto');
+      if (calm) return;
+      var pos = 0, last = 0, paused = false, visible = true, raf = 0, timer = 0, speed = 32; // pixels par seconde
+      function half() { return el.scrollWidth / 2; }
+      function frame(t) {
+        raf = requestAnimationFrame(frame);
+        if (!last) { last = t; return; }
+        var dt = Math.min(0.05, (t - last) / 1000); last = t;
+        if (paused || !visible || document.hidden) return;
+        pos += speed * dt;
+        if (pos >= half()) pos -= half();
+        el.scrollLeft = pos;
+      }
+      function hold() { paused = true; clearTimeout(timer); }
+      function release() {
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          pos = el.scrollLeft % half();
+          last = 0; paused = false;
+        }, 2500);
+      }
+      el.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') hold(); });
+      el.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') release(); });
+      el.addEventListener('touchstart', hold, { passive: true });
+      el.addEventListener('touchend', release, { passive: true });
+      el.addEventListener('wheel', function () { hold(); release(); }, { passive: true });
+      el.addEventListener('focusin', hold);
+      el.addEventListener('focusout', release);
+      var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (en) { visible = en[0].isIntersecting; }) : null;
+      if (io) io.observe(el);
+      raf = requestAnimationFrame(frame);
+      autoRails.push({ stop: function () { cancelAnimationFrame(raf); clearTimeout(timer); if (io) io.disconnect(); } });
+    });
   }
 
   var catState = { cat: 'all', q: '' };
@@ -412,11 +481,24 @@
             pdpPromo() +
           '</div>' +
         '</article>' +
-        (b.desc ? '<section class="pdp-desc"><h2>À propos de ce livre</h2><div class="txt">' + richText(b.desc) + '</div></section>' : '') +
+        (b.desc ? '<section class="pdp-desc"><h2>À propos de ce livre</h2><div class="txt is-clamped" id="descTxt">' + descHTML(b.desc) + '</div>' +
+          '<button type="button" class="desc-more" id="descMore" hidden aria-expanded="false" aria-controls="descTxt">Lire la suite</button></section>' : '') +
         (related.length ? '<section class="section"><div class="section-head"><h2>Dans la même catégorie</h2></div><div class="rail">' + related.map(card).join('') + '</div></section>' : '') +
       '</div>';
 
     document.title = b.title + " | Dilam B'";
+    var dt = document.getElementById('descTxt'), dm = document.getElementById('descMore');
+    if (dt && dm) {
+      if (dt.scrollHeight > dt.clientHeight + 24) {
+        dm.hidden = false;
+        dm.addEventListener('click', function () {
+          var open = dt.classList.toggle('is-clamped') === false;
+          dm.setAttribute('aria-expanded', open ? 'true' : 'false');
+          dm.textContent = open ? 'Réduire' : 'Lire la suite';
+          if (!open) dt.scrollIntoView({ block: 'nearest' });
+        });
+      } else dt.classList.remove('is-clamped');
+    }
     if (!b.oos) {
       document.getElementById('orderBtn').addEventListener('click', function () { openOrder(b); });
       document.getElementById('addBtn').addEventListener('click', function () { addToCart(b); });
@@ -447,7 +529,9 @@
     var b = slug ? bySlug(slug) : null;
     if (b) renderBook(b);
     else if (p.get('cat') || p.get('vue') === 'livres') renderCatalogue(p.get('cat'));
+    else if (p.get('vue') === 'ebooks') renderEbooks();
     else renderHome();
+    startAutoRails();
     if (scroll !== false) window.scrollTo(0, 0);
   }
   document.addEventListener('click', function (e) {
@@ -615,6 +699,7 @@
       '<div class="sum-row"><span>Livres</span><span>' + money(booksTotal) + '</span></div>' +
       '<div class="sum-row"><span>Livraison' + (zone && !free ? ' (' + esc(zone.label) + ')' : '') + '</span><span' + (free ? ' class="free"' : '') + '>' + feeTxt + '</span></div>' +
       '<div class="sum-row sum-total"><span>Total à payer à la livraison</span><strong>' + (total != null ? money(total) : '—') + '</strong></div>' +
+      '<p class="sum-pay"><span>À la livraison :</span><span class="pay-chip">Espèces</span><span class="pay-chip"><img src="/assets/pay/wave.png" alt="" width="16" height="16">Wave</span></p>' +
       '</div>';
   }
   function wireSummary(prefix, items, booksTotal) {
@@ -774,6 +859,9 @@
     var contact = waLink("Bonjour Dilam B', je viens du site.");
     document.getElementById('waTop').href = contact;
     document.getElementById('waFoot').href = contact;
+    var fe = document.getElementById('footEbooks');
+    if (fe) fe.innerHTML = '<li><a href="/?vue=ebooks" data-nav="ebooks">Tous les guides</a></li>' +
+      EBOOKS.map(function (e) { return '<li><a href="/ebook/' + encodeURIComponent(e.slug || e._id) + '">' + esc(e.title) + '</a></li>'; }).join('');
     restoreCart();
     updateBadge();
     initPixel();

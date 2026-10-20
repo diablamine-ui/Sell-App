@@ -50,10 +50,42 @@
 
 <footer class="foot">
   <div class="foot-in">
-    <p class="foot-name">Dilam B'</p>
-    <p class="foot-line">Librairie en ligne basée à Abidjan. Livraison partout en Côte d'Ivoire.</p>
-    <p class="foot-line"><a href="#" id="waFoot" target="_blank" rel="noopener">Nous écrire sur WhatsApp</a></p>
-    <p class="foot-links"><a href="/conditions">Conditions de vente</a><a href="/confidentialite">Confidentialité</a><a href="mailto:diab.lamine@gmail.com">diab.lamine@gmail.com</a></p>
+    <div class="foot-grid">
+      <div class="foot-col">
+        <p class="foot-name">Dilam B'</p>
+        <p class="foot-line">Librairie en ligne basée à Abidjan. Livraison partout en Côte d'Ivoire, paiement à la réception.</p>
+        <p class="foot-line"><a href="#" id="waFoot" target="_blank" rel="noopener">WhatsApp : +225 05 46 49 44 84</a></p>
+      </div>
+      <nav class="foot-col" aria-label="Boutique">
+        <h2>La boutique</h2>
+        <ul>
+          <li><a href="/?vue=livres" data-nav="livres">Tous les livres</a></li>
+          <li><a href="/?cat=finance" data-nav="cat">Finances</a></li>
+          <li><a href="/?cat=devperso" data-nav="cat">Développement personnel</a></li>
+          <li><a href="/?cat=productivite" data-nav="cat">Productivité</a></li>
+          <li><a href="/?cat=pack" data-nav="cat">Les packs</a></li>
+        </ul>
+      </nav>
+      <nav class="foot-col" aria-label="Collection Lamine Diabaté">
+        <h2>La collection Lamine Diabaté</h2>
+        <ul id="footEbooks"><li><a href="/?vue=ebooks" data-nav="ebooks">Tous les guides</a></li></ul>
+      </nav>
+      <nav class="foot-col" aria-label="Aide">
+        <h2>Aide</h2>
+        <ul>
+          <li><a href="/conditions">Conditions de vente</a></li>
+          <li><a href="/confidentialite">Confidentialité</a></li>
+          <li><a href="mailto:diab.lamine@gmail.com">diab.lamine@gmail.com</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="foot-pay" aria-label="Moyens de paiement acceptés">
+      <span class="pay-chip"><img src="/assets/pay/wave.png" alt="" width="16" height="16" loading="lazy">Wave</span>
+      <span class="pay-chip"><img src="/assets/pay/orange.svg" alt="" height="16" loading="lazy">Orange Money</span>
+      <span class="pay-chip"><img src="/assets/pay/mtn.png" alt="" width="16" height="16" loading="lazy">MTN MoMo</span>
+      <span class="pay-chip pay-logo"><img src="/assets/pay/visa.svg" alt="Visa" height="14" loading="lazy"></span>
+      <span class="pay-chip pay-logo"><img src="/assets/pay/mastercard.svg" alt="Mastercard" height="18" loading="lazy"></span>
+    </div>
     <p class="foot-small">© <span id="year"></span> Dilam B'</p>
   </div>
 </footer>
