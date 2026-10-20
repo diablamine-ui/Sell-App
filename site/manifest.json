@@ -32,7 +32,7 @@
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Ebooks Lamine Diabaté",
+      "name": "Ebooks",
       "short_name": "Ebooks",
       "url": "/?vue=ebooks",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]

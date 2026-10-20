@@ -325,7 +325,7 @@
             '<span class="btn ebook-feat-btn">Découvrir le guide</span></span></a>' : '';
       var many = rest.length >= 3;
       return '<section class="ebooks"><div class="wrap">' +
-        '<div class="section-head ebooks-head"><h2>Ebooks Lamine Diabaté</h2>' + (EBOOKS.length > 1 ? '<a href="/?vue=ebooks" data-nav="ebooks">Tout voir</a>' : '') + '</div>' +
+        '<div class="section-head ebooks-head"><h2>Ebooks</h2>' + (EBOOKS.length > 1 ? '<a href="/?vue=ebooks" data-nav="ebooks">Tout voir</a>' : '') + '</div>' +
         '<p class="ebooks-intro">Des guides pratiques en PDF. Tu paies en ligne et tu reçois tes fichiers par e-mail, à lire sur ton téléphone.</p>' +
         feat +
         (rest.length ? '<div class="' + (many ? 'rail ebooks-rail' : 'ebooks-list') + '"' + (many ? ' data-auto' : '') + '>' + rest.map(ebookCard).join('') + '</div>' : '') +
@@ -350,11 +350,11 @@
   function renderEbooks() {
     view.innerHTML =
       '<section class="ebooks ebooks-page"><div class="wrap">' +
-        '<nav class="crumbs" aria-label="Tu es ici"><a href="/" data-nav="home">Accueil</a><span class="crumbs-sep" aria-hidden="true">›</span><span aria-current="page">Ebooks Lamine Diabaté</span></nav>' +
-        '<div class="cat-head"><h1>Ebooks Lamine Diabaté</h1><p>Des guides pratiques en PDF. Tu paies en ligne et tu reçois tes fichiers par e-mail, juste après le paiement.</p></div>' +
+        '<nav class="crumbs" aria-label="Tu es ici"><a href="/" data-nav="home">Accueil</a><span class="crumbs-sep" aria-hidden="true">›</span><span aria-current="page">Ebooks</span></nav>' +
+        '<div class="cat-head"><h1>Ebooks</h1><p>Des livres et des guides pratiques en PDF. Tu paies en ligne et tu reçois tes fichiers par e-mail, juste après le paiement.</p></div>' +
         (EBOOKS.length ? '<div class="ebooks-list">' + EBOOKS.map(ebookCard).join('') + '</div>' : '<p class="empty">Aucun guide en ligne pour le moment.</p>') +
       '</div></section>';
-    document.title = "Ebooks Lamine Diabaté | Dilam B'";
+    document.title = "Ebooks | Dilam B'";
   }
 
   // Rangées de l'accueil qui défilent seules, de droite à gauche.
