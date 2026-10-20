@@ -151,9 +151,11 @@
         if (d._id === 'sell_delivery' && d.value) applyDelivery(d.value);
         if (d._id === 'sell_promo' && d.value) PROMO = d.value;
         if (d._id === 'sell_bandeau' && d.value && d.value.active && d.value.texte) {
-          // Bandeau fixe et sobre : une phrase, sans emoji.
+          // Bandeau de promotion : rouge et défilant, pour attirer l'œil.
           var n = document.getElementById('notice');
-          n.textContent = String(d.value.texte).replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/\s+/g, ' ').trim();
+          var item = '<span class="notice-item">' + esc(d.value.texte) + '</span>';
+          var run = new Array(6).join(item);
+          n.innerHTML = '<span class="sr-only">' + esc(d.value.texte) + '</span><div class="notice-track" aria-hidden="true">' + run + run + '</div>';
           n.hidden = false;
         }
       });
@@ -343,7 +345,7 @@
       '<span class="ebook-txt"><span class="ebook-title">' + esc(e.title) + '</span>' +
       (e.headline ? '<span class="ebook-line">' + esc(e.headline) + '</span>' : '') +
       '<span class="ebook-price">' + money(e.price) + '<span> en PDF</span></span>' +
-      '<span class="ebook-go">Découvrir' + ICON.chevron + '</span></span></a>';
+      '</span><span class="btn ebook-btn">Découvrir le guide</span></a>';
   }
   function renderEbooks() {
     view.innerHTML =
