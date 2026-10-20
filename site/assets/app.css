@@ -639,19 +639,19 @@ body.has-buybar .toast { bottom: auto; }
 .ebook-feat:hover, .ebook:hover { background: #2E2821; }
 .ebook-cv img, .ebook-feat-cv img, .pdp-promo img { box-shadow: 0 0 0 1px rgba(242,236,225,.22), 0 16px 30px -12px rgba(0,0,0,.95); }
 
-/* Variante ivoire (aperçu comparatif) */
-.v-ivoire .ebooks { background: var(--ivoire); color: var(--nuit); }
-.v-ivoire .ebooks-head h2, .v-ivoire .ebooks-page .cat-head h1 { color: var(--nuit); }
-.v-ivoire .ebooks .section-head a, .v-ivoire .ebooks-page .crumbs a, .v-ivoire .ebooks-page .crumbs span { color: var(--nuit); text-decoration-color: rgba(22,19,15,.35); }
-.v-ivoire .ebooks-intro, .v-ivoire .ebooks-page .cat-head p { color: rgba(22,19,15,.68); }
-.v-ivoire .ebook-feat, .v-ivoire .ebook { background: #fff; border-color: rgba(22,19,15,.1); color: var(--nuit); }
-.v-ivoire .ebook-feat:hover, .v-ivoire .ebook:hover { background: #FBF8F3; }
-.v-ivoire .ebook-feat-line, .v-ivoire .ebook-line { color: rgba(22,19,15,.7); }
-.v-ivoire .ebook-feat-price span, .v-ivoire .ebook-price span { color: rgba(22,19,15,.55); }
-.v-ivoire .ebook-go { color: var(--nuit); }
-.v-ivoire .ebook-feat-btn { background: var(--nuit); color: var(--ivoire); border-color: var(--nuit); }
-.v-ivoire .ebook-cv img, .v-ivoire .ebook-feat-cv img, .v-ivoire .pdp-promo img { box-shadow: 0 12px 24px -12px rgba(22,19,15,.7); }
-.v-ivoire .pdp-promo { background: var(--ivoire); border-color: #E2D8C7; color: var(--nuit); }
-.v-ivoire .pdp-promo:hover { background: #EDE5D7; border-color: #E2D8C7; }
-.v-ivoire .pdp-promo-txt > span { color: rgba(22,19,15,.68); }
-.v-ivoire .pdp-promo-price, .v-ivoire .pdp-promo-go { color: var(--nuit) !important; }
+/* Ebooks Lamine Diabaté : fond ivoire, pour que les couvertures noires ressortent (choix de Lamine, option B) */
+html .ebooks { background: var(--ivoire); color: var(--nuit); }
+html .ebooks-head h2, html .ebooks-page .cat-head h1 { color: var(--nuit); }
+html .ebooks .section-head a, html .ebooks-page .crumbs a, html .ebooks-page .crumbs span { color: var(--nuit); text-decoration-color: rgba(22,19,15,.35); }
+html .ebooks-intro, html .ebooks-page .cat-head p { color: rgba(22,19,15,.68); }
+html .ebook-feat, html .ebook { background: #fff; border-color: rgba(22,19,15,.1); color: var(--nuit); }
+html .ebook-feat:hover, html .ebook:hover { background: #FBF8F3; }
+html .ebook-feat-line, html .ebook-line { color: rgba(22,19,15,.7); }
+html .ebook-feat-price span, html .ebook-price span { color: rgba(22,19,15,.55); }
+html .ebook-go { color: var(--nuit); }
+html .ebook-feat-btn { background: var(--nuit); color: var(--ivoire); border-color: var(--nuit); }
+html .ebook-cv img, html .ebook-feat-cv img, html .pdp-promo img { box-shadow: 0 12px 24px -12px rgba(22,19,15,.7); }
+html .pdp-promo { background: var(--ivoire); border-color: #E2D8C7; color: var(--nuit); }
+html .pdp-promo:hover { background: #EDE5D7; border-color: #E2D8C7; }
+html .pdp-promo-txt > span { color: rgba(22,19,15,.68); }
+html .pdp-promo-price, html .pdp-promo-go { color: var(--nuit) !important; }

@@ -236,17 +236,17 @@ body.has-buybar .eb-foot { padding-bottom: 96px; }
 .eb-hero .eb-visual::before { content: ""; position: absolute; z-index: 0; left: -45%; right: -45%; top: -12%; bottom: -12%; background: radial-gradient(closest-side, rgba(242,236,225,.17), rgba(242,236,225,0)); pointer-events: none; }
 .eb-hero .eb-visual img.main { box-shadow: 0 0 0 1px rgba(242,236,225,.2), 0 26px 50px -18px rgba(0,0,0,.9); }
 
-/* Variante ivoire (aperçu comparatif) */
-.v-ivoire .eb-top { background: var(--ivoire); border-bottom-color: #E2D8C7; }
-.v-ivoire .eb-top .brand-name.eb-brand, .v-ivoire .eb-home { color: var(--nuit); }
-.v-ivoire .eb-brand span { color: rgba(22,19,15,.6); }
-.v-ivoire .eb-hero, .v-ivoire .eb-sec.final { background: var(--ivoire); color: var(--nuit); }
-.v-ivoire .eb-hero h1, .v-ivoire .eb-hero .eb-price strong, .v-ivoire .eb-sec.final .eb-col > p, .v-ivoire .eb-sec.final .eb-price strong { color: var(--nuit); }
-.v-ivoire .eb-sur, .v-ivoire .eb-hero .eb-price, .v-ivoire .eb-sec.final .eb-price { color: rgba(22,19,15,.6); }
-.v-ivoire .eb-hero .eb-sub { color: rgba(22,19,15,.82); }
-.v-ivoire .eb-hero .eb-peek { border-color: var(--nuit); color: var(--nuit); }
-.v-ivoire .eb-hero .eb-assure li { color: rgba(22,19,15,.78); }
-.v-ivoire .eb-hero .eb-assure li::before { border-color: var(--action); }
-.v-ivoire .eb-hero .paylogos span { border-color: #E2D8C7; }
-.v-ivoire .eb-hero .eb-visual::before { display: none; }
-.v-ivoire .eb-hero .eb-visual img.main { box-shadow: 0 22px 44px -18px rgba(22,19,15,.6); }
+/* Ebooks Lamine Diabaté : fond ivoire, pour que les couvertures noires ressortent (choix de Lamine, option B) */
+html .eb-top { background: var(--ivoire); border-bottom-color: #E2D8C7; }
+html .eb-top .brand-name.eb-brand, html .eb-home { color: var(--nuit); }
+html .eb-brand span { color: rgba(22,19,15,.6); }
+html .eb-hero, html .eb-sec.final { background: var(--ivoire); color: var(--nuit); }
+html .eb-hero h1, html .eb-hero .eb-price strong, html .eb-sec.final .eb-col > p, html .eb-sec.final .eb-price strong { color: var(--nuit); }
+html .eb-sur, html .eb-hero .eb-price, html .eb-sec.final .eb-price { color: rgba(22,19,15,.6); }
+html .eb-hero .eb-sub { color: rgba(22,19,15,.82); }
+html .eb-hero .eb-peek { border-color: var(--nuit); color: var(--nuit); }
+html .eb-hero .eb-assure li { color: rgba(22,19,15,.78); }
+html .eb-hero .eb-assure li::before { border-color: var(--action); }
+html .eb-hero .paylogos span { border-color: #E2D8C7; }
+html .eb-hero .eb-visual::before { display: none; }
+html .eb-hero .eb-visual img.main { box-shadow: 0 22px 44px -18px rgba(22,19,15,.6); }
