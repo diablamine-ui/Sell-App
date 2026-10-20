@@ -30,13 +30,15 @@
   });
 
   function load() {
-    Promise.all([api('/db/ebooks').then(jsonOf), api('/admin/orders').then(jsonOf)]).then(function (res) {
+    Promise.all([api('/db/ebooks').then(jsonOf), api('/admin/orders').then(jsonOf), api('/db/shop_config/sell_promo').then(function (r) { return r.ok ? r.json() : {}; })]).then(function (res) {
       EBOOKS = (res[0] || []).filter(function (e) { return e && e._id; });
       var orders = res[1] || [];
+      var promo = (res[2] && res[2].value) || {};
       app.innerHTML = '<p><a href="/admin">Retour à l’administration</a></p><h1 style="margin-top:10px">Ebooks</h1>' +
         '<p class="muted" style="margin-top:6px">Crée et gère tes ebooks. Les PDF ne sont jamais publics : seul un acheteur avec son lien personnel peut les télécharger, avec son e-mail en filigrane.</p>' +
         '<details class="card" style="margin-top:14px"><summary style="cursor:pointer;font-weight:600;color:#fff">Consignes pour créer une page de vente en HTML</summary>' +
         '<pre class="guide" id="guide">' + esc(GUIDE) + '</pre><button class="mini-b" type="button" id="copyGuide">Copier les consignes</button></details>' +
+        '<div class="card" id="promo"></div>' +
         '<div id="list"></div>' +
         '<button class="big-b" type="button" id="newBook">+ Nouvel ebook</button>' +
         '<h2>Commandes en ligne</h2><div class="card scroll">' +
@@ -49,8 +51,41 @@
         navigator.clipboard && navigator.clipboard.writeText(GUIDE).then(function () { document.getElementById('copyGuide').textContent = 'Copié'; });
       };
       document.getElementById('newBook').onclick = function () { addCard(null); this.hidden = true; };
+      promoCard(document.getElementById('promo'), promo);
       EBOOKS.forEach(function (e) { addCard(e); });
     });
+  }
+
+  // Mise en avant : grand encart sur l'accueil, encart sur la fiche de chaque livre papier.
+  function promoCard(box, promo) {
+    var home = promo.home || {}, pdp = promo.pdp || {};
+    function opts(sel) {
+      return EBOOKS.map(function (e) {
+        var s = e.slug || e._id;
+        return '<option value="' + esc(s) + '"' + (s === sel ? ' selected' : '') + '>' + esc(e.title) + (e.hidden ? ' (cachée : non affiché)' : '') + '</option>';
+      }).join('');
+    }
+    var defPdp = EBOOKS.some(function (e) { return (e.slug || e._id) === 'lire-autrement'; }) ? 'lire-autrement' : '';
+    box.innerHTML = '<h2 style="margin-top:0">Mise en avant</h2>' +
+      '<p class="muted small">Où tes ebooks apparaissent dans la boutique de livres papier.</p>' +
+      '<label class="chk"><input type="checkbox" data-p="home-on"' + (home.active !== false ? ' checked' : '') + '> Grand encart sur l’accueil</label>' +
+      '<select class="in" data-p="home-slug" style="margin-top:8px">' + opts(home.slug || (EBOOKS[0] && (EBOOKS[0].slug || EBOOKS[0]._id))) + '</select>' +
+      '<label class="chk" style="margin-top:18px"><input type="checkbox" data-p="pdp-on"' + (pdp.active !== false ? ' checked' : '') + '> Encart sur la fiche de chaque livre</label>' +
+      '<select class="in" data-p="pdp-slug" style="margin-top:8px">' + opts(pdp.slug || defPdp) + '</select>' +
+      '<label class="lab">Titre de l’encart</label><input class="in" data-p="pdp-title" maxlength="90" placeholder="Tu vas lire ce livre ? Retiens-en l’essentiel." value="' + esc(pdp.title || '') + '">' +
+      '<label class="lab">Phrase sous le titre</label><input class="in" data-p="pdp-text" maxlength="180" placeholder="Laisse vide pour utiliser l’accroche de l’ebook" value="' + esc(pdp.text || '') + '">' +
+      '<div class="actions"><button class="big-b" type="button" data-p="save">Enregistrer la mise en avant</button><small class="msg"></small></div>';
+    var q = function (k) { return box.querySelector('[data-p="' + k + '"]'); };
+    q('save').onclick = function () {
+      var v = {
+        home: { active: q('home-on').checked, slug: q('home-slug').value },
+        pdp: { active: q('pdp-on').checked, slug: q('pdp-slug').value, title: q('pdp-title').value.trim(), text: q('pdp-text').value.trim() }
+      };
+      var msg = box.querySelector('.msg'); msg.textContent = 'Enregistrement…';
+      api('/db/shop_config/sell_promo', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'sell_promo', value: v }) })
+        .then(function (r) { msg.innerHTML = r.ok ? '<span class="ok">Enregistré. Visible tout de suite sur la boutique.</span>' : '<span class="ko">Échec (' + r.status + ').</span>'; })
+        .catch(function () { msg.innerHTML = '<span class="ko">Échec de l’enregistrement.</span>'; });
+    };
   }
 
   function fileRow(f, i) {

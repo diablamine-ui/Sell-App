@@ -498,3 +498,41 @@ body.has-buybar .toast { bottom: 90px; }
 .crumbs [aria-current] { color: var(--gris); }
 .top-back { font-size: 14.5px; font-weight: 600; color: var(--action); text-decoration: none; padding: 10px 0; }
 .top-back:hover { text-decoration: underline; }
+
+/* Ebook mis en avant sur l'accueil */
+.ebook-feat { display: grid; grid-template-columns: 112px 1fr; gap: 18px; align-items: start; margin-top: 16px; padding: 18px; border-radius: var(--r-m); background: var(--banco); color: #fff; text-decoration: none; }
+.ebook-feat:hover { background: #0F4535; }
+.ebook-feat-cv img { display: block; width: 112px; height: auto; aspect-ratio: 720 / 1018; object-fit: cover; border-radius: 3px; box-shadow: 0 14px 28px -12px rgba(0,0,0,.7); }
+.ebook-feat-txt { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.ebook-feat-sur { font-size: 13.5px; color: #9FD8B9; font-weight: 600; }
+.ebook-feat-title { font-family: var(--serif); font-size: 24px; line-height: 1.15; }
+.ebook-feat-line { font-size: 15px; line-height: 1.45; color: rgba(255,255,255,.82); }
+.ebook-feat-price { font-weight: 700; font-size: 18px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.ebook-feat-price span { font-weight: 400; font-size: 14px; color: rgba(255,255,255,.72); }
+.ebook-feat-btn { grid-column: 1 / -1; margin-top: 8px; align-self: flex-start; pointer-events: none; }
+@media (max-width: 480px) {
+  .ebook-feat { grid-template-columns: 96px 1fr; gap: 14px; padding: 16px; }
+  .ebook-feat-cv img { width: 96px; }
+  .ebook-feat-title { font-size: 21px; }
+  .ebook-feat-txt { display: contents; }
+  .ebook-feat-cv { grid-row: 1 / span 3; }
+  .ebook-feat-title, .ebook-feat-line, .ebook-feat-price { grid-column: 2; }
+  .ebook-feat-btn { grid-column: 1 / -1; width: 100%; }
+}
+@media (min-width: 820px) {
+  .ebook-feat { grid-template-columns: 170px 1fr; gap: 28px; padding: 26px 28px; align-items: center; }
+  .ebook-feat-cv img { width: 170px; }
+  .ebook-feat-title { font-size: 30px; }
+}
+.ebook-feat + .ebooks-list { margin-top: 12px; }
+
+/* Encart ebook sur la fiche d'un livre papier */
+.pdp-promo { display: grid; grid-template-columns: 56px 1fr; gap: 14px; align-items: start; margin-top: 18px; padding: 14px; border: 1px solid var(--trait); border-radius: var(--r-m); background: var(--blanc); color: var(--encre); text-decoration: none; }
+.pdp-promo:hover { border-color: var(--action); }
+.pdp-promo img { width: 56px; height: auto; aspect-ratio: 720 / 1018; object-fit: cover; border-radius: 2px; box-shadow: 0 6px 14px -8px rgba(19,32,26,.6); }
+.pdp-promo-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.pdp-promo-txt strong { font-family: var(--serif); font-weight: 500; font-size: 17px; line-height: 1.3; }
+.pdp-promo-txt > span { font-size: 14.5px; line-height: 1.45; color: var(--gris); }
+.pdp-promo-price { font-weight: 700; color: var(--encre) !important; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.pdp-promo-go { display: inline-flex; align-items: center; gap: 2px; margin-top: 4px; font-weight: 600; font-size: 14.5px; color: var(--action) !important; }
+.pdp-promo-go svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }

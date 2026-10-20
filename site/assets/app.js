@@ -31,6 +31,8 @@
 
   var BOOKS = [];
   var EBOOKS = [];
+  // Mise en avant des ebooks (admin > Ebooks > Mise en avant). Valeurs par défaut si rien n'est réglé.
+  var PROMO = null;
   var CONFIG = { waNumber: DEFAULT_WA, pixelId: DEFAULT_PIXEL, waMessage: '' };
   var cart = [];
   var view = document.getElementById('view');
@@ -142,6 +144,7 @@
       res[1].forEach(function (d) {
         if (d._id === 'sell_config' && d.value) Object.assign(CONFIG, d.value);
         if (d._id === 'sell_delivery' && d.value) applyDelivery(d.value);
+        if (d._id === 'sell_promo' && d.value) PROMO = d.value;
         if (d._id === 'sell_bandeau' && d.value && d.value.active && d.value.texte) {
           var n = document.getElementById('notice');
           var item = '<span class="notice-item">' + esc(d.value.texte) + '</span>';
@@ -155,6 +158,26 @@
   function bySlug(slug) {
     return BOOKS.find(function (b) { return b.slug === slug; }) ||
       BOOKS.find(function (b) { return String(b.pos) === String(slug) || b.fid === slug; });
+  }
+  // Ebook mis en avant à un emplacement ('home' ou 'pdp'), ou null si l'emplacement est coupé.
+  function promoEbook(where) {
+    var c = PROMO && PROMO[where];
+    if (c && c.active === false) return null;
+    var slug = c && c.slug ? c.slug : (where === 'pdp' ? 'lire-autrement' : null);
+    var e = slug ? EBOOKS.find(function (x) { return (x.slug || x._id) === slug; }) : EBOOKS[0];
+    return e || null;
+  }
+  function pdpPromo() {
+    var e = promoEbook('pdp');
+    if (!e) return '';
+    var c = (PROMO && PROMO.pdp) || {};
+    var title = c.title || 'Tu vas lire ce livre ? Retiens-en l’essentiel.';
+    var text = c.text || (e.title + ' : ' + (e.headline || 'le guide en PDF')).replace(/([^.!?…])$/, '$1.');
+    return '<a class="pdp-promo" href="/ebook/' + encodeURIComponent(e.slug || e._id) + '?depuis=fiche-livre">' +
+      '<img src="' + esc(imgSrc(e.cover)) + '" alt="" loading="lazy" decoding="async" width="56" height="79">' +
+      '<span class="pdp-promo-txt"><strong>' + esc(title) + '</strong><span>' + esc(text) + '</span>' +
+      '<span class="pdp-promo-price">' + money(e.price) + ' en PDF, reçu tout de suite</span>' +
+      '<span class="pdp-promo-go">Découvrir le guide' + ICON.chevron + '</span></span></a>';
   }
   function bookUrl(b) { return '/?livre=' + encodeURIComponent(b.slug || b.fid); }
   function inCat(key) { return BOOKS.filter(function (b) { return b.category === key; }); }
@@ -282,10 +305,21 @@
     // Les ebooks de Lamine Diabaté : PDF payés en ligne, chacun avec sa page de vente.
     function ebooksSection() {
       if (!EBOOKS.length) return '';
+      // Un ebook mis en avant en grand, les autres en cartes en dessous.
+      var star = promoEbook('home');
+      var rest = EBOOKS.filter(function (e) { return e !== star; });
+      var feat = star ? '<a class="ebook-feat" href="/ebook/' + encodeURIComponent(star.slug || star._id) + '?depuis=accueil">' +
+          '<span class="ebook-feat-cv"><img src="' + esc(imgSrc(star.cover)) + '" alt="" width="360" height="509" decoding="async"></span>' +
+          '<span class="ebook-feat-txt">' +
+            '<span class="ebook-feat-title">' + esc(star.title) + '</span>' +
+            (star.headline ? '<span class="ebook-feat-line">' + esc(star.headline) + '</span>' : '') +
+            '<span class="ebook-feat-price">' + money(star.price) + '<span> en PDF, reçu tout de suite</span></span>' +
+            '<span class="btn btn-light ebook-feat-btn">Découvrir le guide</span></span></a>' : '';
       return '<section class="ebooks"><div class="wrap">' +
         '<div class="ebooks-head"><h2>Les ebooks de Lamine Diabaté</h2>' +
         '<p>Des guides pratiques en PDF. Tu paies en ligne et tu reçois tes fichiers par e-mail, à lire sur ton téléphone.</p></div>' +
-        '<div class="ebooks-list">' + EBOOKS.map(function (e) {
+        feat +
+        (rest.length ? '<div class="ebooks-list">' + rest.map(function (e) {
           var slug = e.slug || e._id;
           return '<a class="ebook" href="/ebook/' + encodeURIComponent(slug) + '">' +
             '<span class="ebook-cv"><img src="' + esc(imgSrc(e.cover)) + '" alt="" loading="lazy" decoding="async"></span>' +
@@ -293,7 +327,7 @@
             (e.headline ? '<span class="ebook-line">' + esc(e.headline) + '</span>' : '') +
             '<span class="ebook-price">' + money(e.price) + '<span> en PDF</span></span>' +
             '<span class="ebook-go">Découvrir' + ICON.chevron + '</span></span></a>';
-        }).join('') + '</div>' +
+        }).join('') + '</div>' : '') +
       '</div></section>';
     }
     function fact(path, t, s) {
@@ -373,6 +407,7 @@
                   '<button class="btn btn-secondary btn-block" type="button" id="addBtn">Ajouter au panier</button>') +
             '</div>' +
             '<ul class="pdp-facts"><li>Paiement à la livraison</li><li>Livré en 24 h à Abidjan</li><li>' + feesLine() + '</li>' + (offerText() ? '<li>' + offerText() + '</li>' : '') + '</ul>' +
+            pdpPromo() +
           '</div>' +
         '</article>' +
         (b.desc ? '<section class="pdp-desc"><h2>À propos de ce livre</h2><div class="txt">' + richText(b.desc) + '</div></section>' : '') +
