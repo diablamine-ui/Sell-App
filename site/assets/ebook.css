@@ -39,6 +39,8 @@
 .paylogos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
 .paylogos span { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; font-size: 12.5px; font-weight: 600; padding: 4px 10px; border-radius: 6px; background: var(--blanc); border: 1px solid var(--trait); color: var(--encre); }
 .paylogos img { display: block; height: 16px; width: auto; }
+.paylogos img[src$="wave.png"] { height: 18px; border-radius: 50%; }
+.paylogos img[src$="mtn.png"] { height: 18px; border-radius: 3px; }
 .paylogos .pay-logo img { height: 15px; }
 .paylogos .pay-logo img[src$="mastercard.svg"] { height: 20px; }
 @media (min-width: 820px) {

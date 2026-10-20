@@ -75,9 +75,9 @@
   function payPills() {
     // Logos officiels quand on les a (assets/pay), sinon le nom seul.
     var PAY = [
-      { n: 'Wave' },
+      { n: 'Wave', i: 'wave.png' },
       { n: 'Orange Money', i: 'orange.svg' },
-      { n: 'MTN MoMo' },
+      { n: 'MTN MoMo', i: 'mtn.png' },
       { n: 'Visa', i: 'visa.svg', only: true },
       { n: 'Mastercard', i: 'mastercard.svg', only: true }
     ];

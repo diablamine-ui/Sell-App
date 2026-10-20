@@ -1,5 +1,5 @@
 Logos des moyens de paiement, affichés pour indiquer les paiements acceptés.
 visa.svg, mastercard.svg : jeu « logos » d'Iconify (@iconify-json/logos, CC0).
 orange.svg : Simple Icons (simple-icons, CC0), couleur officielle #FF7900.
-Wave et MTN MoMo : à ajouter avec les fichiers officiels (wave.svg / mtn.svg ou .png).
+wave.png, mtn.png : fichiers fournis par Lamine Diabaté.
 Les marques restent la propriété de leurs titulaires.
