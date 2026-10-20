@@ -158,3 +158,23 @@ body.has-buybar .eb-foot { padding-bottom: 96px; }
 .dl-retry form { display: inline; }
 .linkbtn { background: none; border: 0; padding: 0; color: var(--action); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
 .dl-find { margin-top: 14px; padding: 12px 14px; border-radius: 10px; background: #E7F2EC; font-size: 15px; line-height: 1.55; }
+
+/* Images et vidéos des pages de vente */
+.eb-media { margin: 26px 0 0; }
+.eb-media img, .eb-media video { display: block; width: 100%; height: auto; border-radius: 8px; background: var(--coton); }
+/* Vidéo verticale : elle tient dans l'écran du téléphone sans défiler. */
+.eb-media.tall { max-width: min(360px, 42vh); margin-left: auto; margin-right: auto; }
+.eb-media figcaption { font-size: 14.5px; line-height: 1.5; color: var(--gris); margin-top: 8px; }
+.media-zoom { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.media-zoom:focus-visible, .yt:focus-visible { outline: 2px solid var(--action); outline-offset: 3px; border-radius: 8px; }
+.yt { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; padding: 0; border: 0; border-radius: 8px; overflow: hidden; background: var(--encre); cursor: pointer; }
+.yt.v { aspect-ratio: 9 / 16; }
+.yt img { width: 100%; height: 100%; object-fit: cover; border-radius: 0; }
+.yt .play { position: absolute; left: 50%; top: 50%; width: 68px; height: 68px; margin: -34px 0 0 -34px; border-radius: 50%; background: rgba(255,255,255,.94); box-shadow: 0 8px 24px -8px rgba(0,0,0,.5); }
+.yt .play::after { content: ""; position: absolute; left: 27px; top: 21px; border-style: solid; border-width: 13px 0 13px 21px; border-color: transparent transparent transparent var(--encre); }
+.yt:hover .play { background: #fff; }
+.yt-frame { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 8px; background: #000; }
+.yt-frame.v { aspect-ratio: 9 / 16; }
+.media-sec { padding-top: 34px !important; }
+.media-sec .eb-media:first-child { margin-top: 0; }
+.final .eb-media figcaption { font-family: inherit; }

@@ -18,7 +18,7 @@
     '3. Pas de JavaScript : il est retiré à l’affichage. Pour une FAQ dépliable, utiliser <details><summary>Question</summary><p>Réponse</p></details>.',
     '4. Chaque bouton d’achat est un lien vers #acheter : <a href="#acheter">Je veux le pack</a>.',
     '5. Écrire {{prix}} partout où le prix doit s’afficher (il sera remplacé par le vrai prix, par exemple « 4 000 FCFA »).',
-    '6. Images : liens https complets. La boutique ajoute elle-même le lien de retour, les liens légaux et la fenêtre de paiement.'
+    '6. Images : liens https complets, ou l’adresse copiée depuis « Images et vidéos de la page ». La boutique ajoute elle-même le lien de retour, les liens légaux et la fenêtre de paiement.'
   ].join('\n');
 
   api('/auth/me').then(jsonOf).then(function (me) {
@@ -82,6 +82,16 @@
       '<button class="mini-b" type="button" data-addfile>+ Ajouter un fichier</button>' +
       (isNew ? '' : '<label class="lab">Page de vente</label><div class="page-row"><small class="hst">' + (e.mode === 'html' ? 'Page HTML déposée' : 'Modèle intégré') + '</small>' +
         '<label class="up">Déposer une page HTML<input type="file" accept=".html,text/html" data-html></label></div>') +
+      (isNew ? '' : '<label class="lab">Images et vidéos de la page</label>' +
+        '<p class="muted small">' + (e.mode === 'html'
+          ? 'Ta page est en HTML : ajoute ici l’image ou la vidéo, puis copie son adresse dans ta page.'
+          : 'Choisis pour chacune son emplacement dans la page. Les changements sont enregistrés aussitôt.') + '</p>' +
+        '<div class="mlist"></div>' +
+        '<div class="madd"><label class="up">Ajouter une image<input type="file" accept="image/*" data-mimg></label>' +
+        '<label class="up">Ajouter une vidéo MP4<input type="file" accept="video/mp4,video/webm" data-mvid></label>' +
+        '<button class="mini-b" type="button" data-myt>Ajouter une vidéo YouTube</button></div>' +
+        '<div class="myt" hidden><input class="in" data-ytin inputmode="url" placeholder="Colle le lien YouTube"><button class="mini-b" type="button" data-ytgo>Ajouter</button></div>' +
+        '<small class="mmsg"></small>') +
       '<div class="actions"><button class="big-b" type="button" data-save>' + (isNew ? 'Créer l’ebook' : 'Enregistrer') + '</button><small class="msg"></small></div>';
     document.getElementById('list').appendChild(box);
 
@@ -148,6 +158,7 @@
     };
 
     if (!isNew) {
+      mediaManager(box, e, slug);
       refreshPdf(box, slug);
       if (e.mode === 'html') api('/admin/ebook-html?slug=' + encodeURIComponent(slug)).then(jsonOf).then(function (d) {
         box.querySelector('.hst').innerHTML = d.exists ? '<span class="ok">Page HTML déposée</span> ' + esc(size(d.size)) + ' <a href="/ebook/' + esc(slug) + '" target="_blank" rel="noopener">Voir la page</a>' : '<span class="ko">Page HTML pas encore déposée</span>';
@@ -164,6 +175,177 @@
         inp.value = '';
       });
     }
+  }
+
+  // ───────────── Images et vidéos de la page ─────────────
+  var MAX_VID = 20 * 1024 * 1024;
+  function short(t) { t = String(t || ''); return t.length > 42 ? t.slice(0, 40) + '…' : t; }
+  function slotsOf(e) {
+    var S = [
+      ['hero', 'Après le haut de page, sous le bouton d’achat', true],
+      ['problem', 'Après le Problème', e.problem], ['agitation', 'Après l’Agitation', e.agitation],
+      ['solution', 'Après la Solution et la méthode', e.solution], ['skills', 'Après les compétences', e.skills],
+      ['files', 'Dans « Ce que tu reçois », avant le bouton', e.files && (e.files.items || []).length],
+      ['audience', 'Après « Pour qui »', e.audience], ['author', 'Après l’auteur', e.author],
+      ['action', 'Dans l’Action, avant le bouton', true], ['final', 'Dans le dernier mot, avant le bouton', e.final]
+    ];
+    return S.filter(function (x) { return x[2]; }).map(function (x) {
+      var ti = x[2] && x[2].title ? String(x[2].title).replace(/'/g, '’') : '';
+      var t = ti && x[1].indexOf(ti) < 0 ? ' : ' + short(ti) : '';
+      return [x[0], x[1] + t];
+    });
+  }
+  function parseYt(u) {
+    u = String(u || '').trim();
+    var m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([A-Za-z0-9_-]{11})/);
+    return m ? { id: m[1], vertical: /\/shorts\//.test(u) } : null;
+  }
+  // Image allégée dans le navigateur avant l'envoi : 1 400 pixels de large au plus, JPEG.
+  function compressImage(file) {
+    return new Promise(function (ok, ko) {
+      if (file.type === 'image/gif') { var g = new Image(); g.onload = function () { ok({ blob: file, w: g.naturalWidth, h: g.naturalHeight }); }; g.onerror = ko; g.src = URL.createObjectURL(file); return; }
+      var img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth, h = img.naturalHeight, max = 1400;
+        if (w > max) { h = Math.round(h * max / w); w = max; }
+        var c = document.createElement('canvas'); c.width = w; c.height = h;
+        var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, 0, 0, w, h);
+        c.toBlob(function (b) {
+          if (!b) { ko(new Error('canvas')); return; }
+          ok({ blob: b.size < file.size || file.type === 'image/heic' ? b : file, w: w, h: h });
+        }, 'image/jpeg', 0.82);
+        URL.revokeObjectURL(img.src);
+      };
+      img.onerror = function () { ko(new Error('image')); };
+      img.src = URL.createObjectURL(file);
+    });
+  }
+  // Dimensions et image d'aperçu d'une vidéo. Si le navigateur ne sait pas la lire, les acheteurs non plus.
+  function videoInfo(file) {
+    return new Promise(function (ok, ko) {
+      var v = document.createElement('video'), done = false;
+      v.muted = true; v.playsInline = true; v.preload = 'auto';
+      var t = setTimeout(function () { if (!done) { done = true; ko(new Error('timeout')); } }, 20000);
+      v.onloadeddata = function () { v.currentTime = Math.min(1, (v.duration || 2) / 3); };
+      v.onseeked = function () {
+        if (done) return; done = true; clearTimeout(t);
+        var w = v.videoWidth, h = v.videoHeight;
+        if (!w || !h) { ko(new Error('codec')); return; }
+        var sc = Math.min(1, 1280 / Math.max(w, h));
+        var c = document.createElement('canvas'); c.width = Math.round(w * sc); c.height = Math.round(h * sc);
+        c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+        c.toBlob(function (b) { URL.revokeObjectURL(v.src); ok({ w: w, h: h, poster: b, duration: v.duration }); }, 'image/jpeg', 0.8);
+      };
+      v.onerror = function () { if (!done) { done = true; clearTimeout(t); ko(new Error('codec')); } };
+      v.src = URL.createObjectURL(file);
+    });
+  }
+  function xhrUpload(path, body, type, onProg) {
+    return new Promise(function (ok, ko) {
+      var x = new XMLHttpRequest();
+      x.open('POST', '/api' + path);
+      x.setRequestHeader('X-Dilam', '1');
+      x.setRequestHeader('Content-Type', type);
+      x.upload.onprogress = function (ev) { if (ev.lengthComputable && onProg) onProg(ev.loaded / ev.total); };
+      x.onload = function () { var d = {}; try { d = JSON.parse(x.responseText); } catch (e) {} if (x.status >= 200 && x.status < 300 && d.url) ok(d); else ko(new Error(d.error || x.status)); };
+      x.onerror = function () { ko(new Error('réseau')); };
+      x.send(body);
+    });
+  }
+  function upImage(blob) {
+    return api('/admin/upload', { method: 'POST', headers: { 'Content-Type': blob.type || 'image/jpeg' }, body: blob }).then(jsonOf).then(function (d) {
+      if (!d.url) throw new Error(d.error || 'image'); return d.url;
+    });
+  }
+
+  function mediaManager(box, e, slug) {
+    var media = (e.media || []).slice();
+    var list = box.querySelector('.mlist'), mmsg = box.querySelector('.mmsg');
+    var slots = slotsOf(e), html = e.mode === 'html';
+    var TYPE = { image: 'Image', video: 'Vidéo', youtube: 'Vidéo YouTube' };
+    function thumb(m) { return m.type === 'youtube' ? 'https://i.ytimg.com/vi/' + m.yt + '/default.jpg' : (m.type === 'video' ? m.poster : m.src) || ''; }
+    function draw() {
+      list.innerHTML = media.length ? media.map(function (m, k) {
+        return '<div class="mrow" data-k="' + k + '"><img class="mth" src="' + esc(thumb(m)) + '" alt="">' +
+          '<div class="mmain"><strong>' + TYPE[m.type] + '</strong>' +
+          (html ? '' : '<select class="in msl">' + slots.map(function (s) { return '<option value="' + s[0] + '"' + (s[0] === m.slot ? ' selected' : '') + '>' + esc(s[1]) + '</option>'; }).join('') + '</select>') +
+          '<input class="in mcap" maxlength="200" placeholder="Légende (facultatif)" value="' + esc(m.caption || '') + '">' +
+          '<div class="mbtns">' + (k > 0 ? '<button type="button" class="mini-b" data-up>Monter</button>' : '') +
+          (k < media.length - 1 ? '<button type="button" class="mini-b" data-down>Descendre</button>' : '') +
+          (html && m.type !== 'youtube' ? '<button type="button" class="mini-b" data-copy>Copier l’adresse</button>' : '') +
+          '<button type="button" class="mini-b ko-b" data-del>Retirer</button></div></div></div>';
+      }).join('') : '<p class="muted small">Aucune image ni vidéo pour le moment.</p>';
+    }
+    function save(note) {
+      mmsg.textContent = 'Enregistrement…';
+      return api('/db/ebooks/' + encodeURIComponent(slug), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ media: media }) })
+        .then(function (r) {
+          if (!r.ok) throw new Error(r.status);
+          e.media = media.slice();
+          mmsg.innerHTML = '<span class="ok">' + esc(note || 'Enregistré.') + '</span>';
+        })
+        .catch(function (x) { mmsg.innerHTML = '<span class="ko">Échec de l’enregistrement (' + esc(x.message) + '). Réessaie.</span>'; });
+    }
+    function add(m) { media.push(m); draw(); save(html ? 'Ajouté. Copie son adresse dans ta page.' : 'Ajouté. Choisis son emplacement si besoin.'); }
+    draw();
+
+    list.addEventListener('change', function (ev) {
+      var row = ev.target.closest('.mrow'); if (!row) return;
+      var m = media[+row.getAttribute('data-k')];
+      if (ev.target.matches('.msl')) { m.slot = ev.target.value; save(); }
+      if (ev.target.matches('.mcap')) { m.caption = ev.target.value.trim(); save(); }
+    });
+    list.addEventListener('click', function (ev) {
+      var b = ev.target.closest('button'); if (!b) return;
+      var k = +b.closest('.mrow').getAttribute('data-k'), m = media[k];
+      if (b.hasAttribute('data-up') || b.hasAttribute('data-down')) {
+        var j = b.hasAttribute('data-up') ? k - 1 : k + 1;
+        media[k] = media[j]; media[j] = m; draw(); save();
+      } else if (b.hasAttribute('data-copy')) {
+        var u = location.origin + m.src;
+        if (navigator.clipboard) navigator.clipboard.writeText(u).then(function () { b.textContent = 'Adresse copiée'; });
+      } else if (b.hasAttribute('data-del')) {
+        if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = 'Confirmer le retrait'; setTimeout(function () { if (b.isConnected) { delete b.dataset.sure; b.textContent = 'Retirer'; } }, 4000); return; }
+        media.splice(k, 1); draw();
+        save('Retiré de la page.').then(function () {
+          if (m.type === 'video') api('/admin/video?url=' + encodeURIComponent(m.src), { method: 'DELETE' });
+        });
+      }
+    });
+
+    box.querySelector('[data-mimg]').onchange = function () {
+      var f = this.files[0]; this.value = ''; if (!f) return;
+      mmsg.textContent = 'Préparation de l’image…';
+      compressImage(f).then(function (r) {
+        mmsg.textContent = 'Envoi de l’image (' + size(r.blob.size) + ')…';
+        return upImage(r.blob).then(function (url) { add({ type: 'image', src: url, w: r.w, h: r.h, slot: 'solution', caption: '' }); });
+      }).catch(function (x) { mmsg.innerHTML = '<span class="ko">Cette image n’a pas pu être envoyée (' + esc(x.message) + '). Essaie une image JPEG ou PNG.</span>'; });
+    };
+    box.querySelector('[data-mvid]').onchange = function () {
+      var f = this.files[0]; this.value = ''; if (!f) return;
+      if (f.size > MAX_VID) { mmsg.innerHTML = '<span class="ko">Cette vidéo fait ' + esc(size(f.size)) + ', le maximum est 20 Mo. Pour une vidéo plus longue, publie-la sur YouTube en « non répertoriée » et colle son lien.</span>'; return; }
+      if (!/^video\/(mp4|webm)$/.test(f.type)) { mmsg.innerHTML = '<span class="ko">Seuls les fichiers MP4 sont acceptés.</span>'; return; }
+      mmsg.textContent = 'Vérification de la vidéo…';
+      videoInfo(f).then(function (info) {
+        mmsg.textContent = 'Envoi de l’image d’aperçu…';
+        return upImage(info.poster).then(function (poster) {
+          return xhrUpload('/admin/video', f, f.type, function (p) { mmsg.textContent = 'Envoi de la vidéo : ' + Math.round(p * 100) + ' %'; })
+            .then(function (d) { add({ type: 'video', src: d.url, poster: poster, w: info.w, h: info.h, slot: 'hero', caption: '' }); });
+        });
+      }).catch(function (x) {
+        mmsg.innerHTML = x.message === 'codec' || x.message === 'timeout'
+          ? '<span class="ko">Cette vidéo ne se lit pas dans le navigateur, donc pas non plus chez tes acheteurs. Exporte-la en MP4 (H.264) depuis ton téléphone ou CapCut, puis réessaie.</span>'
+          : '<span class="ko">Échec de l’envoi (' + esc(x.message) + '). Vérifie ta connexion et réessaie.</span>';
+      });
+    };
+    var ytBox = box.querySelector('.myt'), ytIn = box.querySelector('[data-ytin]');
+    box.querySelector('[data-myt]').onclick = function () { ytBox.hidden = false; ytIn.focus(); };
+    box.querySelector('[data-ytgo]').onclick = function () {
+      var y = parseYt(ytIn.value);
+      if (!y) { mmsg.innerHTML = '<span class="ko">Ce lien n’est pas un lien de vidéo YouTube. Exemple : https://youtu.be/…</span>'; return; }
+      ytIn.value = ''; ytBox.hidden = true;
+      add({ type: 'youtube', yt: y.id, vertical: y.vertical, slot: 'hero', caption: '' });
+    };
   }
 
   function refreshPdf(box, slug) {

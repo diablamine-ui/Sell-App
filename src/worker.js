@@ -16,7 +16,7 @@ const FIRESTORE_DEFAULT = 'https://firestore.googleapis.com/v1/projects/dilam-bo
 // Clé web Firebase : publique par nature (elle figurait dans l'ancien site). Utilisée uniquement pour la migration.
 const FIREBASE_WEB_KEY = 'AIzaSyDyOrVT9Zb2s37unS2ailL05YqH0WDnlks';
 
-const CSP = "default-src 'self'; script-src 'self' 'unsafe-inline' https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://www.facebook.com https://connect.facebook.net; frame-src https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'";
+const CSP = "default-src 'self'; script-src 'self' 'unsafe-inline' https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' https://www.facebook.com https://connect.facebook.net; frame-src https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'";
 const COLLECTIONS = new Set(['books', 'shop_config', 'stats', 'ventes', 'ebooks']);
 const PUBLIC_READ = new Set(['books', 'shop_config', 'ebooks']);
 const STAT_TYPES = new Set(['views', 'carts', 'orders']);
@@ -28,6 +28,8 @@ const CODE_TTL = 10 * 60;           // 10 min
 const CODE_MAX_ATTEMPTS = 5;
 const MAX_DOC_BYTES = 200 * 1024;
 const MAX_IMG_BYTES = 10 * 1024 * 1024;
+const MAX_VID_BYTES = 20 * 1024 * 1024; // une valeur KV plafonne à 25 Mio
+const VID_TYPES = { 'video/mp4': 'mp4', 'video/webm': 'webm' };
 const ID_RE = /^[A-Za-z0-9_.\-]{1,128}$/;
 
 // ───────────────────────── utilitaires ─────────────────────────
@@ -322,18 +324,60 @@ async function uploadImage(req, env) {
   return json({ url: '/media/' + key }, 201);
 }
 
-async function serveMedia(path, env) {
+// Vidéos courtes des pages de vente (MP4 ou WebM, 20 Mo au plus).
+async function uploadVideo(req, env) {
+  const ct = (req.headers.get('Content-Type') || '').split(';')[0].trim().toLowerCase();
+  const ext = VID_TYPES[ct];
+  if (!ext) return err(415, 'bad_type');
+  const len = parseInt(req.headers.get('Content-Length') || '0', 10);
+  if (len > MAX_VID_BYTES) return err(413, 'too_large');
+  const buf = await req.arrayBuffer();
+  if (!buf.byteLength || buf.byteLength > MAX_VID_BYTES) return err(413, 'too_large');
+  const b = new Uint8Array(buf.slice(0, 12));
+  const isMp4 = String.fromCharCode(b[4], b[5], b[6], b[7]) === 'ftyp';
+  const isWebm = b[0] === 0x1a && b[1] === 0x45 && b[2] === 0xdf && b[3] === 0xa3;
+  if ((ext === 'mp4' && !isMp4) || (ext === 'webm' && !isWebm)) return err(415, 'not_video');
+  const key = `vid/${Date.now()}-${randHex(4)}.${ext}`;
+  await env.FILES.put(key, buf, { metadata: { ct, size: buf.byteLength } });
+  return json({ url: '/media/' + key, size: buf.byteLength }, 201);
+}
+async function deleteVideo(env, url) {
+  const key = (url.searchParams.get('url') || '').replace(/^\/media\//, '');
+  if (!/^vid\/[0-9]+-[0-9a-f]{8}\.(mp4|webm)$/.test(key)) return err(400, 'bad_key');
+  await env.FILES.delete(key);
+  return json({ ok: true });
+}
+
+async function serveMedia(req, path, env) {
   const key = path.slice('/media/'.length);
-  // Seules les images sont publiques. Les PDF (préfixe pdf/) ne sortent jamais par ici.
-  if (!/^img\/[0-9]+-[0-9a-f]{8}\.(jpg|png|webp|gif)$/.test(key)) return err(404, 'not_found');
-  const { value, metadata } = await env.FILES.getWithMetadata(key, { type: 'stream' });
+  // Seules les images et les vidéos des pages de vente sont publiques. Les PDF (préfixe pdf/) ne sortent jamais par ici.
+  const isImg = /^img\/[0-9]+-[0-9a-f]{8}\.(jpg|png|webp|gif)$/.test(key);
+  const isVid = /^vid\/[0-9]+-[0-9a-f]{8}\.(mp4|webm)$/.test(key);
+  if (!isImg && !isVid) return err(404, 'not_found');
+  const cache = 'public, max-age=31536000, immutable';
+  if (isImg) {
+    const { value, metadata } = await env.FILES.getWithMetadata(key, { type: 'stream' });
+    if (!value) return err(404, 'not_found');
+    return new Response(value, { headers: { 'Content-Type': (metadata && metadata.ct) || 'application/octet-stream', 'Cache-Control': cache } });
+  }
+  // Vidéo : les lecteurs (Safari en particulier) demandent le fichier par morceaux (en-tête Range).
+  const { value, metadata } = await env.FILES.getWithMetadata(key, { type: 'arrayBuffer', cacheTtl: 3600 });
   if (!value) return err(404, 'not_found');
-  return new Response(value, {
-    headers: {
-      'Content-Type': (metadata && metadata.ct) || 'application/octet-stream',
-      'Cache-Control': 'public, max-age=31536000, immutable',
-    },
-  });
+  const total = value.byteLength;
+  const h = { 'Content-Type': (metadata && metadata.ct) || 'video/mp4', 'Cache-Control': cache, 'Accept-Ranges': 'bytes' };
+  const range = req.headers.get('Range');
+  const m = range && range.match(/^bytes=(\d*)-(\d*)$/);
+  if (m && (m[1] || m[2])) {
+    let start, end;
+    if (m[1]) { start = parseInt(m[1], 10); end = m[2] ? Math.min(parseInt(m[2], 10), total - 1) : total - 1; }
+    else { start = Math.max(0, total - parseInt(m[2], 10)); end = total - 1; }
+    if (start >= total || start > end) return new Response(null, { status: 416, headers: { ...h, 'Content-Range': `bytes */${total}` } });
+    return new Response(req.method === 'HEAD' ? null : value.slice(start, end + 1), {
+      status: 206,
+      headers: { ...h, 'Content-Range': `bytes ${start}-${end}/${total}`, 'Content-Length': String(end - start + 1) },
+    });
+  }
+  return new Response(req.method === 'HEAD' ? null : value, { headers: { ...h, 'Content-Length': String(total) } });
 }
 
 // ───────────────────────── Meta CAPI ─────────────────────────
@@ -929,6 +973,8 @@ async function api(req, env, ctx, url) {
   if (p.startsWith('/api/admin/')) {
     if (!(await isAdmin(req, env))) return err(401, 'auth');
     if (p === '/api/admin/upload' && m === 'POST') return uploadImage(req, env);
+    if (p === '/api/admin/video' && m === 'POST') return uploadVideo(req, env);
+    if (p === '/api/admin/video' && m === 'DELETE') return deleteVideo(env, url);
     if (p === '/api/admin/capi' && m === 'POST') return capiAdmin(req, env);
     if (p === '/api/admin/migrate' && m === 'POST') return migrate(req, env);
     if (p === '/api/admin/pdf' && m === 'POST') return uploadPdf(req, env, url);
@@ -949,7 +995,7 @@ export default {
         cleanup(env, ctx);
         res = await api(req, env, ctx, url);
       } else if (url.pathname.startsWith('/media/')) {
-        res = await serveMedia(url.pathname, env);
+        res = await serveMedia(req, url.pathname, env);
       } else if (url.pathname.startsWith('/telecharger/')) {
         res = await download(req, env, ctx, url);
       } else if (/^\/ebook\/[a-z0-9-]{1,80}\/?$/.test(url.pathname)) {

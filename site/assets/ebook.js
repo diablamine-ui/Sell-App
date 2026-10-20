@@ -77,6 +77,41 @@
       ['Wave', 'Orange Money', 'MTN MoMo', 'Visa', 'Mastercard'].map(function (p) { return '<span>' + p + '</span>'; }).join('') +
       '</div>';
   }
+  // Images et vidéos ajoutées depuis l'admin, chacune à un emplacement de la structure.
+  var YT_RE = /^[A-Za-z0-9_-]{11}$/;
+  function okSrc(u) { return typeof u === 'string' && (/^\/media\/(img|vid)\//.test(u) || /^\/public\//.test(u)); }
+  function mediaFor(slot) {
+    return (E.media || []).filter(function (m) { return m && m.slot === slot; }).map(function (m) {
+      var cap = m.caption ? '<figcaption>' + fr(m.caption) + '</figcaption>' : '';
+      var tall = m.w && m.h && m.h > m.w;
+      var dims = (m.w && m.h) ? ' width="' + (parseInt(m.w, 10) || '') + '" height="' + (parseInt(m.h, 10) || '') + '"' : '';
+      if (m.type === 'image' && okSrc(m.src)) {
+        return '<figure class="eb-media' + (tall ? ' tall' : '') + '"><button type="button" class="media-zoom" data-zoom="' + esc(m.src) + '" aria-label="Agrandir l’image' + (m.caption ? ' : ' + esc(m.caption) : '') + '">' +
+          '<img src="' + esc(m.src) + '" alt="' + esc(m.caption || '') + '" loading="lazy" decoding="async"' + dims + '></button>' + cap + '</figure>';
+      }
+      if (m.type === 'video' && okSrc(m.src)) {
+        return '<figure class="eb-media' + (tall ? ' tall' : '') + '"><video controls preload="none" playsinline src="' + esc(m.src) + '"' +
+          (okSrc(m.poster) ? ' poster="' + esc(m.poster) + '"' : '') + dims + '></video>' + cap + '</figure>';
+      }
+      if (m.type === 'youtube' && YT_RE.test(m.yt || '')) {
+        return '<figure class="eb-media' + (m.vertical ? ' tall' : '') + '"><button type="button" class="yt' + (m.vertical ? ' v' : '') + '" data-yt="' + esc(m.yt) + '" aria-label="Lire la vidéo' + (m.caption ? ' : ' + esc(m.caption) : '') + '">' +
+          '<img src="https://i.ytimg.com/vi/' + esc(m.yt) + '/hqdefault.jpg" alt="" loading="lazy" decoding="async"><span class="play" aria-hidden="true"></span></button>' + cap + '</figure>';
+      }
+      return '';
+    }).join('');
+  }
+  function playYt(btn) {
+    var id = btn.getAttribute('data-yt');
+    if (!YT_RE.test(id)) return;
+    var f = document.createElement('iframe');
+    f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&playsinline=1';
+    f.title = 'Vidéo';
+    f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    f.allowFullscreen = true;
+    f.className = 'yt-frame' + (btn.classList.contains('v') ? ' v' : '');
+    btn.replaceWith(f);
+  }
+
   function section(cls, inner) { return '<section class="eb-sec ' + (cls || '') + '"><div class="eb-col">' + inner + '</div></section>'; }
 
   function render() {
@@ -101,10 +136,12 @@
         '<ul class="eb-assure">' + (E.reassure || []).map(function (r) { return '<li>' + fr(r) + '</li>'; }).join('') + '</ul>' +
       '</div>' +
     '</div></section>';
+    var mh = mediaFor('hero');
+    if (mh) h += section('media-sec', mh);
 
     // Problème, agitation, solution
-    if (E.problem) h += section('', '<h2>' + fr(E.problem.title) + '</h2>' + paras(E.problem.paragraphs));
-    if (E.agitation) h += section('', '<h2>' + fr(E.agitation.title) + '</h2>' + paras(E.agitation.paragraphs));
+    if (E.problem) h += section('', '<h2>' + fr(E.problem.title) + '</h2>' + paras(E.problem.paragraphs) + mediaFor('problem'));
+    if (E.agitation) h += section('', '<h2>' + fr(E.agitation.title) + '</h2>' + paras(E.agitation.paragraphs) + mediaFor('agitation'));
     if (E.solution) {
       var lad = E.ladder || {};
       h += section('tint',
@@ -116,12 +153,12 @@
             var n = all.length, unit = n > 1 ? 32 / (n - 1) : 0;
             return '<li class="' + (k === n - 1 ? 'top' : '') + '" style="margin-left:' + (k * unit).toFixed(1) + '%;margin-right:' + ((n - 1 - k) * unit).toFixed(1) + '%"><span class="st">' + fr(s.name) + '</span><span class="tx">' + fr(s.text) + '</span></li>';
           }).join('') +
-          '</ol>' : ''));
+          '</ol>' : '') + mediaFor('solution'));
     }
 
     // Compétences
     if (E.skills) h += section('', '<h2>' + fr(E.skills.title) + '</h2><ul class="checks">' +
-      E.skills.items.map(function (s) { return '<li>' + fr(s) + '</li>'; }).join('') + '</ul>');
+      E.skills.items.map(function (s) { return '<li>' + fr(s) + '</li>'; }).join('') + '</ul>' + mediaFor('skills'));
 
     // Fichiers
     if (files.length) h += section('', '<h2>' + fr(E.files.title) + '</h2><div class="files">' +
@@ -137,7 +174,7 @@
       (E.files.total_note ? '<p class="files-total">' + fr(E.files.total_note) + '</p>' :
        (files.length > 1 && totalPages ? '<p class="files-total">' + files.length + ' fichiers PDF, ' + totalPages + ' pages au total.</p>' : '')) +
       (E.files.roles ? '<p class="files-roles">' + fr(E.files.roles) + '</p>' : '') +
-      buyBlock(E.cta || 'Acheter'));
+      mediaFor('files') + buyBlock(E.cta || 'Acheter'));
 
     // Pour qui : deux listes courtes (un texte simple reste accepté)
     function fitList(v) {
@@ -146,12 +183,12 @@
     }
     if (E.audience) h += section('', '<h2>' + fr(E.audience.title) + '</h2><div class="fit">' +
       '<div class="yes">' + (E.audience.yes_title ? '<p class="fit-t">' + fr(E.audience.yes_title) + '</p>' : '') + fitList(E.audience.yes) + '</div>' +
-      '<div class="no">' + (E.audience.no_title ? '<p class="fit-t">' + fr(E.audience.no_title) + '</p>' : '') + fitList(E.audience.no) + '</div></div>');
+      '<div class="no">' + (E.audience.no_title ? '<p class="fit-t">' + fr(E.audience.no_title) + '</p>' : '') + fitList(E.audience.no) + '</div></div>' + mediaFor('audience'));
 
     // Auteur
     if (E.author) h += section('tint', '<h2>' + fr(E.author.title) + '</h2><div class="author">' +
       (E.author.photo ? '<img src="' + esc(E.author.photo) + '" alt="' + esc(E.author_name || '') + '" loading="lazy">' : '') +
-      '<p>' + fr(E.author.text) + '</p></div>');
+      '<p>' + fr(E.author.text) + '</p></div>' + mediaFor('author'));
 
     // Action
     var A = E.action || {};
@@ -160,7 +197,7 @@
       (A.items ? '<ul class="checks">' + A.items.map(function (s) { return '<li>' + fr(s) + '</li>'; }).join('') + '</ul>' : '') +
       (A.value ? '<p class="value-line">' + fr(A.value) + '</p>' : '') +
       (A.payment ? '<p>' + fr(A.payment) + '</p>' : '') + payPills() +
-      (A.delivery ? '<p>' + fr(A.delivery) + '</p>' : '') +
+      (A.delivery ? '<p>' + fr(A.delivery) + '</p>' : '') + mediaFor('action') +
       '<div class="cta-block">' + buyBlock(E.cta_final || E.cta || 'Acheter', 'finalBuy') + '</div>');
 
     // FAQ
@@ -172,7 +209,7 @@
       }).join('') + '</div>');
 
     // Dernier mot
-    if (E.final) h += section('tint final', '<p>' + fr(E.final) + '</p>' + buyBlock(E.cta_final || E.cta || 'Acheter'));
+    if (E.final) h += section('tint final', '<p>' + fr(E.final) + '</p>' + mediaFor('final') + buyBlock(E.cta_final || E.cta || 'Acheter'));
 
     root.innerHTML = h;
     document.getElementById('buybarPrice').textContent = money(E.price);
@@ -290,6 +327,8 @@
   }
 
   document.addEventListener('click', function (e) {
+    var y = e.target.closest('[data-yt]');
+    if (y) { playYt(y); return; }
     var z = e.target.closest('[data-zoom]');
     if (z) { openZoom(z.getAttribute('data-zoom')); return; }
     if (zoom && e.target.closest('.zoom')) { closeZoom(); return; }
@@ -297,6 +336,10 @@
     if (e.target.closest('[data-close]')) { closeBuy(); return; }
     if (e.target.closest('[data-lead]')) track('Lead', product());
   });
+  // Une seule vidéo à la fois.
+  document.addEventListener('play', function (e) {
+    [].forEach.call(document.querySelectorAll('video'), function (v) { if (v !== e.target) v.pause(); });
+  }, true);
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
     if (zoom) closeZoom(); else if (!sheet.hidden) closeBuy();
