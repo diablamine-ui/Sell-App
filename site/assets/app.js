@@ -178,7 +178,7 @@
     if (!e) return '';
     var c = (PROMO && PROMO.pdp) || {};
     var title = c.title || 'Tu vas lire ce livre ? Retiens-en l’essentiel.';
-    var text = c.text || (e.title + ' : ' + (e.headline || 'le guide en PDF')).replace(/([^.!?…])$/, '$1.');
+    var text = c.text || (e.title + ' : ' + (cardLine(e) || 'le guide en PDF')).replace(/([^.!?…])$/, '$1.');
     return '<a class="pdp-promo" href="/ebook/' + encodeURIComponent(e.slug || e._id) + '?depuis=fiche-livre">' +
       '<img src="' + esc(imgSrc(e.cover)) + '" alt="" loading="lazy" decoding="async" width="56" height="79">' +
       '<span class="pdp-promo-txt"><strong>' + esc(title) + '</strong><span>' + esc(text) + '</span>' +
@@ -320,13 +320,13 @@
             : '<span class="ebook-feat-cv"><img src="' + esc(imgSrc(star.cover)) + '" alt="" width="360" height="509" decoding="async"></span>') +
           '<span class="ebook-feat-txt">' +
             '<span class="ebook-feat-title">' + esc(star.title) + '</span>' +
-            (star.headline ? '<span class="ebook-feat-line">' + esc(star.headline) + '</span>' : '') +
+            (cardLine(star) ? '<span class="ebook-feat-line">' + esc(cardLine(star)) + '</span>' : '') +
             '<span class="ebook-feat-price">' + money(star.price) + '<span> en PDF, reçu tout de suite</span></span>' +
             '<span class="btn ebook-feat-btn">Découvrir le guide</span></span></a>' : '';
       var many = rest.length >= 3;
       return '<section class="ebooks"><div class="wrap">' +
         '<div class="section-head ebooks-head"><h2>Ebooks</h2>' + (EBOOKS.length > 1 ? '<a href="/?vue=ebooks" data-nav="ebooks">Tout voir</a>' : '') + '</div>' +
-        '<p class="ebooks-intro">Des guides pratiques en PDF. Tu paies en ligne et tu reçois tes fichiers par e-mail, à lire sur ton téléphone.</p>' +
+        '<p class="ebooks-intro">Des livres et des guides pratiques en PDF. Tu paies en ligne et tu reçois tes fichiers par e-mail, à lire sur ton téléphone.</p>' +
         feat +
         (rest.length ? '<div class="' + (many ? 'rail ebooks-rail' : 'ebooks-list') + '"' + (many ? ' data-auto' : '') + '>' + rest.map(ebookCard).join('') + '</div>' : '') +
       '</div></section>';
@@ -338,12 +338,15 @@
     document.title = "Dilam B' | Les livres à p'tits prix, livrés à Abidjan";
   }
 
+  // Phrase courte pour les cartes : l'accroche de la page de vente peut tenir sur plusieurs lignes.
+  function cardLine(e) { return e.card_line || String(e.headline || '').replace(/\s*\n\s*/g, ' '); }
+
   function ebookCard(e) {
     var slug = e.slug || e._id;
     return '<a class="ebook" href="/ebook/' + encodeURIComponent(slug) + '">' +
       '<span class="ebook-cv"><img src="' + esc(imgSrc(e.cover)) + '" alt="" loading="lazy" decoding="async"></span>' +
       '<span class="ebook-txt"><span class="ebook-title">' + esc(e.title) + '</span>' +
-      (e.headline ? '<span class="ebook-line">' + esc(e.headline) + '</span>' : '') +
+      (cardLine(e) ? '<span class="ebook-line">' + esc(cardLine(e)) + '</span>' : '') +
       '<span class="ebook-price">' + money(e.price) + '<span> en PDF</span></span>' +
       '</span><span class="btn ebook-btn">Découvrir le guide</span></a>';
   }

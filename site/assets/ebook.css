@@ -24,6 +24,9 @@
 .eb-sur { color: var(--gris); font-size: 15px; font-weight: 500; }
 .eb-hero h1 { font-size: clamp(30px, 8.4vw, 46px); line-height: 1.1; letter-spacing: -.015em; margin-top: 8px; }
 .eb-hero .eb-sub { font-size: 17.5px; color: #2B3631; margin-top: 14px; line-height: 1.55; }
+.eb-hero h1.long { font-size: clamp(25px, 6.6vw, 36px); line-height: 1.22; letter-spacing: -.01em; }
+.eb-hero h1 .l { display: block; }
+.eb-hero h1 .l + .l { margin-top: .35em; }
 .eb-visual { margin: 22px auto 0; position: relative; width: max-content; max-width: 70%; }
 .eb-visual img.main { position: relative; z-index: 2; display: block; height: 40vh; min-height: 260px; max-height: 420px; width: auto; max-width: 100%; object-fit: contain; border-radius: 4px; box-shadow: 0 18px 40px -18px rgba(19,32,26,.45); }
 .eb-visual img.fan { position: absolute; top: 4%; width: 78%; border-radius: 4px; z-index: 1; opacity: .95; }
@@ -55,6 +58,9 @@
   .eb-visual img.fan { width: 72%; top: 6%; }
   .eb-visual img.fan.l { left: -13%; }
   .eb-visual img.fan.r { right: -13%; }
+  /* Accroche longue : la couverture se cale en haut, à côté du texte, au lieu de descendre au milieu. */
+  .eb-hero .eb-col:has(h1.long) { grid-template-rows: auto auto; }
+  .eb-hero .eb-col:has(h1.long) .eb-visual { align-self: start; margin-top: 30px; }
 }
 
 
@@ -68,6 +74,9 @@
 .ladder .tx { font-size: 14.5px; line-height: 1.45; display: block; margin-top: 2px; color: var(--gris); }
 .ladder li.top .tx { color: rgba(255,255,255,.8); }
 @media (max-width: 380px) { .ladder li { margin-left: 0 !important; margin-right: 0 !important; } }
+.ladder.path { flex-direction: column; gap: 0; border-left: 2px solid var(--trait); margin-left: 6px; padding-left: 14px; }
+.ladder.path li { background: none; border: 0; border-radius: 0; padding: 10px 0; position: relative; }
+.ladder.path li::before { content: ""; position: absolute; left: -21px; top: 17px; width: 12px; height: 12px; border-radius: 50%; background: var(--action); }
 
 /* Listes */
 .checks { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 12px; }

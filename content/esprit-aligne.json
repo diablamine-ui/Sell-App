@@ -1,0 +1,173 @@
+{
+  "slug": "esprit-aligne",
+  "active": true,
+  "hidden": true,
+  "title": "Le Pouvoir d'un Esprit Aligné",
+  "author_name": "Lamine Diabaté",
+  "headline": "Tu sais ce que tu dois changer. Tu y penses. Tu pries. Tu te le promets chaque lundi.\nPuis tu refais exactement les mêmes choses.\nEt ta vie ressemble encore à celle d'il y a cinq ans.",
+  "card_line": "Tu sais ce que tu dois changer. Puis tu refais exactement les mêmes choses.",
+  "subtitle": "Le pire, c'est cette petite voix qui commence à murmurer : « Peut-être que ce n'est pas fait pour toi. »\n\nCette voix se trompe. Tu ne manques ni de volonté ni de foi. Ce qui te retient, c'est que ta tête, ton cœur et ton corps ne tirent pas dans la même direction. Et ça, ça se travaille.",
+  "price": 5000,
+  "price_label": "Paiement unique",
+  "cta": "Je veux le livre",
+  "cta_final": "Je commence aujourd'hui",
+  "reassure": [
+    "Wave, Orange Money, MTN ou carte bancaire",
+    "Fichier envoyé par e-mail juste après le paiement",
+    "Un PDF de 106 pages, neuf chapitres et neuf exercices"
+  ],
+  "cover": "/public/ebooks/esprit-aligne/couverture.jpg",
+  "extra_covers": [],
+  "problem": {
+    "title": "Le problème n'est pas ce que tu sais.",
+    "paragraphs": [
+      "Tu as lu les livres. Tu as écouté les conférences. Tu sais qu'il faut oser, épargner, te lever plus tôt, t'éloigner de ce qui te tire vers le bas.",
+      "Et pourtant, tu repousses encore la décision importante. Tu retombes dans les habitudes que tu voulais quitter. Tu dis oui alors que tout en toi voulait dire non.",
+      "Ta tête veut une chose, ton cœur en ressent une autre, et ton corps porte la tension de ce désaccord : dans les épaules, dans la gorge, dans le ventre."
+    ]
+  },
+  "agitation": {
+    "title": "Tu te bats sur deux fronts à la fois.",
+    "paragraphs": [
+      "Contre ce qui t'arrive dehors, et contre toi-même dedans. Cette double bataille épuise deux fois plus vite, fait souffrir deux fois plus fort et dure deux fois plus longtemps qu'elle ne le devrait.",
+      "Alors tu forces. Plus d'efforts, plus de résolutions, plus de discipline. Comme un orchestre sans chef où chaque musicien jouerait plus fort pour couvrir les autres. Ce qui en sort n'a rien d'une musique. Juste du bruit.",
+      "Et pendant ce temps, les années passent."
+    ]
+  },
+  "solution": {
+    "title": "Ce livre ne te demande pas d'en faire plus.",
+    "paragraphs": [
+      "Il te demande de remettre d'accord ce que tu penses, ce que tu ressens et ce que tu fais. Quand ces trois centres s'alignent, ta façon de décider, de créer, d'aimer et de recevoir change avec eux.",
+      "La vie devient simple. Pas facile : simple. Les épreuves restent. Ce qui disparaît, c'est le deuxième front, la bataille contre toi-même."
+    ]
+  },
+  "ladder": {
+    "title": "Le voyage : neuf chapitres, neuf portes",
+    "layout": "path",
+    "intro": "Chaque chapitre se termine par un exercice à faire le jour même, pas « quand tu auras le temps ».",
+    "steps": [
+      { "name": "Les trois centres du pouvoir intérieur", "text": "écouter ce que disent ton mental, ton cœur et ton corps. Exercice : l'accord intérieur." },
+      { "name": "Les forces invisibles du désalignement", "text": "voir les croyances héritées qui freinent au moment d'avancer. Exercice : l'inventaire des ombres." },
+      { "name": "La science rejoint les anciens", "text": "ce que la recherche d'aujourd'hui confirme de la sagesse des anciens. Exercice : la visualisation vivante." },
+      { "name": "L'art de la présence consciente", "text": "être vraiment là, dans ce que tu fais et avec ceux que tu aimes. Exercice : cinq minutes de vraie présence." },
+      { "name": "La foi, la vibration et la manifestation", "text": "agir depuis la certitude plutôt que depuis la peur. Exercice : la foi vibratoire." },
+      { "name": "L'esprit aligné et la richesse", "text": "regarder l'argent comme un miroir et oser annoncer ta valeur. Exercice : le miroir financier." },
+      { "name": "L'esprit aligné et les relations", "text": "ce que tes relations révèlent de toi, et le pardon qui libère. Exercice : le miroir honnête." },
+      { "name": "L'esprit aligné et la mission de vie", "text": "laisser ta mission se révéler dans l'action. Exercice : le dialogue avec ton âme." },
+      { "name": "L'expansion : vivre dans le flux", "text": "lâcher le contrôle sans renoncer à agir. Exercice : la journée du flux." }
+    ]
+  },
+  "skills": {
+    "title": "Ce que tu vas savoir faire",
+    "items": [
+      "Faire le point en cinq minutes, chaque matin, sur ce que disent ta tête, ton cœur et ton corps",
+      "Repérer la croyance héritée qui freine précisément là où tu veux avancer",
+      "Sentir la tension dans ton corps avant qu'elle décide à ta place",
+      "Être vraiment présent avec les tiens, au lieu d'être là sans y être",
+      "Annoncer ton prix ou ta valeur sans t'excuser",
+      "Te servir de ce qui t'irrite chez les autres pour voir ce qui doit guérir en toi",
+      "Trouver la direction de ta mission avec trois questions, et faire le premier pas cette semaine",
+      "Revenir à ton centre quand tu t'en es écarté, sans te condamner d'être parti"
+    ]
+  },
+  "files": {
+    "title": "Ce que tu reçois",
+    "items": [
+      {
+        "name": "Le Pouvoir d'un Esprit Aligné",
+        "pages": 106,
+        "content": "Neuf chapitres, chacun suivi d'un exercice à faire le jour même, et une pratique pour continuer après la lecture : chaque matin, chaque semaine, chaque mois.",
+        "cover": "/public/ebooks/esprit-aligne/couverture.jpg",
+        "previews": [
+          "/public/ebooks/esprit-aligne/apercus/page_13.jpg",
+          "/public/ebooks/esprit-aligne/apercus/page_21.jpg",
+          "/public/ebooks/esprit-aligne/apercus/page_62.jpg"
+        ]
+      }
+    ]
+  },
+  "audience": {
+    "title": "Pour qui",
+    "yes_title": "C'est pour toi si :",
+    "yes": [
+      "Tu travailles dur et tu as le sentiment de tourner en rond.",
+      "Tu sais ce que tu dois faire, mais quelque chose en toi freine au moment d'agir.",
+      "Tu cherches une paix qui tienne, pas un élan qui retombe en trois jours."
+    ],
+    "no_title": "Ce n'est pas pour toi si :",
+    "no": [
+      "Tu cherches une recette pour devenir riche rapidement.",
+      "Tu veux lire sans faire les exercices.",
+      "Tu traverses une souffrance profonde, comme une dépression : commence par un professionnel de santé. Ce livre pourra marcher à tes côtés ensuite."
+    ]
+  },
+  "author": {
+    "title": "Qui est derrière ce livre",
+    "text": "J'ai écrit ce livre non pas pour enseigner, mais pour partager une expérience : celle d'un homme qui a connu le tumulte intérieur, les doutes, les masques, et cette quête incessante d'un sens. Pendant des mois, j'ai refusé d'augmenter le prix de mes livres par peur d'être mal vu. J'ai été là sans être là pour les miens. J'ai porté des rancunes qui ne blessaient que moi. Ce livre raconte ce chemin, avec ses détours. Je suis entrepreneur et auteur, et je travaille depuis neuf ans dans l'industrie pharmaceutique, sur le terrain.",
+    "photo": "/public/ebooks/personal-branding/lamine.jpg"
+  },
+  "action": {
+    "title": "Commence aujourd'hui, pas « quand tu auras le temps ».",
+    "price_line": "Le Pouvoir d'un Esprit Aligné : 5 000 FCFA, paiement unique.",
+    "items": [
+      "Le livre complet, 106 pages",
+      "Neuf exercices pratiques, un par chapitre",
+      "Une pratique simple pour continuer après la lecture, cinq minutes chaque matin"
+    ],
+    "value": "Un livre papier de ma boutique coûte souvent plus de 8 000 F. Celui-ci t'accompagne chaque matin, aussi longtemps que tu en as besoin.",
+    "payment": "Wave, Orange Money, MTN ou carte Visa et Mastercard.",
+    "delivery": "Dès que ton paiement est confirmé, tu reçois par e-mail un lien de téléchargement personnel, valable 24 heures. Enregistre ton fichier dès que tu le reçois."
+  },
+  "final": "Tu n'avais pas besoin d'être réparé. Tu avais besoin de te souvenir. Le chemin vers ton centre commence par cinq minutes, demain matin.",
+  "faq": [
+    {
+      "q": "Qu'est-ce que je reçois ?",
+      "a": "Un PDF de 106 pages : neuf chapitres, chacun suivi d'un exercice pratique, et une pratique quotidienne pour continuer après la lecture."
+    },
+    {
+      "q": "Comment je reçois le livre ?",
+      "a": "Dès que ton paiement est confirmé, un e-mail t'envoie un lien de téléchargement personnel, valable 24 heures. Enregistre ton fichier dès réception."
+    },
+    {
+      "q": "Je n'ai pas reçu l'e-mail.",
+      "a": "Regarde dans tes courriers indésirables. Si tu ne le trouves pas, écris-moi sur WhatsApp avec l'adresse e-mail utilisée, je te renvoie ton lien.",
+      "whatsapp": true
+    },
+    {
+      "q": "Puis-je être remboursé ?",
+      "a": "Le livre est un fichier numérique : une fois téléchargé, il ne peut pas être rendu, donc l'achat n'est pas remboursable. En cas de problème technique (lien qui ne fonctionne pas, fichier qui ne s'ouvre pas), écris-moi sur WhatsApp : je te renvoie ton fichier.",
+      "whatsapp": true
+    },
+    {
+      "q": "C'est un livre religieux ?",
+      "a": "C'est un livre spirituel. Il parle de foi, de prière et de Dieu, mais il ne t'impose aucune religion et ne remplace pas la tienne."
+    },
+    {
+      "q": "Il y a un chapitre sur l'argent ?",
+      "a": "Oui, le chapitre 6. Il t'aide à voir ce que ta relation à l'argent révèle de toi et à oser annoncer ta valeur. Il ne promet aucun gain : l'alignement t'aide à tenir et à bien décider, le reste dépend aussi de ton travail et de ton contexte."
+    },
+    {
+      "q": "Combien de temps faut-il pour le lire ?",
+      "a": "Quelques soirées suffisent. Mais ce sont les exercices qui comptent : chacun prend de trois à trente minutes."
+    },
+    {
+      "q": "Je peux partager le livre ?",
+      "a": "Le fichier est personnel et porte l'adresse e-mail de l'acheteur. Si un proche en a besoin, il peut l'acheter à son tour."
+    }
+  ],
+  "seo": {
+    "title": "Le Pouvoir d'un Esprit Aligné | Lamine Diabaté",
+    "description": "Neuf chapitres et neuf exercices pour remettre d'accord ce que tu penses, ce que tu ressens et ce que tu fais. 106 pages, 5 000 FCFA, envoi immédiat par e-mail."
+  },
+  "whatsapp_buy": "Bonjour, je veux acheter « Le Pouvoir d'un Esprit Aligné » (5 000 FCFA).",
+  "media": [
+    {
+      "type": "image",
+      "src": "/public/ebooks/esprit-aligne/quatrieme.jpg",
+      "w": 1000,
+      "h": 1415,
+      "slot": "solution",
+      "caption": "La quatrième de couverture."
+    }
+  ]
+}

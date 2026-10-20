@@ -123,6 +123,13 @@
     btn.replaceWith(f);
   }
 
+  // Accroche : une ligne par retour à la ligne ; un texte long prend une taille plus sobre.
+  function heroTitle(t) {
+    var lines = String(t).split(/\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+    var long = String(t).length > 90;
+    return '<h1' + (long ? ' class="long"' : '') + '>' + (lines.length > 1 ? lines.map(function (l) { return '<span class="l">' + fr(l) + '</span>'; }).join(' ') : fr(lines[0] || '')) + '</h1>';
+  }
+
   function section(cls, inner) { return '<section class="eb-sec ' + (cls || '') + '"><div class="eb-col">' + inner + '</div></section>'; }
 
   var PAGES = [];
@@ -142,8 +149,8 @@
       '<div class="eb-col">' +
       '<div class="eb-hero-txt">' +
         '<p class="eb-sur">' + fr(E.title) + (E.author_name ? ', par ' + fr(E.author_name) : '') + '</p>' +
-        '<h1>' + fr(E.headline || E.title) + '</h1>' +
-        (E.subtitle ? '<p class="eb-sub">' + fr(E.subtitle) + '</p>' : '') +
+        heroTitle(E.headline || E.title) +
+        String(E.subtitle || '').split(/\n\s*\n/).filter(function (p) { return p.trim(); }).map(function (p) { return '<p class="eb-sub">' + fr(p.trim()) + '</p>'; }).join('') +
       '</div>' +
       '<div class="eb-visual">' +
         (extra[0] ? '<img class="fan l" src="' + esc(extra[0]) + '" alt="" loading="lazy">' : '') +
@@ -165,11 +172,14 @@
     if (E.agitation) h += section('', '<h2>' + fr(E.agitation.title) + '</h2>' + paras(E.agitation.paragraphs) + mediaFor('agitation'));
     if (E.solution) {
       var lad = E.ladder || {};
+      var path = lad.layout === 'path';
       h += section('tint',
         '<h2>' + fr(E.solution.title) + '</h2>' + paras(E.solution.paragraphs) +
         (lad.steps ? '<h3>' + fr(lad.title) + '</h3>' + (lad.intro ? '<p>' + fr(lad.intro) + '</p>' : '') +
-          '<ol class="ladder" aria-label="Les cinq marches, de la première à la dernière">' +
+          '<ol class="ladder' + (path ? ' path' : '') + '" aria-label="Les étapes, de la première à la dernière">' +
           lad.steps.map(function (s, k, all) {
+            // Parcours : les étapes se lisent dans l'ordre, de haut en bas, sans escalier.
+            if (path) return '<li><span class="st">' + fr(s.name) + '</span><span class="tx">' + fr(s.text) + '</span></li>';
             // Escalier : chaque marche se décale d'un cran, quel que soit le nombre de marches.
             var n = all.length, unit = n > 1 ? 32 / (n - 1) : 0;
             return '<li class="' + (k === n - 1 ? 'top' : '') + '" style="margin-left:' + (k * unit).toFixed(1) + '%;margin-right:' + ((n - 1 - k) * unit).toFixed(1) + '%"><span class="st">' + fr(s.name) + '</span><span class="tx">' + fr(s.text) + '</span></li>';
