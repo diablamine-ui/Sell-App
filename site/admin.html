@@ -1312,9 +1312,9 @@ body.admin-only .admin-panel{width:100vw;max-width:none;transform:none!important
       <div class="adm-login">
         <div class="adm-login-card">
           <div class="adm-login-title">Accès réservé</div>
-          <div class="adm-login-sub">Un code à 6 chiffres est envoyé sur l'email du propriétaire. Valable 10 minutes.</div>
+          <div class="adm-login-sub" id="admLoginSub">Un code à 6 chiffres est envoyé sur l'email du propriétaire. Valable 10 minutes.</div>
           <button class="adm-save" id="admSendCode" onclick="requestAdminCode()" style="margin-bottom:13px">Recevoir mon code par email</button>
-          <div class="adm-field" style="margin-bottom:13px">
+          <div class="adm-field" id="admCodeField" style="margin-bottom:13px">
             <label class="adm-field-lbl">Code reçu</label>
             <input class="adm-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" id="admPwd" placeholder="123456" onkeydown="if(event.key==='Enter')document.getElementById('admPin').focus()">
           </div>
@@ -1323,6 +1323,7 @@ body.admin-only .admin-panel{width:100vw;max-width:none;transform:none!important
             <input class="adm-input" type="password" inputmode="numeric" autocomplete="off" maxlength="12" id="admPin" placeholder="••••••" onkeydown="if(event.key==='Enter')checkAdmin()">
           </div>
           <button class="adm-save" onclick="checkAdmin()">Accéder au tableau de bord</button>
+          <button type="button" id="admUseEmail" onclick="setLoginMode(false)" style="display:none;margin-top:12px;background:none;border:0;color:rgba(250,247,242,.6);font-size:.72rem;text-decoration:underline;cursor:pointer;width:100%">Me connecter avec un code par email</button>
         </div>
       </div>
     </div>
@@ -1437,6 +1438,7 @@ body.admin-only .admin-panel{width:100vw;max-width:none;transform:none!important
           <button class="adm-save" id="migrateBtn" onclick="migrateFromFirebase()" style="width:100%;margin-bottom:9px">Importer depuis Firebase</button>
           <div id="migrateStatus" class="adm-hint" style="display:none;margin-bottom:9px"></div>
           <button class="adm-save" onclick="adminLogout()" style="width:100%;background:transparent;color:var(--gold);border:1px solid rgba(159,216,185,.4)">Se déconnecter</button>
+          <button type="button" onclick="forgetDevice()" style="margin-top:10px;width:100%;background:none;border:0;color:rgba(250,247,242,.55);font-size:.72rem;text-decoration:underline;cursor:pointer">Oublier cet appareil (le code par email sera redemandé)</button>
         </div>
         <!-- Catégories dynamiques -->
         <div class="adm-lbl">Catégories <span id="catCount"></span></div>
@@ -2471,7 +2473,11 @@ function openAdminLogin(){
   document.getElementById('adminPanel').classList.add('open');
   document.body.style.overflow='hidden';
   if(!adminLoggedIn){
-    apiFetch('/auth/me').then(function(r){return r.json();}).then(function(j){if(j&&j.admin&&!adminLoggedIn){adminLoggedIn=true;showAdmMain();}}).catch(function(){});
+    setLoginMode(false);
+    apiFetch('/auth/me').then(function(r){return r.json();}).then(function(j){
+      if(j&&j.admin&&!adminLoggedIn){adminLoggedIn=true;showAdmMain();return;}
+      if(j&&j.device)setLoginMode(true);
+    }).catch(function(){});
     document.getElementById('admLogin').style.display='block';
     document.getElementById('admMain').style.display='none';
     document.getElementById('admForm').style.display='none';
@@ -2496,7 +2502,31 @@ async function requestAdminCode(){
   }catch(e){showToast('Erreur réseau');}
   if(b){setTimeout(function(){b.disabled=false;b.textContent='Renvoyer un code';},30000);}
 }
+// Appareil reconnu : seul le code PIN est demandé. Sinon, code par email + PIN.
+var deviceMode=false;
+function setLoginMode(dev){
+  deviceMode=!!dev;
+  var show=function(id,on){var e=document.getElementById(id);if(e)e.style.display=on?'':'none';};
+  show('admSendCode',!dev);show('admCodeField',!dev);show('admUseEmail',dev);
+  var sub=document.getElementById('admLoginSub');
+  if(sub)sub.textContent=dev?'Appareil reconnu : ton code PIN suffit.':'Un code à 6 chiffres est envoyé sur l\'email du propriétaire. Valable 10 minutes.';
+  if(dev)setTimeout(function(){var p=document.getElementById('admPin');if(p)p.focus();},300);
+}
 async function checkAdmin(){
+  if(deviceMode){
+    var pe=document.getElementById('admPin');var pin=((pe||{}).value||'').trim();
+    if(!pin){showToast('Entre ton code PIN');return;}
+    try{
+      var rp=await apiFetch('/auth/pin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:pin})});
+      if(pe)pe.value='';
+      var jp=await rp.json().catch(function(){return {};});
+      if(rp.ok){adminLoggedIn=true;showAdmMain();return;}
+      if(rp.status===429)showToast('Trop d\'essais. Patiente 15 minutes.');
+      else if(jp.error==='device_reset'||jp.error==='no_device'){setLoginMode(false);showToast('Trop d\'erreurs : reçois un code par email pour continuer.');}
+      else showToast('Code PIN incorrect');
+    }catch(e){showToast('Erreur réseau');}
+    return;
+  }
   var inp=document.getElementById('admPwd');
   var code=((inp||{}).value||'').replace(/\D/g,'');
   if(code.length!==6){showToast('Le code contient 6 chiffres');return;}
@@ -2524,6 +2554,10 @@ async function migrateFromFirebase(){
   if(btn)btn.disabled=false;
   showToast('Import terminé. Rechargement…');
   setTimeout(function(){location.reload();},1500);
+}
+async function forgetDevice(){
+  try{await apiFetch('/auth/forget',{method:'POST'});}catch(e){}
+  adminLoggedIn=false;closeAdmin();showToast('Appareil oublié. Déconnecté');
 }
 async function adminLogout(){
   try{await apiFetch('/auth/logout',{method:'POST'});}catch(e){}

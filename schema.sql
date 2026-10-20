@@ -28,6 +28,15 @@ CREATE TABLE IF NOT EXISTS login_codes (
   used       INTEGER NOT NULL DEFAULT 0
 );
 
+-- Appareils reconnus pour l'administration : le PIN suffit sur ces appareils (empreinte du jeton uniquement).
+CREATE TABLE IF NOT EXISTS devices (
+  token_hash TEXT    PRIMARY KEY,
+  created_at INTEGER NOT NULL,
+  last_used  INTEGER NOT NULL,
+  expires_at INTEGER NOT NULL,
+  fails      INTEGER NOT NULL DEFAULT 0
+);
+
 -- Limiteur de requêtes (anti-abus).
 CREATE TABLE IF NOT EXISTS rl (
   k   TEXT    PRIMARY KEY,

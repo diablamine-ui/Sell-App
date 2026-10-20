@@ -25,6 +25,8 @@ const IMG_TYPES = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp
 
 const SESSION_TTL = 12 * 3600;      // 12 h
 const CODE_TTL = 10 * 60;           // 10 min
+const DEVICE_TTL = 60 * 86400;      // appareil reconnu : 60 jours, renouvelés à chaque connexion
+const DEVICE_MAX_FAILS = 5;         // au-delà, l'appareil est oublié et l'e-mail redevient obligatoire
 const CODE_MAX_ATTEMPTS = 5;
 const MAX_DOC_BYTES = 200 * 1024;
 const MAX_IMG_BYTES = 10 * 1024 * 1024;
@@ -119,6 +121,7 @@ function cleanup(env, ctx) {
         env.DB.prepare('DELETE FROM rl WHERE exp < ?').bind(t),
         env.DB.prepare('DELETE FROM sessions WHERE expires_at < ?').bind(t),
         env.DB.prepare('DELETE FROM login_codes WHERE expires_at < ?').bind(t - 86400),
+        env.DB.prepare('DELETE FROM devices WHERE expires_at < ?').bind(t),
       ]).catch(() => {})
     );
   }
@@ -216,7 +219,66 @@ async function authVerify(req, env) {
     env.DB.prepare('INSERT INTO sessions(token_hash,created_at,expires_at) VALUES(?,?,?)')
       .bind(await sha256hex(token), t, t + SESSION_TTL),
   ]);
-  return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie(token, SESSION_TTL) });
+  const res = json({ ok: true }, 200, { 'Set-Cookie': sessionCookie(token, SESSION_TTL) });
+  // L'appareil est reconnu : les prochaines fois, le code PIN suffit.
+  if (env.ADMIN_PIN) {
+    const dev = randHex(32);
+    await env.DB.prepare('INSERT INTO devices(token_hash,created_at,last_used,expires_at,fails) VALUES(?,?,?,?,0)')
+      .bind(await sha256hex(dev), t, t, t + DEVICE_TTL).run();
+    res.headers.append('Set-Cookie', deviceCookie(dev, DEVICE_TTL));
+  }
+  return res;
+}
+
+// ───────────────────────── appareil reconnu ─────────────────────────
+// Le jeton d'appareil n'est envoyé qu'aux adresses /api/auth/ ; on ne garde que son empreinte.
+function deviceCookie(token, maxAge) {
+  return `ddev=${token}; HttpOnly; Secure; SameSite=Strict; Path=/api/auth; Max-Age=${maxAge}`;
+}
+async function getDevice(req, env) {
+  const t = getCookie(req, 'ddev');
+  if (!t || !/^[0-9a-f]{64}$/.test(t)) return null;
+  const h = await sha256hex(t);
+  const row = await env.DB.prepare('SELECT token_hash,expires_at,fails FROM devices WHERE token_hash=?').bind(h).first();
+  return row && row.expires_at > now() ? { hash: h, token: t, fails: row.fails } : null;
+}
+async function authPin(req, env) {
+  const ip = clientIp(req);
+  if (!(await rateOk(env, 'auth-pin:' + ip, 10, 900))) return err(429, 'too_many');
+  if (!env.ADMIN_PIN) return err(400, 'pin_missing');
+  const dev = await getDevice(req, env);
+  if (!dev) return err(401, 'no_device');
+  const body = await readJson(req, 1024);
+  const ok = safeEqual(await sha256hex('pin:' + String(body.pin || '')), await sha256hex('pin:' + String(env.ADMIN_PIN)));
+  if (!ok) {
+    if (dev.fails + 1 >= DEVICE_MAX_FAILS) {
+      await env.DB.prepare('DELETE FROM devices WHERE token_hash=?').bind(dev.hash).run();
+      return json({ error: 'device_reset' }, 401, { 'Set-Cookie': deviceCookie('', 0) });
+    }
+    await env.DB.prepare('UPDATE devices SET fails=fails+1 WHERE token_hash=?').bind(dev.hash).run();
+    return err(401, 'wrong_pin');
+  }
+  const token = randHex(32);
+  const t = now();
+  await env.DB.batch([
+    env.DB.prepare('UPDATE devices SET fails=0, last_used=?, expires_at=? WHERE token_hash=?').bind(t, t + DEVICE_TTL, dev.hash),
+    env.DB.prepare('INSERT INTO sessions(token_hash,created_at,expires_at) VALUES(?,?,?)')
+      .bind(await sha256hex(token), t, t + SESSION_TTL),
+  ]);
+  const res = json({ ok: true }, 200, { 'Set-Cookie': sessionCookie(token, SESSION_TTL) });
+  res.headers.append('Set-Cookie', deviceCookie(dev.token, DEVICE_TTL));
+  return res;
+}
+async function authForget(req, env) {
+  const dev = await getDevice(req, env);
+  if (dev) await env.DB.prepare('DELETE FROM devices WHERE token_hash=?').bind(dev.hash).run();
+  const t = getCookie(req, 'dsess');
+  if (t && /^[0-9a-f]{64}$/.test(t)) {
+    await env.DB.prepare('DELETE FROM sessions WHERE token_hash=?').bind(await sha256hex(t)).run();
+  }
+  const res = json({ ok: true }, 200, { 'Set-Cookie': sessionCookie('', 0) });
+  res.headers.append('Set-Cookie', deviceCookie('', 0));
+  return res;
 }
 
 async function authLogout(req, env) {
@@ -1015,7 +1077,9 @@ async function api(req, env, ctx, url) {
   if (p === '/api/auth/request' && m === 'POST') return authRequest(req, env);
   if (p === '/api/auth/verify' && m === 'POST') return authVerify(req, env);
   if (p === '/api/auth/logout' && m === 'POST') return authLogout(req, env);
-  if (p === '/api/auth/me' && m === 'GET') return json({ admin: await isAdmin(req, env), pin: !!env.ADMIN_PIN });
+  if (p === '/api/auth/pin' && m === 'POST') return authPin(req, env);
+  if (p === '/api/auth/forget' && m === 'POST') return authForget(req, env);
+  if (p === '/api/auth/me' && m === 'GET') return json({ admin: await isAdmin(req, env), pin: !!env.ADMIN_PIN, device: !!env.ADMIN_PIN && !!(await getDevice(req, env)) });
 
   if (p === '/api/stats/hit' && m === 'POST') return statsHit(req, env);
   if (p === '/api/capi' && m === 'POST') return capiPublic(req, env, ctx);
