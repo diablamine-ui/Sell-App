@@ -1,7 +1,7 @@
 {
   "slug": "lire-autrement",
   "active": true,
-  "hidden": true,
+  "hidden": false,
   "title": "Lire Autrement",
   "author_name": "Lamine Diabaté",
   "headline": "Tu lis beaucoup… Mais est-ce que tu lis de la bonne manière ?",
@@ -164,5 +164,23 @@
     "title": "Lire Autrement : tirer une décision de chaque livre | Lamine Diabaté",
     "description": "La méthode pour choisir le bon livre, retenir l'essentiel et transformer chaque lecture en décision. 60 pages et 11 fiches pratiques. 3 000 FCFA, envoi immédiat par e-mail."
   },
-  "whatsapp_buy": "Bonjour, je veux acheter « Lire Autrement » (3 000 FCFA)."
+  "whatsapp_buy": "Bonjour, je veux acheter « Lire Autrement » (3 000 FCFA).",
+  "media": [
+    {
+      "type": "image",
+      "src": "/public/ebooks/lire-autrement/sommaire.jpg",
+      "w": 1400,
+      "h": 1350,
+      "slot": "solution",
+      "caption": "Le sommaire : les trois temps, chapitre par chapitre, puis le kit du lecteur stratégique."
+    },
+    {
+      "type": "image",
+      "src": "/public/ebooks/lire-autrement/carte.jpg",
+      "w": 1400,
+      "h": 1058,
+      "slot": "skills",
+      "caption": "Chapitre 3 : la carte de « De la brièveté de la vie », tracée avant la lecture. Tu sais ce que tu cherches avant d'entrer dans le livre."
+    }
+  ]
 }
