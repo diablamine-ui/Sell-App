@@ -665,4 +665,12 @@ html .pdp-promo-price, html .pdp-promo-go { color: var(--nuit) !important; }
 /* Gros bouton « Découvrir le guide » sur chaque carte d'ebook, comme sur l'ebook mis en avant */
 .ebook { grid-template-columns: 92px 1fr; align-items: start; }
 .ebooks-rail .ebook { grid-template-rows: 1fr auto; }
+.ebook-feat + .ebooks-rail { margin-top: 14px; }
+.rail-dots { display: flex; justify-content: center; gap: 2px; margin-top: 10px; }
+.rail-dots[hidden] { display: none; }
+.rail-dots button { width: 26px; height: 26px; padding: 0; border: 0; background: none; display: grid; place-items: center; cursor: pointer; }
+.rail-dots button::before { content: ""; width: 7px; height: 7px; border-radius: 4px; background: rgba(22,19,15,.22); transition: width .25s ease, background-color .25s ease; }
+.rail-dots button[aria-current="true"]::before { width: 20px; background: var(--nuit); }
+.rail-dots button:focus-visible { outline: 2px solid var(--nuit); outline-offset: 1px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { .rail-dots button::before { transition: none; } }
 .ebook-btn { grid-column: 1 / -1; align-self: end; width: 100%; margin-top: 4px; min-height: 48px; background: var(--nuit); color: var(--ivoire); border-color: var(--nuit); pointer-events: none; }

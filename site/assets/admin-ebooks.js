@@ -68,7 +68,7 @@
     var defPdp = EBOOKS.some(function (e) { return (e.slug || e._id) === 'lire-autrement'; }) ? 'lire-autrement' : '';
     box.innerHTML = '<h2 style="margin-top:0">Mise en avant</h2>' +
       '<p class="muted small">Où tes ebooks apparaissent dans la boutique de livres papier.</p>' +
-      '<label class="chk"><input type="checkbox" data-p="home-on"' + (home.active !== false ? ' checked' : '') + '> Grand encart sur l’accueil</label>' +
+      '<label class="chk"><input type="checkbox" data-p="home-on"' + (home.active !== false ? ' checked' : '') + '> Mettre un ebook en valeur en haut de la rubrique Ebooks de l’accueil (les autres défilent en dessous)</label>' +
       '<select class="in" data-p="home-slug" style="margin-top:8px">' + opts(home.slug || (EBOOKS[0] && (EBOOKS[0].slug || EBOOKS[0]._id))) + '</select>' +
       '<label class="chk" style="margin-top:18px"><input type="checkbox" data-p="pdp-on"' + (pdp.active !== false ? ' checked' : '') + '> Encart sur la fiche de chaque livre</label>' +
       '<select class="in" data-p="pdp-slug" style="margin-top:8px">' + opts(pdp.slug || defPdp) + '</select>' +

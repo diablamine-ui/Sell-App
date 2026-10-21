@@ -312,15 +312,25 @@
     // Un ebook mis en avant en grand ; les autres défilent seuls dès qu'il y en a assez.
     function ebooksSection() {
       if (!EBOOKS.length) return '';
-      // Une seule ligne pour tous les ebooks ; celui mis en avant passe en premier.
+      // L'ebook mis en valeur (choisi dans l'administration) s'affiche en grand ; les autres forment une ligne en dessous.
       var star = promoEbook('home');
-      var list = star ? [star].concat(EBOOKS.filter(function (e) { return e !== star; })) : EBOOKS.slice();
-      var many = list.length >= 2;
+      var rest = EBOOKS.filter(function (e) { return e !== star; });
+      var feat = star ? '<a class="ebook-feat' + (star.banner ? ' has-ban' : '') + '" href="/ebook/' + encodeURIComponent(star.slug || star._id) + '?depuis=accueil">' +
+          (star.banner
+            ? '<span class="ebook-feat-ban"><img src="' + esc(imgSrc(star.banner)) + '" alt="" width="1600" height="900" loading="lazy" decoding="async"></span>'
+            : '<span class="ebook-feat-cv"><img src="' + esc(imgSrc(star.cover)) + '" alt="" width="360" height="509" decoding="async"></span>') +
+          '<span class="ebook-feat-txt">' +
+            '<span class="ebook-feat-title">' + esc(star.title) + '</span>' +
+            (cardLine(star) ? '<span class="ebook-feat-line">' + esc(cardLine(star)) + '</span>' : '') +
+            '<span class="ebook-feat-price">' + money(star.price) + '<span> en PDF, reçu tout de suite</span></span>' +
+            '<span class="btn ebook-feat-btn">Découvrir le guide</span></span></a>' : '';
+      var row = rest.length >= 2
+        ? '<div class="rail ebooks-rail" data-auto data-dots>' + rest.map(function (e) { return ebookCard(e, 'accueil'); }).join('') + '</div>'
+        : (rest.length ? '<div class="ebooks-list">' + rest.map(function (e) { return ebookCard(e, 'accueil'); }).join('') + '</div>' : '');
       return '<section class="ebooks"><div class="wrap">' +
         '<div class="section-head ebooks-head"><h2>Ebooks</h2>' + (EBOOKS.length > 1 ? '<a href="/?vue=ebooks" data-nav="ebooks">Tout voir</a>' : '') + '</div>' +
         '<p class="ebooks-intro">Des livres et des guides pratiques en PDF. Tu paies en ligne et tu reçois tes fichiers par e-mail, à lire sur ton téléphone.</p>' +
-        '<div class="' + (many ? 'rail ebooks-rail' : 'ebooks-list') + '"' + (many ? ' data-auto' : '') + '>' +
-          list.map(function (e) { return ebookCard(e, 'accueil'); }).join('') + '</div>' +
+        feat + row +
       '</div></section>';
     }
     function fact(path, t, s) {
@@ -392,13 +402,48 @@
     var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (en) { visible = en[0].isIntersecting; }) : null;
     if (io) io.observe(el);
     raf = requestAnimationFrame(frame);
+    el._auto = { hold: hold, release: release };
     autoRails.push({ stop: function () { cancelAnimationFrame(raf); clearTimeout(timer); if (io) io.disconnect(); } });
+  }
+
+  // Petits points sous une ligne : un par carte, le trait marque la carte visible.
+  // Ils n'apparaissent que si des cartes sont cachées hors de l'écran.
+  function railDots(el) {
+    var cards = [].slice.call(el.children);
+    var box = document.createElement('div');
+    box.className = 'rail-dots';
+    box.setAttribute('aria-label', 'Faire défiler les ebooks');
+    cards.forEach(function (c, k) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      var t = c.querySelector('.ebook-title');
+      b.setAttribute('aria-label', 'Ebook ' + (k + 1) + ' sur ' + cards.length + (t ? ' : ' + t.textContent : ''));
+      b.addEventListener('click', function () {
+        if (el._auto) el._auto.hold();
+        var max = el.scrollWidth - el.clientWidth;
+        el.scrollTo({ left: Math.min(max, c.offsetLeft - cards[0].offsetLeft), behavior: 'smooth' });
+        if (el._auto) el._auto.release();
+      });
+      box.appendChild(b);
+    });
+    el.insertAdjacentElement('afterend', box);
+    var btns = [].slice.call(box.children), cur = -1;
+    function upd() {
+      var max = el.scrollWidth - el.clientWidth;
+      box.hidden = max <= 2;
+      var k = max > 0 ? Math.round(el.scrollLeft / max * (cards.length - 1)) : 0;
+      if (k !== cur) { btns.forEach(function (b, i) { b.setAttribute('aria-current', i === k ? 'true' : 'false'); }); cur = k; }
+    }
+    el.addEventListener('scroll', upd, { passive: true });
+    window.addEventListener('resize', upd);
+    upd();
   }
 
   function startAutoRails() {
     autoRails.forEach(function (r) { r.stop(); });
     autoRails = [];
     var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    view.querySelectorAll('.rail[data-dots]').forEach(railDots);
     view.querySelectorAll('.rail[data-auto]').forEach(function (el) {
       var items = [].slice.call(el.children);
       if (items.length < 2) return;
