@@ -5,7 +5,7 @@ from fontTools.pens.recordingPen import RecordingPen
 import json
 f = TTFont('/usr/share/fonts/opentype/inter/Inter-Medium.otf')
 gs = f.getGlyphSet(); cmap = f.getBestCmap(); upm = f['head'].unitsPerEm
-chars = "abcdefghijklmnopqrstuvwxyz0123456789.-_+@%'E :"
+chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.,;!?-_+@%'’ :()/&éèêëàâäçîïôöûùüÉÈÀÇ"
 out = {}
 for ch in chars:
     gn = cmap[ord(ch)]; g = gs[gn]; pen = RecordingPen(); g.draw(pen)

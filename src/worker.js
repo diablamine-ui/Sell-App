@@ -905,7 +905,8 @@ async function download(req, env, ctx, url) {
         idx = indexPdf(bytes);
         await env.FILES.put(`pdfidx/${pdfSlug}/${i}.json`, JSON.stringify(idx));
       }
-      tail = stampTail(idx, 'Exemplaire personnel de ' + o.email, { skipFirst: true });
+      // Assez grand et assez foncé pour que l'acheteur le voie : c'est ce qui dissuade de partager le fichier.
+      tail = stampTail(idx, 'Exemplaire personnel de ' + o.email + '. Merci de ne pas le diffuser.', { skipFirst: true, size: 9, gray: 0.3 });
     } catch (err2) {
       console.error('filigrane', pdfSlug, i, err2 && err2.message);
     }

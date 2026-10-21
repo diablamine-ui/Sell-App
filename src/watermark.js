@@ -1,4 +1,4 @@
-// Filigrane des PDF livrés : « Exemplaire personnel de <e-mail> » en bas de chaque page.
+// Filigrane des PDF livrés : « Exemplaire personnel de <e-mail>. Merci de ne pas le diffuser. » en bas de chaque page.
 // Méthode : mise à jour incrémentale (on ajoute quelques objets à la fin du fichier, sans le réécrire).
 // Le texte est dessiné en tracés vectoriels : aucune police à ajouter au PDF.
 // L'index (pages, xref) est calculé une seule fois au dépôt du fichier, le filigrane coûte ensuite quelques millisecondes.
@@ -82,9 +82,9 @@ export function indexPdf(bytes) {
   return { v: 1, len, size, startxref, root, info, id, pages };
 }
 
-function textPath(text, pt, x0, y0) {
+function textPath(text, pt, x0, y0, gray = 0.6) {
   const s = pt / UPM;
-  let ops = `q 0.6 g ${s.toFixed(6)} 0 0 ${s.toFixed(6)} ${x0.toFixed(2)} ${y0.toFixed(2)} cm\n`;
+  let ops = `q ${gray} g ${s.toFixed(6)} 0 0 ${s.toFixed(6)} ${x0.toFixed(2)} ${y0.toFixed(2)} cm\n`;
   for (const ch of text) {
     const g = GLYPHS[ch];
     if (!g) continue;
@@ -105,9 +105,9 @@ function textWidth(text, pt) {
 // Renvoie les octets à ajouter à la fin du PDF d'origine.
 export function stampTail(idx, label, opts = {}) {
   const skip = opts.skipFirst ? 1 : 0;
-  const pt = opts.size || 6.5;
+  const fontSize = opts.size || 6.5;
+  const gray = opts.gray == null ? 0.6 : opts.gray;
   const text = [...label].filter((c) => GLYPHS[c]).join('');
-  const w = textWidth(text, pt);
   let next = idx.size;
   const objs = [];
   const add = (n, g, body) => objs.push({ n, g, body });
@@ -122,7 +122,10 @@ export function stampTail(idx, label, opts = {}) {
     const key = `${x1},${y1},${x2}`;
     if (!stamps[key]) {
       stamps[key] = next++;
-      add(stamps[key], 0, stream(textPath(text, pt, x1 + (x2 - x1 - w) / 2, y1 + 12)));
+      // Taille demandée, réduite si la ligne (adresse longue) dépasse la largeur de la page.
+      const pt = Math.min(fontSize, (x2 - x1 - 60) / textWidth(text, 1));
+      const w = textWidth(text, pt);
+      add(stamps[key], 0, stream(textPath(text, pt, x1 + (x2 - x1 - w) / 2, y1 + 14, gray)));
     }
     let d = p.dict;
     const m = d.match(/\/Contents\s*(\[[^\]]*\]|\d+\s+\d+\s+R)/);
