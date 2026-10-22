@@ -159,6 +159,8 @@
       '</div>' +
       '<div class="eb-buy-wrap">' + buyBlock(E.cta || 'Acheter', 'heroBuy') +
         (PAGES.length ? '<button type="button" class="eb-peek" data-peek>Voir un extrait (' + PAGES.length + ' pages)</button>' : '') +
+        // Test gratuit lié au livre (porte d'entrée pour ceux qui hésitent).
+        (E.quiz && /^\/[a-z0-9-]+/.test(E.quiz.url || '') ? '<a class="eb-quiz" href="' + esc(E.quiz.url) + '"><strong>' + fr(E.quiz.label || 'Faire le test gratuit') + '</strong>' + (E.quiz.note ? '<span>' + fr(E.quiz.note) + '</span>' : '') + '</a>' : '') +
         payPills() +
         // Les moyens de paiement sont déjà affichés juste au-dessus : on ne les répète pas dans la liste.
         '<ul class="eb-assure">' + (E.reassure || []).filter(function (r) { return !/wave|orange money/i.test(r); }).map(function (r) { return '<li>' + fr(r) + '</li>'; }).join('') + '</ul>' +

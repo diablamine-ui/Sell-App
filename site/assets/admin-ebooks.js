@@ -30,10 +30,11 @@
   });
 
   function load() {
-    Promise.all([api('/db/ebooks').then(jsonOf), api('/admin/orders').then(jsonOf), api('/db/shop_config/sell_promo').then(function (r) { return r.ok ? r.json() : {}; })]).then(function (res) {
+    Promise.all([api('/db/ebooks').then(jsonOf), api('/admin/orders').then(jsonOf), api('/db/shop_config/sell_promo').then(function (r) { return r.ok ? r.json() : {}; }), api('/admin/leads').then(function (r) { return r.ok ? r.json() : []; })]).then(function (res) {
       EBOOKS = (res[0] || []).filter(function (e) { return e && e._id; });
       var orders = res[1] || [];
       var promo = (res[2] && res[2].value) || {};
+      var leads = res[3] || [];
       app.innerHTML = '<p><a href="/admin">Retour à l’administration</a></p><h1 style="margin-top:10px">Ebooks</h1>' +
         '<p class="muted" style="margin-top:6px">Crée et gère tes ebooks. Les PDF ne sont jamais publics : seul un acheteur avec son lien personnel peut les télécharger, avec son e-mail en filigrane.</p>' +
         '<details class="card" style="margin-top:14px"><summary style="cursor:pointer;font-weight:600;color:#fff">Consignes pour créer une page de vente en HTML</summary>' +
@@ -46,14 +47,52 @@
           orders.map(function (o) {
             return '<tr><td>' + esc(date(o.paid_at || o.created_at)) + '</td><td>' + esc(o.email) + '<br><span class="muted">' + esc(o.reference) + '</span></td><td>' + esc(o.slug) + '</td><td>' + esc(o.amount) + ' F</td><td>' + esc(STATUS[o.status] || o.status) +
               (o.status === 'paid' ? '<br>' + (o.mailed ? '<span class="ok">E-mail envoyé</span>' : '<span class="ko">E-mail non envoyé</span>') : '') + '</td></tr>';
-          }).join('') + '</tbody></table>' : '<p class="muted">Aucune commande pour le moment.</p>') + '</div>';
+          }).join('') + '</tbody></table>' : '<p class="muted">Aucune commande pour le moment.</p>') + '</div>' +
+        leadsCard(leads);
       document.getElementById('copyGuide').onclick = function () {
         navigator.clipboard && navigator.clipboard.writeText(GUIDE).then(function () { document.getElementById('copyGuide').textContent = 'Copié'; });
       };
+      var csv = document.getElementById('leadsCsv');
+      if (csv) csv.onclick = function () { exportLeads(leads); };
       document.getElementById('newBook').onclick = function () { addCard(null); this.hidden = true; };
       promoCard(document.getElementById('promo'), promo);
       EBOOKS.forEach(function (e) { addCard(e); });
     });
+  }
+
+  // Test d'alignement : inscrits, profils, et qui a acheté le livre ensuite.
+  var PROFIL = { mental: 'Mental', coeur: 'Cœur', corps: 'Corps', mixte: 'Mixte', aligne: 'Aligné' };
+  var ETAPE = ['Résultat envoyé', 'E-mail 2 envoyé', 'Série terminée'];
+  function leadsCard(leads) {
+    var counts = {}, bought = 0;
+    leads.forEach(function (l) { counts[l.profile] = (counts[l.profile] || 0) + 1; if (l.bought) bought++; });
+    var resume = Object.keys(PROFIL).filter(function (k) { return counts[k]; }).map(function (k) { return PROFIL[k] + ' : ' + counts[k]; }).join(', ');
+    return '<h2>Test d’alignement</h2><div class="card scroll">' +
+      '<p class="muted">Lien à partager : <strong>dilamboutique.com/alignement</strong>. Ajoute « ?depuis=tiktok » ou « ?depuis=facebook » pour savoir d’où viennent les inscrits.</p>' +
+      (leads.length
+        ? '<p style="margin-top:10px"><strong>' + leads.length + ' inscrit' + (leads.length > 1 ? 's' : '') + '</strong>, dont ' + bought + ' acheteur' + (bought > 1 ? 's' : '') + ' du livre.' + (resume ? ' Profils : ' + esc(resume) + '.' : '') + '</p>' +
+          '<button class="mini-b" type="button" id="leadsCsv" style="margin-top:10px">Télécharger la liste (CSV)</button>' +
+          '<table style="margin-top:12px"><thead><tr><th>Date</th><th>Inscrit</th><th>Profil</th><th>Suivi</th></tr></thead><tbody>' +
+          leads.map(function (l) {
+            var wa = (l.whatsapp || '').replace(/[^\d]/g, '');
+            if (wa && wa.length <= 10) wa = '225' + wa;
+            return '<tr><td>' + esc(date(l.created_at)) + '</td><td>' + esc(l.prenom) + '<br><span class="muted">' + esc(l.email) + '</span>' +
+              (wa ? '<br><a href="https://wa.me/' + esc(wa) + '" target="_blank" rel="noopener">WhatsApp ' + esc(l.whatsapp) + '</a>' : '') +
+              (l.source ? '<br><span class="muted">Venu de : ' + esc(l.source) + '</span>' : '') + '</td>' +
+              '<td>' + esc(PROFIL[l.profile] || l.profile) + '</td>' +
+              '<td>' + (l.bought ? '<span class="ok">A acheté le livre</span>' : esc(l.unsub ? 'Désinscrit' : ETAPE[l.stage] || '')) + '</td></tr>';
+          }).join('') + '</tbody></table>'
+        : '<p class="muted" style="margin-top:10px">Aucun inscrit pour le moment.</p>') + '</div>';
+  }
+  function exportLeads(leads) {
+    var rows = [['date', 'prenom', 'email', 'whatsapp', 'profil', 'venu_de', 'achete', 'desinscrit']].concat(leads.map(function (l) {
+      return [date(l.created_at), l.prenom, l.email, l.whatsapp || '', PROFIL[l.profile] || l.profile, l.source || '', l.bought ? 'oui' : 'non', l.unsub ? 'oui' : 'non'];
+    }));
+    var csv = rows.map(function (r) { return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(';'); }).join('\r\n');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'inscrits-test-alignement.csv';
+    document.body.appendChild(a); a.click(); a.remove();
   }
 
   // Mise en avant : grand encart sur l'accueil, encart sur la fiche de chaque livre papier.

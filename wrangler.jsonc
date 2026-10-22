@@ -16,5 +16,7 @@
   "kv_namespaces": [
     { "binding": "FILES", "id": "fd6111635b76429fa548ca2718093496" }
   ],
+  // Relances du test d'alignement (J2, J5) : chaque jour à 18 h UTC, soit 18 h à Abidjan.
+  "triggers": { "crons": ["0 18 * * *"] },
   "observability": { "enabled": true }
 }

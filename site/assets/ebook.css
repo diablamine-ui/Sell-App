@@ -259,3 +259,9 @@ html .eb-hero .eb-assure li::before { border-color: var(--action); }
 html .eb-hero .paylogos span { border-color: #E2D8C7; }
 html .eb-hero .eb-visual::before { display: none; }
 html .eb-hero .eb-visual img.main { box-shadow: 0 22px 44px -18px rgba(22,19,15,.6); }
+
+/* Lien vers le test gratuit, sous les boutons d'achat */
+.eb-quiz { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 10px; padding: 12px 16px; border: 1.5px dashed rgba(22,19,15,.45); border-radius: 14px; color: var(--nuit); text-decoration: none; text-align: center; }
+.eb-quiz strong { font-size: 16px; }
+.eb-quiz span { font-size: 13.5px; color: rgba(22,19,15,.65); }
+.eb-quiz:hover { border-style: solid; background: rgba(22,19,15,.04); }

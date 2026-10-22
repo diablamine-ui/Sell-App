@@ -37,6 +37,24 @@ CREATE TABLE IF NOT EXISTS devices (
   fails      INTEGER NOT NULL DEFAULT 0
 );
 
+-- Inscrits du test d'alignement (une fiche par adresse e-mail).
+CREATE TABLE IF NOT EXISTS leads (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  prenom     TEXT    NOT NULL,
+  email      TEXT    NOT NULL UNIQUE,
+  whatsapp   TEXT,
+  answers    TEXT    NOT NULL,
+  scores     TEXT    NOT NULL,
+  profile    TEXT    NOT NULL,
+  source     TEXT,
+  token      TEXT    NOT NULL UNIQUE,
+  stage      INTEGER NOT NULL DEFAULT 0,   -- 0 : résultat envoyé, 1 : J2 envoyé, 2 : série terminée
+  unsub      INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS leads_due ON leads(unsub, stage, created_at);
+
 -- Limiteur de requêtes (anti-abus).
 CREATE TABLE IF NOT EXISTS rl (
   k   TEXT    PRIMARY KEY,

@@ -9,6 +9,7 @@
 // Variables facultatives : MAIL_FROM, META_PIXEL_ID, GRAPH_VERSION, FIRESTORE_BASE (tests), DEV (local uniquement)
 
 import { indexPdf, stampTail } from './watermark.js';
+import { QUESTIONS, SCALE, scoreAnswers, profileView, frTypo, mailJ0, mailJ2, mailJ5, BOOK_URL } from './alignement.js';
 
 const PIXEL_DEFAULT = '1671688320192246';
 const GRAPH_DEFAULT = 'v23.0';
@@ -142,8 +143,10 @@ function sessionCookie(token, maxAge) {
 // Expéditeurs : le domaine dilamboutique.com est vérifié chez Resend.
 const MAIL_SHOP = "Dilam B' <boutique@dilamboutique.com>";
 const MAIL_AUTHOR = 'Lamine Diabaté <livraison@dilamboutique.com>';
+const MAIL_LAMINE = 'Lamine Diabaté <lamine@dilamboutique.com>';
+const SITE = 'https://dilamboutique.com';
 
-async function sendMail(env, to, subject, text, from) {
+async function sendMail(env, to, subject, text, from, headers) {
   if (!env.RESEND_API_KEY) {
     if (env.DEV === '1') {
       console.log(`[DEV] email à ${to} : ${subject} — ${text}`);
@@ -154,6 +157,7 @@ async function sendMail(env, to, subject, text, from) {
   const payload = { from: from || env.MAIL_FROM || MAIL_SHOP, to: [to], subject, text };
   // Les réponses des clients arrivent dans ta boîte Gmail.
   if (env.ADMIN_EMAIL && to !== env.ADMIN_EMAIL) payload.reply_to = env.ADMIN_EMAIL;
+  if (headers) payload.headers = headers;
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
@@ -774,9 +778,7 @@ Il est valable ${DL_HOURS} heures et chaque fichier se télécharge une seule fo
 Ce que tu reçois :
 ${files}
 
-Pour remplir le Workbook directement dans le PDF, ouvre-le avec Adobe Acrobat Reader (gratuit sur Android et iPhone).
-
-Un souci avec tes fichiers ? Écris-moi sur WhatsApp en indiquant cette adresse e-mail : https://wa.me/${wa}
+${/workbook/i.test(files) ? 'Pour remplir le Workbook directement dans le PDF, ouvre-le avec Adobe Acrobat Reader (gratuit sur Android et iPhone).\n\n' : ''}Un souci avec tes fichiers ? Écris-moi sur WhatsApp en indiquant cette adresse e-mail : https://wa.me/${wa}
 
 Lamine Diabaté
 Référence de commande : ${ref}`;
@@ -1059,6 +1061,135 @@ async function listOrders(env) {
 
 function decodeURISafe(u) { try { return decodeURI(u); } catch { return u; } }
 
+// ───────────────────────── test d'alignement ─────────────────────────
+const EMAIL_RE = /^[^\s@<>"']{1,64}@[^\s@<>"']{1,180}\.[a-z]{2,24}$/i;
+function quizLinks(origin, lead, step) {
+  return {
+    book: `${origin}${BOOK_URL}?depuis=test-${step}`,
+    stop: `${origin}/api/quiz/stop?t=${lead.token}`,
+  };
+}
+function unsubHeaders(links) {
+  return { 'List-Unsubscribe': `<${links.stop}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' };
+}
+function viewForClient(v) {
+  const t = (x) => frTypo(x);
+  return {
+    key: v.key, title: t(v.title), text: v.text.map(t), further: t(v.further), note: v.note ? t(v.note) : '',
+    exercise: { title: t(v.exercise.title), chapter: v.exercise.chapter, blocks: v.exercise.blocks.map(([k, x]) => [k, t(x)]) },
+  };
+}
+
+async function quizSubmit(req, env, ctx, url) {
+  const ip = clientIp(req);
+  if (!(await rateOk(env, 'quiz:' + ip, 8, 3600))) return err(429, 'too_many');
+  const b = await readJson(req, 8 * 1024);
+  const prenom = String(b.prenom || '').replace(/[<>"]/g, '').replace(/\s+/g, ' ').trim().slice(0, 40);
+  const email = String(b.email || '').trim().toLowerCase();
+  const wa = String(b.whatsapp || '').replace(/[^\d+]/g, '').slice(0, 16);
+  if (!prenom) return err(400, 'prenom');
+  if (!EMAIL_RE.test(email) || email.length > 160) return err(400, 'email');
+  const answers = b.answers && typeof b.answers === 'object' ? b.answers : {};
+  const r = scoreAnswers(answers);
+  if (!r) return err(400, 'answers');
+  const source = String(b.source || '').replace(/[^a-z0-9_-]/gi, '').slice(0, 40);
+  const t = now();
+  // Une même adresse ne crée qu'une fiche : refaire le test met à jour le résultat sans relancer la série d'e-mails.
+  const old = await env.DB.prepare('SELECT id, token, stage FROM leads WHERE email=?').bind(email).first();
+  const token = old ? old.token : randHex(16);
+  const ans = JSON.stringify(QUESTIONS.reduce((o, q) => (o[q.id] = answers[q.id], o), {}));
+  if (old) {
+    await env.DB.prepare('UPDATE leads SET prenom=?, whatsapp=?, answers=?, scores=?, profile=?, updated_at=? WHERE id=?')
+      .bind(prenom, wa, ans, JSON.stringify(r.scores), r.profile, t, old.id).run();
+  } else {
+    await env.DB.prepare('INSERT INTO leads (created_at, updated_at, prenom, email, whatsapp, answers, scores, profile, source, token, stage, unsub) VALUES (?,?,?,?,?,?,?,?,?,?,0,0)')
+      .bind(t, t, prenom, email, wa, ans, JSON.stringify(r.scores), r.profile, source, token).run();
+  }
+  const lead = { prenom, email, token };
+  const view = profileView(r.profile, r.top);
+  const links = quizLinks(url.origin, lead, 'j0');
+  const mail = mailJ0(lead, view, links);
+  ctx.waitUntil(sendMail(env, email, mail.subject, mail.text, MAIL_LAMINE, unsubHeaders(links)).catch(() => {}));
+  if (env.ADMIN_EMAIL && !old) {
+    ctx.waitUntil(sendMail(env, env.ADMIN_EMAIL, `Nouveau test d'alignement : ${prenom}`,
+      `${prenom} (${email}${wa ? ', WhatsApp ' + wa : ''})\nProfil : ${view.title}\nScores : mental ${r.scores.mental}/12, cœur ${r.scores.coeur}/12, corps ${r.scores.corps}/12${source ? '\nVenu de : ' + source : ''}`).catch(() => {}));
+  }
+  if (env.META_CAPI_TOKEN) {
+    const ud = { em: [await sha256hex(email)], client_ip_address: ip, client_user_agent: req.headers.get('User-Agent') || '' };
+    if (typeof b.fbp === 'string' && b.fbp.length < 200) ud.fbp = b.fbp;
+    if (typeof b.fbc === 'string' && b.fbc.length < 400) ud.fbc = b.fbc;
+    ctx.waitUntil(sendToMeta(env, [{
+      event_name: 'Lead', event_time: t, event_id: String(b.event_id || 'lead_' + token).slice(0, 100), action_source: 'website',
+      event_source_url: `${url.origin}/alignement`, user_data: ud, custom_data: { content_name: 'Indice d\'Alignement', content_category: r.profile },
+    }]).catch(() => {}));
+  }
+  return json({ ok: true, scores: r.scores, view: viewForClient(view) });
+}
+
+async function quizStop(req, env, url) {
+  let t = url.searchParams.get('t') || '';
+  if (req.method === 'POST' && !t) {
+    const raw = (await req.text()).slice(0, 2000);
+    const m = raw.match(/[0-9a-f]{32}/);
+    t = m ? m[0] : '';
+  }
+  if (!/^[0-9a-f]{32}$/.test(t)) return htmlMsg('Lien invalide', 'Ce lien de désinscription n’est pas valide.');
+  if (req.method === 'POST') {
+    await env.DB.prepare('UPDATE leads SET unsub=1 WHERE token=?').bind(t).run();
+    return htmlMsg('C’est fait', 'Tu ne recevras plus mes e-mails. Ton exercice reste à toi, garde-le précieusement.');
+  }
+  // Un clic dans l'e-mail ouvre cette page : la désinscription se confirme d'un bouton
+  // (les robots qui vérifient les liens des e-mails ne désinscrivent donc personne par erreur).
+  return htmlMsg('Ne plus recevoir mes e-mails',
+    '<form method="post" action="/api/quiz/stop?t=' + t + '"><p>Un clic, et tu ne recevras plus aucun e-mail de ma part.</p>' +
+    '<button class="btn btn-primary" type="submit">Me désinscrire</button></form>', true);
+}
+function htmlMsg(title, body, raw) {
+  const html = '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">' +
+    '<title>' + title + " | Dilam B'</title><link rel=\"stylesheet\" href=\"/assets/app.css\"><style>.m{max-width:520px;margin:0 auto;padding:56px 20px}.m h1{font-size:28px}.m p{margin-top:12px;font-size:17px;line-height:1.6}.m .btn{margin-top:20px;min-height:52px;width:100%}</style></head>" +
+    '<body><main class="m"><h1>' + title + '</h1>' + (raw ? body : '<p>' + body + '</p>') + '<p><a href="/">Retour à la boutique</a></p></main></body></html>';
+  return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+}
+
+// Relances : J2 (une image du livre), J5 (le livre). Rien n'est envoyé après une désinscription, ni J5 après un achat.
+async function quizFollowUps(env) {
+  const t = now();
+  const due = await env.DB.prepare(
+    `SELECT * FROM leads WHERE unsub=0 AND ((stage=0 AND created_at<=?) OR (stage=1 AND created_at<=?)) ORDER BY created_at LIMIT 80`
+  ).bind(t - 2 * 86400, t - 5 * 86400).all();
+  for (const l of due.results || []) {
+    let answers = {};
+    try { answers = JSON.parse(l.answers || '{}'); } catch {}
+    const r = scoreAnswers(answers);
+    if (!r) { await env.DB.prepare('UPDATE leads SET stage=2 WHERE id=?').bind(l.id).run(); continue; }
+    const view = profileView(r.profile, r.top);
+    if (l.stage === 0) {
+      const links = quizLinks(SITE, l, 'j2');
+      const m = mailJ2(l, view, links);
+      if (await sendMail(env, l.email, m.subject, m.text, MAIL_LAMINE, unsubHeaders(links))) {
+        await env.DB.prepare('UPDATE leads SET stage=1 WHERE id=?').bind(l.id).run();
+      }
+    } else {
+      const bought = await env.DB.prepare("SELECT 1 FROM orders WHERE email=? AND slug='esprit-aligne' AND status='paid' LIMIT 1").bind(l.email).first();
+      if (!bought) {
+        const links = quizLinks(SITE, l, 'j5');
+        const m = mailJ5(l, view, links);
+        if (!(await sendMail(env, l.email, m.subject, m.text, MAIL_LAMINE, unsubHeaders(links)))) continue;
+      }
+      await env.DB.prepare('UPDATE leads SET stage=2 WHERE id=?').bind(l.id).run();
+    }
+  }
+}
+
+async function listLeads(env) {
+  const rows = await env.DB.prepare(
+    `SELECT l.id, l.created_at, l.prenom, l.email, l.whatsapp, l.profile, l.scores, l.source, l.stage, l.unsub,
+       EXISTS (SELECT 1 FROM orders o WHERE o.email=l.email AND o.slug='esprit-aligne' AND o.status='paid') AS bought
+     FROM leads l ORDER BY l.created_at DESC LIMIT 500`
+  ).all();
+  return json(rows.results || []);
+}
+
 // ───────────────────────── routeur ─────────────────────────
 async function api(req, env, ctx, url) {
   const p = url.pathname;
@@ -1068,6 +1199,8 @@ async function api(req, env, ctx, url) {
   // en-tête personnalisé obligatoire + origine identique si le navigateur l'annonce.
   // Le webhook vient des serveurs de Paystack : il est authentifié par sa signature, pas par l'origine.
   if (p === '/api/paystack/webhook' && m === 'POST') return paystackWebhook(req, env, ctx);
+  // Désinscription : le jeton secret du lien suffit (aussi utilisé par le bouton « Se désabonner » de Gmail).
+  if (p === '/api/quiz/stop') return quizStop(req, env, url);
 
   if (m !== 'GET' && m !== 'HEAD') {
     if (req.headers.get('X-Dilam') !== '1') return err(403, 'forbidden');
@@ -1086,6 +1219,8 @@ async function api(req, env, ctx, url) {
   if (p === '/api/capi' && m === 'POST') return capiPublic(req, env, ctx);
   if (p === '/api/checkout' && m === 'POST') return checkout(req, env);
   if (p === '/api/order' && m === 'GET') return orderStatus(req, env, ctx, url);
+  if (p === '/api/quiz' && m === 'GET') return json({ questions: QUESTIONS.map((q) => ({ id: q.id, t: frTypo(q.t) })), scale: SCALE.map(frTypo) });
+  if (p === '/api/quiz' && m === 'POST') return quizSubmit(req, env, ctx, url);
 
   const dbm = p.match(/^\/api\/db\/([a-z_]+)(?:\/([^/]+))?$/);
   if (dbm) {
@@ -1108,6 +1243,7 @@ async function api(req, env, ctx, url) {
     if (p === '/api/admin/pdf' && m === 'POST') return uploadPdf(req, env, url);
     if (p === '/api/admin/pdf' && m === 'GET') return listPdf(env, url);
     if (p === '/api/admin/orders' && m === 'GET') return listOrders(env);
+    if (p === '/api/admin/leads' && m === 'GET') return listLeads(env);
     if (p === '/api/admin/ebook-html' && m === 'POST') return uploadHtml(req, env, url);
     if (p === '/api/admin/ebook-html' && m === 'GET') return htmlInfo(env, url);
   }
@@ -1115,6 +1251,10 @@ async function api(req, env, ctx, url) {
 }
 
 export default {
+  // Relances du test d'alignement : une fois par jour, à 18 h (heure d'Abidjan).
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(quizFollowUps(env));
+  },
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
     let res;
