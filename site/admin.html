@@ -1711,6 +1711,7 @@ function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 let CONFIG=ls('sell_config',DC);
 let SHOP=ls('sell_shop',DS);
 let BOOKS=[];
+let DATA_READY=false; // vrai une fois le catalogue chargé depuis le serveur
 let CATEGORIES=[];
 let CAT_HEROES={};
 let CAMPAIGNS=[];
@@ -1789,6 +1790,10 @@ async function loadData(){
     applyShop();
     renderBooks();
     renderBestsellers();
+    // L'administration a pu s'ouvrir avant la fin du chargement (connexion rapide) : on la remet à jour.
+    DATA_READY=true;
+    var am=document.getElementById('admMain');
+    if(am&&am.style.display==='block'){renderAdmList();fillShopForm();fillConfigForm();}
     handleDeepLink();
     loadBandeau();
     initPixel();
@@ -2579,8 +2584,11 @@ function switchTab(tab,el){
   document.getElementById('tab-'+tab).classList.add('active');
 }
 function renderAdmList(){
-  var count=document.getElementById('admCount');if(count)count.textContent=BOOKS.length;
-  var list=document.getElementById('admBookList');if(!list)return;
+  var count=document.getElementById('admCount');
+  var list=document.getElementById('admBookList');
+  if(!DATA_READY){if(count)count.textContent='…';if(list)list.innerHTML='<div style="text-align:center;padding:20px;color:rgba(250,247,242,.5);font-size:.76rem">Chargement du catalogue…</div>';return;}
+  if(count)count.textContent=BOOKS.length;
+  if(!list)return;
   if(!BOOKS.length){list.innerHTML='<div style="text-align:center;padding:20px;color:rgba(250,247,242,.28);font-style:italic;font-size:.76rem">Aucun titre.</div>';return;}
   var q=((document.getElementById('admSearch')||{}).value||'').toLowerCase().trim();
   var filtered=q?BOOKS.filter(function(b){return (b.title||'').toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q);}):BOOKS;
