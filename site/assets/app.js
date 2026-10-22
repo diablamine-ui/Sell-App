@@ -202,9 +202,9 @@
     var file = b.image.split('/').pop();
     return NO_CROP.indexOf(file) === -1;
   }
-  // Nouveaux visuels déposés depuis l'administration (livre seul sur fond neutre) : recadrés au carré, centrés sur le livre.
+  // Nouveaux visuels déposés depuis l'administration (livres seuls sur fond neutre, packs compris) : recadrés au carré, centrés.
   function isCleanVisual(b) {
-    return !!b.image && /^\/media\/img\//.test(b.image) && b.category !== 'pack' && b.category !== 'cheikh';
+    return !!b.image && /^\/media\/img\//.test(b.image) && b.category !== 'cheikh';
   }
   function cover(b, opts) {
     opts = opts || {};
