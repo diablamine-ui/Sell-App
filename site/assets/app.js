@@ -202,6 +202,10 @@
     var file = b.image.split('/').pop();
     return NO_CROP.indexOf(file) === -1;
   }
+  // Nouveaux visuels déposés depuis l'administration (livre seul sur fond neutre) : recadrés au carré, centrés sur le livre.
+  function isCleanVisual(b) {
+    return !!b.image && /^\/media\/img\//.test(b.image) && b.category !== 'pack' && b.category !== 'cheikh';
+  }
   function cover(b, opts) {
     opts = opts || {};
     var tag = '';
@@ -213,7 +217,8 @@
       return '<div class="cv"><div class="cv-ph">' + esc(b.title) + '</div>' + tag + '</div>';
     }
     var crop = opts.full ? false : canCrop(b);
-    return '<div class="cv ' + (crop ? 'cv-crop' : 'cv-full') + '"><img ' + picAttrs(b.image, crop ? '(min-width: 820px) 280px, 56vw' : '(min-width: 820px) 220px, 45vw') + ' alt="" loading="' + (opts.eager ? 'eager' : 'lazy') + '" decoding="async">' + tag + '</div>';
+    var cls = isCleanVisual(b) ? 'cv-sq' : (crop ? 'cv-crop' : 'cv-full');
+    return '<div class="cv ' + cls + '"><img ' + picAttrs(b.image, crop ? '(min-width: 820px) 280px, 56vw' : '(min-width: 820px) 220px, 45vw') + ' alt="" loading="' + (opts.eager ? 'eager' : 'lazy') + '" decoding="async">' + tag + '</div>';
   }
   function priceHTML(b) {
     if (isPromo(b)) {
@@ -558,7 +563,7 @@
       '<div class="wrap">' +
         '<nav class="crumbs" aria-label="Tu es ici"><a href="/" data-nav="home">Accueil</a><span class="crumbs-sep" aria-hidden="true">›</span><a href="/?cat=' + b.category + '" data-nav="cat">' + esc(cat ? cat.label : 'Catalogue') + '</a></nav>' +
         '<article class="pdp">' +
-          '<div class="pdp-cover">' + (b.image ? '<img ' + picAttrs(b.image, '(min-width: 820px) 360px, 70vw') + ' alt="Couverture : ' + esc(b.title) + '">' : cover(b)) + '</div>' +
+          '<div class="pdp-cover' + (isCleanVisual(b) ? ' clean' : '') + '">' + (b.image ? '<img ' + picAttrs(b.image, '(min-width: 820px) 360px, 70vw') + ' alt="Couverture : ' + esc(b.title) + '">' : cover(b)) + '</div>' +
           '<div>' +
             '<h1>' + esc(b.title) + '</h1>' +
             '<p class="pdp-author">' + esc(b.category === 'pack' ? 'Pack de deux livres' : b.author) + '</p>' +

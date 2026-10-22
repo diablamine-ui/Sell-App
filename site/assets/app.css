@@ -234,6 +234,11 @@ p { margin: 0; }
 /* Recadrage sur le livre : on écarte le logo, l'étiquette de prix et le bandeau du bas du visuel d'origine (400×600). */
 .cv-crop img { width: 125%; max-width: none; left: -12.5%; top: -62.5%; }
 .cv-full img { inset: 0; width: 100%; height: 100%; object-fit: contain; }
+/* Nouveaux visuels (livre seul sur fond blanc) : carré plein, centré sur le livre. */
+.cv-sq { background: #fff; }
+.cv-sq img { inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+.pdp-cover.clean { background: #fff; border: 1px solid var(--trait); padding: 0; overflow: hidden; }
+.pdp-cover.clean img { display: block; width: 100%; height: auto; max-height: none; margin: 0 auto; border-radius: 0; }
 .cv-ph {
   position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
   padding: 14px; font-family: var(--serif); font-size: 16px; color: var(--encre);
