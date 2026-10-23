@@ -104,17 +104,23 @@
   });
 
   var NAMES = { mental: 'Mental', coeur: 'Cœur', corps: 'Corps' };
-  function level(v) { return v >= 9 ? 'Forte tension' : v >= 5 ? 'Tension' : 'Peu de tension'; }
+  function level(v, max) { var r = v / max; return r >= 0.7 ? 'Forte tension' : r >= 0.4 ? 'Tension' : 'Peu de tension'; }
 
   function render(prenom, d) {
-    var v = d.view, s = d.scores;
+    var v = d.view, s = d.scores, max = d.max || 15;
     var top = Math.max(s.mental, s.coeur, s.corps);
     var bars = ['mental', 'coeur', 'corps'].map(function (k) {
-      var pct = Math.max(4, Math.round(s[k] / 12 * 100));
+      var pct = Math.max(4, Math.round(s[k] / max * 100));
       return '<div class="al-meter' + (s[k] === top && v.key !== 'aligne' ? ' is-top' : '') + '"><span class="al-meter-n">' + NAMES[k] + '</span>' +
-        '<span class="al-meter-b" role="img" aria-label="' + NAMES[k] + ' : ' + level(s[k]) + '"><i style="width:' + pct + '%"></i></span>' +
-        '<span class="al-meter-l">' + level(s[k]) + '</span></div>';
+        '<span class="al-meter-b" role="img" aria-label="' + NAMES[k] + ' : ' + level(s[k], max) + '"><i style="width:' + pct + '%"></i></span>' +
+        '<span class="al-meter-l">' + level(s[k], max) + '</span></div>';
     }).join('');
+    // Ce que la personne a reconnu elle-même, et le mécanisme derrière chaque réponse.
+    var seen = v.recognized && v.recognized.length ?
+      '<section class="al-seen"><h2>Ce que tu as reconnu toi-même</h2><p class="al-seen-sub">Et ce qui se passe vraiment, derrière chacune de tes réponses.</p>' +
+        v.recognized.map(function (r) {
+          return '<div class="al-seen-i"><p class="al-seen-n">' + esc(r.name) + (r.always ? ' <span>toujours</span>' : '') + '</p><p>' + esc(r.mech) + '</p></div>';
+        }).join('') + '</section>' : '';
     var ex = v.exercise;
     var blocks = ex.blocks.map(function (b) {
       if (b[0] === 'h') return '<h4>' + rich(b[1]) + '</h4>';
@@ -122,19 +128,25 @@
       if (b[0] === 'l') return '<p class="al-li">' + rich(b[1]) + '</p>';
       return '<p>' + rich(b[1]) + '</p>';
     }).join('');
-    var share = 'https://wa.me/?text=' + encodeURIComponent('J’ai fait le test d’alignement de Lamine Diabaté : 12 questions, 2 minutes. Fais-le, tu verras où tu en es : ' + location.origin + '/alignement?depuis=partage');
+    // Plan de lecture : chaque réponse forte renvoie au chapitre du livre qui y répond.
+    var plan = v.plan && v.plan.length ?
+      '<p class="al-plan-sub">Ton plan de lecture, d’après tes réponses&nbsp;:</p><ol class="al-plan">' +
+        v.plan.map(function (x) { return '<li><strong>' + esc(x.ch) + ', ' + esc(x.title) + '</strong><span>' + esc(x.items.join(', ')) + '</span></li>'; }).join('') + '</ol>'
+      : '<p>' + esc(v.further) + '</p>';
+    var share = 'https://wa.me/?text=' + encodeURIComponent('J’ai fait le test d’alignement de Lamine Diabaté : 15 questions, 3 minutes. Fais-le, tu verras où tu en es : ' + location.origin + '/alignement?depuis=partage');
     $('result').innerHTML =
       '<p class="al-sur">Ton Indice d’Alignement</p>' +
       '<h1>' + esc(prenom) + ', ' + esc(v.title.charAt(0).toLowerCase() + v.title.slice(1)) + '.</h1>' +
       '<div class="al-meters">' + bars + '</div>' +
       v.text.map(function (t) { return '<p>' + esc(t) + '</p>'; }).join('') +
       (v.note ? '<p class="al-note">' + esc(v.note) + '</p>' : '') +
+      seen +
       '<article class="al-ex"><p class="al-ex-sur">Ton exercice offert, tiré du livre (' + esc(ex.chapter) + ')</p><h2>' + esc(ex.title) + '</h2>' + blocks +
         '<p class="al-ex-end">Fais-le aujourd’hui, pas «&nbsp;quand tu auras le temps&nbsp;». Tu le retrouves aussi dans ta boîte e-mail.</p></article>' +
-      '<div class="al-book"><img src="/public/ebooks/esprit-aligne/couverture.jpg" alt="Couverture : Le Pouvoir d’un Esprit Aligné" width="120" height="170" loading="lazy">' +
-        '<div><p class="al-book-t">Le Pouvoir d’un Esprit Aligné</p><p>' + esc(v.further) + '</p>' +
-        '<p class="al-book-m">9 chapitres, 9 exercices, 106 pages. 5&nbsp;000&nbsp;F en PDF, à télécharger juste après le paiement.</p>' +
-        '<a class="btn btn-primary" href="/ebook/esprit-aligne?depuis=test-resultat">Découvrir le livre</a></div></div>' +
+      '<div class="al-book"><div class="al-book-h"><img src="/public/ebooks/esprit-aligne/couverture.jpg" alt="Couverture : Le Pouvoir d’un Esprit Aligné" width="96" height="136">' +
+        '<div><p class="al-book-t">Le Pouvoir d’un Esprit Aligné</p><p class="al-book-m">9 chapitres, 9 exercices, 106 pages. 5&nbsp;000&nbsp;F en PDF, à télécharger juste après le paiement.</p></div></div>' +
+        plan +
+        '<a class="btn btn-primary" href="/ebook/esprit-aligne?depuis=test-resultat">' + (v.plan && v.plan.length ? 'Commencer mon plan de lecture' : 'Découvrir le livre') + '</a></div>' +
       '<div class="al-after"><a class="btn btn-secondary" href="' + esc(share) + '" target="_blank" rel="noopener">Envoyer le test à un proche</a>' +
         '<button class="al-back" type="button" id="again">Refaire le test</button></div>';
     show('stResult');

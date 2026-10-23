@@ -1,26 +1,91 @@
 // Test « Indice d'Alignement » : questions, calcul du profil, résultats, exercices offerts et e-mails.
-// Les exercices sont repris tels quels du livre « Le Pouvoir d'un Esprit Aligné » (Lamine Diabaté).
+// Les exercices et les mécanismes viennent du livre « Le Pouvoir d'un Esprit Aligné » (Lamine Diabaté).
 // Les textes sont écrits avec des espaces simples : frTypo() pose la typographie française à l'affichage.
 
 export const BOOK_URL = '/ebook/esprit-aligne';
 
-// Une phrase par question, écrite en « je ». L'ordre d'affichage est mélangé côté navigateur.
+// Chapitres du livre cités dans le plan de lecture.
+export const CHAPTERS = {
+  1: 'Les trois centres du pouvoir intérieur',
+  2: 'Les forces invisibles du désalignement',
+  4: "L'art de la présence consciente",
+  5: 'La foi, la vibration et la manifestation',
+  6: "L'esprit aligné et la richesse",
+  7: "L'esprit aligné et les relations",
+  8: "L'esprit aligné et la mission de vie",
+  9: "L'expansion : vivre dans le flux",
+  10: 'Conclusion : ta pratique au-delà de la lecture',
+};
+
+// 15 affirmations, 5 par centre. Pour chacune : ce que la personne reconnaît (name),
+// le mécanisme caché tiré du livre (mech), le sujet pour le plan de lecture (topic)
+// et les chapitres qui y répondent (ch, le principal en premier).
+// L'ordre d'affichage est mélangé côté navigateur.
 export const QUESTIONS = [
-  { id: 'm1', c: 'mental', t: "Je réfléchis tellement à ce que je devrais changer que je finis par ne rien commencer." },
-  { id: 'm2', c: 'mental', t: "Quand une belle occasion se présente, je trouve vite des raisons de croire que je n'y arriverai pas." },
-  { id: 'm3', c: 'mental', t: "J'ai du mal à accepter qu'une situation ne se déroule pas comme je l'avais prévu." },
-  { id: 'm4', c: 'mental', t: "Face à ce que je veux vraiment construire, une petite voix me dit : « Ce n'est peut-être pas fait pour moi. »" },
-  { id: 'c1', c: 'coeur', t: "Je dis oui pour ne pas décevoir, puis je m'en veux de ne pas avoir dit non." },
-  { id: 'c2', c: 'coeur', t: "Il m'arrive de faire comme si j'avais oublié une blessure, alors qu'elle me pèse encore." },
-  { id: 'c3', c: 'coeur', t: "J'ai souvent besoin de prouver ma valeur pour me sentir digne d'être aimé ou respecté." },
-  { id: 'c4', c: 'coeur', t: "Quand on m'aide ou qu'on me fait un compliment, j'ai du mal à recevoir sans me justifier ou me sentir redevable." },
-  { id: 'k1', c: 'corps', t: "Même quand mon corps me montre qu'il a besoin de ralentir, je continue comme si de rien n'était." },
-  { id: 'k2', c: 'corps', t: "Je suis assis avec ceux que j'aime, mais mon esprit est ailleurs, et je m'en rends compte trop tard." },
-  { id: 'k3', c: 'corps', t: "Je porte des tensions dans le corps sans jamais me demander ce qu'elles essaient de me dire." },
-  { id: 'k4', c: 'corps', t: "Même seul et au calme, j'ai du mal à rester quelques minutes sans prendre mon téléphone." },
+  { id: 'm1', topic: "ta voix du « plus tard »", c: 'mental', t: "Je sais quoi faire. Mais dès que je commence quelque chose qui me ferait avancer, une envie de faire autre chose arrive, et je remets à plus tard. Et plus tard devient jamais.",
+    name: "Tu remets à plus tard ce qui te ferait avancer",
+    mech: "Ce n'est ni de la paresse ni un manque de volonté. C'est l'autosabotage : une partie de toi associe le changement à un danger, même quand c'est ce que tu désires, et elle invente une urgence ailleurs dès que tu approches du seuil.",
+    ch: [2] },
+  { id: 'm2', topic: "tes résolutions qui retombent", c: 'mental', t: "Je prends de bonnes résolutions avec beaucoup d'élan, et quelques jours plus tard, mes vieilles habitudes sont revenues.",
+    name: 'Tes résolutions retombent au bout de quelques jours',
+    mech: "Une résolution prise par la tête seule ne tient pas : ton cœur et ton corps n'ont rien signé. Au premier jour difficile, ils reprennent les commandes, et la vieille habitude revient. Le changement ne se produit pas dans un grand élan, il se produit dans les petits choix répétés.",
+    ch: [1, 10] },
+  { id: 'm3', topic: "ta foi qui n'ose pas encore agir", c: 'mental', t: "Je prie pour que ma vie change, mais j'agis comme si rien ne pouvait vraiment changer.",
+    name: "Ta foi n'ose pas encore passer à l'acte",
+    mech: "Ta bouche dit « ça va changer » pendant que le reste de ton être n'en est pas encore sûr. Or la foi n'est pas ce que tu dis, c'est la cohérence entre ce que tu penses, ce que tu ressens et ce que tu fais.",
+    ch: [5] },
+  { id: 'm4', topic: "la petite voix du « pas fait pour moi »", c: 'mental', t: "Face à ce que je veux vraiment construire, une petite voix me dit : « Ce n'est peut-être pas fait pour moi. »",
+    name: "Une petite voix te dit que ce n'est pas fait pour toi",
+    mech: "Cette voix parle avec ta propre voix, alors tu la crois. Ce n'est pourtant ni ta conscience ni ta raison : c'est le bruit de peurs anciennes, qui confond le « pas encore » avec le « jamais ».",
+    ch: [8, 9] },
+  { id: 'm5', topic: "ta croyance que l'argent finira par manquer", c: 'mental', t: "Je me surprends à penser que l'argent finira toujours par manquer, comme on me l'a appris.",
+    name: "Tu penses que l'argent finira toujours par manquer",
+    mech: "« L'argent ne tombe pas du ciel », « la vie est dure » : ces phrases te sont arrivées habillées en évidences, transmises avec amour par des gens qui les avaient reçues sans les choisir. Tu ne vis pas la croyance, tu vis ses conséquences, année après année.",
+    ch: [6, 2] },
+  { id: 'c1', topic: "tes oui qui voulaient dire non", c: 'coeur', t: "Je dis oui pour ne pas décevoir, puis je m'en veux de ne pas avoir dit non.",
+    name: 'Tu dis oui quand tout en toi voulait dire non',
+    mech: "Ce n'est pas de la gentillesse, c'est la peur du conflit et le besoin d'être apprécié. Chaque oui de trop te coûte un peu d'énergie, et un peu du respect que tu te dois.",
+    ch: [7] },
+  { id: 'c2', topic: "les déceptions qui se répètent", c: 'coeur', t: "Je revis les mêmes déceptions avec des personnes différentes, comme si l'histoire se répétait.",
+    name: 'Les mêmes déceptions reviennent avec d\'autres visages',
+    mech: "Les personnes qui entrent dans ta vie n'arrivent pas par hasard : elles arrivent à l'intersection de ce que tu portes. Tant qu'une blessure n'est pas regardée en face, elle rejoue la même scène avec d'autres acteurs.",
+    ch: [7] },
+  { id: 'c3', topic: "le besoin de prouver ta valeur", c: 'coeur', t: "J'ai l'impression de devoir prouver ma valeur pour mériter l'amour ou le respect.",
+    name: 'Tu crois devoir prouver ta valeur pour être aimé',
+    mech: "C'est l'amour qu'on apprend quand l'affection était conditionnelle : être aimé dépendait de ce qu'on faisait, pas de ce qu'on était. Cet amour-là s'épuise à être ce que l'autre voudrait.",
+    ch: [7] },
+  { id: 'c4', topic: "ta gêne à demander ce que tu vaux", c: 'coeur', t: "Annoncer mon prix ou demander ce que je vaux me met mal à l'aise, alors je cède ou je baisse.",
+    name: 'Tu as du mal à demander ce que tu vaux',
+    mech: "Derrière la gêne se cache souvent une vieille croyance : demander davantage, ce serait passer pour quelqu'un qui se croit supérieur. Ta valeur finit alors par dépendre de l'approbation des autres.",
+    ch: [6] },
+  { id: 'c5', topic: "l'argent qui repart dès qu'il arrive", c: 'coeur', t: "Quand je gagne un peu plus que d'habitude, l'argent repart presque aussitôt : une dépense, un imprévu, quelqu'un qui en a besoin.",
+    name: "L'argent repart dès qu'il arrive",
+    mech: "Tu avances jusqu'à un certain seuil, toujours le même, puis tu recules : c'est le même frein qui s'active au même endroit. Une partie de toi ne se sent pas encore digne de recevoir, alors elle laisse partir ce qui arrive.",
+    ch: [6, 2] },
+  { id: 'k1', topic: "la lourdeur au moment d'agir", c: 'corps', t: "Au moment d'agir, une lourdeur ou une fatigue soudaine me tombe dessus, alors que j'étais motivé quelques minutes avant.",
+    name: "Une lourdeur te tombe dessus au moment d'agir",
+    mech: "Ton corps n'est pas paresseux : il exécute l'ordre de prudence que lui envoie la partie de toi qui a peur. Te forcer ne marche pas. Il faut la rassurer, pas à pas, jusqu'à ce que le seuil recule.",
+    ch: [2] },
+  { id: 'k2', topic: "ta course sans fin", c: 'corps', t: "Je cours sans arrêt, et même quand j'obtiens quelque chose, je n'arrive pas à en profiter : je pense déjà à la suite.",
+    name: "Tu cours sans jamais profiter de ce que tu obtiens",
+    mech: "C'est la posture du chasseur : il attrape, mais il ne se repose jamais, parce qu'il court déjà après la proie suivante. L'abondance n'est pas dans le chiffre, elle est dans la direction du regard.",
+    ch: [6] },
+  { id: 'k3', topic: "ton esprit ailleurs quand tu es avec les tiens", c: 'corps', t: "Je suis assis avec ceux que j'aime, mais mon esprit est ailleurs, et je m'en rends compte trop tard.",
+    name: 'Ton esprit est ailleurs quand tu es avec les tiens',
+    mech: "Tu es là sans être là. Et pendant que ton esprit court devant, les moments qui comptent passent sans que tu les habites.",
+    ch: [4] },
+  { id: 'k4', topic: "tes tensions dans le corps", c: 'corps', t: "Je porte des tensions dans le corps sans jamais me demander ce qu'elles essaient de me dire.",
+    name: 'Tes tensions parlent et personne ne les écoute',
+    mech: "Le corps signale ce que la tête refuse d'entendre. Une épaule crispée ou une gorge serrée, c'est une information, pas un détail.",
+    ch: [1] },
+  { id: 'k5', topic: "ton réflexe du téléphone", c: 'corps', t: "Même seul et au calme, j'ai du mal à rester quelques minutes sans prendre mon téléphone.",
+    name: "Tu n'arrives plus à rester sans ton téléphone",
+    mech: "Un esprit constamment sollicité n'a jamais l'espace de se déposer. Et un esprit qui ne se dépose jamais n'entend plus ce qui compte vraiment.",
+    ch: [4, 2] },
 ];
-export const SCALE = ['Pas du tout moi', 'Un peu', 'Beaucoup', "C'est tout à fait moi"];
+export const SCALE = ['Jamais', 'Parfois', 'Souvent', 'Toujours'];
 export const CENTRES = { mental: 'Mental', coeur: 'Cœur', corps: 'Corps' };
+const MAX = 15; // 5 affirmations de 0 à 3 par centre
 
 // Profil : le centre au score le plus haut ; mixte si les deux premiers sont presque égaux ;
 // aligné si toutes les réponses restent basses.
@@ -34,10 +99,10 @@ export function scoreAnswers(answers) {
   const order = Object.keys(s).sort((a, b) => s[b] - s[a]);
   const [a, b] = order;
   let profile;
-  if (s[a] <= 4) profile = 'aligne';
+  if (s[a] <= 5) profile = 'aligne';
   else if (s[a] - s[b] <= 1) profile = 'mixte';
   else profile = a;
-  return { scores: s, profile, top: [a, b] };
+  return { scores: s, profile, top: [a, b], max: MAX };
 }
 
 // Exercices offerts : texte intégral du livre, découpé en blocs (p : paragraphe, h : intertitre, q : citation, l : point de liste).
@@ -112,6 +177,27 @@ export const EXERCISES = {
       ['p', 'Puis ouvre les yeux.'],
     ],
   },
+  finance: {
+    title: 'Le miroir financier',
+    chapter: 'Chapitre 6',
+    blocks: [
+      ['p', "Cet exercice demande une honnêteté totale. Sans jugement, sans culpabilité. Juste un regard clair sur ce qui est."],
+      ['p', "Prends un carnet et un stylo, pas ton téléphone."],
+      ['h', 'Première partie : le diagnostic'],
+      ['p', "Réponds honnêtement à ces questions. Prends le temps qu'il faut."],
+      ['l', "« Dans ma famille, l'argent était associé à quoi ? À la dignité ? À la honte ? À la lutte ? À la peur ? À la liberté ? »"],
+      ['l', "« Quand je parle de mes prix ou de mes tarifs, qu'est-ce que je ressens dans mon corps ? De la confiance ? De la gêne ? De la peur du jugement ? »"],
+      ['l', "« La dernière fois qu'une belle opportunité financière s'est présentée, qu'est-ce qui s'est passé en moi ? Ai-je sauté dessus, ou ai-je trouvé des raisons de douter ? »"],
+      ['l', "« Est-ce que je reçois facilement les compliments, l'argent, l'aide, la reconnaissance, ou est-ce que quelque chose en moi minimise, refuse ou se sent immédiatement redevable ? »"],
+      ['h', 'Deuxième partie : la réécriture'],
+      ['p', "Pour chaque croyance que tu as identifiée, écris la phrase opposée. Non comme une affirmation vide, mais comme une vérité que tu choisis consciemment de porter à partir d'aujourd'hui."],
+      ['p', "Par exemple : si tu as identifié « je ne mérite pas de demander plus », la phrase opposée n'est pas « je mérite tout », mais quelque chose comme « ma valeur ne dépend pas de l'approbation des autres, parce que… » et tu complètes avec ce qui est vrai pour toi. C'est dans ce « parce que » que la nouvelle croyance prend racine."],
+      ['h', "Troisième partie : l'acte"],
+      ['p', "Identifie une décision financière que tu repousses depuis trop longtemps. Elle ressemble peut-être à l'une de celles-ci : augmenter tes tarifs ou ton prix de vente ; lancer un produit ou un service que tu as préparé mais jamais encore proposé ; demander une augmentation que tu sais mériter ; investir dans une formation ou un outil qui changerait la qualité de ton travail ; refuser une mission sous-payée parce qu'elle ne correspond plus à ce que tu vaux."],
+      ['p', "Tu sais laquelle c'est pour toi. Tu la reconnais au léger malaise qu'elle crée quand tu la lis."],
+      ['p', "Prends cette décision aujourd'hui."],
+    ],
+  },
 };
 
 // Résultats. « mixte » reçoit les noms des deux centres en tête.
@@ -119,29 +205,26 @@ export const PROFILES = {
   mental: {
     title: 'Ton mental tient le volant',
     text: [
-      "Ta tête travaille sans arrêt. Elle analyse, anticipe, compare, et finit souvent par décider à ta place qu'il vaut mieux attendre. Ce n'est pas un manque d'intelligence, c'est presque l'inverse : tu réfléchis tellement que l'action n'arrive plus à passer. Et derrière ces raisonnements se cache souvent une croyance que tu n'as jamais choisie, héritée de ta famille ou d'une vieille déception, qui murmure que ce n'est pas pour toi.",
-      "Ce que ça produit : des projets qui restent dans ta tête, des occasions qu'on laisse passer en se disant qu'on n'est pas encore prêt, et cette fatigue particulière de celui qui pense beaucoup et avance peu.",
+      "Ta tête sait. Elle sait ce qu'il faudrait changer, elle prend même les bonnes résolutions. Mais au moment de passer à l'acte, une autre partie de toi freine : une envie de faire autre chose, un « plus tard », une petite voix qui doute. Ce n'est pas de la paresse. Ce sont des croyances que tu n'as jamais choisies, héritées de ta famille ou d'une vieille déception, qui protègent ce que tu connais déjà.",
+      "Ce que ça produit : des projets qui restent dans ta tête, un nouveau départ chaque lundi, et cette fatigue particulière de celui qui sait beaucoup et avance peu.",
     ],
     exercise: 'ombres',
-    further: "Dans le livre, le chapitre 2 remonte jusqu'à ces croyances héritées, et le chapitre 9 t'apprend à lâcher le contrôle sans renoncer à agir.",
   },
   coeur: {
     title: 'Ton cœur porte ce que tu ne dis pas',
     text: [
-      "Tu donnes beaucoup. Tu fais attention aux autres, tu évites de décevoir, tu gardes pour toi ce qui pourrait déranger. De l'extérieur, tout va bien. À l'intérieur, il y a des oui qui étaient des non, une blessure que tu fais semblant d'avoir oubliée, et ce besoin discret de prouver ta valeur pour mériter ta place.",
-      "Ce que ça produit : une fatigue que personne ne voit, des rancunes qui colorent tes nouvelles relations, et une difficulté à recevoir, même quand la vie t'offre ce que tu as demandé.",
+      "Tu donnes beaucoup. Tu fais attention aux autres, tu évites de décevoir, tu gardes pour toi ce qui pourrait déranger. De l'extérieur, tout va bien. À l'intérieur, il y a des oui qui étaient des non, des déceptions qui se répètent, et ce besoin discret de prouver ta valeur pour mériter ta place.",
+      "Ce que ça produit : une fatigue que personne ne voit, des relations où tu reçois moins que tu ne donnes, et souvent un rapport difficile à l'argent : tu n'oses pas demander ce que tu vaux, et ce qui arrive repart vite, comme si une partie de toi ne se sentait pas le droit de le garder.",
     ],
     exercise: 'miroir',
-    further: "Dans le livre, le chapitre 7 parle des relations et du pardon qui libère, et le chapitre 6 de l'art de recevoir sans peur.",
   },
   corps: {
-    title: 'Ton corps parle, et tu ne l\'écoutes pas',
+    title: "Ton corps parle, et tu ne l'écoutes pas",
     text: [
-      "Tu avances vite. Ton agenda est plein, ton téléphone jamais loin, et ton corps suit comme il peut. Il te prévient pourtant : une épaule qui se crispe, un ventre qui se noue, une fatigue qui ne part plus. Et quand tu es enfin avec ceux que tu aimes, ton esprit est encore ailleurs.",
-      "Ce que ça produit : des journées pleines dont il ne reste rien, des moments importants traversés sans être vécus, et une énergie qui s'épuise avant d'arriver à ce qui compte vraiment.",
+      "Tu avances vite. Ton agenda est plein, ton téléphone jamais loin, et ton corps suit comme il peut. Il te prévient pourtant : une épaule qui se crispe, une fatigue qui ne part plus, une lourdeur qui tombe au moment précis où tu allais agir. Et quand tu es enfin avec ceux que tu aimes, ton esprit est encore ailleurs.",
+      "Ce que ça produit : des journées pleines dont il ne reste rien, des victoires dont tu ne profites pas, et une énergie qui s'épuise avant d'arriver à ce qui compte vraiment.",
     ],
     exercise: 'presence',
-    further: "Dans le livre, le chapitre 4 est consacré à la présence, et le chapitre 1 t'aide à comprendre ce que ton corps dit de tes deux autres centres.",
     note: "Si une douleur ou une fatigue dure, parles-en aussi à un professionnel de santé.",
   },
   mixte: {
@@ -151,7 +234,6 @@ export const PROFILES = {
       "Ce que ça produit : l'impression d'avancer avec le frein à main serré. Assez pour bouger, jamais assez pour aller où tu veux, et une énergie qui part dans la résistance plutôt que dans le mouvement.",
     ],
     exercise: 'accord',
-    further: "Dans le livre, le chapitre 1 décrit les trois centres et la façon dont ils se contredisent, et chaque chapitre suivant en remet un d'accord avec les deux autres.",
   },
   aligne: {
     title: 'Tes trois centres se parlent',
@@ -160,14 +242,31 @@ export const PROFILES = {
       "Garde simplement en tête que l'alignement n'est pas un état acquis une fois pour toutes, mais un retour qu'on pratique. Les jours de pression, c'est la pratique qui fait la différence.",
     ],
     exercise: 'accord',
-    further: "Dans le livre, les chapitres 8 et 9, sur la mission de vie et le flux, sont écrits pour ceux qui sont déjà centrés et veulent aller plus loin.",
+    further: "Les chapitres 8 et 9, sur la mission de vie et le flux, sont écrits pour ceux qui sont déjà centrés et veulent aller plus loin.",
   },
 };
 
-export function profileView(p, top) {
+// Analyse personnelle : ce que la personne a reconnu (Souvent ou Toujours), le mécanisme
+// derrière chaque réponse, et les chapitres qui y répondent, regroupés en plan de lecture.
+export function profileView(p, top, answers) {
   const P = PROFILES[p];
   const fill = (s) => s.replace('{A}', CENTRES[top[0]].toLowerCase()).replace('{B}', CENTRES[top[1]].toLowerCase());
-  return { key: p, title: P.title, text: P.text.map(fill), further: P.further, note: P.note || '', exercise: EXERCISES[P.exercise] };
+  const strong = QUESTIONS.filter((q) => (answers[q.id] || 0) >= 2)
+    .sort((a, b) => answers[b.id] - answers[a.id]);
+  const recognized = strong.slice(0, 6).map((q) => ({ id: q.id, name: q.name, mech: q.mech, always: answers[q.id] === 3 }));
+  const byCh = {};
+  // Chaque réponse forte renvoie à son chapitre principal.
+  strong.forEach((q) => { const n = q.ch[0]; (byCh[n] = byCh[n] || []).push(q.topic); });
+  const plan = Object.keys(byCh).map(Number).sort((a, b) => a - b)
+    .map((n) => ({ ch: n === 10 ? 'Conclusion' : 'Chapitre ' + n, title: n === 10 ? 'Ta pratique au-delà de la lecture' : CHAPTERS[n], items: byCh[n] }));
+  // Exercice : le miroir financier quand l'argent pèse plus que les relations dans les réponses du cœur.
+  let exercise = P.exercise;
+  if ((p === 'coeur' || (p === 'mixte' && top.includes('coeur'))) && (answers.c4 || 0) + (answers.c5 || 0) >= ((answers.c1 || 0) + (answers.c2 || 0) + (answers.c3 || 0)) * 2 / 3) exercise = 'finance';
+  return {
+    key: p, title: P.title, text: P.text.map(fill), note: P.note || '',
+    recognized, plan, further: P.further || '',
+    exercise: EXERCISES[exercise],
+  };
 }
 
 // Typographie française : apostrophe courbe, espaces insécables avant : ; ? ! et dans les guillemets.
@@ -188,19 +287,27 @@ function exerciseText(ex) {
     return s;
   }).join('\n\n');
 }
+function planText(view) {
+  if (!view.plan.length) return frTypo(view.further);
+  return view.plan.map((x) => frTypo(`${x.ch}, ${x.title} : ${x.items.join(', ')}.`)).join('\n');
+}
 
 // ───────────── E-mails ─────────────
-// J0 : résultat et exercice. J2 : une image du livre. J5 : la proposition du livre.
+// J0 : résultat, analyse et exercice. J2 : une image du livre. J5 : la proposition du livre.
 export function mailJ0(lead, view, links) {
   const body = [
     `Bonjour ${lead.prenom},`,
     frTypo(`Voici le résultat de ton test d'alignement : ${view.title}.`),
     ...view.text.map(frTypo),
+    view.recognized.length ? frTypo('Ce que tu as reconnu toi-même, et ce qui se passe vraiment :') : '',
+    ...view.recognized.map((r) => frTypo(`- ${r.name}. ${r.mech}`)),
     frTypo(`Comme promis, voici ton exercice, tiré du livre (${view.exercise.chapter}) : ${view.exercise.title}.`),
     exerciseText(view.exercise),
     frTypo("Fais-le aujourd'hui, pas « quand tu auras le temps ». C'est là que tout commence."),
     view.note ? frTypo(view.note) : '',
-    frTypo(`${view.further} Tu peux le découvrir ici :`) + ' ' + links.book,
+    frTypo(view.plan.length ? 'Ton plan de lecture dans Le Pouvoir d\'un Esprit Aligné :' : 'Pour aller plus loin :'),
+    planText(view),
+    frTypo('Le livre est ici :') + ' ' + links.book,
     'Lamine Diabaté',
     frTypo('Tu recevras deux autres e-mails de ma part cette semaine. Si tu ne veux plus en recevoir :') + ' ' + links.stop,
   ].filter(Boolean);
@@ -208,15 +315,16 @@ export function mailJ0(lead, view, links) {
 }
 
 export function mailJ2(lead, view, links) {
+  const first = view.recognized[0];
   const body = [
     `Bonjour ${lead.prenom},`,
     frTypo("Laisse-moi te partager une image. C'est celle qui ouvre le premier chapitre de mon livre."),
     frTypo("Imagine un homme assis dans une voiture puissante, moteur de course, carburant plein, route dégagée devant lui. Mais il conduit avec le frein à main à moitié serré, juste assez pour que la voiture avance quand même, lentement, difficilement, en brûlant deux fois plus d'énergie qu'il ne devrait. Il appuie plus fort sur l'accélérateur, la voiture résiste. Il appuie encore, elle résiste encore. Et lui, il se dit que la vie est dure, que la route est longue, que peut-être il n'est pas fait pour aller vite."),
     frTypo("Il n'a jamais pensé à regarder le frein à main."),
     frTypo("Cette image, c'est la vie de la plupart d'entre nous. Ni la puissance ni la volonté ne nous manquent. Mais on avance avec quelque chose de serré en nous, quelque chose qu'on ne voit pas, et qui consume chaque jour une force considérable."),
-    view.key === 'aligne'
-      ? frTypo("Ton test montre que ton frein à main est plutôt desserré en ce moment. Garde le réflexe de vérifier, surtout les jours de pression : c'est à ça que sert l'exercice que je t'ai envoyé.")
-      : frTypo(`Ton test a montré où se trouve ton frein à main en ce moment : ${view.title.charAt(0).toLowerCase() + view.title.slice(1)}. As-tu fait l'exercice que je t'ai envoyé ? Si ce n'est pas encore fait, ce soir suffit. Quelques minutes, un carnet, et de l'honnêteté.`),
+    first
+      ? frTypo(`Dans ton test, tu as reconnu ceci : ${first.name.charAt(0).toLowerCase() + first.name.slice(1)}. C'est peut-être ton frein à main en ce moment. As-tu fait l'exercice que je t'ai envoyé ? Si ce n'est pas encore fait, ce soir suffit. Quelques minutes, un carnet, et de l'honnêteté.`)
+      : frTypo("Ton test montre que ton frein à main est plutôt desserré en ce moment. Garde le réflexe de vérifier, surtout les jours de pression : c'est à ça que sert l'exercice que je t'ai envoyé."),
     frTypo('Le livre complet est ici, si tu veux aller plus loin :') + ' ' + links.book,
     'Lamine Diabaté',
     frTypo('Pour ne plus recevoir mes e-mails :') + ' ' + links.stop,
@@ -230,7 +338,8 @@ export function mailJ5(lead, view, links) {
     frTypo("Il y a quelques jours, tu as fait le test d'alignement. Je t'écris une dernière fois pour te parler du livre d'où viennent ce test et ton exercice : Le Pouvoir d'un Esprit Aligné."),
     frTypo("Je l'ai écrit pour une raison simple : on peut savoir exactement ce qu'il faut faire, et ne pas le faire. Pas par paresse, mais parce que la tête, le cœur et le corps tirent dans trois directions différentes. Le livre t'aide à les remettre d'accord, un centre après l'autre."),
     frTypo("Ce que tu y trouves : neuf chapitres, chacun suivi d'un exercice à faire le jour même, comme celui que tu as reçu. Mes histoires vraies, aussi : l'embouteillage du jeudi, la question de mon fils restée sans réponse au déjeuner du dimanche, le prix de mes livres que je n'osais pas annoncer."),
-    view.key !== 'aligne' ? frTypo(view.further) : '',
+    view.plan.length ? frTypo("D'après tes réponses, voici par où commencer :") : '',
+    view.plan.length ? planText(view) : '',
     frTypo('Il coûte 5 000 F, en PDF, et tu le télécharges juste après le paiement (Wave, Orange Money, MTN ou carte) :') + ' ' + links.book,
     frTypo("Si ce n'est pas le moment, garde simplement ton exercice. Il t'appartient, et il fera son travail."),
     'Lamine Diabaté',

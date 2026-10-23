@@ -58,16 +58,28 @@
 .al-ex blockquote { margin: 16px 0 0; font-family: var(--serif); font-size: 19px; line-height: 1.5; font-style: italic; }
 .al-ex-end { font-weight: 600; }
 
-.al-book { display: grid; grid-template-columns: 96px 1fr; gap: 16px; margin-top: 28px; padding: 18px; border-radius: 18px; background: var(--nuit); color: var(--ivoire); }
+.al-book { margin-top: 28px; padding: 20px 18px; border-radius: 18px; background: var(--nuit); color: var(--ivoire); }
+.al-book-h { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: center; }
 .al-book img { width: 96px; height: auto; border-radius: 3px; box-shadow: 0 0 0 1px rgba(242,236,225,.2), 0 14px 28px -12px rgba(0,0,0,.8); }
 .al-book p { font-size: 15.5px; line-height: 1.5; margin-top: 8px; color: rgba(242,236,225,.85); }
 .al-book .al-book-t { font-family: var(--serif); font-size: 21px; margin-top: 0; color: var(--ivoire); }
 .al-book .al-book-m { font-size: 14px; color: rgba(242,236,225,.65); }
 .al-book .btn { margin-top: 14px; width: 100%; min-height: 50px; }
-@media (max-width: 420px) {
-  .al-book { grid-template-columns: 1fr; }
-  .al-book img { width: 110px; }
-}
+@media (max-width: 360px) { .al-book-h { grid-template-columns: 72px 1fr; } .al-book img { width: 72px; } }
+.al-book .al-plan-sub { margin-top: 18px; font-size: 15px; color: var(--ivoire); font-weight: 600; }
+.al-plan { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 10px; counter-reset: none; }
+.al-plan li { padding: 12px 14px; border-radius: 12px; background: rgba(242,236,225,.07); border: 1px solid rgba(242,236,225,.12); }
+.al-plan strong { display: block; font-family: var(--serif); font-weight: 500; font-size: 16.5px; color: var(--ivoire); }
+.al-plan span { display: block; margin-top: 3px; font-size: 14.5px; line-height: 1.45; color: rgba(242,236,225,.78); }
+
+/* Ce que la personne a reconnu, et le mécanisme derrière */
+.al-seen { margin-top: 30px; }
+.al-seen h2 { font-size: 24px; }
+.al-seen-sub { margin-top: 6px; font-size: 15.5px; color: rgba(22,19,15,.65); }
+.al-seen-i { margin-top: 16px; padding-left: 14px; border-left: 3px solid var(--nuit); }
+.al-seen-i p { margin-top: 4px; font-size: 16px; line-height: 1.6; }
+.al-seen-n { font-weight: 700; font-size: 16.5px !important; margin-top: 0 !important; }
+.al-seen-n span { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: var(--nuit); color: var(--ivoire); font-size: 12px; font-weight: 600; vertical-align: 2px; }
 .al-after { display: grid; gap: 6px; margin-top: 22px; justify-items: center; }
 .al-after .btn { width: 100%; min-height: 50px; }
 

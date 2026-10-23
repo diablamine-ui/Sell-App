@@ -1075,7 +1075,9 @@ function unsubHeaders(links) {
 function viewForClient(v) {
   const t = (x) => frTypo(x);
   return {
-    key: v.key, title: t(v.title), text: v.text.map(t), further: t(v.further), note: v.note ? t(v.note) : '',
+    key: v.key, title: t(v.title), text: v.text.map(t), further: v.further ? t(v.further) : '', note: v.note ? t(v.note) : '',
+    recognized: v.recognized.map((r) => ({ name: t(r.name), mech: t(r.mech), always: r.always })),
+    plan: v.plan.map((x) => ({ ch: x.ch, title: t(x.title), items: x.items.map(t) })),
     exercise: { title: t(v.exercise.title), chapter: v.exercise.chapter, blocks: v.exercise.blocks.map(([k, x]) => [k, t(x)]) },
   };
 }
@@ -1106,13 +1108,13 @@ async function quizSubmit(req, env, ctx, url) {
       .bind(t, t, prenom, email, wa, ans, JSON.stringify(r.scores), r.profile, source, token).run();
   }
   const lead = { prenom, email, token };
-  const view = profileView(r.profile, r.top);
+  const view = profileView(r.profile, r.top, JSON.parse(ans));
   const links = quizLinks(url.origin, lead, 'j0');
   const mail = mailJ0(lead, view, links);
   ctx.waitUntil(sendMail(env, email, mail.subject, mail.text, MAIL_LAMINE, unsubHeaders(links)).catch(() => {}));
   if (env.ADMIN_EMAIL && !old) {
     ctx.waitUntil(sendMail(env, env.ADMIN_EMAIL, `Nouveau test d'alignement : ${prenom}`,
-      `${prenom} (${email}${wa ? ', WhatsApp ' + wa : ''})\nProfil : ${view.title}\nScores : mental ${r.scores.mental}/12, cœur ${r.scores.coeur}/12, corps ${r.scores.corps}/12${source ? '\nVenu de : ' + source : ''}`).catch(() => {}));
+      `${prenom} (${email}${wa ? ', WhatsApp ' + wa : ''})\nProfil : ${view.title}\nScores : mental ${r.scores.mental}/${r.max}, cœur ${r.scores.coeur}/${r.max}, corps ${r.scores.corps}/${r.max}\nA reconnu : ${view.recognized.map((x) => x.name).join(' ; ') || 'rien de fort'}${source ? '\nVenu de : ' + source : ''}`).catch(() => {}));
   }
   if (env.META_CAPI_TOKEN) {
     const ud = { em: [await sha256hex(email)], client_ip_address: ip, client_user_agent: req.headers.get('User-Agent') || '' };
@@ -1123,7 +1125,7 @@ async function quizSubmit(req, env, ctx, url) {
       event_source_url: `${url.origin}/alignement`, user_data: ud, custom_data: { content_name: 'Indice d\'Alignement', content_category: r.profile },
     }]).catch(() => {}));
   }
-  return json({ ok: true, scores: r.scores, view: viewForClient(view) });
+  return json({ ok: true, scores: r.scores, max: r.max, view: viewForClient(view) });
 }
 
 async function quizStop(req, env, url) {
@@ -1162,7 +1164,7 @@ async function quizFollowUps(env) {
     try { answers = JSON.parse(l.answers || '{}'); } catch {}
     const r = scoreAnswers(answers);
     if (!r) { await env.DB.prepare('UPDATE leads SET stage=2 WHERE id=?').bind(l.id).run(); continue; }
-    const view = profileView(r.profile, r.top);
+    const view = profileView(r.profile, r.top, answers);
     if (l.stage === 0) {
       const links = quizLinks(SITE, l, 'j2');
       const m = mailJ2(l, view, links);
