@@ -1167,6 +1167,8 @@ async function quizFollowUps(env) {
     const view = profileView(r.profile, r.top, answers);
     if (l.stage === 0) {
       const links = quizLinks(SITE, l, 'j2');
+      // Réponse sur WhatsApp, message déjà commencé : la personne n'a qu'à compléter.
+      links.wa = `https://wa.me/${await waNumberOf(env)}?text=${encodeURIComponent("Bonjour Lamine, j'ai fait le test d'alignement. Mes objectifs, je ")}`;
       const m = mailJ2(l, view, links);
       if (await sendMail(env, l.email, m.subject, m.text, MAIL_LAMINE, unsubHeaders(links))) {
         await env.DB.prepare('UPDATE leads SET stage=1 WHERE id=?').bind(l.id).run();

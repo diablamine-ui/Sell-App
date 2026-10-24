@@ -325,6 +325,7 @@ export function mailJ2(lead, view, links) {
     first
       ? frTypo(`Dans ton test, tu as reconnu ceci : ${first.name.charAt(0).toLowerCase() + first.name.slice(1)}. C'est peut-être ton frein à main en ce moment. As-tu fait l'exercice que je t'ai envoyé ? Si ce n'est pas encore fait, ce soir suffit. Quelques minutes, un carnet, et de l'honnêteté.`)
       : frTypo("Ton test montre que ton frein à main est plutôt desserré en ce moment. Garde le réflexe de vérifier, surtout les jours de pression : c'est à ça que sert l'exercice que je t'ai envoyé."),
+    frTypo("Une question, et j'aimerais vraiment ta réponse : la dernière fois que tu t'es fixé des objectifs, tu les as tenus ? Réponds-moi en un mot sur WhatsApp, je te lis personnellement :") + ' ' + links.wa,
     frTypo('Le livre complet est ici, si tu veux aller plus loin :') + ' ' + links.book,
     'Lamine Diabaté',
     frTypo('Pour ne plus recevoir mes e-mails :') + ' ' + links.stop,
