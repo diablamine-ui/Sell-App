@@ -124,6 +124,7 @@
       category: CAT_BY_KEY[r.category] ? r.category : 'autre',
       badge: r.badge || 'none',
       oos: !!r.out_of_stock,
+      featured: !!r.featured,
       image: r.image || '',
       desc: r.description || '',
       slug: r.slug || '',
@@ -244,8 +245,10 @@
   // ───────────── Pages ─────────────
   function renderHome() {
     var singles = ranked(BOOKS.filter(function (b) { return b.category !== 'pack' && !b.oos; }));
-    // Étagère du haut : les nouveaux visuels (livre seul) d'abord, sinon les anciens visuels recadrables.
-    var shelf = singles.filter(isCleanVisual).concat(singles.filter(function (b) { return !isCleanVisual(b) && canCrop(b); })).slice(0, 5);
+    // Étagère « À la une » : les livres cochés dans l'administration ; à défaut, les plus demandés.
+    var showable = function (b) { return isCleanVisual(b) || canCrop(b); };
+    var picked = singles.filter(function (b) { return b.featured && b.image; });
+    var shelf = (picked.length ? picked : singles.filter(showable)).slice(0, 12);
     var packs = ranked(inCat('pack')).slice(0, 8);
     var best = singles.slice(0, 10);
     var goals = ['finance', 'devperso', 'productivite', 'cheikh', 'pack'].map(function (k) {
@@ -262,8 +265,8 @@
         '<div class="hero-cta"><a class="btn btn-light" href="/?vue=livres" data-nav="livres">Voir les ' + BOOKS.length + ' livres</a>' +
         '<a class="btn btn-ghost-light" href="' + esc(waLink("Bonjour Dilam B', je viens du site. J'aimerais un conseil pour choisir un livre.")) + '" target="_blank" rel="noopener">Demander un conseil</a></div>' +
         '</div>' +
-        '<div class="shelf" aria-hidden="true"><div class="shelf-row">' +
-          shelf.map(function (b) { return '<a class="shelf-book" href="' + bookUrl(b) + '" data-nav="livre" tabindex="-1">' + cover(b, { eager: true }) + '</a>'; }).join('') +
+        '<div class="shelf"><p class="shelf-label">À la une</p><div class="shelf-row shelf-rail"' + (shelf.length > 3 ? ' data-auto' : '') + '>' +
+          shelf.map(function (b) { return '<a class="shelf-book" href="' + bookUrl(b) + '" data-nav="livre" aria-label="' + esc(b.title) + '">' + cover(b, { eager: true }) + '</a>'; }).join('') +
         '</div><div class="shelf-plank"></div></div>' +
       '</div></section>' +
 
@@ -450,7 +453,7 @@
     autoRails = [];
     var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     view.querySelectorAll('.rail[data-dots]').forEach(railDots);
-    view.querySelectorAll('.rail[data-auto]').forEach(function (el) {
+    view.querySelectorAll('.rail[data-auto], .shelf-rail[data-auto]').forEach(function (el) {
       var items = [].slice.call(el.children);
       if (items.length < 2) return;
       // Peu de cartes : aller-retour, sans aucune copie. Beaucoup de cartes : boucle continue.

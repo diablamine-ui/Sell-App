@@ -679,3 +679,16 @@ html .pdp-promo-price, html .pdp-promo-go { color: var(--nuit) !important; }
 .rail-dots button:focus-visible { outline: 2px solid var(--nuit); outline-offset: 1px; border-radius: 6px; }
 @media (prefers-reduced-motion: reduce) { .rail-dots button::before { transition: none; } }
 .ebook-btn { grid-column: 1 / -1; align-self: end; width: 100%; margin-top: 4px; min-height: 48px; background: var(--nuit); color: var(--ivoire); border-color: var(--nuit); pointer-events: none; }
+
+/* Étagère « À la une » : une rangée de livres qui défile sur la planche */
+.shelf-label { padding: 0 var(--gutter); margin-bottom: 12px; font-family: var(--serif); font-size: 18px; color: rgba(255,255,255,.88); }
+.shelf-rail { overflow-x: auto; scrollbar-width: none; contain: paint; justify-content: flex-start !important; }
+.shelf-rail::-webkit-scrollbar { display: none; }
+.shelf-rail .shelf-book, .shelf-rail .shelf-book:nth-child(2), .shelf-rail .shelf-book:nth-child(n+4) { display: block; flex: 0 0 auto; width: 31%; max-width: 150px; }
+.shelf-rail.is-auto { -webkit-mask-image: linear-gradient(to right, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%); mask-image: linear-gradient(to right, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%); }
+@media (min-width: 640px) { .shelf-rail .shelf-book, .shelf-rail .shelf-book:nth-child(2), .shelf-rail .shelf-book:nth-child(n+4) { width: 150px; } }
+@media (min-width: 960px) {
+  .hero .shelf-label { padding-left: 12px; }
+  .hero .shelf-rail { padding-right: var(--gutter); }
+  .hero .shelf-rail .shelf-book, .hero .shelf-rail .shelf-book:nth-child(2), .hero .shelf-rail .shelf-book:nth-child(n+4) { width: 160px; max-width: none; flex: 0 0 auto; }
+}
