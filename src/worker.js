@@ -686,6 +686,16 @@ async function getEbook(env, slug) {
   if (!row) return null;
   try { return JSON.parse(row.data); } catch { return null; }
 }
+// Livre suivant proposé après un achat (champ « upsell » de l'ebook), seulement s'il est en vente et pas déjà acheté.
+async function upsellFor(env, e, email) {
+  const u = e && e.upsell;
+  if (!u || !u.slug || !u.text) return null;
+  const n = await getEbook(env, u.slug);
+  if (!n || n.hidden || n.active === false) return null;
+  const bought = await env.DB.prepare("SELECT 1 FROM orders WHERE email=? AND slug=? AND status='paid' LIMIT 1").bind(email, u.slug).first();
+  if (bought) return null;
+  return { slug: u.slug, title: frTypo(n.title), cover: n.cover || '', price: n.price, text: frTypo(u.text) };
+}
 async function waNumberOf(env) {
   try {
     const row = await env.DB.prepare("SELECT data FROM docs WHERE col='shop_config' AND id='sell_config'").first();
@@ -767,6 +777,7 @@ async function fulfill(env, ctx, ref, origin) {
   const link = await dlLink(env, origin, ref);
   const wa = await waNumberOf(env);
   const files = ((e.files && e.files.items) || []).map((f) => `- ${f.name}${f.pages ? ` (${f.pages} pages)` : ''}`).join('\n');
+  const up = await upsellFor(env, e, o.email);
   const body =
 `Bonjour,
 
@@ -781,7 +792,7 @@ ${files}
 ${/workbook/i.test(files) ? 'Pour remplir le Workbook directement dans le PDF, ouvre-le avec Adobe Acrobat Reader (gratuit sur Android et iPhone).\n\n' : ''}Un souci avec tes fichiers ? Écris-moi sur WhatsApp en indiquant cette adresse e-mail : https://wa.me/${wa}
 
 Lamine Diabaté
-Référence de commande : ${ref}`;
+Référence de commande : ${ref}${up ? `\n\nP.S. ${up.text}\n${up.title}, ${fcfa(up.price)} : ${origin}/ebook/${up.slug}?depuis=apres-achat` : ''}`;
   const ok = await sendMail(env, o.email, `Tes fichiers : ${e.title}`, body, MAIL_AUTHOR);
   if (ok) await env.DB.prepare('UPDATE orders SET mailed=1 WHERE reference=?').bind(ref).run();
   paid.mailed = ok ? 1 : 0;
@@ -831,6 +842,7 @@ async function orderStatus(req, env, ctx, url) {
   if (o.status === 'paid') {
     out.download = await dlLink(env, url.origin, ref);
     out.mailed = !!o.mailed;
+    out.upsell = await upsellFor(env, e, o.email);
   }
   return json(out);
 }
@@ -1194,6 +1206,41 @@ async function listLeads(env) {
   return json(rows.results || []);
 }
 
+// ───────────────────────── paiements abandonnés ─────────────────────────
+// Une commande restée « en attente » plus d'une heure (et moins de 24 h) reçoit une seule relance,
+// sauf si la même personne a acheté ce livre entre-temps.
+async function abandonedReminders(env) {
+  const t = now();
+  const rows = await env.DB.prepare(
+    "SELECT reference, slug, email FROM orders WHERE status='pending' AND reminded=0 AND created_at BETWEEN ? AND ? ORDER BY created_at LIMIT 50"
+  ).bind(t - 24 * 3600, t - 3600).all();
+  const done = new Set();
+  const wa = await waNumberOf(env);
+  for (const o of rows.results || []) {
+    const key = o.email + '|' + o.slug;
+    await env.DB.prepare('UPDATE orders SET reminded=1 WHERE reference=?').bind(o.reference).run();
+    if (done.has(key)) continue;
+    done.add(key);
+    const e = await getEbook(env, o.slug);
+    if (!e || e.hidden || e.active === false) continue;
+    const bought = await env.DB.prepare("SELECT 1 FROM orders WHERE email=? AND slug=? AND status='paid' LIMIT 1").bind(o.email, o.slug).first();
+    if (bought) continue;
+    const m = mailAbandoned(e, `${SITE}/ebook/${o.slug}?depuis=relance`, `https://wa.me/${wa}`);
+    await sendMail(env, o.email, m.subject, m.text, MAIL_LAMINE);
+  }
+}
+function mailAbandoned(e, link, wa) {
+  const text = [
+    'Bonjour,',
+    frTypo(`Tu as commencé à acheter « ${e.title} » sur dilamboutique.com, mais le paiement ne s'est pas terminé. Ça arrive souvent : un réseau qui coupe, Wave qui ne s'ouvre pas, une fenêtre fermée trop tôt.`),
+    frTypo('Ton livre t\'attend ici :') + ' ' + link,
+    frTypo("Si tu payais avec Wave et que l'application ne s'est pas ouverte, ouvre ce lien dans Chrome, puis relance le paiement."),
+    frTypo('Un souci, une question ? Écris-moi sur WhatsApp :') + ' ' + wa,
+    'Lamine Diabaté',
+  ].join('\n\n');
+  return { subject: frTypo("Ton paiement n'est pas allé au bout"), text };
+}
+
 // ───────────────────────── routeur ─────────────────────────
 async function api(req, env, ctx, url) {
   const p = url.pathname;
@@ -1255,9 +1302,10 @@ async function api(req, env, ctx, url) {
 }
 
 export default {
-  // Relances du test d'alignement : une fois par jour, à 18 h (heure d'Abidjan).
+  // Toutes les heures : relance des paiements abandonnés. À 18 h (heure d'Abidjan) : relances du test d'alignement.
   async scheduled(event, env, ctx) {
-    ctx.waitUntil(quizFollowUps(env));
+    ctx.waitUntil(abandonedReminders(env).catch((e) => console.error('relances paiement', e)));
+    if (new Date(event.scheduledTime || Date.now()).getUTCHours() === 18) ctx.waitUntil(quizFollowUps(env));
   },
   async fetch(req, env, ctx) {
     const url = new URL(req.url);

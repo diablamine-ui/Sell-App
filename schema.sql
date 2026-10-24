@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS orders (
   created_at INTEGER NOT NULL,
   paid_at    INTEGER,
   channel    TEXT,
+  reminded   INTEGER NOT NULL DEFAULT 0,       -- relance « paiement pas allé au bout » envoyée
   mailed     INTEGER NOT NULL DEFAULT 0,
   dl         TEXT    NOT NULL DEFAULT '{}', -- nombre de téléchargements par fichier
   meta       TEXT    NOT NULL DEFAULT '{}'  -- fbp, fbc, navigateur : pour l'événement Purchase de Meta

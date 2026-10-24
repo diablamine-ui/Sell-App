@@ -16,7 +16,7 @@
   "kv_namespaces": [
     { "binding": "FILES", "id": "fd6111635b76429fa548ca2718093496" }
   ],
-  // Relances du test d'alignement (J2, J5) : chaque jour à 18 h UTC, soit 18 h à Abidjan.
-  "triggers": { "crons": ["0 18 * * *"] },
+  // Toutes les heures : relance des paiements abandonnés ; à 18 h UTC (18 h à Abidjan) : relances du test d'alignement.
+  "triggers": { "crons": ["0 * * * *"] },
   "observability": { "enabled": true }
 }

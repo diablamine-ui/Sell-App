@@ -37,8 +37,18 @@
         ? '<p>Ton lien de téléchargement vient d’être envoyé à <strong>' + esc(d.email) + '</strong>. Regarde aussi dans les courriers indésirables.</p>'
         : '<p>Ton lien de téléchargement est juste en dessous. Garde cette page ouverte le temps d’enregistrer tes fichiers.</p>') +
       '<a class="btn btn-primary" href="' + esc(d.download) + '">Télécharger mes fichiers</a>' +
-      '<p class="dl-tip">Le lien est valable 24 heures et chaque fichier se télécharge une seule fois.</p>';
+      '<p class="dl-tip">Le lien est valable 24 heures et chaque fichier se télécharge une seule fois.</p>' +
+      upsell(d.upsell);
     purchasePixel(d);
+  }
+  // Le livre suivant, proposé une fois le téléchargement en main.
+  function upsell(u) {
+    if (!u || !/^[a-z0-9-]{1,80}$/.test(u.slug || '')) return '';
+    return '<aside class="merci-next"><p class="merci-next-sur">Pour aller plus loin</p>' +
+      '<div class="merci-next-in">' + (u.cover ? '<img src="' + esc(u.cover) + '" alt="" width="84" height="119" loading="lazy">' : '') +
+      '<div><p class="merci-next-t">' + esc(u.title) + '</p><p class="merci-next-p">' + money(u.price) + ' en PDF</p></div></div>' +
+      '<p class="merci-next-x">' + esc(u.text) + '</p>' +
+      '<a class="btn btn-secondary" href="/ebook/' + esc(u.slug) + '?depuis=apres-achat">Découvrir le livre</a></aside>';
   }
   function waiting() {
     box.innerHTML =

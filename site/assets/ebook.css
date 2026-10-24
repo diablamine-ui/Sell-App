@@ -265,3 +265,14 @@ html .eb-hero .eb-visual img.main { box-shadow: 0 22px 44px -18px rgba(22,19,15,
 .eb-quiz strong { font-size: 16px; }
 .eb-quiz span { font-size: 13.5px; color: rgba(22,19,15,.65); }
 .eb-quiz:hover { border-style: solid; background: rgba(22,19,15,.04); }
+
+/* Page merci : le livre suivant */
+.merci-next { margin-top: 30px; padding: 18px; border: 1px solid rgba(22,19,15,.15); border-radius: 16px; background: #fff; text-align: left; }
+.merci-next-sur { font-size: 14px; color: rgba(22,19,15,.6); }
+.merci-next-in { display: grid; grid-template-columns: 72px 1fr; gap: 14px; margin-top: 10px; align-items: center; }
+.merci-next-in img { width: 72px; height: auto; border-radius: 3px; box-shadow: 0 10px 22px -12px rgba(0,0,0,.6); }
+.merci-next-t { font-family: var(--serif); font-size: 19px; }
+.merci-next-in p { margin-top: 6px; font-size: 15.5px; line-height: 1.5; }
+.merci-next-p { font-size: 14.5px !important; color: rgba(22,19,15,.65); }
+.merci-next-x { margin-top: 12px; font-size: 15.5px; line-height: 1.55; }
+.merci-next .btn { margin-top: 14px; min-height: 48px; width: 100%; }
