@@ -244,7 +244,8 @@
   // ───────────── Pages ─────────────
   function renderHome() {
     var singles = ranked(BOOKS.filter(function (b) { return b.category !== 'pack' && !b.oos; }));
-    var shelf = singles.filter(canCrop).slice(0, 5);
+    // Étagère du haut : les nouveaux visuels (livre seul) d'abord, sinon les anciens visuels recadrables.
+    var shelf = singles.filter(isCleanVisual).concat(singles.filter(function (b) { return !isCleanVisual(b) && canCrop(b); })).slice(0, 5);
     var packs = ranked(inCat('pack')).slice(0, 8);
     var best = singles.slice(0, 10);
     var goals = ['finance', 'devperso', 'productivite', 'cheikh', 'pack'].map(function (k) {
