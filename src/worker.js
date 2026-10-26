@@ -589,6 +589,38 @@ async function bookPage(req, env, url) {
 function jsonLd(o) { return `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, '\\u003c')}</script>`; }
 function plainText(t) { return String(t || '').replace(/\*\*/g, '').replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/\s+/g, ' ').trim(); }
 
+// Fiche d'un PDF de la rubrique « PDF » : titre, description et image de partage pour WhatsApp, Facebook et Google.
+async function pdfPage(req, env, url) {
+  const asset = await env.ASSETS.fetch(new Request(new URL('/', url.origin), req));
+  const slug = (url.searchParams.get('pdf') || '').slice(0, 80);
+  if (!/^[a-z0-9-]{1,80}$/.test(slug)) return asset;
+  const e = await getEbook(env, slug).catch(() => null);
+  if (!isPdfItem(e) || e.active === false) return asset;
+  const title = `${e.title} en PDF | Dilam B'`;
+  const lead = plainText(e.pitch || e.description || '').slice(0, 150);
+  const desc = `${e.title}${e.author ? ', ' + e.author : ''}. PDF à ${fcfa(parseInt(e.price, 10) || 0)}, reçu tout de suite après le paiement.${lead ? ' ' + lead : ''}`.slice(0, 300);
+  const img = e.cover ? new URL(encodeURI(decodeURISafe(e.cover)), url.origin).href : url.origin + '/public/images/logo.png';
+  const set = (val) => ({ element(el) { el.setAttribute('content', val); } });
+  return new HTMLRewriter()
+    .on('title', { element(el) { el.setInnerContent(title); } })
+    .on('meta[name="description"]', set(desc))
+    .on('meta[property="og:title"]', set(title))
+    .on('meta[property="og:description"]', set(desc))
+    .on('meta[property="og:image"]', set(img))
+    .on('head', {
+      element(el) {
+        const canon = productUrl(url.origin, slug, e);
+        const ld = {
+          '@context': 'https://schema.org', '@type': ['Book', 'Product'], name: e.title, image: [img], description: desc, sku: slug, url: canon,
+          bookFormat: 'https://schema.org/EBook', inLanguage: 'fr', ...(e.author ? { author: { '@type': 'Person', name: e.author } } : {}),
+          offers: { '@type': 'Offer', price: parseInt(e.price, 10) || 0, priceCurrency: 'XOF', availability: 'https://schema.org/InStock', url: canon, seller: { '@type': 'Organization', name: "Dilam B'" } },
+        };
+        el.append(`<link rel="canonical" href="${escH(canon)}">` + jsonLd(ld), { html: true });
+      },
+    })
+    .transform(asset);
+}
+
 // Accueil : image de partage en adresse complète, données de la boutique.
 async function homePage(req, env, url) {
   const asset = await env.ASSETS.fetch(req);
@@ -611,10 +643,13 @@ async function sitemap(env, url) {
   const ts = (t) => { const n = Number(t) || 0; const d = new Date(n > 1e12 ? n : n * 1000); return isNaN(d) || !n ? '' : `<lastmod>${d.toISOString().slice(0, 10)}</lastmod>`; };
   const u = (loc, t) => `<url><loc>${escH(loc)}</loc>${ts(t)}</url>`;
   const { results: books } = await env.DB.prepare("SELECT id, json_extract(data,'$.slug') slug, json_extract(data,'$.category') cat, updated_at t FROM docs WHERE col='books'").all();
-  const { results: ebooks } = await env.DB.prepare("SELECT id, updated_at t FROM docs WHERE col='ebooks' AND COALESCE(json_extract(data,'$.hidden'),0)=0 AND COALESCE(json_extract(data,'$.active'),1)=1").all();
+  const { results: allEb } = await env.DB.prepare("SELECT id, updated_at t, json_extract(data,'$.kind') kind, json_array_length(json_extract(data,'$.files.items')) nf FROM docs WHERE col='ebooks' AND COALESCE(json_extract(data,'$.hidden'),0)=0 AND COALESCE(json_extract(data,'$.active'),1)=1").all();
+  const ebooks = allEb.filter((e) => e.kind !== 'pdf');
+  const pdfs = allEb.filter((e) => e.kind === 'pdf' && e.nf > 0);
   const cats = [...new Set(books.map((b) => b.cat).filter(Boolean))];
   const lines = [u(o + '/'), u(o + '/?vue=livres'), ...cats.map((c) => u(`${o}/?cat=${encodeURIComponent(c)}`)),
     ...ebooks.map((e) => u(`${o}/ebook/${e.id}`, e.t)),
+    ...(pdfs.length ? [u(o + '/?vue=pdf')] : []), ...pdfs.map((e) => u(`${o}/?pdf=${encodeURIComponent(e.id)}`, e.t)),
     ...books.map((b) => u(`${o}/?livre=${encodeURIComponent(b.slug || b.id)}`, b.t)),
     u(o + '/conditions'), u(o + '/confidentialite')];
   return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${lines.join('')}</urlset>`,
@@ -633,6 +668,7 @@ async function ebookPage(req, env, url) {
     const r = dlPage('Page introuvable', '<h1>Cette page n’existe pas ou n’est plus en ligne.</h1><p><a class="btn btn-primary" href="/">Retour à la boutique</a></p>');
     return new Response(r.body, { status: 404, headers: r.headers });
   }
+  if (isPdfItem(e)) return Response.redirect(productUrl(url.origin, slug, e), 301);
   if (e.mode === 'html') return ebookHtmlPage(env, url, slug, e);
   const seo = e.seo || {};
   const title = seo.title || e.title || "Dilam B'";
@@ -686,9 +722,17 @@ async function getEbook(env, slug) {
   if (!row) return null;
   try { return JSON.parse(row.data); } catch { return null; }
 }
+// PDF de livres d'autres auteurs (rubrique « PDF ») : même stockage et même livraison que les ebooks,
+// mais leur page est une fiche de la boutique (/?pdf=<adresse>) et non une page de vente d'auteur.
+function isPdfItem(e) { return !!e && e.kind === 'pdf'; }
+function productUrl(origin, slug, e) {
+  return isPdfItem(e) ? `${origin}/?pdf=${encodeURIComponent(slug)}` : `${origin}/ebook/${slug}`;
+}
+const PDF_UPSELL = { slug: 'lire-autrement', text: "Lire Autrement t'aide à tirer une vraie décision de chaque livre que tu lis, au lieu de l'oublier trois semaines plus tard." };
+
 // Livre suivant proposé après un achat (champ « upsell » de l'ebook), seulement s'il est en vente et pas déjà acheté.
 async function upsellFor(env, e, email) {
-  const u = e && e.upsell;
+  const u = e && (e.upsell || (isPdfItem(e) ? PDF_UPSELL : null));
   if (!u || !u.slug || !u.text) return null;
   const n = await getEbook(env, u.slug);
   if (!n || n.hidden || n.active === false) return null;
@@ -726,7 +770,7 @@ async function checkout(req, env) {
     fbc: typeof b.fbc === 'string' ? b.fbc.slice(0, 400) : '',
     ua: (req.headers.get('User-Agent') || '').slice(0, 300),
     ip: clientIp(req),
-    url: origin + '/ebook/' + slug,
+    url: productUrl(origin, slug, e),
   };
   await env.DB.prepare('INSERT INTO orders(reference,slug,email,amount,created_at,meta) VALUES(?,?,?,?,?,?)')
     .bind(ref, slug, email, price, now(), JSON.stringify(meta)).run();
@@ -904,7 +948,10 @@ async function download(req, env, ctx, url) {
     if (!tm || +tm[1] < now() || !safeEqual(t, await ticketFor(tm[1]))) {
       return Response.redirect(`${url.origin}/telecharger/${ref}/${sig}`, 303);
     }
-    const file = await env.FILES.getWithMetadata(`pdf/${pdfSlug}/${i}.pdf`, { type: 'arrayBuffer' });
+    // Un pack ne stocke pas de fichiers : chacun de ses fichiers pointe vers celui du livre seul.
+    const src = items[i].src && /^[a-z0-9-]{1,80}$/.test(items[i].src.slug || '') ? items[i].src : null;
+    const fSlug = src ? src.slug : pdfSlug, fi = src ? (parseInt(src.i, 10) || 0) : i;
+    const file = await env.FILES.getWithMetadata(`pdf/${fSlug}/${fi}.pdf`, { type: 'arrayBuffer' });
     if (!file.value) {
       await release();
       return dlPage('Fichier indisponible', '<h1>Ce fichier n’est pas disponible pour le moment.</h1>' + help);
@@ -914,15 +961,15 @@ async function download(req, env, ctx, url) {
     // Filigrane « Exemplaire personnel de <e-mail> » : ajouté à la fin du fichier, sans le réécrire.
     let tail = new Uint8Array(0);
     try {
-      let idx = await env.FILES.get(`pdfidx/${pdfSlug}/${i}.json`, { type: 'json' });
+      let idx = await env.FILES.get(`pdfidx/${fSlug}/${fi}.json`, { type: 'json' });
       if (!idx || idx.len !== bytes.length) {
         idx = indexPdf(bytes);
-        await env.FILES.put(`pdfidx/${pdfSlug}/${i}.json`, JSON.stringify(idx));
+        await env.FILES.put(`pdfidx/${fSlug}/${fi}.json`, JSON.stringify(idx));
       }
       // Assez grand et assez foncé pour que l'acheteur le voie : c'est ce qui dissuade de partager le fichier.
       tail = stampTail(idx, 'Exemplaire personnel de ' + o.email + '. Merci de ne pas le diffuser.', { skipFirst: true, size: 9, gray: 0.3 });
     } catch (err2) {
-      console.error('filigrane', pdfSlug, i, err2 && err2.message);
+      console.error('filigrane', fSlug, fi, err2 && err2.message);
     }
     // Envoi par morceaux, avec la taille annoncée (le téléphone sait quand le fichier est complet).
     const total = bytes.length + tail.length;
@@ -963,7 +1010,7 @@ async function download(req, env, ctx, url) {
     `<p class="dl-warn">Chaque fichier se télécharge une seule fois. Enregistre-le sur ton téléphone dès qu’il est téléchargé. Ce lien expire dans environ ${left}&nbsp;h.</p>` +
     `<ul class="dl-list">${rows}</ul>` +
     (anyDone ? `<div class="dl-find">${findTip}</div>` : '') +
-    `<p class="dl-tip">Pour remplir le Workbook directement dans le PDF, ouvre-le avec Adobe Acrobat Reader, gratuit sur Android et iPhone.</p>` +
+    (items.some((f) => /workbook/i.test(f.name || '')) ? `<p class="dl-tip">Pour remplir le Workbook directement dans le PDF, ouvre-le avec Adobe Acrobat Reader, gratuit sur Android et iPhone.</p>` : '') +
     `<details class="dl-help"><summary>Un problème ?</summary>${help}</details>`);
 }
 
@@ -1225,7 +1272,8 @@ async function abandonedReminders(env) {
     if (!e || e.hidden || e.active === false) continue;
     const bought = await env.DB.prepare("SELECT 1 FROM orders WHERE email=? AND slug=? AND status='paid' LIMIT 1").bind(o.email, o.slug).first();
     if (bought) continue;
-    const m = mailAbandoned(e, `${SITE}/ebook/${o.slug}?depuis=relance`, `https://wa.me/${wa}`);
+    const link = productUrl(SITE, o.slug, e) + (isPdfItem(e) ? '&' : '?') + 'depuis=relance';
+    const m = mailAbandoned(e, link, `https://wa.me/${wa}`);
     await sendMail(env, o.email, m.subject, m.text, MAIL_LAMINE);
   }
 }
@@ -1320,6 +1368,8 @@ export default {
         res = await download(req, env, ctx, url);
       } else if (/^\/ebook\/[a-z0-9-]{1,80}\/?$/.test(url.pathname)) {
         res = await ebookPage(req, env, url);
+      } else if (url.pathname === '/' && url.searchParams.get('pdf')) {
+        res = await pdfPage(req, env, url);
       } else if (url.pathname === '/' && url.searchParams.get('livre')) {
         res = await bookPage(req, env, url);
       } else if (url.pathname === '/') {

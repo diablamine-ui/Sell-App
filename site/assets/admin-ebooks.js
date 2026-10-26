@@ -31,7 +31,7 @@
 
   function load() {
     Promise.all([api('/db/ebooks').then(jsonOf), api('/admin/orders').then(jsonOf), api('/db/shop_config/sell_promo').then(function (r) { return r.ok ? r.json() : {}; }), api('/admin/leads').then(function (r) { return r.ok ? r.json() : []; })]).then(function (res) {
-      EBOOKS = (res[0] || []).filter(function (e) { return e && e._id; });
+      EBOOKS = (res[0] || []).filter(function (e) { return e && e._id && e.kind !== 'pdf'; }); // les PDF ont leur propre page : /admin-pdf
       var orders = res[1] || [];
       var promo = (res[2] && res[2].value) || {};
       var leads = res[3] || [];

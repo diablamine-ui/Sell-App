@@ -31,6 +31,8 @@
 
   var BOOKS = [];
   var EBOOKS = [];
+  // Rubrique « PDF » : livres d'autres auteurs vendus en PDF (et packs de PDF), payés en ligne.
+  var PDFS = [];
   // Mise en avant des ebooks (admin > Ebooks > Mise en avant). Valeurs par défaut si rien n'est réglé.
   var PROMO = null;
   var CONFIG = { waNumber: DEFAULT_WA, pixelId: DEFAULT_PIXEL, waMessage: '' };
@@ -137,7 +139,10 @@
       api('/db/shop_config').then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; }),
       api('/db/ebooks').then(function (r) { return r.ok ? r.json() : []; }).catch(function () { return []; })
     ]).then(function (res) {
-      EBOOKS = (res[2] || []).filter(function (e) { return e && e.active !== false && !e.hidden && e.title; });
+      var online = (res[2] || []).filter(function (e) { return e && e.active !== false && !e.hidden && e.title; });
+      EBOOKS = online.filter(function (e) { return e.kind !== 'pdf'; });
+      // Un PDF n'apparaît qu'une fois son fichier envoyé depuis l'administration.
+      PDFS = online.filter(function (e) { return e.kind === 'pdf' && e.files && (e.files.items || []).length; }).map(mapPdf);
       var rows = res[0].map(mapBook);
       // Même ordre que l'administration, pour que les statistiques correspondent aux bons livres.
       rows.forEach(function (b, i) { b._i = i + 1; });
@@ -256,7 +261,8 @@
       if (!n) return '';
       var c = CAT_BY_KEY[k];
       return '<li class="goal"><a href="/?cat=' + k + '" data-nav="cat"><span class="goal-txt"><span class="goal-name">' + esc(c.goal) + '</span><span class="goal-sub">' + esc(c.sub) + '</span></span><span class="goal-n">' + n + '</span>' + ICON.chevron + '</a></li>';
-    }).join('');
+    }).join('') +
+      (PDFS.length ? '<li class="goal"><a href="/?vue=pdf" data-nav="pdf"><span class="goal-txt"><span class="goal-name">Lire en PDF</span><span class="goal-sub">Reçu tout de suite, à lire sur ton téléphone</span></span><span class="goal-n">' + PDFS.length + '</span>' + ICON.chevron + '</a></li>' : '');
 
     view.innerHTML =
       '<section class="hero"><div class="hero-in"><div class="hero-txt">' +
@@ -607,6 +613,7 @@
       // Barre d'achat fixe quand les boutons sortent de l'écran
       var bar = document.getElementById('buybar');
       document.getElementById('buybarPrice').textContent = money(b.price);
+      document.getElementById('buybarBtn').textContent = 'Commander';
       document.getElementById('buybarBtn').onclick = function () { openOrder(b); };
       if ('IntersectionObserver' in window) {
         buyObserver = new IntersectionObserver(function (en) {
@@ -621,6 +628,200 @@
     track('ViewContent', { content_ids: [b.fid], content_name: b.title, content_type: 'product', value: b.price, currency: 'XOF' });
   }
 
+  // ───────────── Rubrique PDF ─────────────
+  function mapPdf(e) {
+    var items = (e.files && e.files.items) || [];
+    return {
+      slug: e.slug || e._id, title: e.title, author: e.author || '', price: parseInt(e.price, 10) || 0,
+      category: CAT_BY_KEY[e.category] ? e.category : 'autre', cover: e.cover || '',
+      pack: !!e.pack, members: e.pack ? (e.items || []) : [],
+      pitch: e.pitch || '', learn: (e.learn || []).filter(Boolean), audience: e.audience || '', desc: e.description || '',
+      pages: items.reduce(function (s, f) { return s + (parseInt(f.pages, 10) || 0); }, 0)
+    };
+  }
+  function pdfBySlug(s) { return PDFS.find(function (p) { return p.slug === s; }) || null; }
+  function pdfUrl(p) { return '/?pdf=' + encodeURIComponent(p.slug); }
+  function packMembers(p) { return p.members.map(pdfBySlug).filter(Boolean); }
+  // Valeur d'un pack : ses livres achetés un par un.
+  function packValue(p) { return packMembers(p).reduce(function (s, m) { return s + m.price; }, 0); }
+  function pdfCover(p, opts) {
+    if (p.pack && !p.cover) {
+      var ms = packMembers(p).slice(0, 3);
+      return '<div class="cv pdf-stack n' + ms.length + '">' + ms.map(function (m) { return pdfCover(m, opts); }).join('') + '</div>';
+    }
+    return cover({ image: p.cover, title: p.title, category: p.pack ? 'pack' : p.category, badge: 'none' }, opts);
+  }
+  function pdfByline(p) { return p.pack ? 'Pack de ' + p.members.length + ' livres en PDF' : p.author; }
+  function pdfPriceHTML(p) {
+    var v = p.pack ? packValue(p) : 0;
+    return '<p class="price"><span class="now' + (v > p.price ? ' is-promo' : '') + '">' + money(p.price) + '</span>' +
+      (v > p.price ? '<span class="was"><span class="sr-only">au lieu de </span>' + money(v) + '</span>' : '') + '</p>';
+  }
+  function pdfCard(p) {
+    return '<a class="card" href="' + pdfUrl(p) + '" data-nav="pdf">' + pdfCover(p) +
+      '<div class="card-body"><h3 class="card-title">' + esc(p.title) + '</h3>' +
+      '<p class="card-author">' + esc(pdfByline(p)) + '</p>' + pdfPriceHTML(p) + '</div></a>';
+  }
+  var pdfState = { rayon: 'all', q: '' };
+  function renderPdfs(rayon) {
+    var cats = CATS.filter(function (k) { return k.key !== 'pack' && PDFS.some(function (p) { return !p.pack && p.category === k.key; }); });
+    var hasPacks = PDFS.some(function (p) { return p.pack; });
+    pdfState.rayon = rayon === 'packs' && hasPacks ? 'packs' : (CAT_BY_KEY[rayon] ? rayon : 'all');
+    var chips = '<button class="chip" type="button" data-r="all">Tous</button>' +
+      (hasPacks ? '<button class="chip" type="button" data-r="packs">Packs</button>' : '') +
+      cats.map(function (k) { return '<button class="chip" type="button" data-r="' + k.key + '">' + esc(k.label) + '</button>'; }).join('');
+    view.innerHTML =
+      '<div class="wrap">' +
+        '<nav class="crumbs" aria-label="Tu es ici"><a href="/" data-nav="home">Accueil</a><span class="crumbs-sep" aria-hidden="true">›</span><span aria-current="page">PDF</span></nav>' +
+        '<div class="cat-head"><h1>Livres en PDF</h1><p>Tu paies en ligne et tu reçois ton PDF tout de suite, à lire sur ton téléphone. Wave, Orange Money, MTN ou carte bancaire.</p></div>' +
+        (PDFS.length ? '<div class="filters"><label class="search">' + ICON.search + '<span class="sr-only">Rechercher</span><input id="pq" type="search" placeholder="Titre ou auteur" autocomplete="off" value="' + esc(pdfState.q) + '"></label>' +
+          '<div class="chips" role="group" aria-label="Rayons">' + chips + '</div></div>' +
+          '<p class="count-line" id="pCount" aria-live="polite"></p><div class="grid" id="pGrid"></div>'
+          : '<p class="empty">Aucun PDF en ligne pour le moment.</p>') +
+      '</div>';
+    document.title = "Livres en PDF | Dilam B'";
+    if (!PDFS.length) return;
+    var q = document.getElementById('pq');
+    q.addEventListener('input', function () { pdfState.q = q.value; drawPdfGrid(); });
+    view.querySelectorAll('.chip').forEach(function (ch) {
+      ch.addEventListener('click', function () {
+        pdfState.rayon = ch.getAttribute('data-r');
+        history.replaceState({}, '', '/?vue=pdf' + (pdfState.rayon === 'all' ? '' : '&rayon=' + pdfState.rayon));
+        drawPdfGrid();
+      });
+    });
+    drawPdfGrid();
+  }
+  function drawPdfGrid() {
+    var r = pdfState.rayon;
+    var list = PDFS.filter(function (p) { return r === 'all' || (r === 'packs' ? p.pack : !p.pack && p.category === r); });
+    if (pdfState.q.trim()) {
+      var q = norm(pdfState.q.trim());
+      list = list.filter(function (p) { return norm(p.title).indexOf(q) > -1 || norm(p.author).indexOf(q) > -1; });
+    }
+    // Les packs d'abord : ce sont les meilleures affaires.
+    list.sort(function (a, b) { return (b.pack ? 1 : 0) - (a.pack ? 1 : 0); });
+    view.querySelectorAll('.chip').forEach(function (ch) { ch.setAttribute('aria-pressed', ch.getAttribute('data-r') === r ? 'true' : 'false'); });
+    document.getElementById('pCount').textContent = list.length + (list.length > 1 ? ' titres' : ' titre');
+    document.getElementById('pGrid').innerHTML = list.length ? list.map(pdfCard).join('') :
+      '<p class="empty">Aucun PDF ne correspond à « ' + esc(pdfState.q) + ' ». Demande-nous sur WhatsApp : il arrive peut-être bientôt.</p>';
+  }
+
+  function renderPdf(p) {
+    var members = p.pack ? packMembers(p) : [];
+    var inPacks = p.pack ? [] : PDFS.filter(function (x) { return x.pack && x.members.indexOf(p.slug) > -1; });
+    var same = PDFS.filter(function (x) { return x !== p && !x.pack && x.category === p.category; }).slice(0, 8);
+    var buyLabel = p.pack ? 'Acheter le pack' : 'Acheter le PDF';
+    var value = p.pack ? packValue(p) : 0;
+    var about = p.pitch || p.desc;
+    view.innerHTML =
+      '<div class="wrap">' +
+        '<nav class="crumbs" aria-label="Tu es ici"><a href="/" data-nav="home">Accueil</a><span class="crumbs-sep" aria-hidden="true">›</span><a href="/?vue=pdf" data-nav="pdf">PDF</a></nav>' +
+        '<article class="pdp">' +
+          '<div class="pdp-cover pdf-cover">' + pdfCover(p, { eager: true }) + '</div>' +
+          '<div>' +
+            '<p class="pdf-format">' + (p.pack ? 'Pack PDF' : 'PDF') + '</p>' +
+            '<h1>' + esc(p.title) + '</h1>' +
+            '<p class="pdp-author">' + esc(pdfByline(p)) + '</p>' +
+            pdfPriceHTML(p) +
+            (value > p.price ? '<p class="pdf-save">Tu économises ' + money(value - p.price) + ' par rapport aux livres achetés un par un.</p>' : '') +
+            '<div class="pdp-actions" id="pdpActions"><button class="btn btn-primary btn-block" type="button" id="pdfBuy">' + buyLabel + '</button></div>' +
+            '<ul class="pdp-facts"><li>Reçu tout de suite, par e-mail et à l’écran</li><li>À lire sur ton téléphone, ta tablette ou ton ordinateur</li><li>Wave, Orange Money, MTN ou carte bancaire</li>' +
+              (p.pages ? '<li>' + p.pages + ' pages</li>' : '') + '</ul>' +
+          '</div>' +
+        '</article>' +
+        (members.length ? '<section class="pdp-desc"><h2>Les ' + members.length + ' livres du pack</h2><ul class="pdf-members">' +
+          members.map(function (m) {
+            return '<li><a href="' + pdfUrl(m) + '" data-nav="pdf">' + pdfCover(m) + '<span><strong>' + esc(m.title) + '</strong><span>' + esc(m.author) + ', ' + money(m.price) + ' seul</span></span></a></li>';
+          }).join('') + '</ul></section>' : '') +
+        (about ? '<section class="pdp-desc"><h2>' + (p.pitch ? (p.pack ? 'Pourquoi ce pack' : 'Pourquoi lire ce livre') : 'À propos de ce livre') + '</h2><div class="txt is-clamped" id="descTxt">' + descHTML(about) + '</div>' +
+          '<button type="button" class="desc-more" id="descMore" hidden aria-expanded="false" aria-controls="descTxt">Lire la suite</button></section>' : '') +
+        (p.learn.length ? '<section class="pdp-desc"><h2>Ce que tu vas y trouver</h2><ul class="pdf-learn">' + p.learn.map(function (l) { return '<li>' + richText(l) + '</li>'; }).join('') + '</ul></section>' : '') +
+        (p.audience ? '<section class="pdp-desc"><h2>Pour qui</h2><div class="txt">' + descHTML(p.audience) + '</div></section>' : '') +
+        '<section class="pdp-desc"><h2>Comment ça marche</h2><ol class="steps">' +
+          '<li class="step"><div><h3>Tu paies en ligne</h3><p>Avec Wave, Orange Money, MTN ou ta carte bancaire. Paiement sécurisé par Paystack.</p></div></li>' +
+          '<li class="step"><div><h3>Tu reçois ton lien tout de suite</h3><p>Un bouton de téléchargement s’affiche à l’écran, et le lien t’est aussi envoyé par e-mail.</p></div></li>' +
+          '<li class="step"><div><h3>Tu enregistres et tu lis</h3><p>Le lien est valable 24 heures. Enregistre ' + (p.pack ? 'tes fichiers' : 'ton fichier') + ' sur ton téléphone dès le téléchargement.</p></div></li>' +
+        '</ol></section>' +
+        '<section class="pdp-desc faq"><h2>Questions fréquentes</h2>' +
+          '<details><summary>Avec quoi j’ouvre le PDF ?</summary><p>Avec n’importe quel lecteur de PDF : Google Drive ou Adobe Acrobat Reader sur Android, l’application Fichiers ou Livres sur iPhone. Sur ordinateur, ton navigateur suffit.</p></details>' +
+          '<details><summary>Je n’ai pas reçu l’e-mail</summary><p>Regarde dans les courriers indésirables. Sinon, écris-nous sur WhatsApp avec l’adresse utilisée pour l’achat : on te renvoie ton lien.</p></details>' +
+          '<details><summary>Je peux partager le fichier ?</summary><p>Non. Chaque PDF porte l’adresse e-mail de son acheteur : c’est ton exemplaire personnel.</p></details>' +
+        '</section>' +
+        (inPacks.length ? '<section class="section"><div class="section-head"><h2>Aussi dans ' + (inPacks.length > 1 ? 'ces packs' : 'ce pack') + '</h2></div><div class="rail">' + inPacks.map(pdfCard).join('') + '</div></section>' : '') +
+        (same.length ? '<section class="section"><div class="section-head"><h2>Dans le même rayon</h2><a href="/?vue=pdf&amp;rayon=' + p.category + '" data-nav="pdf">Tout voir</a></div><div class="rail">' + same.map(pdfCard).join('') + '</div></section>' : '') +
+      '</div>';
+    document.title = p.title + " en PDF | Dilam B'";
+    var dt = document.getElementById('descTxt'), dm = document.getElementById('descMore');
+    if (dt && dm) {
+      if (dt.scrollHeight > dt.clientHeight + 24) {
+        dm.hidden = false;
+        dm.addEventListener('click', function () {
+          var open = dt.classList.toggle('is-clamped') === false;
+          dm.setAttribute('aria-expanded', open ? 'true' : 'false');
+          dm.textContent = open ? 'Réduire' : 'Lire la suite';
+        });
+      } else dt.classList.remove('is-clamped');
+    }
+    document.getElementById('pdfBuy').addEventListener('click', function () { openPdfBuy(p); });
+    var bar = document.getElementById('buybar');
+    document.getElementById('buybarPrice').textContent = money(p.price);
+    var bb = document.getElementById('buybarBtn');
+    bb.textContent = 'Acheter';
+    bb.onclick = function () { openPdfBuy(p); };
+    if ('IntersectionObserver' in window) {
+      buyObserver = new IntersectionObserver(function (en) {
+        var show = !en[0].isIntersecting && en[0].boundingClientRect.top < 0;
+        bar.hidden = !show;
+        document.body.classList.toggle('has-buybar', show);
+      });
+      buyObserver.observe(document.getElementById('pdpActions'));
+    }
+    track('ViewContent', { content_ids: [p.slug], content_name: p.title, content_type: 'product', value: p.price, currency: 'XOF' });
+  }
+
+  // Achat d'un PDF : e-mail, puis paiement Paystack ; le lien de téléchargement arrive sur la page « merci » et par e-mail.
+  function openPdfBuy(p) {
+    var body = document.getElementById('pdfBody');
+    var saved = '';
+    try { saved = localStorage.getItem('eb_email') || ''; } catch (e) {}
+    body.innerHTML = '<div class="order-book">' + pdfCover(p, { eager: true }) + '<div><p class="line-title">' + esc(p.title) + '</p><p class="line-price">' + money(p.price) + ', en PDF</p></div></div>' +
+      '<form class="form" id="pdfForm" novalidate>' +
+        '<div class="field"><label for="pdfEmail">Ton adresse e-mail</label><input id="pdfEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" value="' + esc(saved) + '" aria-describedby="pdfHelp">' +
+        '<p class="field-help" id="pdfHelp">Ton lien de téléchargement est aussi envoyé à cette adresse. Vérifie-la bien.</p></div>' +
+        '<button class="btn btn-primary btn-block" type="submit" id="pdfGo">Payer ' + money(p.price) + '</button>' +
+        '<p class="form-note">Wave, Orange Money, MTN ou carte bancaire. Paiement sécurisé par Paystack. Wave ne s’ouvre pas ? Ouvre cette page dans Chrome, puis relance le paiement.</p>' +
+      '</form><div id="pdfMsg"></div>';
+    openSheet('pdfSheet');
+    setTimeout(function () { var i = document.getElementById('pdfEmail'); if (i && !i.value) i.focus(); }, 60);
+    track('InitiateCheckout', { content_ids: [p.slug], content_name: p.title, content_type: 'product', value: p.price, currency: 'XOF', num_items: 1 });
+    document.getElementById('pdfForm').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var input = document.getElementById('pdfEmail'), help = document.getElementById('pdfHelp'), btn = document.getElementById('pdfGo');
+      var email = input.value.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
+        input.setAttribute('aria-invalid', 'true');
+        help.textContent = 'Cette adresse ne semble pas complète. Exemple : prenom@gmail.com';
+        input.focus();
+        return;
+      }
+      input.removeAttribute('aria-invalid');
+      try { localStorage.setItem('eb_email', email); } catch (e) {}
+      btn.disabled = true; btn.textContent = 'Un instant…';
+      function fail(msg) { btn.disabled = false; btn.textContent = 'Payer ' + money(p.price); help.textContent = msg; }
+      api('/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: p.slug, email: email, fbp: readCookie('_fbp'), fbc: readCookie('_fbc') }) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, status: r.status, d: d }; }); })
+        .then(function (res) {
+          if (res.ok && res.d.url) { location.href = res.d.url; return; }
+          if (res.status === 429) return fail('Trop de tentatives. Réessaie dans quelques minutes.');
+          if (res.status === 400) return fail('Vérifie ton adresse e-mail puis réessaie.');
+          fail('Le paiement n’a pas pu démarrer. Réessaie dans un instant, ou commande sur WhatsApp.');
+          document.getElementById('pdfMsg').innerHTML = '<a class="btn btn-secondary btn-block" href="' + esc(waLink('Bonjour, je veux acheter le PDF « ' + p.title + ' ». Mon adresse e-mail : ' + email)) + '" target="_blank" rel="noopener">Commander sur WhatsApp</a>';
+        })
+        .catch(function () { fail('Connexion impossible. Vérifie ton réseau puis réessaie.'); });
+    });
+  }
+
   // ───────────── Navigation ─────────────
   function route(scroll) {
     if (buyObserver) { buyObserver.disconnect(); buyObserver = null; }
@@ -629,7 +830,10 @@
     var p = new URLSearchParams(location.search);
     var slug = p.get('livre');
     var b = slug ? bySlug(slug) : null;
+    var pdf = p.get('pdf') ? pdfBySlug(p.get('pdf')) : null;
     if (b) renderBook(b);
+    else if (pdf) renderPdf(pdf);
+    else if (p.get('vue') === 'pdf' || p.get('pdf')) renderPdfs(p.get('rayon'));
     else if (p.get('cat') || p.get('vue') === 'livres') renderCatalogue(p.get('cat'));
     else if (p.get('vue') === 'ebooks') renderEbooks();
     else renderHome();
@@ -688,7 +892,7 @@
   }
   function closeSheet(id) {
     document.getElementById(id).hidden = true;
-    if (document.getElementById('cartSheet').hidden && document.getElementById('orderSheet').hidden) document.body.style.overflow = '';
+    if (document.getElementById('cartSheet').hidden && document.getElementById('orderSheet').hidden && document.getElementById('pdfSheet').hidden) document.body.style.overflow = '';
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
   document.querySelectorAll('.sheet').forEach(function (s) {
@@ -696,7 +900,7 @@
   });
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
-    ['orderSheet', 'cartSheet'].forEach(function (id) { if (!document.getElementById(id).hidden) closeSheet(id); });
+    ['orderSheet', 'cartSheet', 'pdfSheet'].forEach(function (id) { if (!document.getElementById(id).hidden) closeSheet(id); });
   });
 
   // ───────────── Livraison ─────────────
@@ -964,6 +1168,10 @@
     var fe = document.getElementById('footEbooks');
     if (fe) fe.innerHTML = '<li><a href="/?vue=ebooks" data-nav="ebooks">Tous les guides</a></li>' +
       EBOOKS.map(function (e) { return '<li><a href="/ebook/' + encodeURIComponent(e.slug || e._id) + '">' + esc(e.title) + '</a></li>'; }).join('');
+    if (PDFS.length) {
+      var fb = document.querySelector('.foot-col[aria-label="Boutique"] ul');
+      if (fb) fb.insertAdjacentHTML('beforeend', '<li><a href="/?vue=pdf" data-nav="pdf">Livres en PDF</a></li>');
+    }
     restoreCart();
     updateBadge();
     initPixel();

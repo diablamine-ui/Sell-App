@@ -692,3 +692,28 @@ html .pdp-promo-price, html .pdp-promo-go { color: var(--nuit) !important; }
   .hero .shelf-rail { padding-right: var(--gutter); }
   .hero .shelf-rail .shelf-book, .hero .shelf-rail .shelf-book:nth-child(2), .hero .shelf-rail .shelf-book:nth-child(n+4) { width: 160px; max-width: none; flex: 0 0 auto; }
 }
+
+/* ── Rubrique PDF ── */
+.pdf-format { display: inline-block; font-size: 12.5px; font-weight: 700; letter-spacing: .04em; color: var(--action); border: 1.5px solid currentColor; border-radius: 999px; padding: 2px 10px; margin-bottom: 10px; }
+.pdf-save { color: var(--gris); font-size: 14.5px; margin-top: 4px; }
+.pdf-cover { padding: 0; background: transparent; }
+.pdf-cover > .cv { width: 100%; max-width: 380px; margin: 0 auto; }
+/* Pack sans image : les couvertures de ses livres, en éventail. */
+.pdf-stack { background: var(--cover-bg); }
+.pdf-stack > .cv { position: absolute; width: 58%; top: 50%; left: 50%; box-shadow: 0 10px 22px -12px rgba(19,32,26,.55); border: 1px solid rgba(19,32,26,.06); }
+.pdf-stack.n1 > .cv { transform: translate(-50%, -50%); }
+.pdf-stack.n2 > .cv:nth-child(1) { transform: translate(-72%, -50%) rotate(-6deg); }
+.pdf-stack.n2 > .cv:nth-child(2) { transform: translate(-28%, -48%) rotate(5deg); }
+.pdf-stack.n3 > .cv:nth-child(1) { transform: translate(-82%, -50%) rotate(-8deg); }
+.pdf-stack.n3 > .cv:nth-child(2) { transform: translate(-50%, -54%); z-index: 2; }
+.pdf-stack.n3 > .cv:nth-child(3) { transform: translate(-18%, -50%) rotate(8deg); }
+.pdf-learn { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; max-width: 62ch; }
+.pdf-learn li { position: relative; padding-left: 26px; font-size: 16.5px; line-height: 1.55; }
+.pdf-learn li::before { content: ""; position: absolute; left: 3px; top: 9px; width: 10px; height: 5px; border-left: 2px solid var(--action); border-bottom: 2px solid var(--action); transform: rotate(-45deg); }
+.pdf-members { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.pdf-members a { display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: center; text-decoration: none; color: var(--encre); padding: 8px; border: 1px solid var(--trait); border-radius: var(--r-m); background: var(--blanc); }
+.pdf-members a:hover { border-color: var(--action); }
+.pdf-members strong { display: block; font-size: 15.5px; }
+.pdf-members span span { color: var(--gris); font-size: 14px; }
+.pdf-cover .cv img { max-height: none; border-radius: 0; }
+.pdf-cover .cv-sq img, .pdf-cover .cv-full img { width: 100%; height: 100%; }
