@@ -543,6 +543,7 @@ async function migrate(req, env) {
 // ───────────────────────── aperçus de partage (WhatsApp, Facebook, Google) ─────────────────────────
 // Une page livre partagée affiche son titre, son prix et sa couverture dans l'aperçu.
 async function bookPage(req, env, url) {
+  const co = canonOrigin(url);
   const asset = await env.ASSETS.fetch(new Request(new URL('/', url.origin), req));
   const slug = url.searchParams.get('livre').slice(0, 120);
   let row = null;
@@ -558,7 +559,7 @@ async function bookPage(req, env, url) {
   const title = `${b.title || 'Livre'} | ${price} F | Dilam B'`;
   const desc = plainText(b.description).slice(0, 180) ||
     `${b.title} : paiement à la livraison, livraison en 24 h à Abidjan.`;
-  const img = b.image ? new URL(encodeURI(decodeURISafe(b.image)), url.origin).href : url.origin + '/public/images/logo.png';
+  const img = b.image ? new URL(encodeURI(decodeURISafe(b.image)), co).href : co + '/public/images/logo.png';
   const set = (sel, val) => ({ element(el) { el.setAttribute('content', val); } });
   return new HTMLRewriter()
     .on('title', { element(el) { el.setInnerContent(title); } })
@@ -568,7 +569,7 @@ async function bookPage(req, env, url) {
     .on('meta[property="og:image"]', set('', img))
     .on('head', {
       element(el) {
-        const canon = `${url.origin}/?livre=${encodeURIComponent(b.slug || slug)}`;
+        const canon = `${co}/?livre=${encodeURIComponent(b.slug || slug)}`;
         const ld = {
           '@context': 'https://schema.org', '@type': ['Book', 'Product'],
           name: b.title, image: [img], description: desc, sku: b.slug || slug, url: canon,
@@ -582,6 +583,14 @@ async function bookPage(req, env, url) {
         el.append(`<link rel="canonical" href="${canon}">` + jsonLd(ld), { html: true });
       },
     })
+    .on('#view', { element(el) {
+      el.setInnerContent(ssrProduct({
+        crumbHref: `/?cat=${encodeURIComponent(b.category || 'autre')}`, crumbLabel: CAT_LABEL[b.category] || 'Catalogue',
+        title: b.title || '', byline: b.category === 'pack' ? 'Pack de deux livres' : (b.author || ''), price: fcfa(parseInt(b.price, 10) || 0),
+        img: b.image || '', extra: '<p class="pdp-author">Paiement à la livraison. Livraison en 24 h à Abidjan.</p>',
+        about: b.description || '', aboutTitle: 'À propos de ce livre',
+      }), { html: true });
+    } })
     .transform(asset);
 }
 
@@ -589,8 +598,24 @@ async function bookPage(req, env, url) {
 function jsonLd(o) { return `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, '\\u003c')}</script>`; }
 function plainText(t) { return String(t || '').replace(/\*\*/g, '').replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/\s+/g, ' ').trim(); }
 
+// Contenu écrit par le serveur dans la page : Google lit le titre, le prix et la description sans attendre
+// le chargement du site (sinon toutes les fiches lui paraissent identiques). Le site le remplace ensuite.
+const CAT_LABEL = { finance: 'Finances', devperso: 'Développement personnel', productivite: 'Productivité', cheikh: 'Cheikh Anta Diop', pack: 'Packs', autre: 'Autres' };
+function ssrParas(t) {
+  return String(t || '').split(/\n\s*\n+/).map((x) => plainText(x)).filter(Boolean).slice(0, 10).map((x) => `<p>${escH(x)}</p>`).join('');
+}
+function ssrProduct(o) {
+  return `<div class="wrap"><nav class="crumbs" aria-label="Tu es ici"><a href="/">Accueil</a><span class="crumbs-sep" aria-hidden="true">›</span><a href="${escH(o.crumbHref)}">${escH(o.crumbLabel)}</a></nav>` +
+    `<article class="pdp"><div class="pdp-cover">${o.img ? `<img src="${escH(o.img)}" alt="Couverture : ${escH(o.title)}">` : ''}</div>` +
+    `<div><h1>${escH(o.title)}</h1>${o.byline ? `<p class="pdp-author">${escH(o.byline)}</p>` : ''}<p class="price"><span class="now">${escH(o.price)}</span></p>${o.extra || ''}</div></article>` +
+    (o.about ? `<section class="pdp-desc"><h2>${escH(o.aboutTitle)}</h2><div class="txt">${ssrParas(o.about)}</div></section>` : '') +
+    (o.list && o.list.length ? `<section class="pdp-desc"><h2>${escH(o.listTitle)}</h2><ul>${o.list.map((l) => `<li>${escH(plainText(l))}</li>`).join('')}</ul></section>` : '') +
+    '</div>';
+}
+
 // Fiche d'un PDF de la rubrique « PDF » : titre, description et image de partage pour WhatsApp, Facebook et Google.
 async function pdfPage(req, env, url) {
+  const co = canonOrigin(url);
   const asset = await env.ASSETS.fetch(new Request(new URL('/', url.origin), req));
   const slug = (url.searchParams.get('pdf') || '').slice(0, 80);
   if (!/^[a-z0-9-]{1,80}$/.test(slug)) return asset;
@@ -599,7 +624,7 @@ async function pdfPage(req, env, url) {
   const title = `${e.title} en PDF | Dilam B'`;
   const lead = plainText(e.pitch || e.description || '').slice(0, 150);
   const desc = `${e.title}${e.author ? ', ' + e.author : ''}. PDF à ${fcfa(parseInt(e.price, 10) || 0)}, reçu tout de suite après le paiement.${lead ? ' ' + lead : ''}`.slice(0, 300);
-  const img = e.cover ? new URL(encodeURI(decodeURISafe(e.cover)), url.origin).href : url.origin + '/public/images/logo.png';
+  const img = e.cover ? new URL(encodeURI(decodeURISafe(e.cover)), co).href : co + '/public/images/logo.png';
   const set = (val) => ({ element(el) { el.setAttribute('content', val); } });
   return new HTMLRewriter()
     .on('title', { element(el) { el.setInnerContent(title); } })
@@ -609,7 +634,7 @@ async function pdfPage(req, env, url) {
     .on('meta[property="og:image"]', set(img))
     .on('head', {
       element(el) {
-        const canon = productUrl(url.origin, slug, e);
+        const canon = productUrl(co, slug, e);
         const ld = {
           '@context': 'https://schema.org', '@type': ['Book', 'Product'], name: e.title, image: [img], description: desc, sku: slug, url: canon,
           bookFormat: 'https://schema.org/EBook', inLanguage: 'fr', ...(e.author ? { author: { '@type': 'Person', name: e.author } } : {}),
@@ -618,28 +643,39 @@ async function pdfPage(req, env, url) {
         el.append(`<link rel="canonical" href="${escH(canon)}">` + jsonLd(ld), { html: true });
       },
     })
+    .on('#view', { element(el) {
+      el.setInnerContent(ssrProduct({
+        crumbHref: '/?vue=pdf', crumbLabel: 'PDF',
+        title: e.title || '', byline: e.pack ? `Pack de ${(e.items || []).length} livres en PDF` : (e.author || ''), price: fcfa(parseInt(e.price, 10) || 0),
+        img: e.cover || '', extra: '<p class="pdp-author">En PDF, reçu tout de suite après le paiement.</p>',
+        about: e.pitch || e.description || '', aboutTitle: e.pitch ? (e.pack ? 'Pourquoi ce pack' : 'Pourquoi lire ce livre') : 'À propos de ce livre',
+        list: e.learn || [], listTitle: 'Ce que tu vas y trouver',
+      }), { html: true });
+    } })
     .transform(asset);
 }
 
 // Accueil : image de partage en adresse complète, données de la boutique.
 async function homePage(req, env, url) {
+  const co = canonOrigin(url);
   const asset = await env.ASSETS.fetch(req);
   if (url.search) return asset; // catalogue, catégories : rendus par le navigateur
-  const logo = url.origin + '/public/images/logo.png';
+  const logo = co + '/public/images/logo.png';
   const ld = [
-    { '@context': 'https://schema.org', '@type': 'Organization', name: "Dilam B'", url: url.origin + '/', logo,
+    { '@context': 'https://schema.org', '@type': 'Organization', name: "Dilam B'", url: co + '/', logo,
       address: { '@type': 'PostalAddress', addressLocality: 'Abidjan', addressCountry: 'CI' } },
-    { '@context': 'https://schema.org', '@type': 'WebSite', name: "Dilam B'", url: url.origin + '/', inLanguage: 'fr' },
+    { '@context': 'https://schema.org', '@type': 'WebSite', name: "Dilam B'", url: co + '/', inLanguage: 'fr' },
   ];
   return new HTMLRewriter()
     .on('meta[property="og:image"]', { element(el) { el.setAttribute('content', logo); } })
-    .on('head', { element(el) { el.append(`<link rel="canonical" href="${url.origin}/"><meta property="og:url" content="${url.origin}/">` + jsonLd(ld), { html: true }); } })
+    .on('head', { element(el) { el.append(`<link rel="canonical" href="${co}/"><meta property="og:url" content="${co}/">` + jsonLd(ld), { html: true }); } })
     .transform(asset);
 }
 
 // Plan du site pour les moteurs de recherche.
 async function sitemap(env, url) {
-  const o = url.origin;
+  const co = canonOrigin(url);
+  const o = co;
   const ts = (t) => { const n = Number(t) || 0; const d = new Date(n > 1e12 ? n : n * 1000); return isNaN(d) || !n ? '' : `<lastmod>${d.toISOString().slice(0, 10)}</lastmod>`; };
   const u = (loc, t) => `<url><loc>${escH(loc)}</loc>${ts(t)}</url>`;
   const { results: books } = await env.DB.prepare("SELECT id, json_extract(data,'$.slug') slug, json_extract(data,'$.category') cat, updated_at t FROM docs WHERE col='books'").all();
@@ -657,6 +693,7 @@ async function sitemap(env, url) {
 }
 // Pages de vente des ebooks : /ebook/<adresse>
 async function ebookPage(req, env, url) {
+  const co = canonOrigin(url);
   const slug = url.pathname.split('/')[2];
   const asset = await env.ASSETS.fetch(new Request(new URL('/ebook', url.origin), req));
   let e = null;
@@ -673,9 +710,9 @@ async function ebookPage(req, env, url) {
   const seo = e.seo || {};
   const title = seo.title || e.title || "Dilam B'";
   const desc = seo.description || e.subtitle || '';
-  const img = e.cover ? new URL(e.cover, url.origin).href : url.origin + '/public/images/logo.png';
+  const img = e.cover ? new URL(e.cover, co).href : co + '/public/images/logo.png';
   // Aperçu WhatsApp et Facebook : la bannière si elle existe, plus parlante que la couverture seule.
-  const share = e.banner ? new URL(e.banner, url.origin).href : img;
+  const share = e.banner ? new URL(e.banner, co).href : img;
   const set = (val) => ({ element(el) { el.setAttribute('content', val); } });
   return new HTMLRewriter()
     .on('title', { element(el) { el.setInnerContent(title); } })
@@ -685,7 +722,7 @@ async function ebookPage(req, env, url) {
     .on('meta[property="og:image"]', set(share))
     .on('head', {
       element(el) {
-        const canon = `${url.origin}/ebook/${slug}`;
+        const canon = `${co}/ebook/${slug}`;
         const ld = {
           '@context': 'https://schema.org', '@type': ['Book', 'Product'], name: e.title, image: [img], description: desc, sku: slug, url: canon,
           bookFormat: 'https://schema.org/EBook', inLanguage: 'fr', author: { '@type': 'Person', name: e.author_name || 'Lamine Diabaté' },
@@ -696,6 +733,9 @@ async function ebookPage(req, env, url) {
     })
     // Contenu injecté dans la page : un aller-retour réseau de moins au chargement.
     .on('body', { element(el) { el.append(`<script type="application/json" id="ebdata">${JSON.stringify({ ...e, slug }).replace(/</g, '\\u003c')}</script>`, { html: true }); } })
+    .on('#eb', { element(el) {
+      el.setInnerContent(`<div class="wrap"><h1>${escH(plainText(e.headline || e.title || ''))}</h1><p>${escH(e.title || '')}, ${escH(fcfa(parseInt(e.price, 10) || 0))} en PDF.</p>${ssrParas(e.subtitle || '')}</div>`, { html: true });
+    } })
     .transform(asset);
 }
 
@@ -724,6 +764,8 @@ async function getEbook(env, slug) {
 }
 // PDF de livres d'autres auteurs (rubrique « PDF ») : même stockage et même livraison que les ebooks,
 // mais leur page est une fiche de la boutique (/?pdf=<adresse>) et non une page de vente d'auteur.
+// Adresse officielle du site, utilisée pour les liens canoniques et le plan du site (sauf en local).
+function canonOrigin(url) { return /^(127\.0\.0\.1|localhost)$/.test(url.hostname) ? url.origin : SITE; }
 function isPdfItem(e) { return !!e && e.kind === 'pdf'; }
 function productUrl(origin, slug, e) {
   return isPdfItem(e) ? `${origin}/?pdf=${encodeURIComponent(slug)}` : `${origin}/ebook/${slug}`;
@@ -1022,6 +1064,7 @@ const MAX_HTML_BYTES = 3 * 1024 * 1024;
 function escA(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
 async function ebookHtmlPage(env, url, slug, e) {
+  const co = canonOrigin(url);
   let html = await env.FILES.get(`html/${slug}.html`, { type: 'text' });
   if (!html) {
     const r = dlPage('Page en préparation', '<h1>Cette page arrive bientôt.</h1><p><a class="btn btn-primary" href="/">Retour à la boutique</a></p>');
@@ -1030,8 +1073,8 @@ async function ebookHtmlPage(env, url, slug, e) {
   const price = parseInt(e.price, 10) || 0;
   html = html.split('{{prix}}').join(fcfa(price)).split('{{titre}}').join(escA(e.title || ''));
   const lower = html.slice(0, 20000).toLowerCase();
-  const img = e.cover ? new URL(e.cover, url.origin).href : url.origin + '/public/images/logo.png';
-  let head = `<link rel="stylesheet" href="/assets/buy.css"><link rel="canonical" href="${url.origin}/ebook/${slug}">`;
+  const img = e.cover ? new URL(e.cover, co).href : co + '/public/images/logo.png';
+  let head = `<link rel="stylesheet" href="/assets/buy.css"><link rel="canonical" href="${co}/ebook/${slug}">`;
   if (!lower.includes('name="viewport"')) head += '<meta name="viewport" content="width=device-width, initial-scale=1">';
   if (!lower.includes('og:image')) head += `<meta property="og:image" content="${escA(img)}">`;
   if (!lower.includes('og:title')) head += `<meta property="og:title" content="${escA((e.seo && e.seo.title) || e.title || '')}">`;
@@ -1357,6 +1400,11 @@ export default {
   },
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
+    // Une seule adresse pour Google : l'adresse technique (workers.dev) ou www renvoient vers dilamboutique.com.
+    // L'API reste servie partout (webhook Paystack, appels déjà en cours).
+    if (url.hostname !== new URL(SITE).hostname && !/^(127\.0\.0\.1|localhost)$/.test(url.hostname) && !url.pathname.startsWith('/api/')) {
+      return Response.redirect(SITE + url.pathname + url.search, 301);
+    }
     let res;
     try {
       if (url.pathname.startsWith('/api/')) {
