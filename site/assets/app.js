@@ -25,7 +25,7 @@
   var CAT_BY_KEY = {};
   CATS.forEach(function (c) { CAT_BY_KEY[c.key] = c; });
   var BADGE_SCORE = { bestseller: 4, recommended: 3, coup: 2, new: 1, promo: 1, limited: 1, none: 0 };
-  var TAGS = { bestseller: 'Meilleure vente', new: 'Nouveau', coup: 'Coup de cœur' };
+  var TAGS = { bestseller: 'Meilleure vente', new: 'Nouveau', coup: 'Coup de cœur', recommended: 'Recommandé', limited: 'Stock limité' };
   // Images au gabarit « livre posé sur un bureau » que l'on peut recadrer sur le livre seul.
   var NO_CROP = ['rien-changer.png', 'pensee-positive.jpg', 'pere-psychologie.jpg'];
 
