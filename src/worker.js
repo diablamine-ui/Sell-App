@@ -693,7 +693,7 @@ async function sitemap(env, url) {
     ...ebooks.map((e) => u(`${o}/ebook/${e.id}`, e.t)),
     ...(pdfs.length ? [u(o + '/?vue=pdf')] : []), ...pdfs.map((e) => u(`${o}/?pdf=${encodeURIComponent(e.id)}`, e.t)),
     ...books.map((b) => u(`${o}/?livre=${encodeURIComponent(b.slug || b.id)}`, b.t)),
-    u(o + '/conditions'), u(o + '/confidentialite')];
+    u(o + '/qui-sommes-nous'), u(o + '/conditions'), u(o + '/confidentialite')];
   return new Response(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${lines.join('')}</urlset>`,
     { headers: { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'public, max-age=3600' } });
 }
