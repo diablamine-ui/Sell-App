@@ -169,10 +169,15 @@
     var mh = mediaFor('hero');
     if (mh) h += section('media-sec', mh);
 
+    // Message de vente libre (éditeur de l'administration) : il remplace les sections Problème à Auteur.
+    // Le haut de page, les fichiers, l'appel à l'action et la FAQ restent automatiques.
+    var free = !!(E.body && window.DilamRich && window.DilamRich.hasContent(E.body));
+    if (free) h += section('', '<div class="rich">' + window.DilamRich.render(E.body) + '</div>');
+
     // Problème, agitation, solution
-    if (E.problem) h += section('', '<h2>' + fr(E.problem.title) + '</h2>' + paras(E.problem.paragraphs) + mediaFor('problem'));
-    if (E.agitation) h += section('', '<h2>' + fr(E.agitation.title) + '</h2>' + paras(E.agitation.paragraphs) + mediaFor('agitation'));
-    if (E.solution) {
+    if (!free && E.problem) h += section('', '<h2>' + fr(E.problem.title) + '</h2>' + paras(E.problem.paragraphs) + mediaFor('problem'));
+    if (!free && E.agitation) h += section('', '<h2>' + fr(E.agitation.title) + '</h2>' + paras(E.agitation.paragraphs) + mediaFor('agitation'));
+    if (!free && E.solution) {
       var lad = E.ladder || {};
       var path = lad.layout === 'path';
       h += section('tint',
@@ -190,7 +195,7 @@
     }
 
     // Compétences
-    if (E.skills) h += section('', '<h2>' + fr(E.skills.title) + '</h2><ul class="checks">' +
+    if (!free && E.skills) h += section('', '<h2>' + fr(E.skills.title) + '</h2><ul class="checks">' +
       E.skills.items.map(function (s) { return '<li>' + fr(s) + '</li>'; }).join('') + '</ul>' + mediaFor('skills'));
 
     // Fichiers
@@ -214,12 +219,12 @@
       if (Array.isArray(v)) return '<ul>' + v.map(function (x) { return '<li>' + fr(x) + '</li>'; }).join('') + '</ul>';
       return '<p>' + fr(v) + '</p>';
     }
-    if (E.audience) h += section('', '<h2>' + fr(E.audience.title) + '</h2><div class="fit">' +
+    if (!free && E.audience) h += section('', '<h2>' + fr(E.audience.title) + '</h2><div class="fit">' +
       '<div class="yes">' + (E.audience.yes_title ? '<p class="fit-t">' + fr(E.audience.yes_title) + '</p>' : '') + fitList(E.audience.yes) + '</div>' +
       '<div class="no">' + (E.audience.no_title ? '<p class="fit-t">' + fr(E.audience.no_title) + '</p>' : '') + fitList(E.audience.no) + '</div></div>' + mediaFor('audience'));
 
     // Auteur
-    if (E.author) h += section('tint', '<h2>' + fr(E.author.title) + '</h2><div class="author">' +
+    if (!free && E.author) h += section('tint', '<h2>' + fr(E.author.title) + '</h2><div class="author">' +
       (E.author.photo ? '<img src="' + esc(E.author.photo) + '" alt="' + esc(E.author_name || '') + '" loading="lazy">' : '') +
       '<p>' + fr(E.author.text) + '</p></div>' + mediaFor('author'));
 
@@ -242,7 +247,7 @@
       }).join('') + '</div>');
 
     // Dernier mot
-    if (E.final) h += section('tint final', '<p>' + fr(E.final) + '</p>' + mediaFor('final') + buyBlock(E.cta_final || E.cta || 'Acheter'));
+    if (!free && E.final) h += section('tint final', '<p>' + fr(E.final) + '</p>' + mediaFor('final') + buyBlock(E.cta_final || E.cta || 'Acheter'));
 
     root.innerHTML = h;
     document.getElementById('buybarPrice').textContent = money(E.price);

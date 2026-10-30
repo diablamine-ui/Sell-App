@@ -170,8 +170,12 @@
         '<button class="mini-b" type="button" data-myt>Ajouter une vidéo YouTube</button></div>' +
         '<div class="myt" hidden><input class="in" data-ytin inputmode="url" placeholder="Colle le lien YouTube"><button class="mini-b" type="button" data-ytgo>Ajouter</button></div>' +
         '<small class="mmsg"></small>') +
+      '<label class="lab">Message de vente libre (facultatif)</label>' +
+      '<p class="muted small">S’il est rempli, il remplace sur la page les sections écrites à l’avance (Problème, Solution, Auteur…) et une page HTML déposée. Le haut de page, les fichiers, le bouton d’achat et la FAQ restent automatiques. Laisse-le vide pour garder la page actuelle.</p>' +
+      '<div data-ed></div>' +
       '<div class="actions"><button class="big-b" type="button" data-save>' + (isNew ? 'Créer l’ebook' : 'Enregistrer') + '</button><small class="msg"></small></div>';
     document.getElementById('list').appendChild(box);
+    var ed = window.DilamEditor ? DilamEditor.create(box.querySelector('[data-ed]'), e.body || '', { placeholder: 'Vide : la page garde ses sections actuelles.' }) : null;
 
     var titleIn = box.querySelector('[name=title]'), slugIn = box.querySelector('[name=slug]');
     if (slugIn) titleIn.addEventListener('input', function () { if (!slugIn.dataset.touched) slugIn.value = slugify(titleIn.value); });
@@ -211,6 +215,7 @@
         active: box.querySelector('[name=active]').checked, hidden: box.querySelector('[name=hidden]').checked,
         cover: cover, files: Object.assign({}, e.files || {}, { items: files })
       };
+      if (ed) doc.body = ed.html();
       if (isNew) { doc.mode = 'html'; doc.author_name = 'Lamine Diabaté'; doc.whatsapp_buy = 'Bonjour, je veux acheter « ' + title + ' ».'; }
       msg.textContent = 'Enregistrement…';
       api('/db/ebooks/' + encodeURIComponent(s2), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(doc) })

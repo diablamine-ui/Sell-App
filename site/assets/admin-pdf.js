@@ -107,17 +107,25 @@
       '<span class="pill ' + (on && ok ? 'ok' : '') + '">' + (on && ok ? 'En ligne' : 'Pas en ligne') + '</span></span>' +
       '<span class="muted">' + fcfa(p.price) + '</span></summary>';
   }
-  function textFields(p) {
-    return '<label class="lab">Pourquoi lire ce livre (le texte principal de la page)</label>' +
-      '<textarea class="in" data-f="pitch" maxlength="3000" placeholder="Laisse vide pour afficher la description du livre papier">' + esc(p.pitch || '') + '</textarea>' +
-      '<label class="lab">Ce que tu vas y trouver (un point par ligne)</label>' +
-      '<textarea class="in" data-f="learn" maxlength="2000">' + esc((p.learn || []).join('\n')) + '</textarea>' +
-      '<label class="lab">Pour qui (facultatif)</label>' +
-      '<textarea class="in" data-f="audience" maxlength="1200" style="min-height:70px">' + esc(p.audience || '') + '</textarea>';
+  // Message de vente : un seul champ mis en forme, comme sur Chariow.
+  function textFields() {
+    return '<label class="lab">Description de vente</label>' +
+      '<p class="muted small">Elle s’affiche telle quelle sur la page. Tu peux y coller une description depuis Chariow, avec sa mise en forme.</p>' +
+      '<div data-ed></div>';
   }
-  function readText(box) {
-    var v = function (k) { return box.querySelector('[data-f="' + k + '"]').value.trim(); };
-    return { pitch: v('pitch'), learn: v('learn').split('\n').map(function (l) { return l.trim(); }).filter(Boolean).slice(0, 12), audience: v('audience') };
+  // Anciennes cases (avant l'éditeur) ou description du livre papier, reprises dans l'éditeur à la première ouverture.
+  function legacyHtml(p) {
+    var F = window.DilamEditor ? DilamEditor.fromText : function (t) { return '<p>' + esc(t) + '</p>'; };
+    var h = p.pitch ? F(p.pitch) : (p.description ? F(p.description) : '');
+    if ((p.learn || []).length) h += '<h2>Ce que tu vas y trouver</h2><ul>' + p.learn.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>';
+    if (p.audience) h += '<h2>Pour qui</h2>' + F(p.audience);
+    return h;
+  }
+  function editorFor(box, p) {
+    if (box._ed) return box._ed;
+    if (!window.DilamEditor) { box.querySelector('[data-ed]').innerHTML = '<p class="ko">L’éditeur n’a pas pu se charger. Recharge la page.</p>'; return null; }
+    box._ed = DilamEditor.create(box.querySelector('[data-ed]'), p.body || legacyHtml(p));
+    return box._ed;
   }
 
   function singleItem(p) {
@@ -131,7 +139,7 @@
       '<div class="grid2"><div><label class="lab">Prix (FCFA)</label><input class="in num" data-f="price" type="number" min="100" step="50" value="' + esc(p.price) + '"></div>' +
       '<div><label class="lab">Nombre de pages</label><input class="in num" data-f="pages" type="number" min="0" value="' + esc(f0.pages || '') + '"></div></div>' +
       '<label class="lab">Image (adresse)</label><input class="in" data-f="cover" value="' + esc(p.cover) + '">' +
-      textFields(p) +
+      textFields() +
       '<label class="lab">Fichier PDF (25 Mo au plus)</label>' +
       '<div class="page-row"><label class="up">Envoyer le fichier<input type="file" accept="application/pdf" data-up></label><small class="fst muted">Vérification…</small></div>' +
       '<label class="chk"><input type="checkbox" data-f="active"' + (p.active !== false ? ' checked' : '') + '> En ligne (visible dans la rubrique PDF dès que le fichier est envoyé)</label>' +
@@ -147,7 +155,11 @@
         fst.innerHTML = f ? '<span class="ok">' + esc(f.name || 'Fichier envoyé') + ', ' + esc(size(f.size)) + (f.watermark ? '' : ' (filigrane impossible sur ce fichier)') + '</span>' : '<span class="ko">Aucun fichier pour le moment.</span>';
       });
     }
-    box.addEventListener('toggle', function () { if (box.open && fst.textContent === 'Vérification…') fileState(); });
+    box.addEventListener('toggle', function () {
+      if (!box.open) return;
+      editorFor(box, p);
+      if (fst.textContent === 'Vérification…') fileState();
+    });
 
     box.querySelector('[data-up]').onchange = function () {
       var file = this.files[0]; this.value = '';
@@ -170,7 +182,9 @@
       var doc = Object.assign({
         title: q('title').value.trim(), author: q('author').value.trim(), category: q('category').value,
         price: price, cover: q('cover').value.trim(), active: q('active').checked
-      }, readText(box));
+      });
+      var ed = editorFor(box, p);
+      if (ed) doc.body = ed.html();
       if (hasFile(p)) doc.files = { items: [Object.assign({}, p.files.items[0], { name: doc.title, pages: parseInt(q('pages').value, 10) || '' })] };
       msg.textContent = 'Enregistrement…';
       put(p.slug, doc).then(function () { msg.textContent = 'Enregistré.'; setTimeout(load, 500); })
@@ -201,7 +215,7 @@
       '<div class="grid2"><div><label class="lab">Prix du pack (FCFA)</label><input class="in num" data-f="price" type="number" min="100" step="50" value="' + esc(p.price) + '"></div>' +
       '<div><label class="lab">Rayon</label><select class="in" data-f="category">' + CATS.map(function (c) { return '<option value="' + c[0] + '"' + (c[0] === p.category ? ' selected' : '') + '>' + c[1] + '</option>'; }).join('') + '</select></div></div>' +
       '<label class="lab">Image (facultatif : sinon les couvertures des livres s’affichent en éventail)</label><input class="in" data-f="cover" value="' + esc(p.cover || '') + '">' +
-      textFields(p) +
+      textFields() +
       '<label class="chk"><input type="checkbox" data-f="active"' + (p.active !== false ? ' checked' : '') + '> En ligne</label>' +
       '<div class="actions"><button class="big-b" type="button" data-save>Enregistrer le pack</button>' +
       (isNew ? '' : '<a href="/?pdf=' + encodeURIComponent(p.slug) + '" target="_blank" rel="noopener">Voir la page</a><button class="mini-b ko-b" type="button" data-del style="margin-top:16px">Supprimer</button>') +
@@ -216,6 +230,8 @@
     }
     box.querySelector('.members').addEventListener('change', val);
     val();
+    if (isNew) editorFor(box, p);
+    box.addEventListener('toggle', function () { if (box.open) editorFor(box, p); });
 
     box.querySelector('[data-save]').onclick = function () {
       var title = q('title').value.trim(), price = parseInt(q('price').value, 10), items = picked();
@@ -235,7 +251,9 @@
         kind: 'pdf', pack: true, slug: slug, title: title, author: '', items: items, price: price,
         category: q('category').value, cover: q('cover').value.trim(), active: q('active').checked, hidden: false,
         files: { items: files }
-      }, readText(box));
+      });
+      var ed = editorFor(box, p);
+      if (ed) doc.body = ed.html();
       msg.textContent = 'Enregistrement…';
       put(slug, doc).then(function () { msg.textContent = 'Enregistré.'; setTimeout(load, 500); })
         .catch(function (e) { msg.textContent = 'Échec (' + e.message + ').'; });

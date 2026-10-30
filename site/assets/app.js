@@ -54,6 +54,8 @@
     return String(t || '').split(/\n\s*\n+/).map(function (p) { return p.trim(); }).filter(Boolean)
       .map(function (p) { return '<p>' + richText(p).replace(/\n/g, '<br>') + '</p>'; }).join('');
   }
+  // Description mise en forme dans l'éditeur de l'administration (nettoyée par rich.js avant affichage).
+  function richOk(h) { return !!(h && window.DilamRich && window.DilamRich.hasContent(h)); }
   function money(n) { return (parseInt(n, 10) || 0).toLocaleString('fr-FR').replace(/ | /g, ' ') + ' FCFA'; }
   function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
   function imgSrc(u) {
@@ -129,6 +131,7 @@
       featured: !!r.featured,
       image: r.image || '',
       desc: r.description || '',
+      descHtml: r.description_html || '',
       slug: r.slug || '',
       sort: typeof r.sort_order === 'number' ? r.sort_order : null
     };
@@ -589,7 +592,10 @@
             pdpPromo() +
           '</div>' +
         '</article>' +
-        (b.desc ? '<section class="pdp-desc"><h2>À propos de ce livre</h2><div class="txt is-clamped" id="descTxt">' + descHTML(b.desc) + '</div>' +
+        (richOk(b.descHtml)
+          ? '<section class="pdp-desc"><h2>À propos de ce livre</h2><div class="rich is-clamped" id="descTxt">' + window.DilamRich.render(b.descHtml) + '</div>' +
+            '<button type="button" class="desc-more" id="descMore" hidden aria-expanded="false" aria-controls="descTxt">Lire la suite</button></section>'
+          : b.desc ? '<section class="pdp-desc"><h2>À propos de ce livre</h2><div class="txt is-clamped" id="descTxt">' + descHTML(b.desc) + '</div>' +
           '<button type="button" class="desc-more" id="descMore" hidden aria-expanded="false" aria-controls="descTxt">Lire la suite</button></section>' : '') +
         (related.length ? '<section class="section"><div class="section-head"><h2>Dans la même catégorie</h2></div><div class="rail">' + related.map(card).join('') + '</div></section>' : '') +
       '</div>';
@@ -635,7 +641,7 @@
       slug: e.slug || e._id, title: e.title, author: e.author || '', price: parseInt(e.price, 10) || 0,
       category: CAT_BY_KEY[e.category] ? e.category : 'autre', cover: e.cover || '',
       pack: !!e.pack, members: e.pack ? (e.items || []) : [],
-      pitch: e.pitch || '', learn: (e.learn || []).filter(Boolean), audience: e.audience || '', desc: e.description || '',
+      body: e.body || '', pitch: e.pitch || '', learn: (e.learn || []).filter(Boolean), audience: e.audience || '', desc: e.description || '',
       pages: items.reduce(function (s, f) { return s + (parseInt(f.pages, 10) || 0); }, 0)
     };
   }
@@ -734,10 +740,13 @@
           members.map(function (m) {
             return '<li><a href="' + pdfUrl(m) + '" data-nav="pdf">' + pdfCover(m) + '<span><strong>' + esc(m.title) + '</strong><span>' + esc(m.author) + ', ' + money(m.price) + ' seul</span></span></a></li>';
           }).join('') + '</ul></section>' : '') +
-        (about ? '<section class="pdp-desc"><h2>' + (p.pitch ? (p.pack ? 'Pourquoi ce pack' : 'Pourquoi lire ce livre') : 'À propos de ce livre') + '</h2><div class="txt is-clamped" id="descTxt">' + descHTML(about) + '</div>' +
-          '<button type="button" class="desc-more" id="descMore" hidden aria-expanded="false" aria-controls="descTxt">Lire la suite</button></section>' : '') +
-        (p.learn.length ? '<section class="pdp-desc"><h2>Ce que tu vas y trouver</h2><ul class="pdf-learn">' + p.learn.map(function (l) { return '<li>' + richText(l) + '</li>'; }).join('') + '</ul></section>' : '') +
-        (p.audience ? '<section class="pdp-desc"><h2>Pour qui</h2><div class="txt">' + descHTML(p.audience) + '</div></section>' : '') +
+        (richOk(p.body)
+          // Message de vente écrit dans l'éditeur : affiché en entier, sans « Lire la suite ».
+          ? '<section class="pdp-desc"><div class="rich">' + window.DilamRich.render(p.body) + '</div></section>'
+          : (about ? '<section class="pdp-desc"><h2>' + (p.pitch ? (p.pack ? 'Pourquoi ce pack' : 'Pourquoi lire ce livre') : 'À propos de ce livre') + '</h2><div class="txt is-clamped" id="descTxt">' + descHTML(about) + '</div>' +
+            '<button type="button" class="desc-more" id="descMore" hidden aria-expanded="false" aria-controls="descTxt">Lire la suite</button></section>' : '') +
+            (p.learn.length ? '<section class="pdp-desc"><h2>Ce que tu vas y trouver</h2><ul class="pdf-learn">' + p.learn.map(function (l) { return '<li>' + richText(l) + '</li>'; }).join('') + '</ul></section>' : '') +
+            (p.audience ? '<section class="pdp-desc"><h2>Pour qui</h2><div class="txt">' + descHTML(p.audience) + '</div></section>' : '')) +
         '<section class="pdp-desc"><h2>Comment ça marche</h2><ol class="steps">' +
           '<li class="step"><div><h3>Tu paies en ligne</h3><p>Avec Wave, Orange Money, MTN ou ta carte bancaire. Paiement sécurisé par Paystack.</p></div></li>' +
           '<li class="step"><div><h3>Tu reçois ton lien tout de suite</h3><p>Un bouton de téléchargement s’affiche à l’écran, et le lien t’est aussi envoyé par e-mail.</p></div></li>' +

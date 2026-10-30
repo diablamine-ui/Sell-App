@@ -984,6 +984,9 @@ body.admin-only>*:not(.admin-panel):not(.toast):not(script):not(style){display:n
 body.admin-only .admin-panel{width:100vw;max-width:none;transform:none!important;box-shadow:none}
 @media(min-width:760px){body.admin-only .admin-panel{left:50%;width:720px;margin-left:-360px}}
 </style>
+<link rel="stylesheet" href="/assets/vendor/quill/quill.snow.css">
+<script src="/assets/vendor/quill/quill.js" defer></script>
+<script src="/assets/rich-editor.js" defer></script>
 </head>
 <body>
 
@@ -1568,7 +1571,7 @@ body.admin-only .admin-panel{width:100vw;max-width:none;transform:none!important
           <div class="adm-check"><input type="checkbox" id="fFeatured"><label for="fFeatured">⭐ À la une : dans l’étagère en haut de l’accueil (8 à 12 livres conseillés)</label></div>
           <div class="adm-check"><input type="checkbox" id="fOutOfStock"><label for="fOutOfStock">Rupture de stock</label></div>
           <div class="adm-field"><label class="adm-field-lbl">Stock disponible</label><input class="adm-input" id="fStock" type="number" placeholder="Ex: 5 → affiche alerte stock limité"><div class="adm-hint" style="margin-top:4px">Laisse vide si illimité. En dessous de 5 → alerte automatique.</div></div>
-          <div class="adm-field"><label class="adm-field-lbl">Description / Message PASA</label><textarea class="adm-textarea" id="fDesc" placeholder="Ce livre est pour toi si…" style="min-height:110px"></textarea></div>
+          <div class="adm-field"><label class="adm-field-lbl">Description / Message PASA</label><textarea class="adm-textarea" id="fDesc" placeholder="Ce livre est pour toi si…" style="min-height:110px"></textarea><div id="fDescEd"></div></div>
           <div class="adm-field">
             <label class="adm-field-lbl">Couverture</label>
             <div style="display:flex;gap:6px;margin-bottom:6px">
@@ -1730,7 +1733,7 @@ let dragSrcId=null;
 // ══════════════════════════════════════
 // DATA MAPPING
 // ══════════════════════════════════════
-function rowToBook(r){return{id:r.id,title:r.title||'Sans titre',author:r.author||'',price:parseInt(r.price)||0,oldPrice:r.old_price?parseInt(r.old_price)||null:null,category:r.category||'autre',badge:r.badge||'none',outOfStock:r.out_of_stock||false,image:r.image||null,desc:r.description||'',slug:r.slug||'',videoUrl:r.video_url||'',featured:r.featured||false,stock:r.stock||null};}
+function rowToBook(r){return{id:r.id,title:r.title||'Sans titre',author:r.author||'',price:parseInt(r.price)||0,oldPrice:r.old_price?parseInt(r.old_price)||null:null,category:r.category||'autre',badge:r.badge||'none',outOfStock:r.out_of_stock||false,image:r.image||null,desc:r.description||'',descHtml:r.description_html||'',slug:r.slug||'',videoUrl:r.video_url||'',featured:r.featured||false,stock:r.stock||null};}
 function bookToRow(b){return{title:b.title,author:b.author,price:b.price,old_price:b.oldPrice||null,category:b.category,badge:b.badge||'none',out_of_stock:b.outOfStock||false,image:b.image||null,description:b.desc||'',slug:b.slug||'',video_url:b.videoUrl||'',featured:b.featured||false,stock:b.stock||null};}
 
 // ══════════════════════════════════════
@@ -1753,7 +1756,7 @@ async function loadData(){
           id:i+1,_fbId:r._id||r.id,title:r.title||'Sans titre',author:r.author||'',price:parseInt(r.price)||0,
           oldPrice:r.old_price?parseInt(r.old_price)||null:null,category:r.category||'autre',
           badge:r.badge||'none',outOfStock:r.out_of_stock||false,
-          image:r.image||null,desc:r.description||'',slug:r.slug||'',
+          image:r.image||null,desc:r.description||'',descHtml:r.description_html||'',slug:r.slug||'',
           videoUrl:r.video_url||'',featured:r.featured||false,stock:r.stock||null,
           sort_order:(typeof r.sort_order==='number')?r.sort_order:null
         };
@@ -2607,6 +2610,19 @@ function renderAdmList(){
   }).join('');
 }
 function filterAdmList(){renderAdmList();}
+// Éditeur de description (mise en forme, images, vidéos). Si l'éditeur ne charge pas, la zone de texte simple reste.
+var descEd=null;
+function descEditor(){
+  if(descEd)return descEd;
+  if(!window.DilamEditor)return null;
+  descEd=DilamEditor.create(document.getElementById('fDescEd'),'');
+  document.getElementById('fDesc').style.display='none';
+  return descEd;
+}
+function setDesc(book){
+  var ed=descEditor();
+  if(ed)ed.set(book?(book.descHtml||DilamEditor.fromText(book.desc||'')):'');
+}
 function showAddForm(){
   editingId=null;
   document.getElementById('admFormTitle').textContent='Nouveau titre';
@@ -2614,6 +2630,7 @@ function showAddForm(){
   document.getElementById('fPrice').value='';document.getElementById('fOldPrice').value='';
   document.getElementById('fCategory').value='devperso';document.getElementById('fOutOfStock').checked=false;document.getElementById('fFeatured').checked=false;
   document.getElementById('imgPreview').innerHTML='<span>Aperçu de la couverture</span>';
+  setDesc(null);
   selectBadge('none');
   document.getElementById('admMain').style.display='none';document.getElementById('admForm').style.display='block';
   setTimeout(function(){var t=document.getElementById('fTitle');if(t)t.focus();},100);
@@ -2623,7 +2640,7 @@ function editBook(id){
   editingId=id;document.getElementById('admFormTitle').textContent='Modifier le titre';
   document.getElementById('fTitle').value=book.title;document.getElementById('fAuthor').value=book.author;
   document.getElementById('fPrice').value=book.price;document.getElementById('fOldPrice').value=book.oldPrice||'';
-  document.getElementById('fCategory').value=book.category;document.getElementById('fDesc').value=book.desc||'';
+  document.getElementById('fCategory').value=book.category;document.getElementById('fDesc').value=book.desc||'';setDesc(book);
   document.getElementById('fImage').value=book.image||'';document.getElementById('fOutOfStock').checked=!!book.outOfStock;
   document.getElementById('fFeatured').checked=!!book.featured;
   document.getElementById('fSlug').value=book.slug||'';document.getElementById('fVideoUrl').value=book.videoUrl||'';
@@ -2654,6 +2671,9 @@ async function saveBook(){
   var opRaw=parseInt(document.getElementById('fOldPrice').value);var oldPrice=isNaN(opRaw)||opRaw<=0?null:opRaw;
   var category=document.getElementById('fCategory').value;
   var desc=(document.getElementById('fDesc').value||'').trim();
+  // Avec l'éditeur : le texte simple reste enregistré (recherche, WhatsApp), la mise en forme à côté.
+  var dEd=descEditor(),descHtml=null;
+  if(dEd){desc=dEd.text();descHtml=dEd.html();}
   var image=(document.getElementById('fImage').value||'').trim()||null;
   var badge=document.getElementById('fBadge').value;
   var outOfStock=document.getElementById('fOutOfStock').checked;
@@ -2666,15 +2686,16 @@ async function saveBook(){
     badge:badge||'none',out_of_stock:outOfStock||false,image:image||null,
     description:desc||'',slug:slug||'',video_url:videoUrl||'',
     featured:featured||false,stock:stock||null};
+  if(descHtml!==null)row.description_html=descHtml;
   try{
     if(editingId!==null){
       var editingFbId=(BOOKS.find(function(b){return b.id==editingId;})||{})._fbId||String(editingId);await fbSet('books',editingFbId,row);
       var idx=BOOKS.findIndex(function(b){return String(b.id)===String(editingId);});
-      if(idx!==-1)BOOKS[idx]={...BOOKS[idx],title:title,author:author,price:price||0,oldPrice:oldPrice,category:category,desc:desc,image:image,badge:badge,outOfStock:outOfStock,featured:featured,slug:slug,videoUrl:videoUrl,stock:stock};
+      if(idx!==-1)BOOKS[idx]={...BOOKS[idx],title:title,author:author,price:price||0,oldPrice:oldPrice,category:category,desc:desc,descHtml:descHtml||'',image:image,badge:badge,outOfStock:outOfStock,featured:featured,slug:slug,videoUrl:videoUrl,stock:stock};
       showToast('Titre mis à jour ✓');
     }else{
       var res=await fbAdd('books',row);
-      var newBook={id:res._id,title,author,price,oldPrice,category,desc,image,badge,outOfStock,featured,slug,videoUrl,stock};
+      var newBook={id:res._id,title,author,price,oldPrice,category,desc,descHtml:descHtml||'',image,badge,outOfStock,featured,slug,videoUrl,stock};
       BOOKS.push(newBook);normalizeBooksIds();
       showToast('Titre ajouté ✓');
     }

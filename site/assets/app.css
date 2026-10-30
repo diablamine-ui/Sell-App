@@ -717,3 +717,25 @@ html .pdp-promo-price, html .pdp-promo-go { color: var(--nuit) !important; }
 .pdf-members span span { color: var(--gris); font-size: 14px; }
 .pdf-cover .cv img { max-height: none; border-radius: 0; }
 .pdf-cover .cv-sq img, .pdf-cover .cv-full img { width: 100%; height: 100%; }
+
+/* ── Descriptions mises en forme (éditeur de l'administration) ── */
+.rich { font-size: 16.5px; line-height: 1.65; max-width: 66ch; white-space: normal; overflow-wrap: anywhere; }
+.rich > * + * { margin-top: .75em; }
+.rich h1, .rich h2, .rich h3 { font-family: var(--serif); font-weight: 500; line-height: 1.25; margin-top: 1.2em; }
+.rich > :first-child { margin-top: 0; }
+.rich h1 { font-size: 26px; } .rich h2 { font-size: 22px; } .rich h3 { font-size: 19px; }
+.rich blockquote { margin-left: 0; padding-left: 14px; border-left: 3px solid var(--trait); font-style: italic; }
+.rich ol, .rich ul { padding-left: 1.4em; margin-bottom: 0; }
+.rich li + li { margin-top: .3em; }
+.rich li[data-list="bullet"] { list-style-type: disc; }
+.rich li[data-list="ordered"] { list-style-type: decimal; }
+.rich a { color: var(--action); text-decoration: underline; text-underline-offset: 2px; }
+.rich img { display: block; max-width: 100%; height: auto; border-radius: 8px; }
+.rich iframe.ql-video { display: block; width: 100%; aspect-ratio: 16 / 9; height: auto; border: 0; border-radius: 8px; }
+.rich .ql-align-center { text-align: center; } .rich .ql-align-right { text-align: right; } .rich .ql-align-justify { text-align: justify; }
+.rich .ql-align-center img, .rich .ql-align-center iframe { margin-left: auto; margin-right: auto; }
+.rich .ql-size-small { font-size: .8em; } .rich .ql-size-large { font-size: 1.35em; } .rich .ql-size-huge { font-size: 1.9em; line-height: 1.25; }
+.rich .ql-font-literata { font-family: var(--serif); } .rich .ql-font-onest { font-family: var(--sans); }
+.rich .ql-font-playfair { font-family: "Playfair Display", Georgia, serif; } .rich .ql-font-montserrat { font-family: Montserrat, var(--sans); } .rich .ql-font-lora { font-family: Lora, Georgia, serif; }
+.rich .ql-indent-1 { padding-left: 1.5em; } .rich .ql-indent-2 { padding-left: 3em; } .rich .ql-indent-3 { padding-left: 4.5em; }
+.rich.is-clamped { max-height: 18em; overflow: hidden; -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }

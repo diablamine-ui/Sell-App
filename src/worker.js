@@ -588,7 +588,7 @@ async function bookPage(req, env, url) {
         crumbHref: `/?cat=${encodeURIComponent(b.category || 'autre')}`, crumbLabel: CAT_LABEL[b.category] || 'Catalogue',
         title: b.title || '', byline: b.category === 'pack' ? 'Pack de deux livres' : (b.author || ''), price: fcfa(parseInt(b.price, 10) || 0),
         img: b.image || '', extra: '<p class="pdp-author">Paiement à la livraison. Livraison en 24 h à Abidjan.</p>',
-        about: b.description || '', aboutTitle: 'À propos de ce livre',
+        about: (b.description_html && htmlToText(b.description_html).trim()) || b.description || '', aboutTitle: 'À propos de ce livre',
       }), { html: true });
     } })
     .transform(asset);
@@ -600,6 +600,12 @@ function plainText(t) { return String(t || '').replace(/\*\*/g, '').replace(/[\u
 
 // Contenu écrit par le serveur dans la page : Google lit le titre, le prix et la description sans attendre
 // le chargement du site (sinon toutes les fiches lui paraissent identiques). Le site le remplace ensuite.
+// Description écrite dans l'éditeur (HTML) ramenée à du texte, pour Google et les aperçus de partage.
+function htmlToText(h) {
+  return String(h || '').replace(/<(\/(p|h[1-6]|li|blockquote)|br\s*\/?)>/gi, '\n\n').replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+}
+function hasBody(e) { return !!(e && e.body && (htmlToText(e.body).trim() || /<(img|iframe)\b/i.test(e.body))); }
 const CAT_LABEL = { finance: 'Finances', devperso: 'Développement personnel', productivite: 'Productivité', cheikh: 'Cheikh Anta Diop', pack: 'Packs', autre: 'Autres' };
 function ssrParas(t) {
   return String(t || '').split(/\n\s*\n+/).map((x) => plainText(x)).filter(Boolean).slice(0, 10).map((x) => `<p>${escH(x)}</p>`).join('');
@@ -622,7 +628,7 @@ async function pdfPage(req, env, url) {
   const e = await getEbook(env, slug).catch(() => null);
   if (!isPdfItem(e) || e.active === false) return asset;
   const title = `${e.title} en PDF | Dilam B'`;
-  const lead = plainText(e.pitch || e.description || '').slice(0, 150);
+  const lead = plainText(hasBody(e) ? htmlToText(e.body) : (e.pitch || e.description || '')).slice(0, 150);
   const desc = `${e.title}${e.author ? ', ' + e.author : ''}. PDF à ${fcfa(parseInt(e.price, 10) || 0)}, reçu tout de suite après le paiement.${lead ? ' ' + lead : ''}`.slice(0, 300);
   const img = e.cover ? new URL(encodeURI(decodeURISafe(e.cover)), co).href : co + '/public/images/logo.png';
   const set = (val) => ({ element(el) { el.setAttribute('content', val); } });
@@ -648,8 +654,8 @@ async function pdfPage(req, env, url) {
         crumbHref: '/?vue=pdf', crumbLabel: 'PDF',
         title: e.title || '', byline: e.pack ? `Pack de ${(e.items || []).length} livres en PDF` : (e.author || ''), price: fcfa(parseInt(e.price, 10) || 0),
         img: e.cover || '', extra: '<p class="pdp-author">En PDF, reçu tout de suite après le paiement.</p>',
-        about: e.pitch || e.description || '', aboutTitle: e.pitch ? (e.pack ? 'Pourquoi ce pack' : 'Pourquoi lire ce livre') : 'À propos de ce livre',
-        list: e.learn || [], listTitle: 'Ce que tu vas y trouver',
+        about: hasBody(e) ? htmlToText(e.body) : (e.pitch || e.description || ''), aboutTitle: hasBody(e) || e.pitch ? (e.pack ? 'Pourquoi ce pack' : 'Pourquoi lire ce livre') : 'À propos de ce livre',
+        list: hasBody(e) ? [] : (e.learn || []), listTitle: 'Ce que tu vas y trouver',
       }), { html: true });
     } })
     .transform(asset);
@@ -706,7 +712,8 @@ async function ebookPage(req, env, url) {
     return new Response(r.body, { status: 404, headers: r.headers });
   }
   if (isPdfItem(e)) return Response.redirect(productUrl(url.origin, slug, e), 301);
-  if (e.mode === 'html') return ebookHtmlPage(env, url, slug, e);
+  // Une page déposée en HTML reste servie telle quelle, sauf si un message de vente a été écrit dans l'éditeur.
+  if (e.mode === 'html' && !hasBody(e)) return ebookHtmlPage(env, url, slug, e);
   const seo = e.seo || {};
   const title = seo.title || e.title || "Dilam B'";
   const desc = seo.description || e.subtitle || '';
@@ -734,7 +741,7 @@ async function ebookPage(req, env, url) {
     // Contenu injecté dans la page : un aller-retour réseau de moins au chargement.
     .on('body', { element(el) { el.append(`<script type="application/json" id="ebdata">${JSON.stringify({ ...e, slug }).replace(/</g, '\\u003c')}</script>`, { html: true }); } })
     .on('#eb', { element(el) {
-      el.setInnerContent(`<div class="wrap"><h1>${escH(plainText(e.headline || e.title || ''))}</h1><p>${escH(e.title || '')}, ${escH(fcfa(parseInt(e.price, 10) || 0))} en PDF.</p>${ssrParas(e.subtitle || '')}</div>`, { html: true });
+      el.setInnerContent(`<div class="wrap"><h1>${escH(plainText(e.headline || e.title || ''))}</h1><p>${escH(e.title || '')}, ${escH(fcfa(parseInt(e.price, 10) || 0))} en PDF.</p>${ssrParas(e.subtitle || '')}${hasBody(e) ? ssrParas(htmlToText(e.body)) : ''}</div>`, { html: true });
     } })
     .transform(asset);
 }
