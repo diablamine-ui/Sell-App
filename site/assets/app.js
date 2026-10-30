@@ -154,7 +154,9 @@
         return x - y;
       });
       rows.forEach(function (b, i) { b.pos = i + 1; });
-      BOOKS = rows;
+      // Un pack marqué en rupture disparaît de toute la boutique (accueil, catalogue, recherche).
+      // Les livres seuls épuisés restent visibles, avec « Être prévenu ».
+      BOOKS = rows.filter(function (b) { return !(b.category === 'pack' && b.oos); });
       res[1].forEach(function (d) {
         if (d._id === 'sell_config' && d.value) Object.assign(CONFIG, d.value);
         if (d._id === 'sell_delivery' && d.value) applyDelivery(d.value);

@@ -684,7 +684,7 @@ async function sitemap(env, url) {
   const o = co;
   const ts = (t) => { const n = Number(t) || 0; const d = new Date(n > 1e12 ? n : n * 1000); return isNaN(d) || !n ? '' : `<lastmod>${d.toISOString().slice(0, 10)}</lastmod>`; };
   const u = (loc, t) => `<url><loc>${escH(loc)}</loc>${ts(t)}</url>`;
-  const { results: books } = await env.DB.prepare("SELECT id, json_extract(data,'$.slug') slug, json_extract(data,'$.category') cat, updated_at t FROM docs WHERE col='books'").all();
+  const { results: books } = await env.DB.prepare("SELECT id, json_extract(data,'$.slug') slug, json_extract(data,'$.category') cat, updated_at t FROM docs WHERE col='books' AND NOT (json_extract(data,'$.category')='pack' AND COALESCE(json_extract(data,'$.out_of_stock'),0)=1)").all();
   const { results: allEb } = await env.DB.prepare("SELECT id, updated_at t, json_extract(data,'$.kind') kind, json_array_length(json_extract(data,'$.files.items')) nf FROM docs WHERE col='ebooks' AND COALESCE(json_extract(data,'$.hidden'),0)=0 AND COALESCE(json_extract(data,'$.active'),1)=1").all();
   const ebooks = allEb.filter((e) => e.kind !== 'pdf');
   const pdfs = allEb.filter((e) => e.kind === 'pdf' && e.nf > 0);
