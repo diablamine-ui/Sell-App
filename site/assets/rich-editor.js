@@ -9,6 +9,26 @@
   var BG_SITE = ['#F2ECE1', '#F4F5F1', '#E6E9E3', '#E3F1E8', '#FCE9D6', '#F9DEDC', '#16130F'];
   var FONTS = ['literata', 'onest', 'playfair', 'montserrat', 'lora'];
 
+  // Vidéo envoyée depuis le téléphone (MP4 ou WebM, 20 Mo au plus), lue directement dans la page.
+  var BlockEmbed = Quill.import('blots/block/embed');
+  class Mp4 extends BlockEmbed {
+    static create(value) {
+      var n = super.create();
+      n.setAttribute('src', value);
+      n.setAttribute('controls', '');
+      n.setAttribute('playsinline', '');
+      n.setAttribute('preload', 'metadata');
+      return n;
+    }
+    static value(n) { return n.getAttribute('src'); }
+  }
+  Mp4.blotName = 'mp4';
+  Mp4.tagName = 'video';
+  Mp4.className = 'ql-mp4';
+  Quill.register(Mp4, true);
+  Quill.import('ui/icons').mp4 = '<svg viewBox="0 0 18 18"><rect class="ql-stroke" x="2" y="4" width="10" height="10" rx="1.5"></rect><polygon class="ql-fill" points="12 8 16 5.5 16 12.5 12 10"></polygon><polyline class="ql-stroke" points="7 11.5 7 6.5"></polyline><polyline class="ql-stroke" points="5 8.5 7 6.5 9 8.5"></polyline></svg>';
+  var MAX_VID = 20 * 1024 * 1024;
+
   var Font = Quill.import('attributors/class/font');
   Font.whitelist = FONTS;
   Quill.register(Font, true);
@@ -25,6 +45,8 @@
     '.dil-ed .ql-editor h1,.dil-ed .ql-editor h2,.dil-ed .ql-editor h3{color:#13201A;margin:.4em 0 .2em;font-family:Literata,Georgia,serif;font-weight:500}',
     '.dil-ed .ql-editor a{color:#127A4B}',
     '.dil-ed .ql-editor .ql-video{width:100%;aspect-ratio:16/9;height:auto}',
+    '.dil-ed .ql-editor video.ql-mp4{display:block;width:100%;max-height:60vh;border-radius:8px;background:#000}',
+    '.dil-ed .dil-st{padding:6px 12px;font-size:13.5px;color:#13201A;background:#F4F5F1;border-top:1px solid #DCDFD8}',
     '.ql-snow .ql-picker.ql-header .ql-picker-label::before,.ql-snow .ql-picker.ql-header .ql-picker-item::before{content:"Texte"}',
     '.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="1"]::before,.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="1"]::before{content:"Titre 1"}',
     '.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="2"]::before,.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="2"]::before{content:"Titre 2"}',
@@ -100,7 +122,7 @@
             ['bold', 'italic', 'underline', 'strike'], ['blockquote'],
             [{ color: SITE_COLORS.concat(MORE) }, { background: BG_SITE.concat(MORE) }],
             [{ align: [] }], [{ list: 'ordered' }, { list: 'bullet' }],
-            ['link', 'image', 'video'], ['clean']
+            ['link', 'image', 'mp4', 'video'], ['clean']
           ],
           handlers: {
             image: function () {
@@ -124,6 +146,34 @@
               };
               inp.click();
             },
+            mp4: function () {
+              var inp = document.createElement('input');
+              inp.type = 'file'; inp.accept = 'video/mp4,video/webm';
+              inp.onchange = function () {
+                var f = inp.files[0]; if (!f) return;
+                if (!/^video\/(mp4|webm)$/.test(f.type)) { alert('Choisis une vidéo MP4 (le format habituel des téléphones).'); return; }
+                if (f.size > MAX_VID) { alert('Cette vidéo fait ' + (f.size / 1048576).toFixed(1).replace('.', ',') + ' Mo : 20 Mo au plus. Raccourcis-la ou exporte-la en 720p dans CapCut, ou mets-la sur YouTube et utilise le bouton YouTube.'); return; }
+                var range = q.getSelection(true) || { index: q.getLength() };
+                var x = new XMLHttpRequest();
+                x.open('POST', '/api/admin/video');
+                x.withCredentials = true;
+                x.setRequestHeader('X-Dilam', '1');
+                x.setRequestHeader('Content-Type', f.type);
+                x.upload.onprogress = function (ev) { if (ev.lengthComputable) status('Envoi de la vidéo : ' + Math.round(ev.loaded / ev.total * 100) + ' %'); };
+                x.onload = function () {
+                  var d = {}; try { d = JSON.parse(x.responseText); } catch (e) {}
+                  if (x.status >= 200 && x.status < 300 && d.url) {
+                    q.insertEmbed(range.index, 'mp4', d.url, 'user');
+                    q.setSelection(range.index + 1, 0, 'silent');
+                    status('Vidéo ajoutée. Pense à enregistrer.');
+                  } else status('La vidéo n’a pas pu être envoyée (' + (d.error || x.status) + ').');
+                };
+                x.onerror = function () { status('Envoi impossible : vérifie ta connexion et réessaie.'); };
+                status('Envoi de la vidéo : 0 %');
+                x.send(f);
+              };
+              inp.click();
+            },
             video: function () {
               var u = prompt('Colle le lien de la vidéo YouTube');
               if (!u) return;
@@ -137,6 +187,16 @@
         }
       }
     });
+    var st = null;
+    function status(t) {
+      if (!st) { st = document.createElement('div'); st.className = 'dil-st'; el.appendChild(st); }
+      st.textContent = t;
+    }
+    // Infobulles en français sur les boutons.
+    var tb = el.querySelector('.ql-toolbar');
+    [['.ql-image', 'Image'], ['.ql-mp4', 'Vidéo depuis ton téléphone (20 Mo au plus)'], ['.ql-video', 'Vidéo YouTube'], ['.ql-link', 'Lien'], ['.ql-clean', 'Retirer la mise en forme'], ['.ql-blockquote', 'Citation']].forEach(function (b) {
+      var n = tb && tb.querySelector(b[0]); if (n) { n.title = b[1]; n.setAttribute('aria-label', b[1]); }
+    });
     function set(h) {
       q.setContents([], 'silent');
       if (h) q.clipboard.dangerouslyPasteHTML(0, h, 'silent');
@@ -149,7 +209,7 @@
       // Sans les marqueurs internes de Quill (puces de liste) : le site dessine lui-même les puces.
       html: function () { return this.empty() ? '' : q.root.innerHTML.replace(/<span class="ql-ui"[^>]*><\/span>/g, ''); },
       text: function () { return q.getText().replace(/\n{3,}/g, '\n\n').trim(); },
-      empty: function () { return !q.getText().trim() && !q.root.querySelector('img, iframe'); }
+      empty: function () { return !q.getText().trim() && !q.root.querySelector('img, iframe, video'); }
     };
   }
   window.DilamEditor = { create: create, fromText: fromText };

@@ -605,7 +605,7 @@ function htmlToText(h) {
   return String(h || '').replace(/<(\/(p|h[1-6]|li|blockquote)|br\s*\/?)>/gi, '\n\n').replace(/<[^>]*>/g, '')
     .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
 }
-function hasBody(e) { return !!(e && e.body && (htmlToText(e.body).trim() || /<(img|iframe)\b/i.test(e.body))); }
+function hasBody(e) { return !!(e && e.body && (htmlToText(e.body).trim() || /<(img|iframe|video)\b/i.test(e.body))); }
 const CAT_LABEL = { finance: 'Finances', devperso: 'Développement personnel', productivite: 'Productivité', cheikh: 'Cheikh Anta Diop', pack: 'Packs', autre: 'Autres' };
 function ssrParas(t) {
   return String(t || '').split(/\n\s*\n+/).map((x) => plainText(x)).filter(Boolean).slice(0, 10).map((x) => `<p>${escH(x)}</p>`).join('');
