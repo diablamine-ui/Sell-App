@@ -154,9 +154,7 @@
         return x - y;
       });
       rows.forEach(function (b, i) { b.pos = i + 1; });
-      // Un pack marqué en rupture disparaît de toute la boutique (accueil, catalogue, recherche).
-      // Les livres seuls épuisés restent visibles, avec « Être prévenu ».
-      BOOKS = rows.filter(function (b) { return !(b.category === 'pack' && b.oos); });
+      BOOKS = rows;
       res[1].forEach(function (d) {
         if (d._id === 'sell_config' && d.value) Object.assign(CONFIG, d.value);
         if (d._id === 'sell_delivery' && d.value) applyDelivery(d.value);
@@ -221,7 +219,8 @@
     opts = opts || {};
     var tag = '';
     if (opts.tag) {
-      if (isPromo(b)) tag = '<span class="cv-tag promo">Promo</span>';
+      if (b.oos) tag = '<span class="cv-tag oos">En rupture</span>';
+      else if (isPromo(b)) tag = '<span class="cv-tag promo">Promo</span>';
       else if (TAGS[b.badge]) tag = '<span class="cv-tag">' + TAGS[b.badge] + '</span>';
     }
     if (!b.image) {
@@ -242,7 +241,7 @@
       cover(b, { tag: true }) +
       '<div class="card-body"><h3 class="card-title">' + esc(b.title) + '</h3>' +
       '<p class="card-author">' + esc(b.category === 'pack' ? 'Pack de deux livres' : b.author) + '</p>' +
-      priceHTML(b) + (b.oos ? '<p class="oos-note">Épuisé pour le moment</p>' : '') +
+      priceHTML(b) +
       '</div></a>';
   }
   var ICON = {
@@ -259,7 +258,7 @@
     var showable = function (b) { return isCleanVisual(b) || canCrop(b); };
     var picked = singles.filter(function (b) { return b.featured && b.image; });
     var shelf = (picked.length ? picked : singles.filter(showable)).slice(0, 12);
-    var packs = ranked(inCat('pack')).slice(0, 8);
+    var packs = ranked(inCat('pack').filter(function (b) { return !b.oos; })).slice(0, 8);
     var best = singles.slice(0, 10);
     var goals = ['finance', 'devperso', 'productivite', 'cheikh', 'pack'].map(function (k) {
       var n = inCat(k).length;
@@ -564,6 +563,8 @@
       list = list.filter(function (b) { return norm(b.title).indexOf(q) > -1 || norm(b.author).indexOf(q) > -1; });
     }
     list = ranked(list);
+    // Les livres en rupture restent visibles, avec leur bandeau, mais en fin de liste.
+    list = list.filter(function (b) { return !b.oos; }).concat(list.filter(function (b) { return b.oos; }));
     view.querySelectorAll('.chip').forEach(function (ch) { ch.setAttribute('aria-pressed', ch.getAttribute('data-cat') === catState.cat ? 'true' : 'false'); });
     document.getElementById('countLine').textContent = list.length + (list.length > 1 ? ' livres' : ' livre');
     document.getElementById('grid').innerHTML = list.length ? list.map(card).join('') :
@@ -583,7 +584,7 @@
             '<h1>' + esc(b.title) + '</h1>' +
             '<p class="pdp-author">' + esc(b.category === 'pack' ? 'Pack de deux livres' : b.author) + '</p>' +
             priceHTML(b) +
-            (b.oos ? '<p class="oos-note">Ce livre est épuisé pour le moment. Écris-nous pour savoir quand il revient.</p>' : '') +
+            (b.oos ? '<p class="oos-flag">En rupture</p><p class="oos-note">' + (b.category === 'pack' ? 'Ce pack est' : 'Ce livre est') + ' en rupture pour le moment. Écris-nous pour savoir quand il revient.</p>' : '') +
             '<div class="pdp-actions" id="pdpActions">' +
               (b.oos
                 ? '<a class="btn btn-primary btn-block" href="' + esc(waLink("Bonjour, je voudrais savoir quand « " + b.title + " » sera de nouveau disponible.")) + '" target="_blank" rel="noopener">Être prévenu sur WhatsApp</a>'
@@ -868,10 +869,16 @@
   function saveCart() { store('dilam_cart', cart.map(function (i) { return { fid: i.fid, qty: i.qty }; })); }
   function restoreCart() {
     var saved = store('dilam_cart') || [];
+    var dropped = 0;
     cart = saved.map(function (s) {
       var b = BOOKS.find(function (x) { return x.fid === s.fid; });
+      if (b && b.oos) dropped++;
       return b && !b.oos ? { fid: b.fid, qty: Math.max(1, Math.min(20, s.qty | 0)) } : null;
     }).filter(Boolean);
+    if (dropped) {
+      saveCart();
+      setTimeout(function () { toast(dropped > 1 ? 'Des livres de ton panier sont passés en rupture : ils ont été retirés.' : 'Un livre de ton panier est passé en rupture : il a été retiré.'); }, 600);
+    }
   }
   function cartBook(i) { return BOOKS.find(function (b) { return b.fid === i.fid; }); }
   function cartQty() { return cart.reduce(function (s, i) { return s + i.qty; }, 0); }
@@ -882,8 +889,11 @@
     el.hidden = n === 0;
     document.getElementById('cartBtn').setAttribute('aria-label', n ? 'Ouvrir le panier (' + n + ')' : 'Ouvrir le panier');
   }
+  function oosRefuse(b) {
+    toast('« ' + (b.title.length > 40 ? b.title.slice(0, 40) + '…' : b.title) + ' » est en rupture : impossible de le commander pour le moment.');
+  }
   function addToCart(b, silent) {
-    if (b.oos) return;
+    if (b.oos) { oosRefuse(b); return; }
     var it = cart.find(function (i) { return i.fid === b.fid; });
     if (it) it.qty = Math.min(20, it.qty + 1); else cart.push({ fid: b.fid, qty: 1 });
     saveCart(); updateBadge();
@@ -1097,6 +1107,14 @@
       : '🚚 Livraison ' + zone.label + ' : ' + zone.fee.toLocaleString('fr-FR') + ' FCFA';
   }
   function sendCart() {
+    // Un livre passé en rupture entre-temps est retiré du panier avant l'envoi.
+    var gone = cart.filter(function (i) { var b = cartBook(i); return !b || b.oos; });
+    if (gone.length) {
+      cart = cart.filter(function (i) { return gone.indexOf(i) === -1; });
+      saveCart(); updateBadge(); renderCart();
+      toast(gone.length > 1 ? 'Des livres de ton panier sont en rupture : ils ont été retirés.' : 'Un livre de ton panier est en rupture : il a été retiré.');
+      return;
+    }
     var c = readCustomer('c');
     if (!c || !cart.length) return;
     var qty = cartQty(), booksTotal = cartTotal();
@@ -1120,6 +1138,7 @@
   }
 
   function openOrder(b) {
+    if (b.oos) { oosRefuse(b); return; }
     var body = document.getElementById('orderBody');
     var items = [{ fid: b.fid, qty: 1 }];
     body.innerHTML = '<div class="order-book">' + cover(b, { eager: true }) + '<div><p class="line-title">' + esc(b.title) + '</p><p class="line-price">' + money(b.price) + '</p></div></div>' +

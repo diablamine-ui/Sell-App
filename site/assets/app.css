@@ -261,7 +261,9 @@ p { margin: 0; }
 .price { margin-top: 6px; font-weight: 600; font-size: 16px; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
 .price .now.is-promo { color: var(--mangue); }
 .price .was { color: var(--gris); font-weight: 400; font-size: 14px; text-decoration: line-through; }
-.card.oos .cv { opacity: .55; }
+.card.oos .cv img { opacity: .5; }
+.cv-tag.oos { background: #B3261E; color: #fff; }
+.oos-flag { display: inline-block; margin-top: 12px; padding: 3px 10px; border-radius: 999px; background: #B3261E; color: #fff; font-size: 13px; font-weight: 700; }
 .oos-note { color: var(--gris); font-size: 13.5px; margin-top: 4px; }
 
 /* ── Comment ça marche ── */
