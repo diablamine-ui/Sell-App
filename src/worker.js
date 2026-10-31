@@ -1155,6 +1155,15 @@ async function uploadPdf(req, env, url) {
   }
   return json({ ok: true, size: buf.byteLength, watermark: wm }, 201);
 }
+// Le PDF déposé, relu par l'administration pour en tirer les pages d'extrait (jamais public).
+async function pdfFile(env, url) {
+  const slug = url.searchParams.get('slug') || '';
+  const i = parseInt(url.searchParams.get('i') || '0', 10);
+  if (!/^[a-z0-9-]{1,80}$/.test(slug) || !(i >= 0 && i < 20)) return err(400, 'bad_target');
+  const f = await env.FILES.get(`pdf/${slug}/${i}.pdf`, { type: 'stream' });
+  if (!f) return err(404, 'not_found');
+  return new Response(f, { headers: { 'Content-Type': 'application/pdf', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
+}
 async function listPdf(env, url) {
   const slug = url.searchParams.get('slug') || '';
   if (!/^[a-z0-9-]{1,80}$/.test(slug)) return err(400, 'bad_slug');
@@ -1391,6 +1400,7 @@ async function api(req, env, ctx, url) {
     if (p === '/api/admin/migrate' && m === 'POST') return migrate(req, env);
     if (p === '/api/admin/pdf' && m === 'POST') return uploadPdf(req, env, url);
     if (p === '/api/admin/pdf' && m === 'GET') return listPdf(env, url);
+    if (p === '/api/admin/pdf/file' && m === 'GET') return pdfFile(env, url);
     if (p === '/api/admin/orders' && m === 'GET') return listOrders(env);
     if (p === '/api/admin/leads' && m === 'GET') return listLeads(env);
     if (p === '/api/admin/ebook-html' && m === 'POST') return uploadHtml(req, env, url);

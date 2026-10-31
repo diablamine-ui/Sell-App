@@ -142,6 +142,7 @@
       textFields() +
       '<label class="lab">Fichier PDF (25 Mo au plus)</label>' +
       '<div class="page-row"><label class="up">Envoyer le fichier<input type="file" accept="application/pdf" data-up></label><small class="fst muted">Vérification…</small></div>' +
+      '<div class="page-row" style="margin-top:8px"><button class="mini-b" type="button" data-ext style="margin-top:0">Pages d’extrait' + ((f0.previews || []).length ? ' (' + f0.previews.length + ')' : '') + '</button><small class="muted">Quelques pages montrées sur la page du livre, marquées EXTRAIT.</small></div>' +
       '<label class="chk"><input type="checkbox" data-f="active"' + (p.active !== false ? ' checked' : '') + '> En ligne (visible dans la rubrique PDF dès que le fichier est envoyé)</label>' +
       '<div class="actions"><button class="big-b" type="button" data-save>Enregistrer</button><a href="/?pdf=' + encodeURIComponent(p.slug) + '" target="_blank" rel="noopener">Voir la page</a>' +
       '<button class="mini-b ko-b" type="button" data-del style="margin-top:16px">Supprimer</button><small class="msg"></small></div></div>';
@@ -175,6 +176,23 @@
         .catch(function (e) { fst.innerHTML = '<span class="ko">Échec de l’envoi (' + esc(e.message) + ').</span>'; });
     };
 
+    box.querySelector('[data-ext]').onclick = function () {
+      var b = this;
+      if (!hasFile(p)) { msg.textContent = 'Envoie d’abord le fichier PDF.'; return; }
+      if (!window.DilamExtract) { msg.textContent = 'L’outil d’extraits n’a pas pu se charger. Recharge la page.'; return; }
+      var it = p.files.items[0] || {};
+      DilamExtract.open({
+        slug: p.slug, i: 0, title: p.title, pages: it.preview_pages || [], existing: it.previews || [],
+        onSave: function (urls, pages) {
+          var items = [Object.assign({}, it, { previews: urls, preview_pages: pages })];
+          return put(p.slug, { files: { items: items } }).then(function () {
+            p.files = { items: items };
+            b.textContent = 'Pages d’extrait' + (urls.length ? ' (' + urls.length + ')' : '');
+            msg.textContent = urls.length ? 'Extraits enregistrés : ils sont sur la page du livre.' : 'Extraits retirés.';
+          });
+        }
+      });
+    };
     box.querySelector('[data-save]').onclick = function () {
       var price = parseInt(q('price').value, 10);
       if (!q('title').value.trim()) { msg.textContent = 'Indique un titre.'; return; }

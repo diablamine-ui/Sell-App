@@ -745,3 +745,12 @@ html .pdp-promo-price, html .pdp-promo-go { color: var(--nuit) !important; }
 .about .about-lead { font-size: 18.5px; margin-top: 12px; color: var(--encre); }
 .about .about-cta { margin-top: 28px; }
 .about .about-cta .btn { color: #fff; text-decoration: none; }
+/* Aperçu des PDF : quelques pages marquées EXTRAIT */
+.pdf-prev { display: grid; grid-auto-flow: column; grid-auto-columns: 42%; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; }
+@media (min-width: 640px) { .pdf-prev { grid-auto-columns: 24%; } }
+.pdf-prev-b { scroll-snap-align: start; padding: 0; border: 1px solid var(--trait); border-radius: 6px; background: #fff; overflow: hidden; cursor: zoom-in; }
+.pdf-prev-b img { display: block; width: 100%; height: auto; }
+.pdf-prev-hint { color: var(--gris); font-size: 14px; margin-top: 8px; }
+.pzoom { position: fixed; inset: 0; z-index: 200; background: rgba(13,25,20,.92); display: flex; align-items: center; justify-content: center; padding: 16px; padding-top: max(16px, env(safe-area-inset-top)); }
+.pzoom img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; background: #fff; }
+.pzoom-x { position: absolute; right: 14px; top: max(14px, env(safe-area-inset-top)); width: 44px; height: 44px; border: 0; border-radius: 50%; background: #fff; color: var(--encre); font-size: 26px; cursor: pointer; }

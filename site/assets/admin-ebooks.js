@@ -131,7 +131,8 @@
     return '<div class="frow" data-i="' + i + '"><input class="in" data-k="name" placeholder="Nom du fichier (ex. Le Workbook)" value="' + esc(f.name || '') + '">' +
       '<input class="in num" data-k="pages" inputmode="numeric" placeholder="Pages" value="' + esc(f.pages || '') + '">' +
       '<div class="fst"><small class="st">' + (f._new ? 'Enregistre d’abord, puis dépose le PDF' : 'Vérification…') + '</small>' +
-      (f._new ? '' : '<label class="up">Déposer le PDF<input type="file" accept="application/pdf" data-pdf="' + i + '"></label>') + '</div></div>';
+      (f._new ? '' : '<label class="up">Déposer le PDF<input type="file" accept="application/pdf" data-pdf="' + i + '"></label>' +
+        '<button class="mini-b" type="button" data-ext="' + i + '" style="margin-top:0">Pages d’extrait' + ((f.previews || []).length ? ' (' + f.previews.length + ')' : '') + '</button>') + '</div></div>';
   }
 
   function addCard(e) {
@@ -274,6 +275,26 @@
       refreshPdf(box, slug);
       if (e.mode === 'html') api('/admin/ebook-html?slug=' + encodeURIComponent(slug)).then(jsonOf).then(function (d) {
         box.querySelector('.hst').innerHTML = d.exists ? '<span class="ok">Page HTML déposée</span> ' + esc(size(d.size)) + ' <a href="/ebook/' + esc(slug) + '" target="_blank" rel="noopener">Voir la page</a>' : '<span class="ko">Page HTML pas encore déposée</span>';
+      });
+      // Pages d'extrait : choisies dans le PDF déposé, marquées EXTRAIT, affichées sur la page de vente.
+      box.addEventListener('click', function (ev) {
+        var b = ev.target.closest('[data-ext]');
+        if (!b || !window.DilamExtract) return;
+        var i = +b.getAttribute('data-ext'), list = (e.files && e.files.items) || [], f = list[i] || {};
+        DilamExtract.open({
+          slug: e.pdf_slug || slug, i: i, title: f.name, pages: f.preview_pages || [], existing: f.previews || [],
+          onSave: function (urls, pages) {
+            var items = list.map(function (x, k) { return k === i ? Object.assign({}, x, { previews: urls, preview_pages: pages }) : x; });
+            var files = Object.assign({}, e.files || {}, { items: items });
+            return api('/db/ebooks/' + encodeURIComponent(slug), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ files: files }) })
+              .then(function (r) {
+                if (!r.ok) throw new Error(r.status);
+                e.files = files;
+                b.textContent = 'Pages d’extrait' + (urls.length ? ' (' + urls.length + ')' : '');
+                msg.innerHTML = urls.length ? '<span class="ok">Extraits enregistrés : ils sont sur la page de vente.</span>' : '<span class="ok">Extraits retirés.</span>';
+              });
+          }
+        });
       });
       box.addEventListener('change', function (ev) {
         var inp = ev.target;

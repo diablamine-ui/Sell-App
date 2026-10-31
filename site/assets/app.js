@@ -645,7 +645,8 @@
       category: CAT_BY_KEY[e.category] ? e.category : 'autre', cover: e.cover || '',
       pack: !!e.pack, members: e.pack ? (e.items || []) : [],
       body: e.body || '', pitch: e.pitch || '', learn: (e.learn || []).filter(Boolean), audience: e.audience || '', desc: e.description || '',
-      pages: items.reduce(function (s, f) { return s + (parseInt(f.pages, 10) || 0); }, 0)
+      pages: items.reduce(function (s, f) { return s + (parseInt(f.pages, 10) || 0); }, 0),
+      previews: e.pack ? [] : items.reduce(function (a, f) { return a.concat(f.previews || []); }, []).filter(function (u) { return /^\/(media|public)\//.test(u); }).slice(0, 6)
     };
   }
   function pdfBySlug(s) { return PDFS.find(function (p) { return p.slug === s; }) || null; }
@@ -739,6 +740,9 @@
               (p.pages ? '<li>' + p.pages + ' pages</li>' : '') + '</ul>' +
           '</div>' +
         '</article>' +
+        (p.previews.length ? '<section class="pdp-desc"><h2>Aperçu</h2><div class="pdf-prev">' +
+          p.previews.map(function (u, k) { return '<button type="button" class="pdf-prev-b" data-zoom="' + esc(u) + '" aria-label="Agrandir la page ' + (k + 1) + '"><img src="' + esc(u) + '" alt="" loading="lazy" decoding="async"></button>'; }).join('') +
+          '</div><p class="pdf-prev-hint">Touche une page pour l’agrandir.</p></section>' : '') +
         (members.length ? '<section class="pdp-desc"><h2>Les ' + members.length + ' livres du pack</h2><ul class="pdf-members">' +
           members.map(function (m) {
             return '<li><a href="' + pdfUrl(m) + '" data-nav="pdf">' + pdfCover(m) + '<span><strong>' + esc(m.title) + '</strong><span>' + esc(m.author) + ', ' + money(m.price) + ' seul</span></span></a></li>';
@@ -776,6 +780,7 @@
       } else dt.classList.remove('is-clamped');
     }
     document.getElementById('pdfBuy').addEventListener('click', function () { openPdfBuy(p); });
+    view.querySelectorAll('[data-zoom]').forEach(function (b) { b.addEventListener('click', function () { zoomImg(b.getAttribute('data-zoom')); }); });
     var bar = document.getElementById('buybar');
     document.getElementById('buybarPrice').textContent = money(p.price);
     var bb = document.getElementById('buybarBtn');
@@ -790,6 +795,21 @@
       buyObserver.observe(document.getElementById('pdpActions'));
     }
     track('ViewContent', { content_ids: [p.slug], content_name: p.title, content_type: 'product', value: p.price, currency: 'XOF' });
+  }
+
+  // Page d'extrait en grand, fermée d'un toucher ou avec Échap.
+  function zoomImg(src) {
+    var z = document.createElement('div');
+    z.className = 'pzoom';
+    z.setAttribute('role', 'dialog'); z.setAttribute('aria-modal', 'true'); z.setAttribute('aria-label', 'Page en grand');
+    z.innerHTML = '<button type="button" class="pzoom-x" aria-label="Fermer">×</button><img src="' + esc(src) + '" alt="">';
+    function close() { z.remove(); document.body.style.overflow = ''; document.removeEventListener('keydown', key); }
+    function key(e) { if (e.key === 'Escape') close(); }
+    z.addEventListener('click', close);
+    document.addEventListener('keydown', key);
+    document.body.appendChild(z);
+    document.body.style.overflow = 'hidden';
+    z.querySelector('.pzoom-x').focus();
   }
 
   // Achat d'un PDF : e-mail, puis paiement Paystack ; le lien de téléchargement arrive sur la page « merci » et par e-mail.
