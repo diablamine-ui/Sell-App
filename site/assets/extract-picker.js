@@ -42,16 +42,6 @@
     }
     x.restore();
   }
-  function parsePages(t, n) {
-    var out = [];
-    String(t || '').split(/[,;\s]+/).forEach(function (part) {
-      var m = part.match(/^(\d+)(?:-(\d+))?$/);
-      if (!m) return;
-      var a = +m[1], b = m[2] ? +m[2] : a;
-      for (var p = a; p <= b && out.length < MAX; p++) if (p >= 1 && p <= n && out.indexOf(p) < 0) out.push(p);
-    });
-    return out;
-  }
   function render(doc, n) {
     return doc.getPage(n).then(function (page) {
       var v1 = page.getViewport({ scale: 1 });
@@ -83,7 +73,12 @@
     '.dx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:14px}' +
     '.dx-grid figure{margin:0;background:#fff;border-radius:6px;overflow:hidden}.dx-grid canvas,.dx-grid img{display:block;width:100%;height:auto}' +
     '.dx-grid figcaption{background:#111714;color:#C9D3CD;font-size:13px;padding:4px 8px}' +
-    '.dx-msg{display:block;margin-top:10px;color:#C9D3CD;font-size:14px}.dx-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}';
+    '.dx-msg{display:block;margin-top:10px;color:#C9D3CD;font-size:14px}.dx-act{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}' +
+    '.dx-thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-top:12px;max-height:56vh;overflow:auto;padding:2px}' +
+    '.dx-t{position:relative;padding:0;border:3px solid transparent;border-radius:6px;background:#fff;cursor:pointer;aspect-ratio:1/1.414;overflow:hidden}' +
+    '.dx-t canvas{display:block;width:100%;height:auto}.dx-t .n{position:absolute;left:0;right:0;bottom:0;background:rgba(17,23,20,.85);color:#fff;font-size:12px;padding:2px 0;text-align:center}' +
+    '.dx-t.on{border-color:#9FD8B9}.dx-t .k{display:none;position:absolute;right:4px;top:4px;width:24px;height:24px;border-radius:50%;background:#127A4B;color:#fff;font-size:13px;font-weight:700;line-height:24px;text-align:center}.dx-t.on .k{display:block}' +
+    '.dx-sticky{position:sticky;bottom:-16px;background:#1E2622;padding:10px 0 4px}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   function open(o) {
@@ -92,7 +87,8 @@
     wrap.innerHTML = '<div class="dx-box" role="dialog" aria-modal="true" aria-label="Pages d’extrait"><button class="dx-x" type="button" aria-label="Fermer">×</button>' +
       '<h3>Pages d’extrait : ' + esc(o.title || 'PDF') + '</h3>' +
       '<small class="dx-msg" data-m>Chargement du PDF…</small>' +
-      '<div class="dx-row"><input data-p inputmode="numeric" placeholder="Numéros des pages, ex. 3, 13, 21" value="' + esc((o.pages || []).join(', ')) + '"><button class="dx-b" type="button" data-show disabled>Afficher</button></div>' +
+      '<div class="dx-thumbs" data-t></div>' +
+      '<div class="dx-sticky"><button class="dx-b" type="button" data-show disabled>Voir l’aperçu</button></div>' +
       '<div class="dx-grid" data-g>' + (o.existing || []).map(function (u, k) { return '<figure><img src="' + esc(u) + '" alt=""><figcaption>Extrait actuel ' + (k + 1) + '</figcaption></figure>'; }).join('') + '</div>' +
       '<div class="dx-act"><button class="dx-b" type="button" data-save disabled>Enregistrer ces pages</button>' +
       ((o.existing || []).length ? '<button class="dx-b ko" type="button" data-clear>Retirer les extraits</button>' : '') +
@@ -111,13 +107,59 @@
       return res[0].getDocument({ data: new Uint8Array(res[1]), isEvalSupported: false }).promise;
     }).then(function (d) {
       doc = d;
-      msg.textContent = 'Ce PDF a ' + d.numPages + ' pages. Choisis jusqu’à ' + MAX + ' pages (le sommaire compte comme une page), puis touche « Afficher ».';
-      q('[data-show]').disabled = false;
+      msg.textContent = 'Ce PDF a ' + d.numPages + ' pages. Touche les pages à montrer, jusqu’à ' + MAX + ' (le sommaire compte comme une page).';
+      thumbs();
     }).catch(function (e) { msg.textContent = e.message || 'Le PDF n’a pas pu être ouvert.'; });
 
+    // Toutes les pages en miniature : on coche celles qui nous intéressent.
+    var picked = (o.pages || []).slice(0, MAX);
+    function refresh() {
+      wrap.querySelectorAll('.dx-t').forEach(function (b) {
+        var n = +b.getAttribute('data-n'), k = picked.indexOf(n);
+        b.classList.toggle('on', k > -1);
+        b.setAttribute('aria-pressed', k > -1 ? 'true' : 'false');
+      });
+      var sorted = picked.slice().sort(function (a, b) { return a - b; });
+      wrap.querySelectorAll('.dx-t.on .k').forEach(function (el) { el.textContent = sorted.indexOf(+el.parentNode.getAttribute('data-n')) + 1; });
+      q('[data-show]').disabled = !picked.length;
+      q('[data-show]').textContent = picked.length ? 'Voir l’aperçu (' + picked.length + ' page' + (picked.length > 1 ? 's' : '') + ')' : 'Voir l’aperçu';
+    }
+    function thumbs() {
+      var t = q('[data-t]'), html = '';
+      for (var n = 1; n <= doc.numPages; n++) html += '<button type="button" class="dx-t" data-n="' + n + '" aria-label="Page ' + n + '"><canvas></canvas><span class="k"></span><span class="n">' + n + '</span></button>';
+      t.innerHTML = html;
+      var queue = [], busy = false;
+      function next() {
+        if (busy || !queue.length) return;
+        busy = true;
+        var b = queue.shift(), n = +b.getAttribute('data-n');
+        doc.getPage(n).then(function (page) {
+          var v1 = page.getViewport({ scale: 1 }), vp = page.getViewport({ scale: 200 / v1.width });
+          var cv = b.querySelector('canvas'); cv.width = Math.round(vp.width); cv.height = Math.round(vp.height);
+          return page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+        }).catch(function () {}).then(function () { busy = false; next(); });
+      }
+      var io = new IntersectionObserver(function (en) {
+        en.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); queue.push(e.target); } });
+        next();
+      }, { root: t, rootMargin: '200px' });
+      t.querySelectorAll('.dx-t').forEach(function (b) { io.observe(b); });
+      t.addEventListener('click', function (e) {
+        var b = e.target.closest('.dx-t'); if (!b) return;
+        var n = +b.getAttribute('data-n'), k = picked.indexOf(n);
+        if (k > -1) picked.splice(k, 1);
+        else if (picked.length >= MAX) { msg.textContent = MAX + ' pages au plus : retire d’abord une page cochée.'; return; }
+        else picked.push(n);
+        refresh();
+      });
+      refresh();
+      var first = picked.length ? t.querySelector('[data-n="' + Math.min.apply(null, picked) + '"]') : null;
+      if (first) first.scrollIntoView({ block: 'center' });
+    }
+
     q('[data-show]').onclick = function () {
-      chosen = parsePages(q('[data-p]').value, doc.numPages);
-      if (!chosen.length) { msg.textContent = 'Indique au moins un numéro de page entre 1 et ' + doc.numPages + '.'; return; }
+      chosen = picked.slice().sort(function (a, b) { return a - b; });
+      if (!chosen.length) return;
       msg.textContent = 'Préparation des pages…';
       q('[data-save]').disabled = true;
       var g = q('[data-g]'); g.innerHTML = '';
@@ -133,7 +175,8 @@
           });
         });
       }, Promise.resolve()).then(function () {
-        msg.textContent = 'Voici l’aperçu tel qu’il apparaîtra sur la page. Change les numéros si besoin, ou enregistre.';
+        msg.textContent = 'Voici l’aperçu tel qu’il apparaîtra sur la page. Change ta sélection si besoin, ou enregistre.';
+        q('[data-g]').scrollIntoView({ block: 'start', behavior: 'smooth' });
         q('[data-save]').disabled = false;
       }).catch(function () { msg.textContent = 'Une page n’a pas pu être affichée. Essaie d’autres numéros.'; });
     };
