@@ -74,7 +74,7 @@
   "skills": {
     "title": "Ce que tu vas savoir faire",
     "items": [
-      "Choisir ton territoire et le client que tu veux servir",
+      "Choisir ta niche et le client que tu veux servir",
       "Dire en une phrase, compréhensible en cinq secondes, ce que tu fais et pour qui",
       "Transformer tes profils Facebook et TikTok en vitrines qui inspirent confiance",
       "Comprendre comment Facebook et TikTok décident qui voit tes contenus",
@@ -123,7 +123,7 @@
       {
         "name": "La Bibliothèque de prompts",
         "pages": 35,
-        "content": "Une fiche de contexte, 49 prompts pour ChatGPT ou Claude, et le Prompt Ultime qui crée ton calendrier de 30 jours",
+        "content": "Une fiche de contexte, 49 prompts pour ChatGPT ou Claude, et le Prompt Ultime qui crée ton calendrier éditorial de 30 jours",
         "cover": "/public/ebooks/personal-branding/couv_prompts.jpg",
         "previews": [
           "/public/ebooks/personal-branding/apercus/prompts_7.jpg",
