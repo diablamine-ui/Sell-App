@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dilam-b-v33';
+const CACHE_NAME = 'dilam-b-v34';
 
 self.addEventListener('install', function () { self.skipWaiting(); });
 

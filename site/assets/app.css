@@ -263,7 +263,7 @@ p { margin: 0; }
 .price .was { color: var(--gris); font-weight: 400; font-size: 14px; text-decoration: line-through; }
 .card.oos .cv img { opacity: .5; }
 .cv-tag.oos { background: #B3261E; color: #fff; }
-.cv-tag.pdf { background: var(--banco); color: #fff; z-index: 3; }
+.cv-tag.pdf { background: var(--banco); color: #fff; z-index: 3; font-size: 14px; font-weight: 700; letter-spacing: .02em; padding: 5px 12px; left: 10px; top: 10px; box-shadow: 0 2px 6px rgba(13,59,46,.25); }
 .oos-flag { display: inline-block; margin-top: 12px; padding: 3px 10px; border-radius: 999px; background: #B3261E; color: #fff; font-size: 13px; font-weight: 700; }
 .oos-note { color: var(--gris); font-size: 13.5px; margin-top: 4px; }
 
