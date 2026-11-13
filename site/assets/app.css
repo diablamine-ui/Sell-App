@@ -263,6 +263,7 @@ p { margin: 0; }
 .price .was { color: var(--gris); font-weight: 400; font-size: 14px; text-decoration: line-through; }
 .card.oos .cv img { opacity: .5; }
 .cv-tag.oos { background: #B3261E; color: #fff; }
+.cv-tag.pdf { background: var(--banco); color: #fff; z-index: 3; }
 .oos-flag { display: inline-block; margin-top: 12px; padding: 3px 10px; border-radius: 999px; background: #B3261E; color: #fff; font-size: 13px; font-weight: 700; }
 .oos-note { color: var(--gris); font-size: 13.5px; margin-top: 4px; }
 

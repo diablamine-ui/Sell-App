@@ -662,12 +662,16 @@
   function packMembers(p) { return p.members.map(pdfBySlug).filter(Boolean); }
   // Valeur d'un pack : ses livres achetés un par un.
   function packValue(p) { return packMembers(p).reduce(function (s, m) { return s + m.price; }, 0); }
+  // opts.tag : bandeau « PDF » sur l'image, pour ne pas confondre avec un livre papier.
   function pdfCover(p, opts) {
+    opts = opts || {};
+    var tag = opts.tag ? '<span class="cv-tag pdf">' + (p.pack ? 'Pack PDF' : 'PDF') + '</span>' : '';
+    var inner = { eager: opts.eager };
     if (p.pack && !p.cover) {
       var ms = packMembers(p).slice(0, 3);
-      return '<div class="cv pdf-stack n' + ms.length + '">' + ms.map(function (m) { return pdfCover(m, opts); }).join('') + '</div>';
+      return '<div class="cv pdf-stack n' + ms.length + '">' + ms.map(function (m) { return pdfCover(m, inner); }).join('') + tag + '</div>';
     }
-    return cover({ image: p.cover, title: p.title, category: p.pack ? 'pack' : p.category, badge: 'none' }, opts);
+    return cover({ image: p.cover, title: p.title, category: p.pack ? 'pack' : p.category, badge: 'none' }, inner).replace(/<\/div>$/, tag + '</div>');
   }
   function pdfByline(p) { return p.pack ? 'Pack de ' + p.members.length + ' livres en PDF' : p.author; }
   function pdfPriceHTML(p) {
@@ -676,7 +680,7 @@
       (v > p.price ? '<span class="was"><span class="sr-only">au lieu de </span>' + money(v) + '</span>' : '') + '</p>';
   }
   function pdfCard(p) {
-    return '<a class="card" href="' + pdfUrl(p) + '" data-nav="pdf">' + pdfCover(p) +
+    return '<a class="card" href="' + pdfUrl(p) + '" data-nav="pdf">' + pdfCover(p, { tag: true }) +
       '<div class="card-body"><h3 class="card-title">' + esc(p.title) + '</h3>' +
       '<p class="card-author">' + esc(pdfByline(p)) + '</p>' + pdfPriceHTML(p) + '</div></a>';
   }
@@ -736,7 +740,7 @@
       '<div class="wrap">' +
         '<nav class="crumbs" aria-label="Tu es ici"><a href="/" data-nav="home">Accueil</a><span class="crumbs-sep" aria-hidden="true">›</span><a href="/?vue=pdf" data-nav="pdf">PDF</a></nav>' +
         '<article class="pdp">' +
-          '<div class="pdp-cover pdf-cover">' + pdfCover(p, { eager: true }) + '</div>' +
+          '<div class="pdp-cover pdf-cover">' + pdfCover(p, { eager: true, tag: true }) + '</div>' +
           '<div>' +
             '<p class="pdf-format">' + (p.pack ? 'Pack PDF' : 'PDF') + '</p>' +
             '<h1>' + esc(p.title) + '</h1>' +
