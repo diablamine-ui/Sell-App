@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   var app = document.getElementById('app');
-  var PDFS = [], BOOKS = [], ORDERS = [];
+  var PDFS = [], BOOKS = [], ORDERS = [], OPEN = null;
   var DEFAULT_PRICE = 700;
   var CATS = [['finance', 'Finances'], ['devperso', 'Développement personnel'], ['productivite', 'Productivité'], ['cheikh', 'Cheikh Anta Diop'], ['autre', 'Autres']];
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -46,10 +46,16 @@
       '<p class="muted" style="margin-top:6px">Les livres de la rubrique « PDF » du site (dilamboutique.com/?vue=pdf). Un PDF n’apparaît sur le site qu’une fois son fichier envoyé et la case « En ligne » cochée. Chaque fichier téléchargé porte l’e-mail de l’acheteur.</p>' +
       statsCard() +
       '<div class="card"><h2 style="margin-top:0">Ajouter un livre en PDF</h2>' +
-        '<p class="muted small">Choisis un livre de ta boutique : titre, auteur, image et description sont repris automatiquement. Tu enverras ensuite son fichier.</p>' +
+        '<p class="muted small">Un livre de ta boutique : titre, auteur, image et description sont repris automatiquement. Tu enverras ensuite son fichier.</p>' +
         '<select class="in" id="addSel" style="margin-top:8px"><option value="">Choisir un livre…</option>' +
           free.map(function (b) { return '<option value="' + esc(b._id) + '">' + esc(b.title) + (b.author ? ' (' + esc(b.author) + ')' : '') + '</option>'; }).join('') + '</select>' +
-        '<div class="actions"><button class="big-b" type="button" id="addBtn">Ajouter ce livre</button><small class="msg" id="addMsg"></small></div></div>' +
+        '<div class="actions"><button class="big-b" type="button" id="addBtn">Ajouter ce livre</button><small class="msg" id="addMsg"></small></div>' +
+        '<h3 class="sub-h">Un livre que tu ne vends pas en papier</h3>' +
+        '<p class="muted small">Indique son titre, son auteur et son rayon. Tu ajouteras ensuite l’image, la description de vente et le fichier.</p>' +
+        '<label class="lab">Titre</label><input class="in" id="freeTitle" maxlength="140">' +
+        '<div class="grid2"><div><label class="lab">Auteur</label><input class="in" id="freeAuthor" maxlength="120"></div>' +
+        '<div><label class="lab">Rayon</label><select class="in" id="freeCat">' + CATS.map(function (c) { return '<option value="' + c[0] + '">' + c[1] + '</option>'; }).join('') + '</select></div></div>' +
+        '<div class="actions"><button class="big-b" type="button" id="freeBtn">Créer ce PDF</button><small class="msg" id="freeMsg"></small></div></div>' +
       '<h2>Les livres en PDF (' + singles.length + ')</h2>' +
       '<p class="muted small">' + online + ' titre' + (online > 1 ? 's' : '') + ' en ligne sur le site, packs compris.</p>' +
       (singles.length ? '' : '<p class="muted">Aucun pour le moment.</p>') +
@@ -60,6 +66,7 @@
       '<button class="big-b" type="button" id="newPack">+ Créer un pack</button>';
 
     document.getElementById('addBtn').onclick = addBook;
+    document.getElementById('freeBtn').onclick = addFree;
     document.getElementById('newPack').onclick = function () { this.hidden = true; packItem(null, true); };
     singles.forEach(function (p) { singleItem(p); });
     packs.forEach(function (p) { packItem(p, false); });
@@ -128,6 +135,41 @@
     return box._ed;
   }
 
+  // PDF d'un livre absent du catalogue papier : pas de livre lié, l'image s'envoie ensuite depuis sa fiche.
+  function addFree() {
+    var title = document.getElementById('freeTitle').value.trim(), author = document.getElementById('freeAuthor').value.trim();
+    var msg = document.getElementById('freeMsg');
+    if (!title) { msg.textContent = 'Indique un titre.'; return; }
+    var base = 'pdf-' + (slugify(title) || 'livre').slice(0, 70), slug = base, n = 2;
+    while (bySlug(slug)) slug = base + '-' + n++;
+    msg.textContent = 'Création…';
+    put(slug, {
+      kind: 'pdf', slug: slug, book: null, title: title, author: author,
+      category: document.getElementById('freeCat').value, cover: '', description: '',
+      price: DEFAULT_PRICE, active: true, hidden: false, pitch: '', learn: [], audience: '', files: { items: [] }
+    }).then(function () { OPEN = slug; load(); })
+      .catch(function (e) { msg.textContent = 'Échec (' + e.message + ').'; });
+  }
+  // Image allégée avant l'envoi : 900 px de large au plus, WebP (JPEG si le navigateur ne sait pas).
+  function shrinkImg(file) {
+    return new Promise(function (ok) {
+      var img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth, h = img.naturalHeight, max = 900;
+        if (w > max) { h = Math.round(h * max / w); w = max; }
+        var c = document.createElement('canvas'); c.width = w; c.height = h;
+        var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(img.src);
+        c.toBlob(function (b) {
+          if (b && b.type === 'image/webp' && b.size < file.size) { ok(b); return; }
+          c.toBlob(function (j) { ok(j && j.size < file.size ? j : file); }, 'image/jpeg', 0.82);
+        }, 'image/webp', 0.8);
+      };
+      img.onerror = function () { ok(file); };
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
   function singleItem(p) {
     var box = document.createElement('details');
     box.className = 'pdf-item';
@@ -138,7 +180,10 @@
       '<div><label class="lab">Rayon</label><select class="in" data-f="category">' + CATS.map(function (c) { return '<option value="' + c[0] + '"' + (c[0] === p.category ? ' selected' : '') + '>' + c[1] + '</option>'; }).join('') + '</select></div></div>' +
       '<div class="grid2"><div><label class="lab">Prix (FCFA)</label><input class="in num" data-f="price" type="number" min="100" step="50" value="' + esc(p.price) + '"></div>' +
       '<div><label class="lab">Nombre de pages</label><input class="in num" data-f="pages" type="number" min="0" value="' + esc(f0.pages || '') + '"></div></div>' +
-      '<label class="lab">Image (adresse)</label><input class="in" data-f="cover" value="' + esc(p.cover) + '">' +
+      '<label class="lab">Image</label>' +
+      '<div class="cover-row">' + (p.cover ? '<img class="cov" data-cov src="' + esc(p.cover) + '" alt="">' : '<span class="cov-ph" data-cov></span>') +
+        '<label class="up">' + (p.cover ? 'Changer l’image' : 'Envoyer l’image') + '<input type="file" accept="image/jpeg,image/png,image/webp" data-img></label><small class="muted" data-imsg></small></div>' +
+      '<input type="hidden" data-f="cover" value="' + esc(p.cover) + '">' +
       textFields() +
       '<label class="lab">Fichier PDF (25 Mo au plus)</label>' +
       '<div class="page-row"><label class="up">Envoyer le fichier<input type="file" accept="application/pdf" data-up></label><small class="fst muted">Vérification…</small></div>' +
@@ -147,6 +192,7 @@
       '<div class="actions"><button class="big-b" type="button" data-save>Enregistrer</button><a href="/?pdf=' + encodeURIComponent(p.slug) + '" target="_blank" rel="noopener">Voir la page</a>' +
       '<button class="mini-b ko-b" type="button" data-del style="margin-top:16px">Supprimer</button><small class="msg"></small></div></div>';
     document.getElementById('singles').appendChild(box);
+    if (OPEN === p.slug) { OPEN = null; box.open = true; setTimeout(function () { box.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50); }
     var msg = box.querySelector('.msg'), fst = box.querySelector('.fst');
     var q = function (k) { return box.querySelector('[data-f="' + k + '"]'); };
 
@@ -161,6 +207,26 @@
       editorFor(box, p);
       if (fst.textContent === 'Vérification…') fileState();
     });
+
+    box.querySelector('[data-img]').onchange = function () {
+      var file = this.files[0], im = box.querySelector('[data-imsg]');
+      this.value = '';
+      if (!file) return;
+      if (!/^image\/(jpeg|png|webp)$/.test(file.type)) { im.textContent = 'Format accepté : JPG, PNG ou WEBP.'; return; }
+      im.textContent = 'Envoi…';
+      shrinkImg(file).then(function (b) {
+        return api('/admin/upload', { method: 'POST', headers: { 'Content-Type': b.type || 'image/jpeg' }, body: b }).then(jsonOf);
+      }).then(function (d) {
+        if (!d.url) throw new Error(d.error || 'image');
+        return put(p.slug, { cover: d.url }).then(function () { return d.url; });
+      }).then(function (url) {
+        p.cover = url; q('cover').value = url;
+        box.querySelector('[data-cov]').outerHTML = '<img class="cov" data-cov src="' + esc(url) + '" alt="">';
+        box.querySelector('summary').outerHTML = head(p, false);
+        box.querySelector('label.up').firstChild.textContent = 'Changer l’image';
+        im.textContent = 'Image enregistrée.';
+      }).catch(function (e) { im.textContent = 'Échec de l’envoi (' + e.message + ').'; });
+    };
 
     box.querySelector('[data-up]').onchange = function () {
       var file = this.files[0]; this.value = '';

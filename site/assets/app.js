@@ -260,6 +260,7 @@
     var shelf = (picked.length ? picked : singles.filter(showable)).slice(0, 12);
     var packs = ranked(inCat('pack').filter(function (b) { return !b.oos; })).slice(0, 8);
     var best = singles.slice(0, 10);
+    var pdfRail = PDFS.filter(function (p) { return !p.pack && p.cover; }).concat(PDFS.filter(function (p) { return p.pack; })).slice(0, 12);
     var goals = ['finance', 'devperso', 'productivite', 'cheikh', 'pack'].map(function (k) {
       var n = inCat(k).length;
       if (!n) return '';
@@ -303,6 +304,13 @@
         '<div class="section-head"><h2>Les plus demandés</h2><a href="/?vue=livres" data-nav="livres">Tout voir</a></div>' +
         '<div class="rail" data-auto>' + best.map(card).join('') + '</div>' +
       '</div></section>' +
+
+      // Rangée PDF placée sous les livres papier : elle ne doit pas leur prendre la vedette.
+      (pdfRail.length ? '<section class="section"><div class="wrap">' +
+        '<div class="section-head"><h2>Livres en PDF</h2><a href="/?vue=pdf" data-nav="pdf">Tout voir</a></div>' +
+        '<p class="section-intro">Tu paies en ligne et tu reçois ton PDF tout de suite, à lire sur ton téléphone.</p>' +
+        '<div class="rail" data-auto>' + pdfRail.map(pdfCard).join('') + '</div>' +
+      '</div></section>' : '') +
 
       '<section class="section"><div class="wrap">' +
         '<div class="section-head"><h2>Comment ça marche</h2></div>' +
