@@ -1271,12 +1271,13 @@ function htmlMsg(title, body, raw) {
   return new Response(html, { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
 }
 
-// Relances : J2 (une image du livre), J5 (le livre). Rien n'est envoyé après une désinscription, ni J5 après un achat.
+// Relances : J1 (une image du livre), J3 (le livre). Rien n'est envoyé après une désinscription, ni J3 après un achat.
+// Les fonctions et les étiquettes de suivi gardent leurs anciens noms (mailJ2/j2, mailJ5/j5) pour ne pas casser les statistiques.
 async function quizFollowUps(env) {
   const t = now();
   const due = await env.DB.prepare(
     `SELECT * FROM leads WHERE unsub=0 AND ((stage=0 AND created_at<=?) OR (stage=1 AND created_at<=?)) ORDER BY created_at LIMIT 80`
-  ).bind(t - 2 * 86400, t - 5 * 86400).all();
+  ).bind(t - 1 * 86400, t - 3 * 86400).all();
   for (const l of due.results || []) {
     let answers = {};
     try { answers = JSON.parse(l.answers || '{}'); } catch {}

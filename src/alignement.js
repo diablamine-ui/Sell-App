@@ -293,7 +293,7 @@ function planText(view) {
 }
 
 // ───────────── E-mails ─────────────
-// J0 : résultat, analyse et exercice. J2 : une image du livre. J5 : la proposition du livre.
+// J0 : résultat, analyse et exercice. J1 : une image du livre (mailJ2). J3 : la proposition du livre (mailJ5).
 export function mailJ0(lead, view, links) {
   const body = [
     `Bonjour ${lead.prenom},`,
