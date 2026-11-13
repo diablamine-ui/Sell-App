@@ -6,7 +6,7 @@
   "author_name": "Lamine Diabaté",
   "headline": "Tu sais ce que tu dois changer. Tu y penses. Tu pries. Tu te le promets chaque lundi.\nPuis tu refais exactement les mêmes choses.\nEt ta vie ressemble encore à celle d'il y a cinq ans.",
   "card_line": "Tu sais ce que tu dois changer. Puis tu refais exactement les mêmes choses.",
-  "subtitle": "Le pire, c'est cette petite voix qui commence à murmurer : « Peut-être que ce n'est pas fait pour toi. »\n\nCette voix se trompe. Tu ne manques ni de volonté ni de foi. Ce qui te retient, c'est que ta tête, ton cœur et ton corps ne tirent pas dans la même direction. Et ça, ça se travaille.",
+  "subtitle": "Le pire, c'est cette petite voix qui commence à murmurer : « Peut-être que ce n'est pas fait pour toi. »\n\nCette voix se trompe. Ta volonté et ta foi sont bien là. Ce qui te retient, c'est que ta tête, ton cœur et ton corps ne tirent pas dans la même direction. Et ça, ça se travaille.",
   "price": 5000,
   "price_label": "Paiement unique",
   "cta": "Je veux le livre",
@@ -19,7 +19,7 @@
   "cover": "/public/ebooks/esprit-aligne/couverture.jpg",
   "extra_covers": [],
   "problem": {
-    "title": "Le problème n'est pas ce que tu sais.",
+    "title": "Tu en sais déjà assez.",
     "paragraphs": [
       "Tu as lu les livres. Tu as écouté les conférences. Tu sais qu'il faut oser, épargner, te lever plus tôt, t'éloigner de ce qui te tire vers le bas.",
       "Et pourtant, tu repousses encore la décision importante. Tu retombes dans les habitudes que tu voulais quitter. Tu dis oui alors que tout en toi voulait dire non.",
@@ -44,7 +44,7 @@
   "ladder": {
     "title": "Le voyage : huit chapitres, huit portes",
     "layout": "path",
-    "intro": "Chaque chapitre se termine par un exercice à faire le jour même, pas « quand tu auras le temps ».",
+    "intro": "Chaque chapitre se termine par un exercice à faire le jour même.",
     "steps": [
       { "name": "Les trois centres du pouvoir intérieur", "text": "écouter ce que disent ton mental, ton cœur et ton corps. Exercice : l'accord intérieur." },
       { "name": "Les forces invisibles du désalignement", "text": "voir les croyances héritées qui freinent au moment d'avancer. Exercice : l'inventaire des ombres." },
@@ -78,9 +78,9 @@
         "content": "Huit chapitres, chacun suivi d'un exercice à faire le jour même, et une pratique pour continuer après la lecture : chaque matin, chaque semaine, chaque mois.",
         "cover": "/public/ebooks/esprit-aligne/couverture.jpg",
         "previews": [
-          "/public/ebooks/esprit-aligne/apercus/page_13.jpg",
-          "/public/ebooks/esprit-aligne/apercus/page_21.jpg",
-          "/public/ebooks/esprit-aligne/apercus/page_62.jpg"
+          "/public/ebooks/esprit-aligne/apercus/page_11.jpg",
+          "/public/ebooks/esprit-aligne/apercus/page_19.jpg",
+          "/public/ebooks/esprit-aligne/apercus/page_48.jpg"
         ]
       }
     ]
@@ -106,7 +106,7 @@
     "photo": "/public/ebooks/personal-branding/lamine.jpg"
   },
   "action": {
-    "title": "Commence aujourd'hui, pas « quand tu auras le temps ».",
+    "title": "Commence aujourd'hui.",
     "price_line": "Le Pouvoir d'un Esprit Aligné : 5 000 FCFA, paiement unique.",
     "items": [
       "Le livre complet, 85 pages",
@@ -117,7 +117,7 @@
     "payment": "Wave, Orange Money, MTN ou carte Visa et Mastercard.",
     "delivery": "Dès que ton paiement est confirmé, tu reçois par e-mail un lien de téléchargement personnel, valable 24 heures. Enregistre ton fichier dès que tu le reçois."
   },
-  "final": "Tu n'avais pas besoin d'être réparé. Tu avais besoin de te souvenir. Le chemin vers ton centre commence par cinq minutes, demain matin.",
+  "final": "Tout ce que tu cherches est déjà en toi. Le chemin vers ton centre commence par cinq minutes, demain matin.",
   "faq": [
     {
       "q": "Qu'est-ce que je reçois ?",
