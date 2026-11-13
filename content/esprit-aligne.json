@@ -14,7 +14,7 @@
   "reassure": [
     "Wave, Orange Money, MTN ou carte bancaire",
     "Fichier envoyé par e-mail juste après le paiement",
-    "Un PDF de 106 pages, neuf chapitres et neuf exercices"
+    "Un PDF de 85 pages, huit chapitres et huit exercices"
   ],
   "cover": "/public/ebooks/esprit-aligne/couverture.jpg",
   "extra_covers": [],
@@ -42,13 +42,12 @@
     ]
   },
   "ladder": {
-    "title": "Le voyage : neuf chapitres, neuf portes",
+    "title": "Le voyage : huit chapitres, huit portes",
     "layout": "path",
     "intro": "Chaque chapitre se termine par un exercice à faire le jour même, pas « quand tu auras le temps ».",
     "steps": [
       { "name": "Les trois centres du pouvoir intérieur", "text": "écouter ce que disent ton mental, ton cœur et ton corps. Exercice : l'accord intérieur." },
       { "name": "Les forces invisibles du désalignement", "text": "voir les croyances héritées qui freinent au moment d'avancer. Exercice : l'inventaire des ombres." },
-      { "name": "La science rejoint les anciens", "text": "ce que la recherche d'aujourd'hui confirme de la sagesse des anciens. Exercice : la visualisation vivante." },
       { "name": "L'art de la présence consciente", "text": "être vraiment là, dans ce que tu fais et avec ceux que tu aimes. Exercice : cinq minutes de vraie présence." },
       { "name": "La foi, la vibration et la manifestation", "text": "agir depuis la certitude plutôt que depuis la peur. Exercice : la foi vibratoire." },
       { "name": "L'esprit aligné et la richesse", "text": "regarder l'argent comme un miroir et oser annoncer ta valeur. Exercice : le miroir financier." },
@@ -75,8 +74,8 @@
     "items": [
       {
         "name": "Le Pouvoir d'un Esprit Aligné",
-        "pages": 106,
-        "content": "Neuf chapitres, chacun suivi d'un exercice à faire le jour même, et une pratique pour continuer après la lecture : chaque matin, chaque semaine, chaque mois.",
+        "pages": 85,
+        "content": "Huit chapitres, chacun suivi d'un exercice à faire le jour même, et une pratique pour continuer après la lecture : chaque matin, chaque semaine, chaque mois.",
         "cover": "/public/ebooks/esprit-aligne/couverture.jpg",
         "previews": [
           "/public/ebooks/esprit-aligne/apercus/page_13.jpg",
@@ -110,8 +109,8 @@
     "title": "Commence aujourd'hui, pas « quand tu auras le temps ».",
     "price_line": "Le Pouvoir d'un Esprit Aligné : 5 000 FCFA, paiement unique.",
     "items": [
-      "Le livre complet, 106 pages",
-      "Neuf exercices pratiques, un par chapitre",
+      "Le livre complet, 85 pages",
+      "Huit exercices pratiques, un par chapitre",
       "Une pratique simple pour continuer après la lecture, cinq minutes chaque matin"
     ],
     "value": "Un livre papier de ma boutique coûte souvent plus de 8 000 F. Celui-ci t'accompagne chaque matin, aussi longtemps que tu en as besoin.",
@@ -122,7 +121,7 @@
   "faq": [
     {
       "q": "Qu'est-ce que je reçois ?",
-      "a": "Un PDF de 106 pages : neuf chapitres, chacun suivi d'un exercice pratique, et une pratique quotidienne pour continuer après la lecture."
+      "a": "Un PDF de 85 pages : huit chapitres, chacun suivi d'un exercice pratique, et une pratique quotidienne pour continuer après la lecture."
     },
     {
       "q": "Comment je reçois le livre ?",
@@ -144,7 +143,7 @@
     },
     {
       "q": "Il y a un chapitre sur l'argent ?",
-      "a": "Oui, le chapitre 6. Il t'aide à voir ce que ta relation à l'argent révèle de toi et à oser annoncer ta valeur. Il ne promet aucun gain : l'alignement t'aide à tenir et à bien décider, le reste dépend aussi de ton travail et de ton contexte."
+      "a": "Oui, le chapitre 5. Il t'aide à voir ce que ta relation à l'argent révèle de toi et à oser annoncer ta valeur. Il ne promet aucun gain : l'alignement t'aide à tenir et à bien décider, le reste dépend aussi de ton travail et de ton contexte."
     },
     {
       "q": "Combien de temps faut-il pour le lire ?",
@@ -157,7 +156,7 @@
   ],
   "seo": {
     "title": "Le Pouvoir d'un Esprit Aligné | Lamine Diabaté",
-    "description": "Neuf chapitres et neuf exercices pour remettre d'accord ce que tu penses, ce que tu ressens et ce que tu fais. 106 pages, 5 000 FCFA, envoi immédiat par e-mail."
+    "description": "Huit chapitres et huit exercices pour remettre d'accord ce que tu penses, ce que tu ressens et ce que tu fais. 85 pages, 5 000 FCFA, envoi immédiat par e-mail."
   },
   "whatsapp_buy": "Bonjour, je veux acheter « Le Pouvoir d'un Esprit Aligné » (5 000 FCFA).",
   "media": [

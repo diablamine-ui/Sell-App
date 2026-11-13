@@ -144,7 +144,7 @@
       '<article class="al-ex"><p class="al-ex-sur">Ton exercice offert, tiré du livre (' + esc(ex.chapter) + ')</p><h2>' + esc(ex.title) + '</h2>' + blocks +
         '<p class="al-ex-end">Fais-le aujourd’hui, pas «&nbsp;quand tu auras le temps&nbsp;». Tu le retrouves aussi dans ta boîte e-mail.</p></article>' +
       '<div class="al-book"><div class="al-book-h"><img src="/public/ebooks/esprit-aligne/couverture.jpg" alt="Couverture : Le Pouvoir d’un Esprit Aligné" width="96" height="136">' +
-        '<div><p class="al-book-t">Le Pouvoir d’un Esprit Aligné</p><p class="al-book-m">9 chapitres, 9 exercices, 106 pages. 5&nbsp;000&nbsp;F en PDF, à télécharger juste après le paiement.</p></div></div>' +
+        '<div><p class="al-book-t">Le Pouvoir d’un Esprit Aligné</p><p class="al-book-m">8 chapitres, 8 exercices, 85 pages. 5&nbsp;000&nbsp;F en PDF, à télécharger juste après le paiement.</p></div></div>' +
         plan +
         '<a class="btn btn-primary" href="/ebook/esprit-aligne?depuis=test-resultat">' + (v.plan && v.plan.length ? 'Commencer mon plan de lecture' : 'Découvrir le livre') + '</a></div>' +
       '<div class="al-after"><a class="btn btn-secondary" href="' + esc(share) + '" target="_blank" rel="noopener">Envoyer le test à un proche</a>' +
