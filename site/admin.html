@@ -1426,7 +1426,7 @@ body.admin-only .admin-panel{width:100vw;max-width:none;transform:none!important
           <div class="adm-form">
             <div class="adm-field"><label class="adm-field-lbl">Téléphone client (sans +)</label><input class="adm-input" id="vPhone" type="tel" placeholder="Ex : 2250546494484"></div>
             <div class="adm-row">
-              <div class="adm-field"><label class="adm-field-lbl">Prénom du client</label><input class="adm-input" id="vName" maxlength="40" placeholder="Ex : Awa"></div>
+              <div class="adm-field"><label class="adm-field-lbl">Nom du client</label><input class="adm-input" id="vName" maxlength="40" placeholder="Ex : Awa ou M. Traoré"></div>
               <div class="adm-field"><label class="adm-field-lbl">Livre acheté</label><input class="adm-input" id="vBook" list="vBooks" maxlength="140" placeholder="Titre du livre"><datalist id="vBooks"></datalist></div>
             </div>
             <label class="gift-check"><input type="checkbox" id="vGift" checked><span><strong>Offrir le kit du lecteur stratégique</strong><br>Lien personnel à envoyer sur WhatsApp, valable 7 jours, avec Lire Autrement à 2 500 F.</span></label>
@@ -2860,12 +2860,14 @@ function waPhone(phone){phone=String(phone||'').replace(/[^0-9]/g,'');if(phone.s
 function giftMessage(g){
   var nb='\u00a0';
   var until=new Date(g.expires_at*1000).toLocaleDateString('fr-FR',{day:'numeric',month:'long'});
+  // *…* : gras dans WhatsApp.
   return 'Bonjour '+g.name+',\n'+
-    'La boutique DILAM B\' - Les livres à p\'tits prix 📚 vous remercie pour votre achat'+(g.book?' de «'+nb+g.book+nb+'»':'')+'.\n'+
-    'Pour profiter pleinement de votre lecture et transformer chaque livre en décisions concrètes, nous vous offrons un cadeau'+nb+':\n\n'+
-    '🎁 Le kit du lecteur stratégique - Onze fiches à imprimer, à télécharger gratuitement ici 👇\n'+g.url+'\n'+
-    'Ce lien est personnel et valable jusqu\'au '+until+'.\n'+
-    'Bonne lecture'+nb+'!';
+    'Merci pour votre confiance et votre achat'+(g.book?' de «'+nb+g.book+nb+'»':'')+'.\n\n'+
+    '🎁 Votre cadeau'+nb+': *Le Kit du lecteur stratégique* (11 fiches à imprimer)'+nb+'!\n\n'+
+    'Téléchargez-le gratuitement ici 👇\n'+g.url+'\n\n'+
+    'Lien personnel valable jusqu\'au '+until+'.\n\n'+
+    'Excellente lecture et à très bientôt'+nb+'!\n'+
+    'L\'équipe DILAM B\' - Les livres à p\'tits prix 📚';
 }
 function giftUrl(id){return location.origin+'/cadeau/'+id;}
 function showGiftPanel(g,phone){
@@ -2901,7 +2903,7 @@ async function recordSale(){
   var offer=document.getElementById('vGift').checked;
   if(!phone){showToast('Téléphone obligatoire');return;}
   if(!amount||amount<=0){showToast('Montant invalide');return;}
-  if(offer&&!client){showToast('Indique le prénom du client pour lui offrir le kit');document.getElementById('vName').focus();return;}
+  if(offer&&!client){showToast('Indique le nom du client pour lui offrir le kit');document.getElementById('vName').focus();return;}
   var phoneHashed=await hashPhone(phone);
   var eventId='purchase_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);
   var payload={data:[{event_name:'Purchase',event_time:Math.floor(Date.now()/1000),event_id:eventId,action_source:'other',user_data:{ph:[phoneHashed],client_user_agent:navigator.userAgent,country:[await sha256('ci')]},custom_data:{value:amount/655.957,currency:'USD',content_category:campaign}}]};
