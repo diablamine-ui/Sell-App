@@ -2859,9 +2859,13 @@ var GIFTS={};
 function waPhone(phone){phone=String(phone||'').replace(/[^0-9]/g,'');if(phone.startsWith('0')&&phone.length===10)phone='225'+phone;else if(phone.length===10)phone='225'+phone;return phone;}
 function giftMessage(g){
   var nb='\u00a0';
-  var head=g.book?('Merci pour ton achat de «'+nb+g.book+nb+'», '+g.name+nb+'! 🙏'):('Merci pour ton achat, '+g.name+nb+'! 🙏');
   var until=new Date(g.expires_at*1000).toLocaleDateString('fr-FR',{day:'numeric',month:'long'});
-  return head+'\n\nPour t’aider à en tirer le maximum, je t’offre le kit du lecteur stratégique'+nb+': onze fiches à imprimer pour retenir l’essentiel de chaque livre que tu lis.\n\nTon lien personnel, valable jusqu’au '+until+nb+':\n'+g.url+'\n\nBonne lecture'+nb+'!\nLamine';
+  return 'Bonjour '+g.name+',\n\n'+
+    'La boutique DILAM B\' - Les livres à p\'tits prix 📚 vous remercie pour votre achat'+(g.book?' de «'+nb+g.book+nb+'»':'')+'.\n\n'+
+    'Pour profiter pleinement de votre lecture et transformer chaque livre en décisions concrètes, nous vous offrons un cadeau'+nb+':\n'+
+    '🎁 le kit du lecteur stratégique, onze fiches à imprimer, à télécharger gratuitement ici 👇\n'+g.url+'\n\n'+
+    'Ce lien est personnel et valable jusqu\'au '+until+'.\n\n'+
+    'Bonne lecture'+nb+'!';
 }
 function giftUrl(id){return location.origin+'/cadeau/'+id;}
 function showGiftPanel(g,phone){

@@ -1129,9 +1129,9 @@ async function giftRoute(req, env, ctx, url) {
   const m = url.pathname.match(/^\/cadeau\/([0-9a-f]{24})(?:\/(kit))?\/?$/);
   const wa = await waNumberOf(env);
   const help = (txt) => `<p><a class="btn btn-primary" href="https://wa.me/${wa}?text=${encodeURIComponent(txt)}">Écrire sur WhatsApp</a></p>`;
-  const bad = () => giftHtml('Lien invalide', '<h1>Ce lien n’est pas valide.</h1><p>Vérifie que tu as copié le lien en entier depuis WhatsApp.</p>' + help('Bonjour, le lien de mon cadeau ne fonctionne pas.'));
+  const bad = () => giftHtml('Lien invalide', '<h1>Ce lien n’est pas valide.</h1><p>Vérifiez que vous avez copié le lien en entier depuis WhatsApp.</p>' + help('Bonjour, le lien de mon cadeau ne fonctionne pas.'));
   if (!m) return bad();
-  if (!(await rateOk(env, 'gift:' + clientIp(req), 120, 3600))) return giftHtml('Patiente un peu', '<h1>Trop de tentatives.</h1><p>Réessaie dans une heure.</p>');
+  if (!(await rateOk(env, 'gift:' + clientIp(req), 120, 3600))) return giftHtml('Patientez un peu', '<h1>Trop de tentatives.</h1><p>Réessayez dans une heure.</p>');
   const [, token, part] = m;
   const g = await getGift(env, token);
   if (!g) return bad();
@@ -1140,9 +1140,9 @@ async function giftRoute(req, env, ctx, url) {
   const kit = ki >= 0 ? e.files.items[ki] : null;
   const first = escH(g.name);
   if (!giftOpen(g)) {
-    return giftHtml('Lien expiré', `<h1>Ce lien a expiré, ${first}.</h1><p>Il était valable ${GIFT.days}&nbsp;jours après ton achat. Écris-moi, je t’en renvoie un.</p>` + help('Bonjour, le lien de mon kit du lecteur stratégique a expiré.'));
+    return giftHtml('Lien expiré', `<h1>Ce lien a expiré, ${first}.</h1><p>Il était valable ${GIFT.days}&nbsp;jours après votre achat. Écrivez-nous, nous vous en renvoyons un.</p>` + help('Bonjour, le lien de mon kit du lecteur stratégique a expiré.'));
   }
-  if (!kit) return giftHtml('Cadeau indisponible', '<h1>Ton cadeau n’est pas disponible pour le moment.</h1>' + help('Bonjour, je n’arrive pas à télécharger mon kit.'));
+  if (!kit) return giftHtml('Cadeau indisponible', '<h1>Votre cadeau n’est pas disponible pour le moment.</h1>' + help('Bonjour, je n’arrive pas à télécharger mon kit.'));
 
   if (part === 'kit') {
     const ticketFor = async (exp) => exp + '.' + (await hmacHex('SHA-256', (env.DL_SECRET || env.PAYSTACK_SECRET_KEY || 'gift') + ':g', `${token}|${exp}`)).slice(0, 24);
@@ -1151,7 +1151,7 @@ async function giftRoute(req, env, ctx, url) {
         "UPDATE docs SET data=json_set(data,'$.dl',COALESCE(json_extract(data,'$.dl'),0)+1,'$.dl_at',?1), updated_at=?1 WHERE col='gifts' AND id=?2 AND COALESCE(json_extract(data,'$.dl'),0) < ?3"
       ).bind(now(), token, GIFT.dl).run();
       if (res.meta.changes !== 1) {
-        return giftHtml('Kit déjà téléchargé', `<h1>Tu as déjà téléchargé ton kit ${GIFT.dl}&nbsp;fois.</h1><p>Il est sur ton téléphone : ouvre l’application <strong>Fichiers</strong> (ou <strong>Mes fichiers</strong>), puis le dossier <strong>Téléchargements</strong>.</p><p>Tu ne le trouves pas ?</p>` + help('Bonjour, je ne retrouve pas mon kit du lecteur stratégique.'));
+        return giftHtml('Kit déjà téléchargé', `<h1>Vous avez déjà téléchargé votre kit ${GIFT.dl}&nbsp;fois.</h1><p>Il est sur votre téléphone : ouvrez l’application <strong>Fichiers</strong> (ou <strong>Mes fichiers</strong>), puis le dossier <strong>Téléchargements</strong>.</p><p>Vous ne le trouvez pas ?</p>` + help('Bonjour, je ne retrouve pas mon kit du lecteur stratégique.'));
       }
       const t = await ticketFor(now() + 600);
       return Response.redirect(`${url.origin}/cadeau/${token}/kit?t=${t}`, 303);
@@ -1160,7 +1160,7 @@ async function giftRoute(req, env, ctx, url) {
     const tm = t.match(/^(\d{10})\.([0-9a-f]{24})$/);
     if (!tm || +tm[1] < now() || !safeEqual(t, await ticketFor(tm[1]))) return Response.redirect(`${url.origin}/cadeau/${token}`, 303);
     const file = await env.FILES.getWithMetadata(`pdf/${GIFT.ebook}/${ki}.pdf`, { type: 'arrayBuffer' });
-    if (!file.value) return giftHtml('Cadeau indisponible', '<h1>Ton kit n’est pas disponible pour le moment.</h1>' + help('Bonjour, je n’arrive pas à télécharger mon kit.'));
+    if (!file.value) return giftHtml('Cadeau indisponible', '<h1>Votre kit n’est pas disponible pour le moment.</h1>' + help('Bonjour, je n’arrive pas à télécharger mon kit.'));
     const bytes = new Uint8Array(file.value);
     let tail = new Uint8Array(0);
     try {
@@ -1199,30 +1199,30 @@ async function giftRoute(req, env, ctx, url) {
   const done = (g.dl || 0) > 0;
   const kitRow = `<ul class="dl-list"><li class="dl-item${done ? ' done' : ''}">${e.cover ? `<img src="${escH(e.cover)}" alt="">` : ''}<div class="dl-txt"><strong>Le kit du lecteur stratégique</strong><span>Onze fiches, ${pages}</span></div>` +
     (done
-      ? '<span class="dl-done">Téléchargé</span>' + ((g.dl || 0) < GIFT.dl ? `<div class="dl-retry">Tu ne le trouves pas ? <form method="post" action="/cadeau/${token}/kit"><button class="linkbtn" type="submit">Le télécharger à nouveau</button></form></div>` : '')
+      ? '<span class="dl-done">Téléchargé</span>' + ((g.dl || 0) < GIFT.dl ? `<div class="dl-retry">Vous ne le trouvez pas ? <form method="post" action="/cadeau/${token}/kit"><button class="linkbtn" type="submit">Le télécharger à nouveau</button></form></div>` : '')
       : `<form method="post" action="/cadeau/${token}/kit"><button class="btn btn-primary" type="submit">Télécharger</button></form>`) +
     '</li></ul>';
   let offer = '';
   if (e.active !== false && !e.hidden) {
     offer = g.bought_at
-      ? '<section class="gift-offer"><h2>Tu as aussi Lire Autrement.</h2><p>Les fiches et la méthode sont entre tes mains. Bonne lecture&nbsp;!</p></section>'
-      : `<section class="gift-offer" id="offre"><h2>Les fiches sont tes outils. La méthode pour t’en servir est dans le livre.</h2>` +
-        `<p>${escH(frTypo(e.title))} t’apprend à choisir le bon livre, à retenir l’essentiel et à tirer une décision de chaque lecture. Les onze fiches viennent de là.</p>` +
-        `<p class="gift-price">${fullPrice > GIFT.price ? `<s>${fcfa(fullPrice)}</s> ` : ''}<strong>${fcfa(GIFT.price)}</strong> pour toi, jusqu’au ${until}</p>` +
-        `<form class="gift-buy" id="giftBuy"><label for="gEmail">Ton adresse e-mail, pour recevoir le livre</label><input id="gEmail" type="email" name="email" required autocomplete="email" placeholder="exemple@gmail.com"><button class="btn btn-primary" type="submit">Recevoir le livre à ${fcfa(GIFT.price).replace(' FCFA', '&nbsp;F')}</button><small class="gift-msg" id="gMsg" role="status"></small></form>` +
+      ? '<section class="gift-offer"><h2>Vous avez aussi Lire Autrement.</h2><p>Les fiches et la méthode sont entre vos mains. Bonne lecture&nbsp;!</p></section>'
+      : `<section class="gift-offer" id="offre"><h2>Les fiches sont vos outils. La méthode pour vous en servir est dans le livre.</h2>` +
+        `<p>${escH(frTypo(e.title))} vous apprend à choisir le bon livre, à retenir l’essentiel et à tirer une décision de chaque lecture. Les onze fiches viennent de là.</p>` +
+        `<p class="gift-price">${fullPrice > GIFT.price ? `<s>${fcfa(fullPrice)}</s> ` : ''}<strong>${fcfa(GIFT.price)}</strong> pour vous, jusqu’au ${until}</p>` +
+        `<form class="gift-buy" id="giftBuy"><label for="gEmail">Votre adresse e-mail, pour recevoir le livre</label><input id="gEmail" type="email" name="email" required autocomplete="email" placeholder="exemple@gmail.com"><button class="btn btn-primary" type="submit">Recevoir le livre à ${fcfa(GIFT.price).replace(' FCFA', '&nbsp;F')}</button><small class="gift-msg" id="gMsg" role="status"></small></form>` +
         `<p class="gift-pay">Wave, Orange Money, MTN ou carte bancaire. Le livre arrive par e-mail juste après le paiement.</p>` +
         `<p><a href="/ebook/${GIFT.ebook}?depuis=cadeau">Voir ce que contient le livre</a></p></section>` +
-        `<script>(function(){var f=document.getElementById('giftBuy'),m=document.getElementById('gMsg');f.addEventListener('submit',function(ev){ev.preventDefault();var b=f.querySelector('button');b.disabled=true;m.textContent='Ouverture du paiement…';fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json','X-Dilam':'1'},body:JSON.stringify({slug:${JSON.stringify(GIFT.ebook)},email:document.getElementById('gEmail').value,gift:${JSON.stringify(token)}})}).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j};});}).then(function(x){if(x.ok&&x.j.url){location.href=x.j.url;return;}b.disabled=false;m.textContent=x.j.error==='bad_email'?'Vérifie ton adresse e-mail.':(x.j.error==='gift_expired'?'Cette offre n’est plus valable.':'Le paiement n’a pas pu s’ouvrir. Réessaie dans un instant.');}).catch(function(){b.disabled=false;m.textContent='Connexion impossible. Vérifie ton réseau et réessaie.';});});})();</script>`;
+        `<script>(function(){var f=document.getElementById('giftBuy'),m=document.getElementById('gMsg');f.addEventListener('submit',function(ev){ev.preventDefault();var b=f.querySelector('button');b.disabled=true;m.textContent='Ouverture du paiement…';fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json','X-Dilam':'1'},body:JSON.stringify({slug:${JSON.stringify(GIFT.ebook)},email:document.getElementById('gEmail').value,gift:${JSON.stringify(token)}})}).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j};});}).then(function(x){if(x.ok&&x.j.url){location.href=x.j.url;return;}b.disabled=false;m.textContent=x.j.error==='bad_email'?'Vérifiez votre adresse e-mail.':(x.j.error==='gift_expired'?'Cette offre n’est plus valable.':'Le paiement n’a pas pu s’ouvrir. Réessayez dans un instant.');}).catch(function(){b.disabled=false;m.textContent='Connexion impossible. Vérifiez votre réseau et réessayez.';});});})();</script>`;
   }
-  return giftHtml('Ton cadeau',
-    `<h1>Ton cadeau, ${first}</h1>` +
-    `<p class="dl-lead">${g.book ? `Offert avec ton livre «&nbsp;${escH(g.book)}&nbsp;»` : 'Offert avec ton achat'}</p>` +
+  return giftHtml('Votre cadeau',
+    `<h1>Votre cadeau, ${first}</h1>` +
+    `<p class="dl-lead">${g.book ? `Offert avec votre livre «&nbsp;${escH(g.book)}&nbsp;»` : 'Offert avec votre achat'}</p>` +
     kitRow +
-    `<p class="dl-warn">Imprime les fiches ou recopie-les dans un carnet : une fiche pour chaque livre que tu lis. Ce lien reste valable jusqu’au ${until}.</p>` +
-    (done ? '<p class="dl-tip">Ton kit est dans l’application <strong>Fichiers</strong> de ton téléphone, dossier <strong>Téléchargements</strong>.</p>' : '') +
+    `<p class="dl-warn">Imprimez les fiches ou recopiez-les dans un carnet : une fiche pour chaque livre que vous lisez. Ce lien reste valable jusqu’au ${until}.</p>` +
+    (done ? '<p class="dl-tip">Votre kit est dans l’application <strong>Fichiers</strong> de votre téléphone, dossier <strong>Téléchargements</strong>.</p>' : '') +
     offer +
     `<details class="dl-help"><summary>Un problème ?</summary>${help('Bonjour, j’ai besoin d’aide pour mon kit du lecteur stratégique.')}</details>`,
-    { title: `Ton cadeau, ${g.name} : le kit du lecteur stratégique`, text: 'Onze fiches à imprimer pour retenir l’essentiel de chaque livre que tu lis.', image: e.cover ? SITE + e.cover : '' });
+    { title: `Votre cadeau, ${g.name} : le kit du lecteur stratégique`, text: 'Onze fiches à imprimer pour retenir l’essentiel de chaque livre que vous lisez.', image: e.cover ? SITE + e.cover : '' });
 }
 
 
