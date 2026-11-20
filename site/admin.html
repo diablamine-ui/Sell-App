@@ -2875,10 +2875,17 @@ function showGiftPanel(g,phone){
   var safe=function(t){return String(t||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
   el.innerHTML='<div class="gift-panel"><div class="gift-panel-h">🎁 Lien cadeau prêt pour '+safe(g.name)+'</div>'+
     '<textarea id="giftMsg">'+safe(giftMessage(g))+'</textarea>'+
-    '<div class="gift-panel-a">'+(phone?'<a class="adm-save" id="giftWa" href="#" target="_blank" rel="noopener">Envoyer sur WhatsApp</a>':'')+'<button type="button" class="adm-save ghost" id="giftCopy">Copier le message</button></div>'+
+    '<div class="gift-panel-a">'+(phone?'<a class="adm-save" id="giftWa" href="#" target="_blank" rel="noopener">Envoyer sur WhatsApp Business</a>':'')+'<button type="button" class="adm-save ghost" id="giftCopy">Copier le message</button></div>'+
     '<div class="adm-hint">Tu peux modifier le message avant de l’envoyer. Le lien est valable 7 jours, pour 3 téléchargements.</div></div>';
   var wa=document.getElementById('giftWa');
-  if(wa)wa.onclick=function(){wa.href='https://wa.me/'+waPhone(phone)+'?text='+encodeURIComponent(document.getElementById('giftMsg').value);};
+  // Sur Android, le lien ouvre directement WhatsApp Business (et pas WhatsApp classique) ; ailleurs, wa.me.
+  if(wa)wa.onclick=function(){
+    var txt=encodeURIComponent(document.getElementById('giftMsg').value),num=waPhone(phone);
+    if(/Android/i.test(navigator.userAgent)){
+      wa.removeAttribute('target');
+      wa.href='intent://send/?phone='+num+'&text='+txt+'#Intent;scheme=whatsapp;package=com.whatsapp.w4b;end';
+    }else wa.href='https://wa.me/'+num+'?text='+txt;
+  };
   document.getElementById('giftCopy').onclick=function(){
     var t=document.getElementById('giftMsg').value;
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){showToast('Message copié ✓');}).catch(function(){var ta=document.getElementById('giftMsg');ta.select();try{document.execCommand('copy');showToast('Message copié ✓');}catch(e){showToast('Sélectionne le texte et copie-le');}});
