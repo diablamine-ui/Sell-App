@@ -276,3 +276,18 @@ html .eb-hero .eb-visual img.main { box-shadow: 0 22px 44px -18px rgba(22,19,15,
 .merci-next-p { font-size: 14.5px !important; color: rgba(22,19,15,.65); }
 .merci-next-x { margin-top: 12px; font-size: 15.5px; line-height: 1.55; }
 .merci-next .btn { margin-top: 14px; min-height: 48px; width: 100%; }
+
+/* Kit offert après une vente WhatsApp (/cadeau/…) */
+.gift-offer { margin-top: 28px; padding: 20px 18px; border-radius: 14px; background: var(--nuit, #16130F); color: #F2ECE1; }
+.gift-offer h2 { font-size: 21px; line-height: 1.3; color: #fff; }
+.gift-offer p { margin-top: 10px; font-size: 15.5px; line-height: 1.55; }
+.gift-offer a { color: #9FD8B9; }
+.gift-price { font-size: 17px !important; }
+.gift-price s { color: rgba(242,236,225,.55); margin-right: 4px; }
+.gift-price strong { font-size: 22px; color: #fff; }
+.gift-buy { margin-top: 14px; display: grid; gap: 8px; }
+.gift-buy label { font-size: 14px; color: rgba(242,236,225,.8); }
+.gift-buy input { min-height: 48px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(242,236,225,.25); background: #fff; color: var(--encre); font: inherit; font-size: 16px; }
+.gift-buy .btn { min-height: 50px; width: 100%; }
+.gift-msg { min-height: 18px; font-size: 14px; color: #F7C59F; }
+.gift-pay { font-size: 13.5px !important; color: rgba(242,236,225,.7); }

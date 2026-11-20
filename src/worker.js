@@ -18,7 +18,7 @@ const FIRESTORE_DEFAULT = 'https://firestore.googleapis.com/v1/projects/dilam-bo
 const FIREBASE_WEB_KEY = 'AIzaSyDyOrVT9Zb2s37unS2ailL05YqH0WDnlks';
 
 const CSP = "default-src 'self'; script-src 'self' 'unsafe-inline' https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' blob:; connect-src 'self' https://www.facebook.com https://connect.facebook.net; frame-src https://www.youtube.com https://www.youtube-nocookie.com; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'";
-const COLLECTIONS = new Set(['books', 'shop_config', 'stats', 'ventes', 'ebooks']);
+const COLLECTIONS = new Set(['books', 'shop_config', 'stats', 'ventes', 'ebooks', 'gifts']);
 const PUBLIC_READ = new Set(['books', 'shop_config', 'ebooks']);
 const STAT_TYPES = new Set(['views', 'carts', 'orders']);
 const PUBLIC_EVENTS = new Set(['PageView', 'ViewContent', 'AddToCart', 'InitiateCheckout', 'Lead', 'Contact', 'Search']);
@@ -808,9 +808,16 @@ async function checkout(req, env) {
   if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(email) || email.length > 200) return err(400, 'bad_email');
   const e = await getEbook(env, slug);
   if (!e || e.active === false) return err(404, 'not_found');
-  const price = parseInt(e.price, 10);
+  let price = parseInt(e.price, 10);
   if (!(price > 0)) return err(400, 'bad_price');
   if (!env.PAYSTACK_SECRET_KEY) return err(503, 'payment_not_ready');
+  // Lien cadeau (kit offert après une vente WhatsApp) : prix réduit tant que le lien est valable.
+  const gift = typeof b.gift === 'string' && GIFT_RE.test(b.gift) ? b.gift : '';
+  if (gift) {
+    const g = await getGift(env, gift);
+    if (!g || slug !== GIFT.ebook || !giftOfferOpen(g)) return err(410, 'gift_expired');
+    price = Math.min(price, GIFT.price);
+  }
 
   const origin = new URL(req.url).origin;
   const ref = 'LDL-' + Date.now().toString(36).toUpperCase() + '-' + randHex(5).toUpperCase();
@@ -820,6 +827,7 @@ async function checkout(req, env) {
     ua: (req.headers.get('User-Agent') || '').slice(0, 300),
     ip: clientIp(req),
     url: productUrl(origin, slug, e),
+    gift: gift || undefined,
   };
   await env.DB.prepare('INSERT INTO orders(reference,slug,email,amount,created_at,meta) VALUES(?,?,?,?,?,?)')
     .bind(ref, slug, email, price, now(), JSON.stringify(meta)).run();
@@ -865,6 +873,12 @@ async function fulfill(env, ctx, ref, origin) {
     .bind(t, String(d.channel || ''), ref).run();
   const paid = { ...o, status: 'paid', paid_at: t, channel: d.channel };
   if (upd.meta.changes !== 1) return paid; // déjà livré par un autre appel
+  try {
+    const gm = JSON.parse(o.meta || '{}').gift;
+    if (gm && GIFT_RE.test(gm)) {
+      await env.DB.prepare("UPDATE docs SET data=json_set(data,'$.bought_at',?1,'$.ref',?2), updated_at=?1 WHERE col='gifts' AND id=?3").bind(t, ref, gm).run();
+    }
+  } catch (e4) { console.error('cadeau achat', e4 && e4.message); }
 
   const e = (await getEbook(env, o.slug)) || { title: o.slug, files: { items: [] } };
   const link = await dlLink(env, origin, ref);
@@ -1061,6 +1075,154 @@ async function download(req, env, ctx, url) {
     (anyDone ? `<div class="dl-find">${findTip}</div>` : '') +
     (items.some((f) => /workbook/i.test(f.name || '')) ? `<p class="dl-tip">Pour remplir le Workbook directement dans le PDF, ouvre-le avec Adobe Acrobat Reader, gratuit sur Android et iPhone.</p>` : '') +
     `<details class="dl-help"><summary>Un problème ?</summary>${help}</details>`);
+}
+
+// ───────────────────────── kit offert après une vente WhatsApp ─────────────────────────
+// Dans l'onglet « Ventes », Lamine offre le kit du lecteur stratégique au client qui vient d'acheter un livre :
+// lien personnel, valable GIFT.days jours, GIFT.dl téléchargements, avec Lire Autrement à prix réduit.
+const GIFT = { ebook: 'lire-autrement', days: 7, dl: 3, price: 2500 };
+const GIFT_RE = /^[0-9a-f]{24}$/;
+
+function giftKitIndex(e) {
+  const items = (e && e.files && e.files.items) || [];
+  const i = items.findIndex((f) => /kit|fiches/i.test(f.name || ''));
+  return i >= 0 ? i : -1;
+}
+async function getGift(env, token) {
+  if (!GIFT_RE.test(token)) return null;
+  const r = await env.DB.prepare("SELECT data FROM docs WHERE col='gifts' AND id=?").bind(token).first();
+  if (!r) return null;
+  try { return JSON.parse(r.data); } catch { return null; }
+}
+function giftOpen(g) { return !!g && now() <= g.expires_at; }
+function giftOfferOpen(g) { return giftOpen(g) && !g.bought_at; }
+function frDate(t) {
+  return new Date(t * 1000).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', timeZone: 'Africa/Abidjan' });
+}
+
+async function createGift(req, env, url) {
+  const b = await readJson(req, 2048);
+  const name = String(b.name || '').replace(/\s+/g, ' ').trim().slice(0, 40);
+  const book = String(b.book || '').replace(/\s+/g, ' ').trim().slice(0, 140);
+  if (!name) return err(400, 'bad_name');
+  const e = await getEbook(env, GIFT.ebook);
+  if (!e || giftKitIndex(e) < 0) return err(409, 'no_kit');
+  const token = randHex(12), t = now();
+  const g = {
+    name, book,
+    phone: String(b.phone || '').replace(/[^0-9•]/g, '').slice(-20),
+    vente: String(b.vente || '').slice(0, 80),
+    created_at: t, expires_at: t + GIFT.days * 86400,
+    dl: 0, opened_at: null, bought_at: null, ref: null,
+  };
+  await env.DB.prepare('INSERT INTO docs(col,id,data,updated_at) VALUES(?,?,?,?)').bind('gifts', token, JSON.stringify(g), t).run();
+  return json({ ...g, _id: token, url: `${canonOrigin(url)}/cadeau/${token}`, price: GIFT.price, days: GIFT.days }, 201);
+}
+
+function giftHtml(title, inner, og) {
+  const meta = og ? `<meta property="og:title" content="${escA(og.title)}"><meta property="og:description" content="${escA(og.text)}">${og.image ? `<meta property="og:image" content="${escA(og.image)}">` : ''}<meta property="og:type" content="website">` : '';
+  return new Response(`<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">${meta}<title>${escH(title)} | Lamine Diabaté</title><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/ebook.css"></head><body class="ebook-page"><header class="eb-top"><div class="eb-top-in"><a class="brand-name" href="/">Dilam B'</a><a class="eb-home" href="/">Voir la boutique</a></div></header><main class="dl-page gift-page">${inner}</main></body></html>`,
+    { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } });
+}
+
+async function giftRoute(req, env, ctx, url) {
+  const m = url.pathname.match(/^\/cadeau\/([0-9a-f]{24})(?:\/(kit))?\/?$/);
+  const wa = await waNumberOf(env);
+  const help = (txt) => `<p><a class="btn btn-primary" href="https://wa.me/${wa}?text=${encodeURIComponent(txt)}">Écrire sur WhatsApp</a></p>`;
+  const bad = () => giftHtml('Lien invalide', '<h1>Ce lien n’est pas valide.</h1><p>Vérifie que tu as copié le lien en entier depuis WhatsApp.</p>' + help('Bonjour, le lien de mon cadeau ne fonctionne pas.'));
+  if (!m) return bad();
+  if (!(await rateOk(env, 'gift:' + clientIp(req), 120, 3600))) return giftHtml('Patiente un peu', '<h1>Trop de tentatives.</h1><p>Réessaie dans une heure.</p>');
+  const [, token, part] = m;
+  const g = await getGift(env, token);
+  if (!g) return bad();
+  const e = await getEbook(env, GIFT.ebook);
+  const ki = giftKitIndex(e);
+  const kit = ki >= 0 ? e.files.items[ki] : null;
+  const first = escH(g.name);
+  if (!giftOpen(g)) {
+    return giftHtml('Lien expiré', `<h1>Ce lien a expiré, ${first}.</h1><p>Il était valable ${GIFT.days}&nbsp;jours après ton achat. Écris-moi, je t’en renvoie un.</p>` + help('Bonjour, le lien de mon kit du lecteur stratégique a expiré.'));
+  }
+  if (!kit) return giftHtml('Cadeau indisponible', '<h1>Ton cadeau n’est pas disponible pour le moment.</h1>' + help('Bonjour, je n’arrive pas à télécharger mon kit.'));
+
+  if (part === 'kit') {
+    const ticketFor = async (exp) => exp + '.' + (await hmacHex('SHA-256', (env.DL_SECRET || env.PAYSTACK_SECRET_KEY || 'gift') + ':g', `${token}|${exp}`)).slice(0, 24);
+    if (req.method === 'POST') {
+      const res = await env.DB.prepare(
+        "UPDATE docs SET data=json_set(data,'$.dl',COALESCE(json_extract(data,'$.dl'),0)+1,'$.dl_at',?1), updated_at=?1 WHERE col='gifts' AND id=?2 AND COALESCE(json_extract(data,'$.dl'),0) < ?3"
+      ).bind(now(), token, GIFT.dl).run();
+      if (res.meta.changes !== 1) {
+        return giftHtml('Kit déjà téléchargé', `<h1>Tu as déjà téléchargé ton kit ${GIFT.dl}&nbsp;fois.</h1><p>Il est sur ton téléphone : ouvre l’application <strong>Fichiers</strong> (ou <strong>Mes fichiers</strong>), puis le dossier <strong>Téléchargements</strong>.</p><p>Tu ne le trouves pas ?</p>` + help('Bonjour, je ne retrouve pas mon kit du lecteur stratégique.'));
+      }
+      const t = await ticketFor(now() + 600);
+      return Response.redirect(`${url.origin}/cadeau/${token}/kit?t=${t}`, 303);
+    }
+    const t = url.searchParams.get('t') || '';
+    const tm = t.match(/^(\d{10})\.([0-9a-f]{24})$/);
+    if (!tm || +tm[1] < now() || !safeEqual(t, await ticketFor(tm[1]))) return Response.redirect(`${url.origin}/cadeau/${token}`, 303);
+    const file = await env.FILES.getWithMetadata(`pdf/${GIFT.ebook}/${ki}.pdf`, { type: 'arrayBuffer' });
+    if (!file.value) return giftHtml('Cadeau indisponible', '<h1>Ton kit n’est pas disponible pour le moment.</h1>' + help('Bonjour, je n’arrive pas à télécharger mon kit.'));
+    const bytes = new Uint8Array(file.value);
+    let tail = new Uint8Array(0);
+    try {
+      let idx = await env.FILES.get(`pdfidx/${GIFT.ebook}/${ki}.json`, { type: 'json' });
+      if (!idx || idx.len !== bytes.length) {
+        idx = indexPdf(bytes);
+        await env.FILES.put(`pdfidx/${GIFT.ebook}/${ki}.json`, JSON.stringify(idx));
+      }
+      tail = stampTail(idx, `Offert à ${g.name} par Lamine Diabaté. Merci de ne pas le diffuser.`, { skipFirst: true, size: 9, gray: 0.3 });
+    } catch (e2) {
+      console.error('filigrane cadeau', e2 && e2.message);
+    }
+    const name = `${kit.name}.pdf`;
+    const out = new Uint8Array(bytes.length + tail.length);
+    out.set(bytes, 0);
+    out.set(tail, bytes.length);
+    return new Response(out, {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${asciiName(name)}"; filename*=UTF-8''${encodeURIComponent(name)}`,
+        'Cache-Control': 'no-store',
+        'X-Robots-Tag': 'noindex',
+      },
+    });
+  }
+
+  // Première visite du client (l'aperçu du lien fait par WhatsApp ne compte pas).
+  const ua = req.headers.get('User-Agent') || '';
+  if (!g.opened_at && req.method === 'GET' && !/WhatsApp|facebookexternalhit|Facebot|TelegramBot|bot|crawler|spider/i.test(ua)) {
+    ctx.waitUntil(env.DB.prepare("UPDATE docs SET data=json_set(data,'$.opened_at',?1), updated_at=?1 WHERE col='gifts' AND id=?2 AND json_extract(data,'$.opened_at') IS NULL").bind(now(), token).run().catch(() => {}));
+  }
+
+  const until = frDate(g.expires_at);
+  const fullPrice = parseInt(e.price, 10) || 0;
+  const pages = kit.pages ? `${kit.pages}&nbsp;pages à imprimer` : 'à imprimer';
+  const done = (g.dl || 0) > 0;
+  const kitRow = `<ul class="dl-list"><li class="dl-item${done ? ' done' : ''}">${e.cover ? `<img src="${escH(e.cover)}" alt="">` : ''}<div class="dl-txt"><strong>Le kit du lecteur stratégique</strong><span>Onze fiches, ${pages}</span></div>` +
+    (done
+      ? '<span class="dl-done">Téléchargé</span>' + ((g.dl || 0) < GIFT.dl ? `<div class="dl-retry">Tu ne le trouves pas ? <form method="post" action="/cadeau/${token}/kit"><button class="linkbtn" type="submit">Le télécharger à nouveau</button></form></div>` : '')
+      : `<form method="post" action="/cadeau/${token}/kit"><button class="btn btn-primary" type="submit">Télécharger</button></form>`) +
+    '</li></ul>';
+  let offer = '';
+  if (e.active !== false && !e.hidden) {
+    offer = g.bought_at
+      ? '<section class="gift-offer"><h2>Tu as aussi Lire Autrement.</h2><p>Les fiches et la méthode sont entre tes mains. Bonne lecture&nbsp;!</p></section>'
+      : `<section class="gift-offer" id="offre"><h2>Les fiches sont tes outils. La méthode pour t’en servir est dans le livre.</h2>` +
+        `<p>${escH(frTypo(e.title))} t’apprend à choisir le bon livre, à retenir l’essentiel et à tirer une décision de chaque lecture. Les onze fiches viennent de là.</p>` +
+        `<p class="gift-price">${fullPrice > GIFT.price ? `<s>${fcfa(fullPrice)}</s> ` : ''}<strong>${fcfa(GIFT.price)}</strong> pour toi, jusqu’au ${until}</p>` +
+        `<form class="gift-buy" id="giftBuy"><label for="gEmail">Ton adresse e-mail, pour recevoir le livre</label><input id="gEmail" type="email" name="email" required autocomplete="email" placeholder="exemple@gmail.com"><button class="btn btn-primary" type="submit">Recevoir le livre à ${fcfa(GIFT.price).replace(' FCFA', '&nbsp;F')}</button><small class="gift-msg" id="gMsg" role="status"></small></form>` +
+        `<p class="gift-pay">Wave, Orange Money, MTN ou carte bancaire. Le livre arrive par e-mail juste après le paiement.</p>` +
+        `<p><a href="/ebook/${GIFT.ebook}?depuis=cadeau">Voir ce que contient le livre</a></p></section>` +
+        `<script>(function(){var f=document.getElementById('giftBuy'),m=document.getElementById('gMsg');f.addEventListener('submit',function(ev){ev.preventDefault();var b=f.querySelector('button');b.disabled=true;m.textContent='Ouverture du paiement…';fetch('/api/checkout',{method:'POST',headers:{'Content-Type':'application/json','X-Dilam':'1'},body:JSON.stringify({slug:${JSON.stringify(GIFT.ebook)},email:document.getElementById('gEmail').value,gift:${JSON.stringify(token)}})}).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j};});}).then(function(x){if(x.ok&&x.j.url){location.href=x.j.url;return;}b.disabled=false;m.textContent=x.j.error==='bad_email'?'Vérifie ton adresse e-mail.':(x.j.error==='gift_expired'?'Cette offre n’est plus valable.':'Le paiement n’a pas pu s’ouvrir. Réessaie dans un instant.');}).catch(function(){b.disabled=false;m.textContent='Connexion impossible. Vérifie ton réseau et réessaie.';});});})();</script>`;
+  }
+  return giftHtml('Ton cadeau',
+    `<h1>Ton cadeau, ${first}</h1>` +
+    `<p class="dl-lead">${g.book ? `Offert avec ton livre «&nbsp;${escH(g.book)}&nbsp;»` : 'Offert avec ton achat'}</p>` +
+    kitRow +
+    `<p class="dl-warn">Imprime les fiches ou recopie-les dans un carnet : une fiche pour chaque livre que tu lis. Ce lien reste valable jusqu’au ${until}.</p>` +
+    (done ? '<p class="dl-tip">Ton kit est dans l’application <strong>Fichiers</strong> de ton téléphone, dossier <strong>Téléchargements</strong>.</p>' : '') +
+    offer +
+    `<details class="dl-help"><summary>Un problème ?</summary>${help('Bonjour, j’ai besoin d’aide pour mon kit du lecteur stratégique.')}</details>`,
+    { title: `Ton cadeau, ${g.name} : le kit du lecteur stratégique`, text: 'Onze fiches à imprimer pour retenir l’essentiel de chaque livre que tu lis.', image: e.cover ? SITE + e.cover : '' });
 }
 
 
@@ -1406,6 +1568,7 @@ async function api(req, env, ctx, url) {
     if (p === '/api/admin/leads' && m === 'GET') return listLeads(env);
     if (p === '/api/admin/ebook-html' && m === 'POST') return uploadHtml(req, env, url);
     if (p === '/api/admin/ebook-html' && m === 'GET') return htmlInfo(env, url);
+    if (p === '/api/admin/gift' && m === 'POST') return createGift(req, env, url);
   }
   return err(404, 'not_found');
 }
@@ -1432,6 +1595,8 @@ export default {
         res = await serveMedia(req, url.pathname, env);
       } else if (url.pathname.startsWith('/telecharger/')) {
         res = await download(req, env, ctx, url);
+      } else if (url.pathname.startsWith('/cadeau/')) {
+        res = await giftRoute(req, env, ctx, url);
       } else if (/^\/ebook\/[a-z0-9-]{1,80}\/?$/.test(url.pathname)) {
         res = await ebookPage(req, env, url);
       } else if (url.pathname === '/' && url.searchParams.get('pdf')) {
