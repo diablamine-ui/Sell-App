@@ -2860,11 +2860,11 @@ function waPhone(phone){phone=String(phone||'').replace(/[^0-9]/g,'');if(phone.s
 function giftMessage(g){
   var nb='\u00a0';
   var until=new Date(g.expires_at*1000).toLocaleDateString('fr-FR',{day:'numeric',month:'long'});
-  return 'Bonjour '+g.name+',\n\n'+
-    'La boutique DILAM B\' - Les livres à p\'tits prix 📚 vous remercie pour votre achat'+(g.book?' de «'+nb+g.book+nb+'»':'')+'.\n\n'+
-    'Pour profiter pleinement de votre lecture et transformer chaque livre en décisions concrètes, nous vous offrons un cadeau'+nb+':\n'+
-    '🎁 le kit du lecteur stratégique, onze fiches à imprimer, à télécharger gratuitement ici 👇\n'+g.url+'\n\n'+
-    'Ce lien est personnel et valable jusqu\'au '+until+'.\n\n'+
+  return 'Bonjour '+g.name+',\n'+
+    'La boutique DILAM B\' - Les livres à p\'tits prix 📚 vous remercie pour votre achat'+(g.book?' de «'+nb+g.book+nb+'»':'')+'.\n'+
+    'Pour profiter pleinement de votre lecture et transformer chaque livre en décisions concrètes, nous vous offrons un cadeau'+nb+':\n\n'+
+    '🎁 Le kit du lecteur stratégique - Onze fiches à imprimer, à télécharger gratuitement ici 👇\n'+g.url+'\n'+
+    'Ce lien est personnel et valable jusqu\'au '+until+'.\n'+
     'Bonne lecture'+nb+'!';
 }
 function giftUrl(id){return location.origin+'/cadeau/'+id;}
