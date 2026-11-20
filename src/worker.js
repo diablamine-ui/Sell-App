@@ -1187,9 +1187,9 @@ async function giftRoute(req, env, ctx, url) {
     });
   }
 
-  // Première visite du client (l'aperçu du lien fait par WhatsApp ne compte pas).
+  // Première visite du client (l'aperçu du lien fait par WhatsApp et les visites de Lamine connecté ne comptent pas).
   const ua = req.headers.get('User-Agent') || '';
-  if (!g.opened_at && req.method === 'GET' && !/WhatsApp|facebookexternalhit|Facebot|TelegramBot|bot|crawler|spider/i.test(ua)) {
+  if (!g.opened_at && req.method === 'GET' && !/WhatsApp|facebookexternalhit|Facebot|TelegramBot|bot|crawler|spider/i.test(ua) && !(await isAdmin(req, env))) {
     ctx.waitUntil(env.DB.prepare("UPDATE docs SET data=json_set(data,'$.opened_at',?1), updated_at=?1 WHERE col='gifts' AND id=?2 AND json_extract(data,'$.opened_at') IS NULL").bind(now(), token).run().catch(() => {}));
   }
 
