@@ -318,7 +318,7 @@
     try { localStorage.setItem('eb_email', email); } catch (e) {}
     var btn = document.getElementById('buyGo');
     btn.disabled = true; btn.textContent = 'Un instant…';
-    api('/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: E.slug, email: email, fbp: readCookie('_fbp'), fbc: readCookie('_fbc') }) })
+    api('/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: E.slug, email: email, fbp: readCookie('_fbp'), fbc: readCookie('_fbc'), gift: E.gift || undefined }) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, status: r.status, d: d }; }); })
       .then(function (res) {
         if (res.ok && res.d && res.d.url) { location.href = res.d.url; return; }
@@ -414,7 +414,18 @@
     E = data;
     if (!E || E.active === false) { root.innerHTML = '<div class="loading">Cette page n’est plus en ligne.</div>'; return; }
     E.slug = E.slug || slug;
-    render();
+    // Arrivée depuis un lien cadeau (kit offert) : prix réduit tant que le lien est valable.
+    var gt = (location.search.match(/[?&]cadeau=([0-9a-f]{24})/) || [])[1];
+    if (!gt) { render(); return; }
+    api('/gift?t=' + gt).then(function (r) { return r.json(); }).catch(function () { return {}; }).then(function (o) {
+      if (o && o.ok && o.slug === E.slug && o.price < E.price) {
+        var full = E.price;
+        E.gift = gt; E.price = o.price;
+        E.price_label = 'Au lieu de ' + money(full) + ', jusqu’au ' + o.until;
+        if (E.action && E.action.price_line) E.action.price_line = E.title + ' : ' + money(o.price) + ' au lieu de ' + money(full) + ', jusqu’au ' + o.until + '.';
+      }
+      render();
+    });
   }
   document.getElementById('year').textContent = new Date().getFullYear();
 
