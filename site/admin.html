@@ -2869,14 +2869,22 @@ function giftMessage(g){
     'Excellente lecture et à très bientôt'+nb+'!\n'+
     'L\'équipe DILAM B\' - Les livres à p\'tits prix 📚';
 }
+function followMessage(g){
+  var nb='\u00a0';
+  return 'Bonjour '+g.name+',\n'+
+    'Avez-vous pu essayer les fiches du Kit du lecteur stratégique'+(g.book?' avec «'+nb+g.book+nb+'»':'')+nb+'? 📝\n\n'+
+    'Si vous avez une question ou un retour, répondez-nous directement ici.\n\n'+
+    'Bonne lecture et à très bientôt'+nb+'!\n'+
+    'L\'équipe DILAM B\' - Les livres à p\'tits prix 📚';
+}
 function giftUrl(id){return location.origin+'/cadeau/'+id;}
-function showGiftPanel(g,phone){
+function showGiftPanel(g,phone,follow){
   var el=document.getElementById('giftPanel');if(!el)return;
   var safe=function(t){return String(t||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
-  el.innerHTML='<div class="gift-panel"><div class="gift-panel-h">🎁 Lien cadeau prêt pour '+safe(g.name)+'</div>'+
-    '<textarea id="giftMsg">'+safe(giftMessage(g))+'</textarea>'+
+  el.innerHTML='<div class="gift-panel"><div class="gift-panel-h">'+(follow?'💬 Message de suivi pour ':'🎁 Lien cadeau prêt pour ')+safe(g.name)+'</div>'+
+    '<textarea id="giftMsg">'+safe(follow?followMessage(g):giftMessage(g))+'</textarea>'+
     '<div class="gift-panel-a">'+(phone?'<a class="adm-save" id="giftWa" href="#" target="_blank" rel="noopener">Envoyer sur WhatsApp Business</a>':'')+'<button type="button" class="adm-save ghost" id="giftCopy">Copier le message</button></div>'+
-    '<div class="adm-hint">Tu peux modifier le message avant de l’envoyer. Le lien est valable 7 jours, pour 3 téléchargements.</div></div>';
+    '<div class="adm-hint">Tu peux modifier le message avant de l’envoyer.'+(follow?' À envoyer 3 à 4 jours après le téléchargement du kit.':' Le lien est valable 7 jours, pour 3 téléchargements.')+'</div></div>';
   var wa=document.getElementById('giftWa');
   // Sur Android, le lien ouvre directement WhatsApp Business (et pas WhatsApp classique) ; ailleurs, wa.me.
   if(wa)wa.onclick=function(){
@@ -2891,6 +2899,10 @@ function showGiftPanel(g,phone){
     (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){showToast('Message copié ✓');}).catch(function(){var ta=document.getElementById('giftMsg');ta.select();try{document.execCommand('copy');showToast('Message copié ✓');}catch(e){showToast('Sélectionne le texte et copie-le');}});
   };
   el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function followGift(id,phone){
+  var g=GIFTS[id];if(!g){showToast('Lien introuvable');return;}
+  showGiftPanel(g,phone,true);
 }
 function resendGift(id){
   var g=GIFTS[id];if(!g){showToast('Lien introuvable');return;}
@@ -2962,7 +2974,7 @@ function renderVentesHTML(){
     if(g){
       var st=g.bought_at?'<b>Lire Autrement acheté ✓</b>':(g.dl?'<b>kit téléchargé</b>':(g.opened_at?'lien ouvert':'pas encore ouvert'));
       var exp=!g.bought_at&&Date.now()/1000>g.expires_at;
-      gh='<div class="vente-gift">🎁 Kit : '+st+(exp?' (expiré)':'')+(exp?'':'<button type="button" onclick="resendGift(\''+v.gift+'\')">Revoir le message</button>')+'</div>';
+      gh='<div class="vente-gift">🎁 Kit : '+st+(exp?' (expiré)':'')+(exp?'':'<button type="button" onclick="resendGift(\''+v.gift+'\')">Revoir le message</button>')+(g.dl&&!g.bought_at?'<button type="button" onclick="followGift(\''+v.gift+'\',\''+String(v.phone||'').replace(/[^0-9]/g,'')+'\')">Message de suivi'+(g.dl_at&&Date.now()/1000-g.dl_at>=3*86400?' (à envoyer)':'')+'</button>':'')+'</div>';
     }
     var title=v.book?safe(v.book):safe(v.campaign||'—');
     var who=(v.client?safe(v.client)+' · ':'')+v.phone+' · '+v.date+(v.book&&v.campaign?' · '+safe(v.campaign):'');

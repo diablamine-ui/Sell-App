@@ -1147,7 +1147,10 @@ async function giftRoute(req, env, ctx, url) {
   const kit = ki >= 0 ? e.files.items[ki] : null;
   const first = escH(g.name);
   if (!giftOpen(g)) {
-    return giftHtml('Lien expiré', `<h1>Ce lien a expiré, ${first}.</h1><p>Il était valable ${GIFT.days}&nbsp;jours après votre achat. Écrivez-nous, nous vous en renvoyons un.</p>` + help('Bonjour, le lien de mon kit du lecteur stratégique a expiré.'));
+    // Lien expiré : le prix normal s'applique, donc lien direct vers la page du livre, sans ?cadeau.
+    const bookLine = e && e.active !== false && !e.hidden && !g.bought_at
+      ? `<p class="gift-soft">Ces fiches sont tirées de <em>${escH(frTypo(e.title))}</em>, le livre de Lamine Diabaté sur la lecture stratégique. <a href="/ebook/${GIFT.ebook}">Découvrir le livre</a></p>` : '';
+    return giftHtml('Lien expiré', `<h1>Ce lien a expiré, ${first}.</h1><p>Il était valable ${GIFT.days}&nbsp;jours après votre achat. Écrivez-nous, nous vous en renvoyons un.</p>` + help('Bonjour, le lien de mon kit du lecteur stratégique a expiré.') + bookLine);
   }
   if (!kit) return giftHtml('Cadeau indisponible', '<h1>Votre cadeau n’est pas disponible pour le moment.</h1>' + help('Bonjour, je n’arrive pas à télécharger mon kit.'));
 
