@@ -1223,7 +1223,9 @@ async function giftRoute(req, env, ctx, url) {
   return giftHtml('Votre cadeau',
     `<h1>Votre cadeau, ${first}</h1>` +
     `<p class="dl-lead">${g.book ? `Offert avec votre livre «&nbsp;${escH(g.book)}&nbsp;»` : 'Offert avec votre achat'}</p>` +
-    `<p class="gift-desc">Onze fiches pratiques à utiliser pendant vos lectures. Elles vous aident à garder l’essentiel de chaque livre et à en tirer une décision concrète. Chaque fiche s’utilise seule, avec n’importe quel livre.</p>` +
+    `<p class="gift-desc">Onze fiches pratiques à utiliser au fil de vos lectures.<br>Elles vous aident à retenir les idées essentielles de chaque livre et surtout à les transformer en décisions et en actions concrètes.</p>` +
+    `<p class="gift-desc">Chaque fiche fonctionne seule, avec n’importe quel livre.</p>` +
+    `<p class="gift-sign">L’équipe DILAM B’ - Les livres à p’tits prix 📚</p>` +
     kitRow +
     `<p class="dl-warn">Imprimez les fiches ou recopiez-les dans un carnet : une fiche pour chaque livre que vous lisez. Ce lien reste valable jusqu’au ${until}.</p>` +
     (done ? '<p class="dl-tip">Votre kit est dans l’application <strong>Fichiers</strong> de votre téléphone, dossier <strong>Téléchargements</strong>.</p>' : '') +
