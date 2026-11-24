@@ -2859,7 +2859,7 @@ var GIFTS={};
 function waPhone(phone){phone=String(phone||'').replace(/[^0-9]/g,'');if(phone.startsWith('0')&&phone.length===10)phone='225'+phone;else if(phone.length===10)phone='225'+phone;return phone;}
 function giftMessage(g){
   var nb='\u00a0';
-  var until=new Date(g.expires_at*1000).toLocaleDateString('fr-FR',{day:'numeric',month:'long'});
+  var ud=new Date(g.expires_at*1000),until=(ud.getDate()===1?'1er':ud.getDate())+nb+ud.toLocaleDateString('fr-FR',{month:'long'});
   // *…* : gras dans WhatsApp.
   return 'Bonjour '+g.name+',\n'+
     'Merci pour votre confiance et votre achat'+(g.book?' de «'+nb+g.book+nb+'»':'')+'.\n\n'+

@@ -1097,7 +1097,10 @@ async function getGift(env, token) {
 function giftOpen(g) { return !!g && now() <= g.expires_at; }
 function giftOfferOpen(g) { return giftOpen(g) && !g.bought_at; }
 function frDate(t) {
-  return new Date(t * 1000).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', timeZone: 'Africa/Abidjan' });
+  const d = new Date(t * 1000);
+  const day = d.toLocaleDateString('fr-FR', { day: 'numeric', timeZone: 'Africa/Abidjan' });
+  const month = d.toLocaleDateString('fr-FR', { month: 'long', timeZone: 'Africa/Abidjan' });
+  return (day === '1' ? '1er' : day) + '\u00a0' + month;
 }
 
 // Page de vente ouverte depuis un lien cadeau : prix réduit tant que le lien est valable.
@@ -1220,6 +1223,7 @@ async function giftRoute(req, env, ctx, url) {
   return giftHtml('Votre cadeau',
     `<h1>Votre cadeau, ${first}</h1>` +
     `<p class="dl-lead">${g.book ? `Offert avec votre livre «&nbsp;${escH(g.book)}&nbsp;»` : 'Offert avec votre achat'}</p>` +
+    `<p class="gift-desc">Onze fiches pratiques à remplir pendant vos lectures. Elles vous aident à garder l’essentiel de chaque livre et à en tirer une décision concrète. Chaque fiche s’utilise seule, avec n’importe quel livre.</p>` +
     kitRow +
     `<p class="dl-warn">Imprimez les fiches ou recopiez-les dans un carnet : une fiche pour chaque livre que vous lisez. Ce lien reste valable jusqu’au ${until}.</p>` +
     (done ? '<p class="dl-tip">Votre kit est dans l’application <strong>Fichiers</strong> de votre téléphone, dossier <strong>Téléchargements</strong>.</p>' : '') +

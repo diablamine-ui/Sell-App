@@ -294,3 +294,5 @@ html .eb-hero .eb-visual img.main { box-shadow: 0 22px 44px -18px rgba(22,19,15,
 
 .gift-soft { margin-top: 26px !important; padding-top: 14px; border-top: 1px solid var(--trait); font-size: 14px !important; line-height: 1.55 !important; color: var(--gris); }
 .gift-soft a { color: var(--action); font-weight: 600; }
+
+.gift-desc { font-size: 16px; line-height: 1.6; margin: 0 0 22px; color: var(--encre, inherit); }
