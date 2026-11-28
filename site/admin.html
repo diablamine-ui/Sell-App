@@ -1424,7 +1424,7 @@ body.admin-only .admin-panel{width:100vw;max-width:none;transform:none!important
         <div class="adm-form-wrap">
           <div class="adm-hint" style="margin-bottom:13px">Enregistrez chaque vente confirmée. Meta reçoit automatiquement un événement <strong style="color:var(--gold-lt)">Purchase</strong>.</div>
           <div class="adm-form">
-            <div class="adm-field"><label class="adm-field-lbl">Téléphone client (sans +)</label><input class="adm-input" id="vPhone" type="tel" placeholder="Ex : 2250546494484"></div>
+            <div class="adm-field"><label class="adm-field-lbl">Téléphone client</label><input class="adm-input" id="vPhone" type="tel" placeholder="Ex : 05 46 49 44 84 ou +225 05 46 49 44 84"></div>
             <div class="adm-row">
               <div class="adm-field"><label class="adm-field-lbl">Nom du client</label><input class="adm-input" id="vName" maxlength="40" placeholder="Ex : Awa ou M. Traoré"></div>
               <div class="adm-field"><label class="adm-field-lbl">Livre acheté</label><input class="adm-input" id="vBook" list="vBooks" maxlength="140" placeholder="Titre du livre"><datalist id="vBooks"></datalist></div>
@@ -2852,11 +2852,24 @@ async function sha256(str){
   try{var clean=str.trim().toLowerCase();var msgBuffer=new TextEncoder().encode(clean);var hashBuffer=await crypto.subtle.digest('SHA-256',msgBuffer);var hashArray=Array.from(new Uint8Array(hashBuffer));return hashArray.map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
   catch(e){return str;}
 }
-async function hashPhone(phone){phone=phone.replace(/[^0-9]/g,'');if(phone.startsWith('0')&&phone.length===10)phone='225'+phone.slice(1);if(!phone.startsWith('225'))phone='225'+phone;return sha256(phone);}
+// Met un numéro au format international sans « + » (ex. 2250546494484), comme Meta et WhatsApp l'attendent.
+// Accepte « 05 46 49 44 84 », « +225 05 46 49 44 84 », « 00225… » ou « 2250546494484 ».
+// Le 0 initial fait partie du numéro ivoirien à 10 chiffres : on le garde.
+// Un numéro d'un autre pays saisi avec son indicatif (+224…, 00221…) est gardé tel quel.
+function normPhone(phone){
+  var raw=String(phone||'').trim(),d=raw.replace(/[^0-9]/g,'');
+  if(!d)return '';
+  if(d.startsWith('00'))d=d.slice(2);
+  else if(raw.charAt(0)!=='+'&&d.length===10)return '225'+d;
+  // Ancien enregistrement où le 0 avait été retiré : 225 + 9 chiffres d'un mobile (1, 5 ou 7) → on remet le 0.
+  if(d.startsWith('225')&&d.length===12&&/^[157]/.test(d.charAt(3)))return '2250'+d.slice(3);
+  return d;
+}
+async function hashPhone(phone){return sha256(normPhone(phone));}
 
 // ── Kit offert : lien cadeau personnel créé avec la vente, message WhatsApp prêt à envoyer ──
 var GIFTS={};
-function waPhone(phone){phone=String(phone||'').replace(/[^0-9]/g,'');if(phone.startsWith('0')&&phone.length===10)phone='225'+phone;else if(phone.length===10)phone='225'+phone;return phone;}
+function waPhone(phone){return normPhone(phone);}
 function giftMessage(g){
   var nb='\u00a0';
   var ud=new Date(g.expires_at*1000),until=(ud.getDate()===1?'1er':ud.getDate())+nb+ud.toLocaleDateString('fr-FR',{month:'long'});
@@ -2914,7 +2927,7 @@ function fillVentesBooks(){
 }
 
 async function recordSale(){
-  var phone=(document.getElementById('vPhone').value||'').trim().replace(/[^0-9]/g,'');
+  var phone=normPhone(document.getElementById('vPhone').value);
   var amount=parseInt(document.getElementById('vAmount').value);
   var campaign=(document.getElementById('vCampaign').value||'Organique');
   var client=(document.getElementById('vName').value||'').trim();
@@ -3010,14 +3023,12 @@ function parseMonStockCSV(text){
     var line=lines[j];
     if(!line||line.startsWith('===')||line.startsWith('---')||line.startsWith('TOTAL')||line.startsWith('P\u00e9riode')||line.startsWith('RAPPORT'))continue;
     var cols=line.split(';');if(cols.length<3)continue;
-    var phone=waIdx>-1?(cols[waIdx]||'').trim().replace(/[^0-9]/g,''):'';
+    var phone=waIdx>-1?normPhone(cols[waIdx]):'';
     var montantRaw=montantIdx>-1?(cols[montantIdx]||'').trim().replace(/[^0-9]/g,''):'';
     var montant=parseInt(montantRaw);
     var date=dateIdx>-1?(cols[dateIdx]||'').trim():'';
     var client=clientIdx>-1?(cols[clientIdx]||'').trim():'';
     if(!phone||!montant||montant<=0)continue;
-    if(phone.startsWith('0')&&phone.length===10)phone='225'+phone.slice(1);
-    if(!phone.startsWith('225'))phone='225'+phone;
     rows.push({phone:phone,montant:montant,date:date,client:client});
   }
   return rows;
