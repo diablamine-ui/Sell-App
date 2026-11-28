@@ -2925,9 +2925,9 @@ async function recordSale(){
   if(offer&&!client){showToast('Indique le nom du client pour lui offrir le kit');document.getElementById('vName').focus();return;}
   var phoneHashed=await hashPhone(phone);
   var eventId='purchase_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);
-  var payload={data:[{event_name:'Purchase',event_time:Math.floor(Date.now()/1000),event_id:eventId,action_source:'other',user_data:{ph:[phoneHashed],client_user_agent:navigator.userAgent,country:[await sha256('ci')]},custom_data:{value:amount/655.957,currency:'USD',content_category:campaign}}]};
+  var payload={data:[{event_name:'Purchase',event_time:Math.floor(Date.now()/1000),event_id:eventId,action_source:'other',user_data:{ph:[phoneHashed],client_user_agent:navigator.userAgent,country:[await sha256('ci')]},custom_data:{value:amount,currency:'XOF',content_category:campaign}}]};
   apiFetch('/admin/capi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(function(r){if(r.ok)showToast('✅ Purchase envoyé à Meta !');else{r.json().then(function(j){console.warn('CAPI error:',j);});showToast('⚠️ Vente enregistrée (Meta KO)');}}).catch(function(){showToast('⚠️ Vente enregistrée (réseau KO)');});
-  var vente={id:Date.now(),phone:phone.slice(-4).padStart(phone.length,'•'),amount:amount,campaign:campaign,client:client,book:book,date:new Date().toLocaleString('fr-FR'),eventId:eventId};
+  var vente={id:Date.now(),phone:waPhone(phone),amount:amount,campaign:campaign,client:client,book:book,date:new Date().toLocaleString('fr-FR'),eventId:eventId};
   var giftId='';
   if(offer){
     try{
@@ -2939,7 +2939,7 @@ async function recordSale(){
   }
   vente.gift=giftId;
   VENTES.unshift(vente);lsSet('sell_ventes',VENTES);
-  fbAdd('ventes',{phone_masked:vente.phone,amount:amount,campaign:campaign,client:client,book:book,gift:giftId,event_id:eventId,created_at:new Date().toISOString()}).catch(function(){});
+  fbAdd('ventes',{phone:vente.phone,amount:amount,campaign:campaign,client:client,book:book,gift:giftId,event_id:eventId,created_at:new Date().toISOString()}).catch(function(){});
   document.getElementById('vPhone').value='';document.getElementById('vAmount').value='';document.getElementById('vName').value='';document.getElementById('vBook').value='';
   var vc=document.getElementById('vCampaign');if(vc)vc.selectedIndex=0;
   renderVentes();
@@ -2953,7 +2953,7 @@ function renderVentes(){
   fbGetAll('gifts').then(function(rows){GIFTS={};(rows||[]).forEach(function(g){GIFTS[g._id]=g;});}).catch(function(){}).then(function(){return fbGetAll('ventes');}).then(function(rows){
     if(rows&&rows.length){
       rows.sort(function(a,b){return String(b.created_at||'').localeCompare(String(a.created_at||''));});
-      VENTES=rows.map(function(r){return{id:r._id,phone:r.phone_masked||'••••',amount:r.amount,campaign:r.campaign||'—',client:r.client||'',book:r.book||'',gift:r.gift||'',date:r.created_at?new Date(r.created_at).toLocaleString('fr-FR'):r.date||'',eventId:r.event_id};});lsSet('sell_ventes',VENTES);}
+      VENTES=rows.map(function(r){return{id:r._id,phone:r.phone||r.phone_masked||'••••',amount:r.amount,campaign:r.campaign||'—',client:r.client||'',book:r.book||'',gift:r.gift||'',date:r.created_at?new Date(r.created_at).toLocaleString('fr-FR'):r.date||'',eventId:r.event_id};});lsSet('sell_ventes',VENTES);}
     else{VENTES=ls('sell_ventes',[]);}
     renderVentesHTML();
   }).catch(function(){VENTES=ls('sell_ventes',[]);renderVentesHTML();});
@@ -3058,7 +3058,7 @@ async function sendImportToMeta(){
       var eventTime=parseDate(r.date);
       if(eventTime<sevenDaysAgo){failed++;continue;}
       var ud=await buildUserData(r);
-      var payload={data:[{event_name:'Purchase',event_time:eventTime,event_id:'import_'+eventTime+'_'+idx,action_source:'other',user_data:ud,custom_data:{value:r.montant/655.957,currency:'USD',content_category:campaign}}]};
+      var payload={data:[{event_name:'Purchase',event_time:eventTime,event_id:'import_'+eventTime+'_'+idx,action_source:'other',user_data:ud,custom_data:{value:r.montant,currency:'XOF',content_category:campaign}}]};
       var res=await apiFetch('/admin/capi',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
       var resJson=await res.json();
       if(res.ok){sent++;}else{if(idx===0)console.error('CAPI error sample:',JSON.stringify(resJson));failed++;}
